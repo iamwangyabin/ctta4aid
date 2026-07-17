@@ -15,3 +15,15 @@ Once extracted, P0 will compare file counts, paths, image bytes, and per-domain
 prediction behavior against the existing Arrow copy. This provides stronger
 evidence than treating the now-dead UFD Drive link as an unresolved data-source
 ambiguity.
+
+The byte audit is implemented in `scripts/compare_ufd_raw_arrow.py`. For the P0
+diagnostic it compares `crn`, `imle`, `san`, and `seeingdark` from the
+ForenSynths Arrow root. `guided` belongs to the separately released Ojha
+diffusion bundle and is therefore not expected inside this CNNDetection archive.
+The same tool can then audit all 11 CNNDetection domains before P1.
+
+Before the official archive finished downloading, the comparator was exercised
+against the byte-exact ImageFolder export already used by the P0 control. Ten
+samples from each of the four ForenSynths P0 domains matched their Arrow payloads
+exactly, including the deterministic aggregate hashes. The project test suite
+then passed all 54 tests on A6000.
