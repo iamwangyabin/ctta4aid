@@ -31,6 +31,18 @@
       "extra_paths": 0,
       "byte_mismatches": 0,
       "all_exact": true
+    },
+    "ufd_11domain_byte_audit": {
+      "domains": ["progan", "cyclegan", "biggan", "stylegan", "gaugan", "stargan", "deepfake", "seeingdark", "san", "crn", "imle"],
+      "expected_files": 72353,
+      "exact_byte_matches": 72353,
+      "missing_paths": 0,
+      "extra_paths": 0,
+      "byte_mismatches": 0,
+      "label_path_mismatches": 0,
+      "metadata_md5_mismatches": 0,
+      "all_exact": true,
+      "report_sha256": "0aafb285803595ae8863c5c7a3b16a18e952db2ce61393c6eb4ff5956c7be7a2"
     }
   },
   "official_diffusion_archive": {

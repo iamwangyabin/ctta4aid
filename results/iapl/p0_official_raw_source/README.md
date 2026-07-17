@@ -18,7 +18,7 @@ The byte audit is implemented in `scripts/compare_ufd_raw_arrow.py`. For the P0
 diagnostic it compares `crn`, `imle`, `san`, and `seeingdark` from the
 ForenSynths Arrow root. `guided` belongs to the separately released Ojha
 diffusion bundle and is therefore not expected inside this CNNDetection archive.
-The same tool can then audit all 11 CNNDetection domains before P1.
+The same tool also completed the full 11-domain CNNDetection audit before P1.
 
 Before the official archive finished downloading, the comparator was exercised
 against the byte-exact ImageFolder export already used by the P0 control. Ten
@@ -45,6 +45,12 @@ metadata, SHA-256 is
 (the same value as the linked ETag), and the ZIP test and extraction succeeded.
 All 26,326 official files across CRN, IMLE, SAN, and SeeingDark match the
 ForenSynths Arrow payloads byte for byte, with no missing or extra paths.
+
+The complete pre-P1 audit extends this result to all 11 CNNDetection domains:
+72,353 of 72,353 files match exactly, with zero missing paths, extra paths,
+byte mismatches, label/path mismatches, or metadata MD5 mismatches. The full
+per-domain counts and deterministic manifest hashes are recorded in
+`official_forensynths_11domain_arrow_comparison.json`.
 
 Together with the 2,000-file Guided audit, all five P0 abnormal domains are now
 proven to use the official released image bytes. Their residual metric gaps
