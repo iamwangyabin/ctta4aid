@@ -27,3 +27,7 @@ against the byte-exact ImageFolder export already used by the P0 control. Ten
 samples from each of the four ForenSynths P0 domains matched their Arrow payloads
 exactly, including the deterministic aggregate hashes. The project test suite
 then passed all 54 tests on A6000.
+
+`scripts/postprocess_ufd_official_archive.sh` is waiting on the active transfer.
+It verifies the exact archive size, records SHA-256, tests the ZIP structure, and
+extracts with idle I/O priority so the running IAPL inference keeps precedence.
