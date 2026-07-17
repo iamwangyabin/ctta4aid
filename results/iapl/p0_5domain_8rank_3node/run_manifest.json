@@ -66,6 +66,29 @@
     "all_three_gpus_active": true,
     "fatal_errors": 0
   },
+  "attempt_2_progress": {
+    "validated_at": "2026-07-17T18:08:28+08:00",
+    "completed_domains": ["crn"],
+    "active_domain": "guided",
+    "first_end_of_domain_collective_passed": true,
+    "crn": {
+      "dataset_size": 12764,
+      "samples_with_distributed_padding": 12768,
+      "duplicate_sampler_indices": 4,
+      "accuracy": 0.924812030075188,
+      "average_precision": 0.928290909090909,
+      "real_accuracy": 0.8496711556529909,
+      "fake_accuracy": 1.0,
+      "paper_accuracy": 0.9247,
+      "paper_average_precision": 0.9997,
+      "accuracy_delta": 0.00011203007518800767,
+      "average_precision_delta": -0.07140909090909098
+    },
+    "artifact_sha256": {
+      "attempt2/predictions/crn.json": "e119123dff4b5a2f3836b971ba0c37d737f1a68028ab6a464a199504a43a9931",
+      "attempt2/partial_comparison.json": "ed0573d5eaf67e7e3fb13d243d805a51f0f9c98a5e40cb5ac78cb91b087122b4"
+    }
+  },
   "artifact_sha256": {
     "scripts/run_iapl_manual_ranks.sh": "9c9260023a66fd916d20f9f5103f163c1c117cbdf622f4e2cd0886f33a379fbb",
     "scripts/probe_iapl_collective.py": "126958b7f28f4cd9a16e70307cf6fb72acc87f38313653a84c4463a066628795",
