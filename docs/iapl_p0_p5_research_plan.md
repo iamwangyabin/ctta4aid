@@ -41,6 +41,12 @@ sampler padding、rank seed、DDP gradient/buffer 同步语义，但物理拓扑
 八 rank 采用上节的 rank-faithful NCCL 2.30 同卡多 rank 映射。若后续获得八张
 单独 GPU，再补一轮一卡一 rank 审计；在此之前不把物理拓扑标记为完全复现。
 
+数据侧已对当前公开 UFD 19 域做完整官方归档核验：11 个 CNNDetection 域
+72,353 张和 8 个 diffusion 域 16,000 张，共 88,353 张全部逐字节一致。UFD
+仓库明确说明其论文曾在每个 diffusion 域随机评估 10,000 张，但公开包只发布
+1,000 real + 1,000 fake；因此本项目的“官方协议复跑”严格指公开可复现的
+2,000 张/域版本，不把无法取得的 10,000 张/域原始抽样宣称为已复现。
+
 ## P2: original GenImage
 
 使用 SD1.4 checkpoint 和原版 8 测试域：ADM、BigGAN、GLIDE、Midjourney、
