@@ -27,6 +27,8 @@ class IAPLPredictionComparisonTests(unittest.TestCase):
         self.assertEqual(report["left_duplicate_indices"], 1)
         self.assertEqual(report["common_unique_indices"], 3)
         self.assertEqual(report["threshold_disagreements"], 0)
+        self.assertEqual(report["by_label"]["0"]["samples"], 2)
+        self.assertEqual(report["by_label"]["1"]["samples"], 1)
         self.assertAlmostEqual(report["max_absolute_probability_delta"], 0.2)
         self.assertIn(
             report["largest_probability_deltas"][0]["sample_id"], {"b", "c"}

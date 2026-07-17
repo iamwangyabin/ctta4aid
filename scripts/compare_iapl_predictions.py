@@ -43,6 +43,29 @@ def _by_index(payload: dict[str, Any]) -> dict[int, tuple[int, float]]:
     }
 
 
+def _probability_stats(left: np.ndarray, right: np.ndarray) -> dict[str, Any]:
+    absolute = np.abs(left - right)
+    correlation = (
+        float(np.corrcoef(left, right)[0, 1])
+        if len(left) > 1 and np.std(left) > 0 and np.std(right) > 0
+        else None
+    )
+    return {
+        "samples": int(len(left)),
+        "mean_absolute_probability_delta": (
+            float(np.mean(absolute)) if len(left) else None
+        ),
+        "max_absolute_probability_delta": (
+            float(np.max(absolute)) if len(left) else None
+        ),
+        "probability_correlation": correlation,
+        "threshold_disagreements": int(
+            np.sum((left > 0.5) != (right > 0.5))
+        ),
+        "exact_probability_matches": int(np.sum(left == right)),
+    }
+
+
 def compare_predictions(
     left: dict[str, Any],
     right: dict[str, Any],
@@ -75,13 +98,7 @@ def compare_predictions(
         raise ValueError(f"Labels differ for common indices in {left['domain']}")
 
     absolute = np.abs(left_probabilities - right_probabilities)
-    correlation = (
-        float(np.corrcoef(left_probabilities, right_probabilities)[0, 1])
-        if len(common) > 1
-        and np.std(left_probabilities) > 0
-        and np.std(right_probabilities) > 0
-        else None
-    )
+    overall_stats = _probability_stats(left_probabilities, right_probabilities)
     largest_positions = np.argsort(absolute)[-10:][::-1]
     largest = []
     for position in largest_positions:
@@ -108,12 +125,14 @@ def compare_predictions(
         "common_unique_indices": len(common),
         "index_sequence_equal": left["indices"] == right["indices"],
         "label_sequence_equal": left["labels"] == right["labels"],
-        "mean_absolute_probability_delta": float(np.mean(absolute)),
-        "max_absolute_probability_delta": float(np.max(absolute)),
-        "probability_correlation": correlation,
-        "threshold_disagreements": int(
-            np.sum((left_probabilities > 0.5) != (right_probabilities > 0.5))
-        ),
+        **overall_stats,
+        "by_label": {
+            str(label): _probability_stats(
+                left_probabilities[left_labels == label],
+                right_probabilities[left_labels == label],
+            )
+            for label in sorted(set(left_labels.tolist()))
+        },
         "largest_probability_deltas": largest,
     }
 
