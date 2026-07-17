@@ -39,6 +39,14 @@ Arrow copy match the official archive byte for byte, with no missing or extra
 paths. This rules out Arrow serialization and the Guided dataset copy as causes
 of the remaining metric differences.
 
+The full diffusion audit uses the path pairings frozen in UFD's pinned
+`dataset_paths.py`: Guided uses ImageNet real images, while the three LDM,
+three GLIDE, and DALL-E domains use LAION real images. All 16,000 released files
+across the eight domains match the Ojha Arrow payloads byte for byte. UFD notes
+that its paper evaluated 10,000 randomly sampled images per diffusion domain but
+released 1,000 real and 1,000 fake images per domain; this reproduction can only
+claim exactness against that public 2,000-image-per-domain release.
+
 The CNNDetection archive is now also complete. Its exact size matches the Hub
 metadata, SHA-256 is
 `d87eeff4eb6d1061f57620aa1bd54e699a18cc9860fcdc6a55bf4cf643008d85`
@@ -51,6 +59,10 @@ The complete pre-P1 audit extends this result to all 11 CNNDetection domains:
 byte mismatches, label/path mismatches, or metadata MD5 mismatches. The full
 per-domain counts and deterministic manifest hashes are recorded in
 `official_forensynths_11domain_arrow_comparison.json`.
+
+Across the complete public 19-domain UFD release, 88,353 of 88,353 files now
+have an exact official-archive match in the Arrow datasets. This closes the
+public-data-copy ambiguity before the full P1 protocol run.
 
 Together with the 2,000-file Guided audit, all five P0 abnormal domains are now
 proven to use the official released image bytes. Their residual metric gaps

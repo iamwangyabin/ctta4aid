@@ -66,7 +66,33 @@
       "extra_paths": 0,
       "byte_mismatches": 0,
       "all_exact": true
+    },
+    "ufd_8domain_byte_audit": {
+      "domains": ["guided", "ldm_200", "ldm_200_cfg", "ldm_100", "glide_100_27", "glide_50_27", "glide_100_10", "dalle"],
+      "expected_files": 16000,
+      "exact_byte_matches": 16000,
+      "missing_paths": 0,
+      "extra_paths": 0,
+      "byte_mismatches": 0,
+      "label_path_mismatches": 0,
+      "metadata_md5_mismatches": 0,
+      "all_exact": true,
+      "real_path_pairing": {
+        "guided": "imagenet/0_real",
+        "other_seven_domains": "laion/0_real"
+      },
+      "report_sha256": "286aa23e6b70352eea3dd8a231dffa4370c7d4e548f67c422b4bb7537e0e3d92"
     }
+  },
+  "public_ufd_19domain_byte_audit": {
+    "domain_count": 19,
+    "expected_files": 88353,
+    "exact_byte_matches": 88353,
+    "missing_paths": 0,
+    "extra_paths": 0,
+    "byte_mismatches": 0,
+    "all_exact": true,
+    "scope_note": "The public diffusion release contains 1,000 real and 1,000 fake images per domain; the UFD paper states that its original diffusion evaluation used 10,000 randomly sampled images per domain."
   },
   "active_download": {
     "host": "4090-1",
