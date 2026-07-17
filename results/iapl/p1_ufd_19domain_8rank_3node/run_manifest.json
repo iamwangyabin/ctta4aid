@@ -85,9 +85,9 @@
     "fatal_errors": 0
   },
   "progress": {
-    "validated_at": "2026-07-17T22:16:13+08:00",
-    "completed_domains": ["crn", "cyclegan", "dalle", "biggan"],
-    "active_domain": "deepfake",
+    "validated_at": "2026-07-17T22:46:35+08:00",
+    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake"],
+    "active_domain": "gaugan",
     "crn": {
       "dataset_size": 12764,
       "samples_with_distributed_padding": 12768,
@@ -140,21 +140,35 @@
       "accuracy_delta": 0.0010000000000000009,
       "average_precision_delta": -0.01991538082797717
     },
+    "deepfake": {
+      "dataset_size": 5405,
+      "samples_with_distributed_padding": 5408,
+      "duplicate_sampler_indices": 3,
+      "accuracy": 0.9595044378698225,
+      "average_precision": 0.9721502707499774,
+      "real_accuracy": 0.9896678966789668,
+      "fake_accuracy": 0.9292068198665678,
+      "paper_accuracy": 0.9589,
+      "paper_average_precision": 0.9759,
+      "accuracy_delta": 0.0006044378698225605,
+      "average_precision_delta": -0.003749729250022593
+    },
     "completed_domain_mean": {
-      "domain_count": 4,
-      "accuracy": 0.9728189208860519,
-      "average_precision": 0.9707433572669861,
-      "paper_accuracy": 0.97155,
-      "paper_average_precision": 0.9996500000000001,
-      "accuracy_delta": 0.0012689208860519052,
-      "average_precision_delta": -0.02890664273301402
+      "domain_count": 5,
+      "accuracy": 0.970156024282806,
+      "average_precision": 0.9710247399635843,
+      "paper_accuracy": 0.9690200000000001,
+      "paper_average_precision": 0.9949,
+      "accuracy_delta": 0.001136024282805903,
+      "average_precision_delta": -0.023875260036415713
     },
     "artifact_sha256": {
       "predictions/crn.json": "fec4cd33f4ab52d485d3ac722ba0fdaea3d3a053e6b87e2a7b7052aa971e1933",
       "predictions/cyclegan.json": "0e68a3f26a51e3bcb7b12c3a5bc4423afdff029bebe7ee1e9c694f7ca41008d8",
       "predictions/dalle.json": "f651b22cd001974b9dbbf9dd9d12e31a1e5b67e20d5956f7de7f6a9cfc87ad13",
       "predictions/biggan.json": "cf7f3f2a778ac896c5a7860f586af747758005bed462312745505bf703cbd4e9",
-      "partial_comparison.json": "28324b42d0e0cfcd62be265ddb6b157ff014483c37572427c8c3b9ee7c71cd50"
+      "predictions/deepfake.json": "0486a45ffcdf188645b0f5ef50acb897c553e2d781e8e3137f2f9aa2d147df4e",
+      "partial_comparison.json": "790da5e0de0c09abeb5a36dcb61670015b169d4d5a157c5d44ec1f0dc0dd8ffd"
     }
   },
   "reference": {
