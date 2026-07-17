@@ -1,0 +1,107 @@
+{
+  "stage": "P0 single-process backend diagnosis",
+  "status": "crn_complete_other_domains_running",
+  "domain": "crn",
+  "paper": {
+    "accuracy": 0.9247,
+    "average_precision": 0.9997
+  },
+  "arrow": {
+    "accuracy": 0.9234565966781573,
+    "average_precision": 0.9238563983786914,
+    "real_accuracy": 0.8469131933563147,
+    "fake_accuracy": 1.0,
+    "samples": 12764,
+    "world_size": 1
+  },
+  "imagefolder": {
+    "accuracy": 0.9232999059855844,
+    "average_precision": 0.9247935081872193,
+    "real_accuracy": 0.846599811971169,
+    "fake_accuracy": 1.0,
+    "samples": 12764,
+    "world_size": 1
+  },
+  "arrow_minus_imagefolder": {
+    "accuracy": 0.00015669069257289991,
+    "average_precision": -0.0009371098085279091,
+    "real_accuracy": 0.0003133813851457488,
+    "fake_accuracy": 0.0
+  },
+  "arrow_minus_paper": {
+    "accuracy": -0.0012434033218426957,
+    "average_precision": -0.07584360162130865
+  },
+  "sample_level_backend_comparison": {
+    "common_unique_indices": 12764,
+    "index_sequence_equal": true,
+    "label_sequence_equal": true,
+    "mean_absolute_probability_delta": 0.003988624030017285,
+    "max_absolute_probability_delta": 0.93994140625,
+    "probability_correlation": 0.9943226274135756,
+    "threshold_disagreements": 44,
+    "real": {
+      "samples": 6382,
+      "mean_absolute_probability_delta": 0.00797724806003457,
+      "probability_correlation": 0.9783984411852178,
+      "threshold_disagreements": 44,
+      "exact_probability_matches": 1745
+    },
+    "fake": {
+      "samples": 6382,
+      "mean_absolute_probability_delta": 0.0,
+      "threshold_disagreements": 0,
+      "exact_probability_matches": 6382
+    }
+  },
+  "byte_and_view_audit": {
+    "export_is_byte_exact": true,
+    "arrow_and_imagefolder_record_order_mismatches": 0,
+    "audited_samples": [
+      "crn:0",
+      "crn:322",
+      "crn:1405",
+      "crn:2616",
+      "crn:3069",
+      "crn:3609",
+      "guided:0",
+      "seeingdark:0"
+    ],
+    "views_per_sample": 32,
+    "elements_per_sample": 4816896,
+    "different_elements": 0,
+    "max_absolute_tensor_delta": 0.0
+  },
+  "rng_audit": {
+    "imagefolder_build_changed_python_rng": false,
+    "arrow_build_before_fix_changed_python_rng": true,
+    "arrow_build_before_fix_changed_numpy_rng": false,
+    "arrow_build_before_fix_changed_torch_rng": false,
+    "arrow_build_after_fix_changed_python_rng": false,
+    "arrow_build_after_fix_changed_numpy_rng": false,
+    "arrow_build_after_fix_changed_torch_rng": false,
+    "fix_commit": "5fbd444"
+  },
+  "diagnosis": {
+    "arrow_serialization_or_decoding_is_primary_ap_gap": false,
+    "evidence": "Byte-exact inputs produce bit-identical decoded and augmented tensors when RNG state is matched. Independent Arrow and ImageFolder runs differ by 0.016 accuracy percentage points and 0.094 AP percentage points, while both remain about 7.58 AP percentage points below the paper on CRN.",
+    "remaining_candidates": [
+      "released paper evaluation protocol or undocumented implementation detail",
+      "stochastic or nondeterministic adaptation trajectory",
+      "difference between the available UFD image bytes and the authors' evaluation copy"
+    ]
+  },
+  "artifacts_sha256": {
+    "export_manifest.json": "9eda45abec4d15727d2f603ec75d5be1a55f7811c49917602cbaf609cf7ba2eb",
+    "export_manifest.json.gz": "baf18ec63ef52e306edd63019f02aad9f075a61c955b98c5fa567fd7a32cef84",
+    "predictions_arrow/crn.json": "0dd4e6b62442c5c4834fba9cce78fccd869f1733a4c46b81e99b55d2631060d2",
+    "predictions_imagefolder/crn.json": "52a7ac75d9c92e4a3f3fabcc30911f8ddaa230fac7f5c158f0e883cd4229ad08",
+    "prediction_comparison.json": "1ef2c4e45ead88cd453acb83490a3e94061906d652e865100dc552eb968b5236",
+    "rng_audit_arrow_before_fix.json": "cae31e302d22d8926ee3660880db381168a367eb0be5720dff0414355cceafdd",
+    "rng_audit_imagefolder.json": "bceff7e166207946e8994bcac4f496d132d3b31b03394398a0326ee72254bb5d",
+    "rng_audit_arrow_after_fix.json": "34e5e0be3ae43413e5b9171cd6b4f2d6772d236f87af7c2b66d04c05a3b2c07f",
+    "view_audit.json": "09db35827974c717dd298e36ab8253afb63068b2d4daff96ac937f8ae1f39cb5",
+    "crn_metrics_arrow.json": "481e28e1c9681f625a753c5d7601e82a9397d4111096b6d4709b097a3e48fad1",
+    "crn_metrics_imagefolder.json": "c5030fefbc49f71cce32020612a3d81adaadfa03bec5dbb2f1a5c2fd41583b8b"
+  }
+}
