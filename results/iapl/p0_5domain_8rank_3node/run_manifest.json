@@ -67,9 +67,9 @@
     "fatal_errors": 0
   },
   "attempt_2_progress": {
-    "validated_at": "2026-07-17T18:08:28+08:00",
-    "completed_domains": ["crn"],
-    "active_domain": "guided",
+    "validated_at": "2026-07-17T18:23:25+08:00",
+    "completed_domains": ["crn", "guided"],
+    "active_domain": "imle",
     "first_end_of_domain_collective_passed": true,
     "crn": {
       "dataset_size": 12764,
@@ -84,9 +84,32 @@
       "accuracy_delta": 0.00011203007518800767,
       "average_precision_delta": -0.07140909090909098
     },
+    "guided": {
+      "dataset_size": 2000,
+      "samples_with_distributed_padding": 2000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.7225,
+      "average_precision": 0.9489721707764321,
+      "real_accuracy": 0.986,
+      "fake_accuracy": 0.459,
+      "paper_accuracy": 0.7275,
+      "paper_average_precision": 0.9625,
+      "accuracy_delta": -0.005,
+      "average_precision_delta": -0.013527829223567878
+    },
+    "completed_domain_mean": {
+      "domain_count": 2,
+      "accuracy": 0.823656015037594,
+      "average_precision": 0.9386315399336707,
+      "paper_accuracy": 0.8261000000000001,
+      "paper_average_precision": 0.9811000000000001,
+      "accuracy_delta": -0.002443984962406054,
+      "average_precision_delta": -0.04246846006632943
+    },
     "artifact_sha256": {
       "attempt2/predictions/crn.json": "e119123dff4b5a2f3836b971ba0c37d737f1a68028ab6a464a199504a43a9931",
-      "attempt2/partial_comparison.json": "ed0573d5eaf67e7e3fb13d243d805a51f0f9c98a5e40cb5ac78cb91b087122b4"
+      "attempt2/predictions/guided.json": "651619af2c74c1a496a011870766de77620517168d6f184799b26d0ccf7f2ded",
+      "attempt2/partial_comparison.json": "bcde0313d59da9f5e1739b89d698580e7d031bb960218d0feda35d5abf1e405f"
     }
   },
   "artifact_sha256": {
