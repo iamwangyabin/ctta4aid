@@ -1,0 +1,48 @@
+diff --git a/test_time.py b/test_time.py
+--- a/test_time.py
++++ b/test_time.py
+@@ -1,5 +1,7 @@
+ import argparse
++import json
+ 
+ import time
++from pathlib import Path
+ import torch.distributed as dist
+ from copy import deepcopy
+@@ -87,5 +89,6 @@ def testtime_main(args):
+ 
+         y_true, y_pred = [], []
++        local_indices = list(iter(data_loader.sampler))
+ 
+         for samples in metric_logger.log_every(data_loader, print_freq, header):
+ 
+@@ -139,6 +142,29 @@ def testtime_main(args):
+             for data in gather_together(y_pred):
+                 merge_y_pred.extend(data)
+ 
++        if world_size < 2:
++            merge_indices = local_indices
++        else:
++            merge_indices = []
++            for data in gather_together(local_indices):
++                merge_indices.extend(data)
++
++        prediction_dir = os.environ.get("IAPL_PREDICTION_DIR")
++        if prediction_dir and utils.is_main_process():
++            destination = Path(prediction_dir)
++            destination.mkdir(parents=True, exist_ok=True)
++            (destination / f"{data_name}.json").write_text(
++                json.dumps({
++                    "domain": data_name,
++                    "world_size": world_size,
++                    "dataset_size": len(data_loader.dataset),
++                    "indices": [int(index) for index in merge_indices],
++                    "labels": [int(label) for label in merge_y_true],
++                    "probabilities": [float(score) for score in merge_y_pred],
++                }),
++                encoding="utf-8",
++            )
++
+         y_true, y_pred = np.array(merge_y_true), np.array(merge_y_pred)
+         r_acc = accuracy_score(y_true[y_true==0], y_pred[y_true==0] > 0.5)
+         f_acc = accuracy_score(y_true[y_true==1], y_pred[y_true==1] > 0.5)

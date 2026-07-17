@@ -74,8 +74,10 @@ ViT-L/14 已按发布 SHA-256 校验；CAIDBench 的 8 个 GenImage test 域按�
 生成器名称映射的 CAIDBench 评估，不等同于作者原始 GenImage 文件集合。
 
 官方冒烟和正式全量链路均已完成。单 GPU DDP、32 views、2 TTA steps、OIS、
-逐图 reset 和 Adapt-Then-Predict 均保持不变。8 域按域拆到 4090-1/4090-2 各 4 域；
-IAPL 每张图都恢复 prompt 和 optimizer，因此这种分域不改变样本级适应状态。
+逐图 prompt/optimizer reset 和 Adapt-Then-Predict 均保持不变。8 域按域拆到
+4090-1/4090-2 各 4 域。后续审计发现 Conditional Information Learner 的 BatchNorm
+running buffers 不会逐图恢复，因此这种分域执行会重置 buffers，不能再声称与作者整表
+单次分布式运行具有完全相同的状态轨迹。
 
 | Domain | Accuracy | AP |
 | --- | ---: | ---: |

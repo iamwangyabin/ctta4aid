@@ -41,6 +41,8 @@ protocol:
   order: adapt_then_predict
   reset: per_image
   parameter_accumulation_between_images: false
+  batchnorm_buffers_may_accumulate_between_images: true
+  ddp_broadcast_buffers: true
   comparable_as_end_to_end_official_baseline: true
   comparable_to_controlled_predict_then_adapt_ablation: false
 

@@ -154,7 +154,7 @@ python run_continual_stream.py \
 
 ## 4. IAPL 官方代码轨道
 
-IAPL 不是 CNN 主轨道里的可插拔方法。作者代码使用 CLIP ViT-L/14 和作者训练的 prompt/adapter checkpoint；对每张测试图生成 32 个视图，恢复初始 prompt 和优化器，做 2 步适应，然后在选定视图上预测。也就是说它是 **episodic、per-image、Adapt-Then-Predict**，参数不会在图像之间累积。
+IAPL 不是 CNN 主轨道里的可插拔方法。作者代码使用 CLIP ViT-L/14 和作者训练的 prompt/adapter checkpoint；对每张测试图生成 32 个视图，恢复初始 prompt 和优化器，做 2 步适应，然后在选定视图上预测。也就是说它是 **episodic、per-image、Adapt-Then-Predict**，可训练参数不会在图像之间累积。需要注意，作者实现会在适应时进入 train mode，但没有恢复 Conditional Information Learner 的 BatchNorm running buffers；这些 buffers 会跨图片保留，并在 DDP 中广播。因此按域启停独立进程不是严格等价的官方执行轨迹。
 
 ### 获取固定版本
 

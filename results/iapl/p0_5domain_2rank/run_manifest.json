@@ -1,0 +1,46 @@
+{
+  "stage": "P0",
+  "run": "five_domain_sequential_two_node_ddp",
+  "status": "completed",
+  "finished_at": "2026-07-17T12:20:07+08:00",
+  "domains": ["crn", "guided", "imle", "san", "seeingdark"],
+  "world_size": 2,
+  "physical_gpus": ["4090-1:0", "4090-2:0"],
+  "data_backend": "huggingface_arrow_memory_mapped",
+  "settings": {
+    "views": 32,
+    "tta_steps": 2,
+    "selection_p": 0.2,
+    "learning_rate": 0.005,
+    "ois": true,
+    "seed": 100,
+    "domain_order_is_single_process": true
+  },
+  "software": {
+    "iapl_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
+    "instrumentation_enabled": false,
+    "torch": "2.12.0+cu126",
+    "torchvision": "0.27.0+cu126",
+    "numpy": "2.4.4",
+    "driver": "580.159.03"
+  },
+  "assets": {
+    "iapl_checkpoint_sha256": "1e04047b74d287ba2f3682cde84246688dfa486354a5677b5147e677bc2a3f81",
+    "clip_vit_l14_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836"
+  },
+  "metrics": {
+    "crn": {"acc": 0.9253, "ap": 0.9269, "racc": 0.8507, "facc": 1.0},
+    "guided": {"acc": 0.7235, "ap": 0.9529, "racc": 0.989, "facc": 0.458},
+    "imle": {"acc": 0.9253, "ap": 0.9256, "racc": 0.8507, "facc": 1.0},
+    "san": {"acc": 0.9361, "ap": 0.9636, "racc": 0.9635, "facc": 0.9087},
+    "seeingdark": {"acc": 0.8917, "ap": 0.8698, "racc": 0.7833, "facc": 1.0},
+    "mean": {"acc": 0.8804, "ap": 0.9278, "racc": 0.8874, "facc": 0.8733}
+  },
+  "diagnosis": {
+    "single_process_sharded_mean_acc": 0.87818,
+    "single_process_sharded_mean_ap": 0.928,
+    "delta_mean_acc_percentage_points": 0.22,
+    "delta_mean_ap_percentage_points": -0.024,
+    "conclusion": "Two-rank sequential DDP does not recover the abnormal AP gap; process sharding and BatchNorm/DDP state differences are not the primary error source."
+  }
+}

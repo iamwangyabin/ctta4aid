@@ -15,3 +15,4 @@ num_workers: 0
 protocol:
   distributed_execution: single_gpu_engineering_reproduction
   data_backend: huggingface_arrow_memory_mapped
+  domain_process_sharding_resets_batchnorm_buffers: true
