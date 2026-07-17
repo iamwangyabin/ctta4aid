@@ -1,0 +1,78 @@
+world size: 1, rank: 0, local rank: 0
+{
+  "SHELL": "/bin/bash",
+  "PWD": "/home/yabin/ctta4aid_20260716",
+  "LOGNAME": "yabin",
+  "XDG_SESSION_TYPE": "tty",
+  "HOME": "/home/yabin",
+  "LANG": "zh_CN.UTF-8",
+  "SSH_CONNECTION": "100.70.179.13 51165 100.69.251.94 22",
+  "XDG_SESSION_CLASS": "user",
+  "USER": "yabin",
+  "SHLVL": "0",
+  "XDG_SESSION_ID": "9972",
+  "LC_CTYPE": "C.UTF-8",
+  "XDG_RUNTIME_DIR": "/run/user/1000",
+  "SSH_CLIENT": "100.70.179.13 51165 22",
+  "LC_ALL": "C.UTF-8",
+  "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+  "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus",
+  "OLDPWD": "/home/yabin",
+  "_": "/usr/bin/env",
+  "PYTHONPATH": "src",
+  "TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD": "1",
+  "IAPL_REPO_PATH": "/home/yabin/ctta4aid_assets/external/IAPL",
+  "IAPL_GENIMAGE_DIAGNOSTIC_ROOT": "/home/yabin/ctta4aid_assets/data/iapl_sd15_local_diagnostic",
+  "IAPL_GENIMAGE_CHECKPOINT": "/home/yabin/ctta4aid_assets/weights/iapl/checkpoint_best_acc_sd14.pth",
+  "CLIP_VIT_L14_CHECKPOINT": "/home/yabin/.cache/clip/ViT-L-14.pt",
+  "TORCHINDUCTOR_CACHE_DIR": "/tmp/torchinductor_yabin",
+  "TORCHELASTIC_SIGNALS_TO_HANDLE": "SIGTERM,SIGINT,SIGHUP,SIGQUIT",
+  "RANK": "0",
+  "GROUP_RANK": "0",
+  "ROLE_RANK": "0",
+  "ROLE_NAME": "default",
+  "LOCAL_WORLD_SIZE": "1",
+  "WORLD_SIZE": "1",
+  "GROUP_WORLD_SIZE": "1",
+  "ROLE_WORLD_SIZE": "1",
+  "MASTER_ADDR": "127.0.0.1",
+  "MASTER_PORT": "29578",
+  "TORCHELASTIC_RESTART_COUNT": "0",
+  "TORCHELASTIC_MAX_RESTARTS": "0",
+  "TORCHELASTIC_RUN_ID": "none",
+  "TORCHELASTIC_USE_AGENT_STORE": "True",
+  "TORCH_NCCL_ASYNC_ERROR_HANDLING": "1",
+  "LOCAL_RANK": "0",
+  "TORCHELASTIC_ERROR_FILE": "/tmp/torchelastic_aue2sz4q/none_f5icizs4/attempt_0/0/error.json",
+  "QT_QPA_PLATFORM_PLUGIN_PATH": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/qt/plugins",
+  "QT_QPA_FONTDIR": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/qt/fonts",
+  "LD_LIBRARY_PATH": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/../../lib64:",
+  "KMP_DUPLICATE_LIB_OK": "True",
+  "KMP_INIT_AT_FORK": "FALSE"
+}
+world_size:1 rank:0 local_rank:0
+| distributed init (rank 0): env://
+Before torch.distributed.barrier()
+/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[rank0]:[W716 19:36:38.921745511 ProcessGroupNCCL.cpp:5324] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+End torch.distributed.barrier()
+-----------freezen TTA mode-----------
+/home/yabin/ctta4aid_assets/external/IAPL/test_time.py:68: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  checkpoint = torch.load(args.pretrained_model, map_location='cpu')
+/home/yabin/ctta4aid_assets/external/IAPL/test_time.py:71: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  pretrained_ctx = torch.load(args.pretrained_model, map_location='cpu')['model']['prompt_learner.ctx']
+-----------freezen TTA mode-----------
+[{'params': ['prompt_learner.ctx']}]
+/home/yabin/ctta4aid_assets/external/IAPL/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [  0/200]  eta: 0:03:26    time: 1.0335  data: 0.1071  max mem: 8437
+Test:  [ 50/200]  eta: 0:00:55    time: 0.3540  data: 0.0053  max mem: 8437
+Test:  [100/200]  eta: 0:00:36    time: 0.3546  data: 0.0054  max mem: 8437
+Test:  [150/200]  eta: 0:00:17    time: 0.3552  data: 0.0055  max mem: 8437
+Test:  [199/200]  eta: 0:00:00    time: 0.3552  data: 0.0054  max mem: 8437
+Test: Total time: 0:01:11 (0.3582 s / it)
+(stable_diffusion_v_1_5) acc: 50.00; ap: 55.25; racc: 100.00; facc: 0.00;
+(0 stable_diffusion_v_1_5) acc: 50.00; ap: 55.25; racc: 100.00; facc: 0.00;
+(1 mean      ) acc: 50.00; ap: 55.25; racc: 100.00; facc: 0.00;
+[rank0]:[W716 19:37:53.419812403 ProcessGroupNCCL.cpp:1647] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())

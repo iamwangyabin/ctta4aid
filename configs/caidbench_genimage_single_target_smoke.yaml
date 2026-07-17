@@ -1,0 +1,21 @@
+extends:
+  - base/caidbench_genimage_single_target.yaml
+  - methods/source.yaml
+  - methods/tent.yaml
+  - methods/eata.yaml
+  - methods/cotta.yaml
+  - methods/rotta.yaml
+  - methods/lame.yaml
+  - methods/t2a.yaml
+methods: [source, tent, eata, cotta, rotta, lame, t2a]
+output_dir: outputs/smoke/caidbench/genimage/single_target
+
+data:
+  batch_size: 8
+  num_workers: 2
+  max_samples_per_class: 16
+  targets: [ADM]
+
+method_configs:
+  cotta:
+    augmentations: 2

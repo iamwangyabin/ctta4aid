@@ -1,0 +1,1 @@
+extends: [../../../base/universalfake_single_target.yaml, ../../../methods/source.yaml]

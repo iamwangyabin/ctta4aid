@@ -1,0 +1,51 @@
+{
+  "method": "IAPL",
+  "implementation": "official",
+  "official_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
+  "protocol": "per_image_reset_adapt_then_predict",
+  "reported_metrics": [
+    "accuracy",
+    "average_precision",
+    "real_accuracy",
+    "fake_accuracy"
+  ],
+  "dataset": "GenImage",
+  "numerical_validation": "completed_without_reference_gate",
+  "reference_check": {
+    "enabled": false,
+    "passed": null
+  },
+  "assets": {
+    "pretrained_model": {
+      "path": "/home/yabin/ctta4aid_assets/weights/iapl/checkpoint_best_acc_sd14.pth",
+      "bytes": 1693567399,
+      "sha256": "4f86a1e3e93bfa8c0cf1099413f872dccd34b6ec3f26dec2162bcf2430552018"
+    },
+    "clip_checkpoint": {
+      "path": "/home/yabin/.cache/clip/ViT-L-14.pt",
+      "bytes": 932768134,
+      "sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836"
+    },
+    "dataset_manifests": [
+      {
+        "path": "/home/yabin/ctta4aid_assets/data/iapl_sd15_local_diagnostic/caidbench_genimage_sd15_local_diagnostic_manifest.csv",
+        "bytes": 44221,
+        "sha256": "5abd922b86be2dceb1f34dcec36984e5bf6d45f0aa2468d439cddccc35c0189e"
+      }
+    ]
+  },
+  "by_domain": {
+    "stable_diffusion_v_1_5": {
+      "acc": 0.5,
+      "ap": 0.5525,
+      "racc": 1.0,
+      "facc": 0.0
+    }
+  },
+  "mean": {
+    "acc": 0.5,
+    "ap": 0.5525,
+    "racc": 1.0,
+    "facc": 0.0
+  }
+}

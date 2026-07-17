@@ -1,0 +1,76 @@
+tent:
+  repository: https://github.com/DequanWang/tent.git
+  commit: e9e926a668d85244c66a6d5c006efbd2b82e83e8
+  upstream_files: [tent.py]
+  upstream_config: cfgs/tent.yaml
+  project_profile: configs/methods/tent.yaml
+  official_core: src/online_aig_tta/official/tent.py
+  wrapper: src/online_aig_tta/methods/tent.py
+  status: vendored_official_core_with_protocol_wrapper
+  numerical_validation: not_run_requires_official_data_and_weights
+
+eata:
+  repository: https://github.com/mr-eggplant/EATA.git
+  commit: f739b3668cc7617e9b9f1979c1a358497a3472c3
+  upstream_files: [eata.py]
+  upstream_config: main.py
+  project_profile: configs/methods/eata.yaml
+  official_core: src/online_aig_tta/official/eata.py
+  wrapper: src/online_aig_tta/methods/eata.py
+  status: vendored_official_core_with_binary_protocol_wrapper
+  numerical_validation: not_run_requires_official_data_and_weights
+
+cotta:
+  repository: https://github.com/qinenergy/cotta.git
+  commit: c212a204b32be4005092e4323105a24a29ad2952
+  upstream_files: [imagenet/cotta.py, imagenet/my_transforms.py]
+  upstream_config: imagenet/cfgs/10orders/cotta/cotta0.yaml
+  project_profile: configs/methods/cotta.yaml
+  official_core: src/online_aig_tta/official/cotta.py
+  wrapper: src/online_aig_tta/methods/cotta.py
+  status: patched_vendored_official_imagenet_core
+  numerical_validation: not_run_requires_official_data_and_weights
+
+rotta:
+  repository: https://github.com/BIT-DA/RoTTA.git
+  commit: 67e34c900cdd355fc07e55edd4c577ea7b8ebcc9
+  upstream_files: [core/adapter/rotta.py, core/adapter/base_adapter.py, core/utils/memory.py, core/utils/bn_layers.py, core/utils/custom_transforms.py]
+  upstream_config: configs/adapter/rotta.yaml
+  project_profile: configs/methods/rotta.yaml
+  official_core: src/online_aig_tta/official/rotta.py
+  wrapper: src/online_aig_tta/methods/rotta.py
+  status: patched_vendored_official_core_with_binary_protocol_wrapper
+  numerical_validation: not_run_requires_official_data_and_weights
+
+lame:
+  repository: https://github.com/fiveai/LAME.git
+  commit: d2e5f63090bc1c8129bf7cbd781029a5955e1a67
+  upstream_files: [src/adaptation/lame.py]
+  upstream_config: configs/method/best/LAME/overall_best.yaml
+  project_profile: configs/methods/lame.yaml
+  official_core: src/online_aig_tta/official/lame.py
+  wrapper: src/online_aig_tta/methods/lame.py
+  status: vendored_official_core_with_feature_io_wrapper
+  numerical_validation: not_run_requires_official_data_and_weights
+  license: CC-BY-NC-SA-4.0
+
+t2a:
+  repository: https://github.com/HongHanh2104/T2A-Think-Twice-Before-Adaptation.git
+  commit: 33c8ccc64afdda260564123d6c790d030a89ff81
+  upstream_files: [adapters/base_adapter.py, adapters/T2A.py, losses/__init__.py, utils.py]
+  upstream_config: configs/T2A.yaml
+  project_profile: configs/methods/t2a.yaml
+  official_core: src/online_aig_tta/official/t2a.py
+  wrapper: src/online_aig_tta/methods/t2a.py
+  status: patched_vendored_public_official_core
+  numerical_validation: not_run_requires_official_data_and_weights
+
+iapl:
+  repository: https://github.com/liyih/IAPL.git
+  commit: a173e7783bbafaa00d60e6e31774a0bc14411a23
+  upstream_config: [tta_genimage.sh, tta_universalfake.sh, main.py]
+  project_profiles: [configs/iapl_official_genimage.yaml, configs/iapl_official_ufd.yaml, configs/iapl_official_ufd_arrow_1gpu.yaml]
+  wrapper: run_iapl_official.py
+  status: pinned_official_checkout
+  patch: patches/iapl-a173e77-compat.patch
+  numerical_validation: enforced_by_runner_when_executed

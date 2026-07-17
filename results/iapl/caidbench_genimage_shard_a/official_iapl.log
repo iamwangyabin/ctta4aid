@@ -1,0 +1,256 @@
+world size: 1, rank: 0, local rank: 0
+{
+  "SHELL": "/bin/bash",
+  "no_proxy": "localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10",
+  "PWD": "/home/yabin/ctta4aid_20260716",
+  "LOGNAME": "yabin",
+  "XDG_SESSION_TYPE": "tty",
+  "HOME": "/home/yabin",
+  "LANG": "zh_CN.UTF-8",
+  "https_proxy": "http://127.0.0.1:17890",
+  "SSH_CONNECTION": "100.70.179.13 64783 100.125.129.111 22",
+  "XDG_SESSION_CLASS": "user",
+  "USER": "yabin",
+  "SHLVL": "0",
+  "XDG_SESSION_ID": "731",
+  "http_proxy": "http://127.0.0.1:17890",
+  "LC_CTYPE": "C.UTF-8",
+  "XDG_RUNTIME_DIR": "/run/user/1000",
+  "SSH_CLIENT": "100.70.179.13 64783 22",
+  "LC_ALL": "C.UTF-8",
+  "all_proxy": "socks5://127.0.0.1:17891",
+  "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+  "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus",
+  "OLDPWD": "/home/yabin",
+  "_": "/usr/bin/env",
+  "PYTHONPATH": "src",
+  "TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD": "1",
+  "IAPL_REPO_PATH": "/home/yabin/ctta4aid_assets/external/IAPL",
+  "IAPL_GENIMAGE_ROOT": "/home/yabin/ctta4aid_assets/data/iapl_genimage_shard_a",
+  "IAPL_GENIMAGE_CHECKPOINT": "/home/yabin/ctta4aid_assets/weights/iapl/checkpoint_best_acc_sd14.pth",
+  "CLIP_VIT_L14_CHECKPOINT": "/home/yabin/ctta4aid_assets/weights/clip/ViT-L-14.pt",
+  "TORCHINDUCTOR_CACHE_DIR": "/tmp/torchinductor_yabin",
+  "TORCHELASTIC_SIGNALS_TO_HANDLE": "SIGTERM,SIGINT,SIGHUP,SIGQUIT",
+  "RANK": "0",
+  "GROUP_RANK": "0",
+  "ROLE_RANK": "0",
+  "ROLE_NAME": "default",
+  "LOCAL_WORLD_SIZE": "1",
+  "WORLD_SIZE": "1",
+  "GROUP_WORLD_SIZE": "1",
+  "ROLE_WORLD_SIZE": "1",
+  "MASTER_ADDR": "127.0.0.1",
+  "MASTER_PORT": "29578",
+  "TORCHELASTIC_RESTART_COUNT": "0",
+  "TORCHELASTIC_MAX_RESTARTS": "0",
+  "TORCHELASTIC_RUN_ID": "none",
+  "TORCHELASTIC_USE_AGENT_STORE": "True",
+  "TORCH_NCCL_ASYNC_ERROR_HANDLING": "1",
+  "LOCAL_RANK": "0",
+  "TORCHELASTIC_ERROR_FILE": "/tmp/torchelastic_ant3rqbs/none_qogghs70/attempt_0/0/error.json",
+  "QT_QPA_PLATFORM_PLUGIN_PATH": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/qt/plugins",
+  "QT_QPA_FONTDIR": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/qt/fonts",
+  "LD_LIBRARY_PATH": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/../../lib64:",
+  "KMP_DUPLICATE_LIB_OK": "True",
+  "KMP_INIT_AT_FORK": "FALSE"
+}
+world_size:1 rank:0 local_rank:0
+| distributed init (rank 0): env://
+Before torch.distributed.barrier()
+/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[rank0]:[W716 18:39:59.951578746 ProcessGroupNCCL.cpp:5324] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+End torch.distributed.barrier()
+-----------freezen TTA mode-----------
+/home/yabin/ctta4aid_assets/external/IAPL/test_time.py:68: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  checkpoint = torch.load(args.pretrained_model, map_location='cpu')
+/home/yabin/ctta4aid_assets/external/IAPL/test_time.py:71: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  pretrained_ctx = torch.load(args.pretrained_model, map_location='cpu')['model']['prompt_learner.ctx']
+-----------freezen TTA mode-----------
+[{'params': ['prompt_learner.ctx']}]
+/home/yabin/ctta4aid_assets/external/IAPL/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [   0/2000]  eta: 0:38:34    time: 1.1571  data: 0.2144  max mem: 8437
+Test:  [  50/2000]  eta: 0:11:52    time: 0.3486  data: 0.0024  max mem: 8437
+Test:  [ 100/2000]  eta: 0:11:19    time: 0.3504  data: 0.0030  max mem: 8437
+Test:  [ 150/2000]  eta: 0:10:56    time: 0.3495  data: 0.0025  max mem: 8437
+Test:  [ 200/2000]  eta: 0:10:36    time: 0.3496  data: 0.0024  max mem: 8437
+Test:  [ 250/2000]  eta: 0:10:17    time: 0.3496  data: 0.0024  max mem: 8437
+Test:  [ 300/2000]  eta: 0:09:59    time: 0.3509  data: 0.0030  max mem: 8437
+Test:  [ 350/2000]  eta: 0:09:41    time: 0.3507  data: 0.0029  max mem: 8437
+Test:  [ 400/2000]  eta: 0:09:23    time: 0.3506  data: 0.0028  max mem: 8437
+Test:  [ 450/2000]  eta: 0:09:05    time: 0.3500  data: 0.0026  max mem: 8437
+Test:  [ 500/2000]  eta: 0:08:47    time: 0.3507  data: 0.0028  max mem: 8437
+Test:  [ 550/2000]  eta: 0:08:29    time: 0.3499  data: 0.0024  max mem: 8437
+Test:  [ 600/2000]  eta: 0:08:11    time: 0.3503  data: 0.0027  max mem: 8437
+Test:  [ 650/2000]  eta: 0:07:54    time: 0.3502  data: 0.0026  max mem: 8437
+Test:  [ 700/2000]  eta: 0:07:36    time: 0.3503  data: 0.0026  max mem: 8437
+Test:  [ 750/2000]  eta: 0:07:18    time: 0.3499  data: 0.0025  max mem: 8437
+Test:  [ 800/2000]  eta: 0:07:01    time: 0.3503  data: 0.0027  max mem: 8437
+Test:  [ 850/2000]  eta: 0:06:43    time: 0.3499  data: 0.0024  max mem: 8437
+Test:  [ 900/2000]  eta: 0:06:26    time: 0.3501  data: 0.0025  max mem: 8437
+Test:  [ 950/2000]  eta: 0:06:08    time: 0.3498  data: 0.0024  max mem: 8437
+Test:  [1000/2000]  eta: 0:05:50    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [1050/2000]  eta: 0:05:33    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [1100/2000]  eta: 0:05:15    time: 0.3501  data: 0.0025  max mem: 8437
+Test:  [1150/2000]  eta: 0:04:58    time: 0.3501  data: 0.0026  max mem: 8437
+Test:  [1200/2000]  eta: 0:04:40    time: 0.3501  data: 0.0025  max mem: 8437
+Test:  [1250/2000]  eta: 0:04:23    time: 0.3502  data: 0.0025  max mem: 8437
+Test:  [1300/2000]  eta: 0:04:05    time: 0.3504  data: 0.0027  max mem: 8437
+Test:  [1350/2000]  eta: 0:03:47    time: 0.3507  data: 0.0028  max mem: 8437
+Test:  [1400/2000]  eta: 0:03:30    time: 0.3505  data: 0.0027  max mem: 8437
+Test:  [1450/2000]  eta: 0:03:12    time: 0.3522  data: 0.0036  max mem: 8437
+Test:  [1500/2000]  eta: 0:02:55    time: 0.3504  data: 0.0026  max mem: 8437
+Test:  [1550/2000]  eta: 0:02:37    time: 0.3499  data: 0.0024  max mem: 8437
+Test:  [1600/2000]  eta: 0:02:20    time: 0.3505  data: 0.0027  max mem: 8437
+Test:  [1650/2000]  eta: 0:02:02    time: 0.3506  data: 0.0028  max mem: 8437
+Test:  [1700/2000]  eta: 0:01:45    time: 0.3504  data: 0.0026  max mem: 8437
+Test:  [1750/2000]  eta: 0:01:27    time: 0.3511  data: 0.0028  max mem: 8437
+Test:  [1800/2000]  eta: 0:01:10    time: 0.3503  data: 0.0026  max mem: 8437
+Test:  [1850/2000]  eta: 0:00:52    time: 0.3504  data: 0.0027  max mem: 8437
+Test:  [1900/2000]  eta: 0:00:35    time: 0.3510  data: 0.0030  max mem: 8437
+Test:  [1950/2000]  eta: 0:00:17    time: 0.3502  data: 0.0026  max mem: 8437
+Test:  [1999/2000]  eta: 0:00:00    time: 0.3501  data: 0.0025  max mem: 8437
+Test: Total time: 0:11:41 (0.3506 s / it)
+(ADM) acc: 86.90; ap: 98.89; racc: 99.90; facc: 73.90;
+/home/yabin/ctta4aid_assets/external/IAPL/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [   0/2000]  eta: 0:19:40    time: 0.5901  data: 0.2346  max mem: 8437
+Test:  [  50/2000]  eta: 0:11:33    time: 0.3507  data: 0.0026  max mem: 8437
+Test:  [ 100/2000]  eta: 0:11:10    time: 0.3505  data: 0.0025  max mem: 8437
+Test:  [ 150/2000]  eta: 0:10:51    time: 0.3506  data: 0.0025  max mem: 8437
+Test:  [ 200/2000]  eta: 0:10:33    time: 0.3511  data: 0.0028  max mem: 8437
+Test:  [ 250/2000]  eta: 0:10:15    time: 0.3510  data: 0.0027  max mem: 8437
+Test:  [ 300/2000]  eta: 0:09:57    time: 0.3507  data: 0.0025  max mem: 8437
+Test:  [ 350/2000]  eta: 0:09:39    time: 0.3507  data: 0.0026  max mem: 8437
+Test:  [ 400/2000]  eta: 0:09:22    time: 0.3508  data: 0.0027  max mem: 8437
+Test:  [ 450/2000]  eta: 0:09:04    time: 0.3508  data: 0.0025  max mem: 8437
+Test:  [ 500/2000]  eta: 0:08:46    time: 0.3513  data: 0.0028  max mem: 8437
+Test:  [ 550/2000]  eta: 0:08:29    time: 0.3507  data: 0.0026  max mem: 8437
+Test:  [ 600/2000]  eta: 0:08:11    time: 0.3505  data: 0.0025  max mem: 8437
+Test:  [ 650/2000]  eta: 0:07:54    time: 0.3506  data: 0.0024  max mem: 8437
+Test:  [ 700/2000]  eta: 0:07:36    time: 0.3505  data: 0.0024  max mem: 8437
+Test:  [ 750/2000]  eta: 0:07:18    time: 0.3505  data: 0.0025  max mem: 8437
+Test:  [ 800/2000]  eta: 0:07:01    time: 0.3508  data: 0.0026  max mem: 8437
+Test:  [ 850/2000]  eta: 0:06:43    time: 0.3508  data: 0.0026  max mem: 8437
+Test:  [ 900/2000]  eta: 0:06:26    time: 0.3508  data: 0.0026  max mem: 8437
+Test:  [ 950/2000]  eta: 0:06:08    time: 0.3510  data: 0.0028  max mem: 8437
+Test:  [1000/2000]  eta: 0:05:50    time: 0.3518  data: 0.0032  max mem: 8437
+Test:  [1050/2000]  eta: 0:05:33    time: 0.3505  data: 0.0024  max mem: 8437
+Test:  [1100/2000]  eta: 0:05:15    time: 0.3513  data: 0.0030  max mem: 8437
+Test:  [1150/2000]  eta: 0:04:58    time: 0.3504  data: 0.0025  max mem: 8437
+Test:  [1200/2000]  eta: 0:04:40    time: 0.3507  data: 0.0025  max mem: 8437
+Test:  [1250/2000]  eta: 0:04:23    time: 0.3505  data: 0.0024  max mem: 8437
+Test:  [1300/2000]  eta: 0:04:05    time: 0.3507  data: 0.0026  max mem: 8437
+Test:  [1350/2000]  eta: 0:03:48    time: 0.3508  data: 0.0027  max mem: 8437
+Test:  [1400/2000]  eta: 0:03:30    time: 0.3506  data: 0.0025  max mem: 8437
+Test:  [1450/2000]  eta: 0:03:12    time: 0.3506  data: 0.0025  max mem: 8437
+Test:  [1500/2000]  eta: 0:02:55    time: 0.3510  data: 0.0028  max mem: 8437
+Test:  [1550/2000]  eta: 0:02:37    time: 0.3511  data: 0.0027  max mem: 8437
+Test:  [1600/2000]  eta: 0:02:20    time: 0.3509  data: 0.0027  max mem: 8437
+Test:  [1650/2000]  eta: 0:02:02    time: 0.3505  data: 0.0024  max mem: 8437
+Test:  [1700/2000]  eta: 0:01:45    time: 0.3505  data: 0.0024  max mem: 8437
+Test:  [1750/2000]  eta: 0:01:27    time: 0.3508  data: 0.0026  max mem: 8437
+Test:  [1800/2000]  eta: 0:01:10    time: 0.3507  data: 0.0025  max mem: 8437
+Test:  [1850/2000]  eta: 0:00:52    time: 0.3506  data: 0.0025  max mem: 8437
+Test:  [1900/2000]  eta: 0:00:35    time: 0.3507  data: 0.0026  max mem: 8437
+Test:  [1950/2000]  eta: 0:00:17    time: 0.3505  data: 0.0025  max mem: 8437
+Test:  [1999/2000]  eta: 0:00:00    time: 0.3505  data: 0.0024  max mem: 8437
+Test: Total time: 0:11:41 (0.3509 s / it)
+(BigGAN) acc: 96.45; ap: 94.09; racc: 93.40; facc: 99.50;
+/home/yabin/ctta4aid_assets/external/IAPL/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [   0/2000]  eta: 0:20:48    time: 0.6241  data: 0.2697  max mem: 8437
+Test:  [  50/2000]  eta: 0:11:32    time: 0.3505  data: 0.0028  max mem: 8437
+Test:  [ 100/2000]  eta: 0:11:10    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [ 150/2000]  eta: 0:10:51    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [ 200/2000]  eta: 0:10:32    time: 0.3500  data: 0.0026  max mem: 8437
+Test:  [ 250/2000]  eta: 0:10:14    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [ 300/2000]  eta: 0:09:56    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [ 350/2000]  eta: 0:09:39    time: 0.3499  data: 0.0024  max mem: 8437
+Test:  [ 400/2000]  eta: 0:09:21    time: 0.3498  data: 0.0024  max mem: 8437
+Test:  [ 450/2000]  eta: 0:09:03    time: 0.3501  data: 0.0025  max mem: 8437
+Test:  [ 500/2000]  eta: 0:08:46    time: 0.3505  data: 0.0027  max mem: 8437
+Test:  [ 550/2000]  eta: 0:08:28    time: 0.3498  data: 0.0024  max mem: 8437
+Test:  [ 600/2000]  eta: 0:08:10    time: 0.3506  data: 0.0027  max mem: 8437
+Test:  [ 650/2000]  eta: 0:07:53    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [ 700/2000]  eta: 0:07:35    time: 0.3501  data: 0.0026  max mem: 8437
+Test:  [ 750/2000]  eta: 0:07:18    time: 0.3515  data: 0.0034  max mem: 8437
+Test:  [ 800/2000]  eta: 0:07:00    time: 0.3505  data: 0.0027  max mem: 8437
+Test:  [ 850/2000]  eta: 0:06:43    time: 0.3503  data: 0.0026  max mem: 8437
+Test:  [ 900/2000]  eta: 0:06:25    time: 0.3504  data: 0.0028  max mem: 8437
+Test:  [ 950/2000]  eta: 0:06:08    time: 0.3505  data: 0.0027  max mem: 8437
+Test:  [1000/2000]  eta: 0:05:50    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [1050/2000]  eta: 0:05:32    time: 0.3502  data: 0.0026  max mem: 8437
+Test:  [1100/2000]  eta: 0:05:15    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [1150/2000]  eta: 0:04:57    time: 0.3522  data: 0.0025  max mem: 8437
+Test:  [1200/2000]  eta: 0:04:40    time: 0.3504  data: 0.0027  max mem: 8437
+Test:  [1250/2000]  eta: 0:04:22    time: 0.3499  data: 0.0024  max mem: 8437
+Test:  [1300/2000]  eta: 0:04:05    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [1350/2000]  eta: 0:03:47    time: 0.3501  data: 0.0025  max mem: 8437
+Test:  [1400/2000]  eta: 0:03:30    time: 0.3499  data: 0.0024  max mem: 8437
+Test:  [1450/2000]  eta: 0:03:12    time: 0.3501  data: 0.0025  max mem: 8437
+Test:  [1500/2000]  eta: 0:02:55    time: 0.3504  data: 0.0026  max mem: 8437
+Test:  [1550/2000]  eta: 0:02:37    time: 0.3501  data: 0.0024  max mem: 8437
+Test:  [1600/2000]  eta: 0:02:20    time: 0.3503  data: 0.0025  max mem: 8437
+Test:  [1650/2000]  eta: 0:02:02    time: 0.3502  data: 0.0025  max mem: 8437
+Test:  [1700/2000]  eta: 0:01:45    time: 0.3501  data: 0.0025  max mem: 8437
+Test:  [1750/2000]  eta: 0:01:27    time: 0.3505  data: 0.0027  max mem: 8437
+Test:  [1800/2000]  eta: 0:01:10    time: 0.3518  data: 0.0034  max mem: 8437
+Test:  [1850/2000]  eta: 0:00:52    time: 0.3501  data: 0.0025  max mem: 8437
+Test:  [1900/2000]  eta: 0:00:35    time: 0.3503  data: 0.0025  max mem: 8437
+Test:  [1950/2000]  eta: 0:00:17    time: 0.3504  data: 0.0026  max mem: 8437
+Test:  [1999/2000]  eta: 0:00:00    time: 0.3499  data: 0.0024  max mem: 8437
+Test: Total time: 0:11:40 (0.3504 s / it)
+(glide) acc: 95.90; ap: 99.46; racc: 99.80; facc: 92.00;
+/home/yabin/ctta4aid_assets/external/IAPL/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [   0/2000]  eta: 0:20:22    time: 0.6115  data: 0.2560  max mem: 8437
+Test:  [  50/2000]  eta: 0:11:33    time: 0.3507  data: 0.0028  max mem: 8437
+Test:  [ 100/2000]  eta: 0:11:10    time: 0.3506  data: 0.0029  max mem: 8437
+Test:  [ 150/2000]  eta: 0:10:51    time: 0.3503  data: 0.0026  max mem: 8437
+Test:  [ 200/2000]  eta: 0:10:32    time: 0.3500  data: 0.0024  max mem: 8437
+Test:  [ 250/2000]  eta: 0:10:14    time: 0.3504  data: 0.0026  max mem: 8437
+Test:  [ 300/2000]  eta: 0:09:57    time: 0.3503  data: 0.0026  max mem: 8437
+Test:  [ 350/2000]  eta: 0:09:39    time: 0.3501  data: 0.0025  max mem: 8437
+Test:  [ 400/2000]  eta: 0:09:21    time: 0.3507  data: 0.0029  max mem: 8437
+Test:  [ 450/2000]  eta: 0:09:03    time: 0.3501  data: 0.0024  max mem: 8437
+Test:  [ 500/2000]  eta: 0:08:46    time: 0.3510  data: 0.0031  max mem: 8437
+Test:  [ 550/2000]  eta: 0:08:28    time: 0.3504  data: 0.0026  max mem: 8437
+Test:  [ 600/2000]  eta: 0:08:11    time: 0.3506  data: 0.0028  max mem: 8437
+Test:  [ 650/2000]  eta: 0:07:53    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [ 700/2000]  eta: 0:07:35    time: 0.3504  data: 0.0027  max mem: 8437
+Test:  [ 750/2000]  eta: 0:07:18    time: 0.3507  data: 0.0029  max mem: 8437
+Test:  [ 800/2000]  eta: 0:07:00    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [ 850/2000]  eta: 0:06:43    time: 0.3501  data: 0.0025  max mem: 8437
+Test:  [ 900/2000]  eta: 0:06:25    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [ 950/2000]  eta: 0:06:08    time: 0.3504  data: 0.0026  max mem: 8437
+Test:  [1000/2000]  eta: 0:05:50    time: 0.3507  data: 0.0029  max mem: 8437
+Test:  [1050/2000]  eta: 0:05:33    time: 0.3503  data: 0.0027  max mem: 8437
+Test:  [1100/2000]  eta: 0:05:15    time: 0.3505  data: 0.0027  max mem: 8437
+Test:  [1150/2000]  eta: 0:04:57    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [1200/2000]  eta: 0:04:40    time: 0.3503  data: 0.0026  max mem: 8437
+Test:  [1250/2000]  eta: 0:04:22    time: 0.3501  data: 0.0025  max mem: 8437
+Test:  [1300/2000]  eta: 0:04:05    time: 0.3499  data: 0.0025  max mem: 8437
+Test:  [1350/2000]  eta: 0:03:47    time: 0.3499  data: 0.0025  max mem: 8437
+Test:  [1400/2000]  eta: 0:03:30    time: 0.3499  data: 0.0024  max mem: 8437
+Test:  [1450/2000]  eta: 0:03:12    time: 0.3499  data: 0.0024  max mem: 8437
+Test:  [1500/2000]  eta: 0:02:55    time: 0.3501  data: 0.0026  max mem: 8437
+Test:  [1550/2000]  eta: 0:02:37    time: 0.3503  data: 0.0027  max mem: 8437
+Test:  [1600/2000]  eta: 0:02:20    time: 0.3501  data: 0.0025  max mem: 8437
+Test:  [1650/2000]  eta: 0:02:02    time: 0.3506  data: 0.0028  max mem: 8437
+Test:  [1700/2000]  eta: 0:01:45    time: 0.3506  data: 0.0028  max mem: 8437
+Test:  [1750/2000]  eta: 0:01:27    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [1800/2000]  eta: 0:01:10    time: 0.3499  data: 0.0024  max mem: 8437
+Test:  [1850/2000]  eta: 0:00:52    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [1900/2000]  eta: 0:00:35    time: 0.3500  data: 0.0025  max mem: 8437
+Test:  [1950/2000]  eta: 0:00:17    time: 0.3508  data: 0.0030  max mem: 8437
+Test:  [1999/2000]  eta: 0:00:00    time: 0.3498  data: 0.0024  max mem: 8437
+Test: Total time: 0:11:40 (0.3504 s / it)
+(Midjourney) acc: 95.65; ap: 99.04; racc: 99.50; facc: 91.80;
+(0 ADM       ) acc: 86.90; ap: 98.89; racc: 99.90; facc: 73.90;
+(1 BigGAN    ) acc: 96.45; ap: 94.09; racc: 93.40; facc: 99.50;
+(2 glide     ) acc: 95.90; ap: 99.46; racc: 99.80; facc: 92.00;
+(3 Midjourney) acc: 95.65; ap: 99.04; racc: 99.50; facc: 91.80;
+(4 mean      ) acc: 93.73; ap: 97.87; racc: 98.15; facc: 89.30;
+[rank0]:[W716 19:26:47.143322124 ProcessGroupNCCL.cpp:1647] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())

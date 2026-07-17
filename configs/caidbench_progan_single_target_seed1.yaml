@@ -1,0 +1,3 @@
+extends: caidbench_progan_single_target.yaml
+seed: 1
+output_dir: outputs/caidbench/progan/single_target/seed1

@@ -1,0 +1,113 @@
+{
+  "method": "IAPL",
+  "implementation": "official",
+  "official_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
+  "protocol": "per_image_reset_adapt_then_predict",
+  "reported_metrics": [
+    "accuracy",
+    "average_precision",
+    "real_accuracy",
+    "fake_accuracy"
+  ],
+  "dataset": "UniversalFakeDetect",
+  "numerical_validation": "completed_without_reference_gate",
+  "reference_check": {
+    "enabled": false,
+    "passed": null
+  },
+  "assets": {
+    "pretrained_model": {
+      "path": "/home/yabin/ctta4aid_assets/weights/iapl/checkpoint_best_acc_progan.pth",
+      "bytes": 1693567591,
+      "sha256": "1e04047b74d287ba2f3682cde84246688dfa486354a5677b5147e677bc2a3f81"
+    },
+    "clip_checkpoint": {
+      "path": "/home/yabin/.cache/clip/ViT-L-14.pt",
+      "bytes": 932768134,
+      "sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836"
+    },
+    "dataset_manifests": [],
+    "arrow_datasets": [
+      {
+        "root": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/ForenSynths",
+        "fingerprint": "e8237bed34909cba",
+        "shard_count": 192,
+        "shard_bytes": 95852859136,
+        "metadata": [
+          {
+            "path": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/ForenSynths/state.json",
+            "bytes": 11585,
+            "sha256": "3efd851dd1a5a6e76cc0109d473ccbaae54f981c018c5900835f177c0baf9d91"
+          },
+          {
+            "path": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/ForenSynths/dataset_info.json",
+            "bytes": 448,
+            "sha256": "7cfc89c8c68aff7d81095b6c555e69c04c724a9df34252396587af38a7ff3a53"
+          },
+          {
+            "path": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/ForenSynths/mapping.json",
+            "bytes": 33708973,
+            "sha256": "a7cf28ea6e22da33bb008ce60a1ae54b106994ee6b7c209544e456f0555bac45"
+          },
+          {
+            "path": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/ForenSynths/test.json",
+            "bytes": 4472928,
+            "sha256": "4144ed7e8e5b49854c48e8478bd49a28f2cfb9de7ded48fd2155cc8bd8483e0b"
+          },
+          {
+            "path": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/ForenSynths/val.json",
+            "bytes": 334036,
+            "sha256": "c8891f98acb268f819ea22684af7c6d88c56b99706ac19dc9eb90631d39f9032"
+          },
+          {
+            "path": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/ForenSynths/train_binary.json",
+            "bytes": 31469638,
+            "sha256": "493307c7849609fe8def4c6f5fdc070adda104725d30ae2b0e42c4372d4703a4"
+          }
+        ]
+      },
+      {
+        "root": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/Ojha",
+        "fingerprint": "349d2c45f059413f",
+        "shard_count": 3,
+        "shard_bytes": 1044293888,
+        "metadata": [
+          {
+            "path": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/Ojha/state.json",
+            "bytes": 434,
+            "sha256": "6e3c2da3310416358387a0c91c50cb55c8bb93cc991ea9f4175ac1a9abb172f2"
+          },
+          {
+            "path": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/Ojha/dataset_info.json",
+            "bytes": 448,
+            "sha256": "7cfc89c8c68aff7d81095b6c555e69c04c724a9df34252396587af38a7ff3a53"
+          },
+          {
+            "path": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/Ojha/mapping.json",
+            "bytes": 659890,
+            "sha256": "eceb5efcb061024166920b19a836b64fe5a7669af6d941357482c8cab4f3bc90"
+          },
+          {
+            "path": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/Ojha/test.json",
+            "bytes": 735201,
+            "sha256": "bc8095c02379244018217afc2e63b37b8f7ff1a26e585e33eff5fdedbf836187"
+          }
+        ]
+      }
+    ]
+  },
+  "by_domain": {
+    "glide_50_27": {
+      "acc": 0.9825,
+      "ap": 0.993,
+      "racc": 0.996,
+      "facc": 0.9690000000000001
+    }
+  },
+  "mean": {
+    "acc": 0.9825,
+    "ap": 0.993,
+    "racc": 0.996,
+    "facc": 0.9690000000000001
+  }
+}

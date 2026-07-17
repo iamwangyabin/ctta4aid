@@ -1,0 +1,40 @@
+2026-07-16T23:24:17+08:00 waiting host=yabin@192.168.10.188 missing_domains=9
+2026-07-16T23:34:18+08:00 waiting host=yabin@192.168.10.188 missing_domains=9
+2026-07-16T23:44:20+08:00 waiting host=yabin@192.168.10.188 missing_domains=9
+2026-07-16T23:54:22+08:00 waiting host=yabin@192.168.10.188 missing_domains=9
+2026-07-17T00:04:24+08:00 waiting host=yabin@192.168.10.188 missing_domains=9
+2026-07-17T00:14:26+08:00 waiting host=yabin@192.168.10.188 missing_domains=9
+2026-07-17T00:24:28+08:00 waiting host=yabin@192.168.10.188 missing_domains=9
+2026-07-17T00:34:30+08:00 waiting host=yabin@192.168.10.188 missing_domains=9
+2026-07-17T00:44:32+08:00 waiting host=yabin@192.168.10.188 missing_domains=8
+2026-07-17T00:54:34+08:00 waiting host=yabin@192.168.10.188 missing_domains=8
+2026-07-17T01:04:36+08:00 waiting host=yabin@192.168.10.188 missing_domains=8
+2026-07-17T01:14:38+08:00 waiting host=yabin@192.168.10.188 missing_domains=8
+2026-07-17T01:24:40+08:00 waiting host=yabin@192.168.10.188 missing_domains=8
+2026-07-17T01:34:42+08:00 waiting host=yabin@192.168.10.188 missing_domains=8
+2026-07-17T01:44:43+08:00 waiting host=yabin@192.168.10.188 missing_domains=7
+2026-07-17T01:54:45+08:00 waiting host=yabin@192.168.10.188 missing_domains=7
+2026-07-17T02:04:47+08:00 waiting host=yabin@192.168.10.188 missing_domains=7
+2026-07-17T02:14:49+08:00 waiting host=yabin@192.168.10.188 missing_domains=7
+2026-07-17T02:24:51+08:00 waiting host=yabin@192.168.10.188 missing_domains=7
+2026-07-17T02:34:53+08:00 waiting host=yabin@192.168.10.188 missing_domains=6
+2026-07-17T02:44:55+08:00 waiting host=yabin@192.168.10.188 missing_domains=6
+2026-07-17T02:54:57+08:00 waiting host=yabin@192.168.10.188 missing_domains=6
+2026-07-17T03:04:59+08:00 waiting host=yabin@192.168.10.188 missing_domains=5
+2026-07-17T03:15:01+08:00 waiting host=yabin@192.168.10.188 missing_domains=5
+2026-07-17T03:25:03+08:00 waiting host=yabin@192.168.10.188 missing_domains=4
+2026-07-17T03:35:05+08:00 waiting host=yabin@192.168.10.188 missing_domains=4
+2026-07-17T03:45:07+08:00 waiting host=yabin@192.168.10.188 missing_domains=1
+2026-07-17T03:55:09+08:00 waiting host=yabin@192.168.10.188 missing_domains=1
+Traceback (most recent call last):
+  File "/home/yabin/projects/ctta4aid-arrow/merge_iapl_shards.py", line 9, in <module>
+    from online_aig_tta.config import load_config
+ModuleNotFoundError: No module named 'online_aig_tta'
+/home/yabin/projects/ctta4aid-arrow/outputs/iapl_official/universalfake_arrow_dual4090/official_iapl_metrics_merged.json
+Traceback (most recent call last):
+  File "/home/yabin/projects/ctta4aid-arrow/merge_iapl_shards.py", line 90, in <module>
+    main()
+  File "/home/yabin/projects/ctta4aid-arrow/merge_iapl_shards.py", line 83, in main
+    raise RuntimeError(
+RuntimeError: Merged IAPL metrics miss the configured paper-reference tolerance: {'enabled': True, 'passed': False, 'tolerance': 0.01, 'reference': {'acc': 0.9561, 'ap': 0.9932}, 'absolute_differences': {'acc': 0.0020368421052632257, 'ap': 0.021105263157894738}}
+2026-07-17T04:07:59+08:00 merge complete status=1

@@ -1,0 +1,20 @@
+methods: [tent]
+
+method_configs:
+  tent:
+    # Official TENT cfgs/tent.yaml names: METHOD, STEPS, BETA, LR, WD.
+    optimizer: Adam
+    steps: 1
+    episodic: false
+    beta: 0.9
+    lr: 0.001
+    wd: 0.0
+    update_parameters: batch_norm_affine
+    batch_norm_statistics: test_batch
+    reference:
+      profile: official_tent_cifar10c_example
+      repository: https://github.com/DequanWang/tent
+      commit: e9e926a668d85244c66a6d5c006efbd2b82e83e8
+      upstream_config: cfgs/tent.yaml
+      original_batch_size: 200
+      transfer_note: Original optimization values retained; common AIGC protocol supplies batch size 16.

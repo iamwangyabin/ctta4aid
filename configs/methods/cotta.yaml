@@ -1,0 +1,36 @@
+methods: [cotta]
+
+method_configs:
+  cotta:
+    # Official ImageNet branch and cotta0.yaml optimization values.
+    official_variant: imagenet
+    optimizer: SGD
+    steps: 1
+    episodic: false
+    lr: 0.01
+    momentum: 0.9
+    dampening: 0.0
+    nesterov: true
+    wd: 0.0
+    # Paper/code symbols: MT=0.999, RST=0.001, AP=0.1, N=32.
+    ema_decay: 0.999
+    restore_probability: 0.001
+    anchor_confidence: 0.1
+    augmentations: 32
+    symmetric_loss: true
+    augment_only_if_low_confidence: true
+    image_size: 224
+    gaussian_std: 0.005
+    soft_augmentation: false
+    official_symbols:
+      MT: 0.999
+      RST: 0.001
+      AP: 0.1
+      N: 32
+    reference:
+      profile: official_cotta_imagenetc_resnet50
+      repository: https://github.com/qinenergy/cotta
+      commit: c212a204b32be4005092e4323105a24a29ad2952
+      upstream_config: imagenet/cfgs/10orders/cotta/cotta0.yaml
+      original_batch_size: 64
+      transfer_note: ImageNet branch values retained; common AIGC protocol supplies batch size 16 and a binary detector.

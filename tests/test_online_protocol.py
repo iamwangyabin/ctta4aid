@@ -1,0 +1,131 @@
+import unittest
+from unittest.mock import patch
+
+import numpy as np
+
+from online_aig_tta.evaluation.online_evaluator import (
+    OnlineEvaluator,
+    evaluate_without_adaptation,
+)
+from online_aig_tta.types import AdaptationStats, PredictionBatch, StreamBatch
+from run_continual_stream import final_holdout_stream
+
+
+class SpyMethod:
+    device = "cpu"
+    trainable_parameters = 1
+
+    def __init__(self):
+        self.events = []
+        self.state = 0
+
+    def predict(self, images):
+        self.events.append(("predict", self.state, images.copy()))
+        probabilities = np.full(len(images), 0.2 + 0.6 * self.state)
+        return PredictionBatch(
+            logits=np.zeros((len(images), 2)),
+            prob_fake=probabilities,
+            pred_label=(probabilities >= 0.5).astype(int),
+        )
+
+    def adapt(self, images):
+        self.events.append(("adapt", self.state, images.copy()))
+        self.state += 1
+        return AdaptationStats(loss=0.1, selected=len(images))
+
+
+class OnlineProtocolTest(unittest.TestCase):
+    def test_predict_happens_before_adapt_and_labels_are_not_passed(self):
+        method = SpyMethod()
+        stream = [
+            StreamBatch(
+                images=np.array([10, 11]),
+                hidden_labels=np.array([0, 1]),
+                domain="generator_a",
+                sample_ids=["a/10", "a/11"],
+            ),
+            StreamBatch(
+                images=np.array([12, 13]),
+                hidden_labels=np.array([1, 1]),
+                domain="generator_a",
+                sample_ids=["a/12", "a/13"],
+            ),
+        ]
+        result = OnlineEvaluator(curve_window_batches=1).run(method, stream)
+        self.assertEqual(
+            [event[0] for event in method.events],
+            ["predict", "adapt", "predict", "adapt"],
+        )
+        self.assertEqual(method.events[0][1], 0)
+        self.assertEqual(method.events[2][1], 1)
+        self.assertEqual(result["summary"]["overall"]["samples"], 4)
+        self.assertEqual(
+            result["reproduction"]["protocol_wrapper"], "predict_then_adapt"
+        )
+        self.assertEqual(
+            [row["position"] for row in result["sample_manifest"]], [0, 1, 2, 3]
+        )
+
+    def test_domain_end_callback_runs_after_last_adaptation_in_each_domain(self):
+        method = SpyMethod()
+        stream = [
+            StreamBatch(np.array([1]), np.array([0]), "A", ["a/1"]),
+            StreamBatch(np.array([2]), np.array([1]), "B", ["b/2"]),
+        ]
+        callback_states = []
+
+        def on_domain_end(current_method, domain):
+            callback_states.append((domain, current_method.state))
+            return {"by_domain": {}}
+
+        result = OnlineEvaluator().run(method, stream, on_domain_end=on_domain_end)
+        self.assertEqual(callback_states, [("A", 1), ("B", 2)])
+        self.assertEqual(
+            [row["after_domain"] for row in result["domain_end_evaluations"]],
+            ["A", "B"],
+        )
+
+    def test_final_holdout_is_seeded_and_globally_shuffled(self):
+        config = {
+            "data": {
+                "max_samples_per_class": 10,
+                "final_eval_max_samples_per_class": 2,
+            }
+        }
+        with patch(
+            "run_continual_stream.build_domain_loader", return_value=[]
+        ) as build_loader, patch(
+            "run_continual_stream.as_stream", return_value=iter(())
+        ):
+            list(final_holdout_stream(config, ["A", "B"], seed=7))
+
+        first = build_loader.call_args_list[0]
+        second = build_loader.call_args_list[1]
+        self.assertTrue(first.kwargs["shuffle"])
+        self.assertEqual(first.kwargs["sample_seed"], 7)
+        self.assertEqual(first.kwargs["loader_seed"], 1_000_007)
+        self.assertEqual(second.kwargs["sample_seed"], 8)
+        self.assertEqual(second.kwargs["loader_seed"], 1_000_008)
+
+    def test_holdout_evaluation_restores_random_state(self):
+        method = SpyMethod()
+        stream = [
+            StreamBatch(
+                images=np.array([1, 2]),
+                hidden_labels=np.array([0, 1]),
+                domain="A",
+                sample_ids=["a/1", "a/2"],
+            )
+        ]
+        np.random.seed(123)
+        state = np.random.get_state()
+        expected_next = np.random.random()
+        np.random.set_state(state)
+
+        evaluate_without_adaptation(method, stream, evaluation_seed=999)
+
+        self.assertEqual(np.random.random(), expected_next)
+
+
+if __name__ == "__main__":
+    unittest.main()

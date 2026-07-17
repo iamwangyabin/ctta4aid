@@ -1,0 +1,36 @@
+methods: [rotta]
+
+method_configs:
+  rotta:
+    # Mirrors configs/adapter/rotta.yaml from the pinned official release.
+    optimizer: Adam
+    steps: 1
+    beta: 0.9
+    lr: 0.001
+    wd: 0.0
+    num_classes: 2
+    nu: 0.001
+    memory_size: 64
+    update_frequency: 64
+    lambda_t: 1.0
+    lambda_u: 1.0
+    alpha: 0.05
+    image_size: 224
+    gaussian_std: 0.005
+    soft_augmentation: false
+    official_symbols:
+      NU: 0.001
+      MEMORY_SIZE: 64
+      UPDATE_FREQUENCY: 64
+      LAMBDA_T: 1.0
+      LAMBDA_U: 1.0
+      ALPHA: 0.05
+    reference:
+      profile: official_rotta_cifar_release_transferred_to_binary_aigc
+      repository: https://github.com/BIT-DA/RoTTA
+      commit: 67e34c900cdd355fc07e55edd4c577ea7b8ebcc9
+      upstream_config: configs/adapter/rotta.yaml
+      original_batch_size: 64
+      original_input_size: 32
+      original_num_classes: [10, 100]
+      transfer_note: All optimization and RoTTA constants are retained; only task class count, common image size, and protocol batch size change.

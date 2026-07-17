@@ -1,0 +1,254 @@
+from __future__ import annotations
+
+import importlib.util
+import unittest
+
+
+TORCH_AVAILABLE = (
+    importlib.util.find_spec("torch") is not None
+    and importlib.util.find_spec("torchvision") is not None
+)
+
+
+@unittest.skipUnless(TORCH_AVAILABLE, "PyTorch and torchvision are required")
+class MethodFidelityTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        import torch
+        import torch.nn as nn
+
+        cls.torch = torch
+        cls.nn = nn
+
+    def detector(self):
+        nn = self.nn
+
+        class TinyDetector(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.conv = nn.Conv2d(3, 4, kernel_size=3, padding=1)
+                self.bn = nn.BatchNorm2d(4)
+                self.pool = nn.AdaptiveAvgPool2d(1)
+                self.head = nn.Linear(4, 2)
+
+            def forward(self, images):
+                return self.classifier(self.forward_features(images))
+
+            def forward_features(self, images):
+                return self.pool(self.bn(self.conv(images))).flatten(1)
+
+            @property
+            def classifier(self):
+                return self.head
+
+        return TinyDetector()
+
+    def test_tent_updates_only_batch_norm_affine_parameters(self) -> None:
+        from online_aig_tta.methods.tent import Tent
+
+        method = Tent(
+            self.detector(),
+            "cpu",
+            {"optimizer": "sgd", "learning_rate": 0.001, "momentum": 0.9},
+        )
+        self.assertEqual(method.core.__class__.__module__, "online_aig_tta.official.tent")
+        self.assertTrue(method.model.bn.weight.requires_grad)
+        self.assertTrue(method.model.bn.bias.requires_grad)
+        self.assertFalse(method.model.conv.weight.requires_grad)
+        self.assertFalse(method.model.head.weight.requires_grad)
+        self.assertIsNone(method.model.bn.running_mean)
+        self.assertIsNone(method.model.bn.running_var)
+        optimizer_ids = {
+            id(parameter)
+            for group in method.optimizer.param_groups
+            for parameter in group["params"]
+        }
+        self.assertEqual(
+            optimizer_ids, {id(method.model.bn.weight), id(method.model.bn.bias)}
+        )
+        method.reset()
+        self.assertIsNone(method.model.bn.running_mean)
+
+    def test_full_eata_rejects_missing_fisher_information(self) -> None:
+        from online_aig_tta.methods.eata import EATA
+
+        with self.assertRaisesRegex(RuntimeError, "Fisher"):
+            EATA(self.detector(), "cpu", {"optimizer": "sgd"})
+
+    def test_eata_binary_port_adapts_without_labels(self) -> None:
+        from online_aig_tta.methods.eata import EATA
+
+        method = EATA(
+            self.detector(),
+            "cpu",
+            {
+                "optimizer": "sgd",
+                "learning_rate": 0.001,
+                "require_fisher": False,
+                "entropy_margin": 10.0,
+            },
+        )
+        self.assertEqual(method.core.__class__.__module__, "online_aig_tta.official.eata")
+        stats = method.adapt(self.torch.randn(4, 3, 8, 8))
+        self.assertEqual(stats.selected, 4)
+        self.assertFalse(stats.extra["fisher_enabled"])
+
+    def test_cotta_runs_official_teacher_augmentation_update(self) -> None:
+        from online_aig_tta.methods.cotta import CoTTA
+
+        method = CoTTA(
+            self.detector(),
+            "cpu",
+            {
+                "optimizer": "adam",
+                "learning_rate": 0.001,
+                "augmentations": 2,
+                "image_size": 8,
+                "restore_probability": 0.0,
+                "anchor_confidence": 2.0,
+            },
+        )
+        self.assertEqual(method.core.__class__.__module__, "online_aig_tta.official.cotta")
+        images = self.torch.randn(2, 3, 8, 8)
+        augmented = method._augment(images)
+        self.assertEqual(tuple(augmented.shape), tuple(images.shape))
+        prediction = method.predict(images)
+        self.assertEqual(tuple(prediction.logits.shape), (2, 2))
+        self.assertIsNotNone(method._pending_teacher_target)
+        stats = method.adapt(images)
+        self.assertIsNone(method._pending_teacher_target)
+        self.assertTrue(self.torch.isfinite(self.torch.tensor(stats.loss)))
+        self.assertEqual(stats.selected, 2)
+
+    def test_t2a_repaired_losses_and_bernoulli_labels_are_well_formed(self) -> None:
+        from online_aig_tta.methods.t2a import T2A
+        from online_aig_tta.official.t2a_losses import (
+            complementary_labels,
+            compute_noise_tolerant_negative_loss,
+        )
+
+        method = T2A(
+            self.detector(),
+            "cpu",
+            {
+                "optimizer": "adam",
+                "learning_rate": 0.0001,
+                "noise_type": "bernoulli",
+                "gradient_masking": True,
+            },
+        )
+        self.assertEqual(method.core.__class__.__module__, "online_aig_tta.official.t2a")
+        images = self.torch.randn(4, 3, 8, 8)
+        logits = method.model(images)
+        pseudo_labels = logits.argmax(dim=1)
+        noisy_labels = complementary_labels(logits, "bernoulli")
+        self.assertEqual(tuple(noisy_labels.shape), (4,))
+        self.assertTrue(self.torch.all(noisy_labels != pseudo_labels))
+        loss = compute_noise_tolerant_negative_loss(
+            logits, noise_type="bernoulli", gamma=2.0, alpha=1.0, beta=1.0
+        )
+        self.assertTrue(self.torch.isfinite(loss))
+        state_before_predict = {
+            name: tensor.detach().clone()
+            for name, tensor in method.model.state_dict().items()
+        }
+        method.predict(images)
+        for name, tensor in method.model.state_dict().items():
+            self.assertTrue(
+                self.torch.equal(tensor, state_before_predict[name]),
+                f"predict mutated {name}",
+            )
+        stats = method.adapt(images)
+        self.assertTrue(self.torch.isfinite(self.torch.tensor(stats.loss)))
+
+    def test_normalized_input_transform_round_trips_identity_pixels(self) -> None:
+        from online_aig_tta.data.transforms import IMAGENET_MEAN, IMAGENET_STD
+        from online_aig_tta.methods.utils import NormalizedInputTransform
+
+        class RecordingIdentity:
+            seen = None
+
+            def __call__(self, images):
+                self.seen = images.detach().clone()
+                return images
+
+        pixel_transform = RecordingIdentity()
+        pixels = self.torch.rand(2, 3, 8, 8)
+        mean = self.torch.tensor(IMAGENET_MEAN)[None, :, None, None]
+        std = self.torch.tensor(IMAGENET_STD)[None, :, None, None]
+        normalized = (pixels - mean) / std
+        transformed = NormalizedInputTransform(pixel_transform)(normalized)
+
+        self.assertTrue(self.torch.allclose(pixel_transform.seen, pixels, atol=1e-6))
+        self.assertTrue(self.torch.allclose(transformed, normalized, atol=1e-6))
+
+    def test_rotta_runs_robust_bn_cstu_and_teacher_student_update(self) -> None:
+        from online_aig_tta.methods.rotta import RoTTA
+        from online_aig_tta.official.rotta import RobustBN2d
+
+        method = RoTTA(
+            self.detector(),
+            "cpu",
+            {
+                "optimizer": "adam",
+                "lr": 0.001,
+                "memory_size": 4,
+                "update_frequency": 2,
+                "num_classes": 2,
+                "image_size": 8,
+            },
+        )
+        self.assertEqual(method.core.__class__.__module__, "online_aig_tta.official.rotta")
+        self.assertIsInstance(method.model.bn, RobustBN2d)
+        self.assertEqual(
+            set(method.official_parameter_names), {"bn.weight", "bn.bias"}
+        )
+        images = self.torch.randn(2, 3, 8, 8)
+        prediction = method.predict(images)
+        self.assertEqual(tuple(prediction.logits.shape), (2, 2))
+        stats = method.adapt(images)
+        self.assertEqual(stats.selected, 2)
+        self.assertEqual(stats.extra["memory_occupancy"], 2)
+        self.assertEqual(stats.extra["optimizer_updates"], 1)
+        self.assertTrue(self.torch.isfinite(self.torch.tensor(stats.loss)))
+        method.reset()
+        self.assertEqual(method.core.mem.get_occupancy(), 0)
+        self.assertEqual(method.core.current_instance, 0)
+        self.assertEqual(
+            method.core.transform.__class__.__name__, "NormalizedInputTransform"
+        )
+
+    def test_lame_runs_official_parameter_free_laplacian_output_update(self) -> None:
+        from online_aig_tta.methods.lame import LAME
+
+        method = LAME(
+            self.detector(),
+            "cpu",
+            {"affinity": "rbf", "knn": 5, "max_steps": 100},
+        )
+        before = {
+            name: parameter.detach().clone()
+            for name, parameter in method.model.named_parameters()
+        }
+        prediction = method.predict(self.torch.randn(4, 3, 8, 8))
+        probabilities = prediction.logits.softmax(dim=1)
+        self.assertEqual(tuple(prediction.logits.shape), (4, 2))
+        self.assertTrue(
+            self.torch.allclose(
+                probabilities.sum(dim=1), self.torch.ones(4), atol=1e-6
+            )
+        )
+        stats = method.adapt(self.torch.randn(4, 3, 8, 8))
+        self.assertEqual(stats.selected, 0)
+        self.assertFalse(stats.extra["state_update"])
+        self.assertEqual(method.trainable_parameters, 0)
+        for name, parameter in method.model.named_parameters():
+            self.assertTrue(self.torch.equal(parameter, before[name]))
+
+        singleton = method.predict(self.torch.randn(1, 3, 8, 8))
+        self.assertEqual(tuple(singleton.logits.shape), (1, 2))
+        self.assertTrue(method.last_batch_guarded)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,15 @@
+extends: iapl_official_genimage_caidbench_1gpu.yaml
+test_selected_subsets:
+  - stable_diffusion_v_1_4
+  - stable_diffusion_v_1_5
+  - VQDM
+  - wukong
+output_dir: outputs/iapl_official/caidbench_genimage_shard_b
+reference_metrics: null
+require_reference_match: false
+
+runtime_deviations:
+  - Official shell uses eight local processes; this shard uses one DDP process.
+  - Domains are split across two independent servers. IAPL resets parameters for every
+    image, so domain sharding does not change the adaptation state seen by any sample.
+  - CAIDBench Arrow payloads are exported byte-for-byte into official ImageFolder names.

@@ -1,0 +1,29 @@
+methods: [eata]
+
+method_configs:
+  eata:
+    # Names follow the authors' main.py arguments and EATA constructor.
+    optimizer: SGD
+    steps: 1
+    episodic: false
+    lr: 0.00025
+    momentum: 0.9
+    weight_decay: 0.0
+    require_fisher: true
+    fisher_alpha: 2000.0
+    # Paper/default rule is E_0 = 0.4 * log(C); C=2 for real/fake.
+    e_margin: 0.2772588722239781
+    e_margin_coefficient: 0.4
+    num_classes: 2
+    d_margin: 0.05
+    fisher_size: 2000
+    fisher_batch_size: 64
+    reference:
+      profile: official_eata_imagenetc_resnet50
+      repository: https://github.com/mr-eggplant/EATA
+      commit: f739b3668cc7617e9b9f1979c1a358497a3472c3
+      upstream_config: main.py
+      original_batch_size: 64
+      original_e_margin: 2.763102111592855
+      original_num_classes: 1000
+      transfer_note: e_margin is scaled by the authors' 0.4*log(C) rule from 1000 classes to 2; all other official values are retained.

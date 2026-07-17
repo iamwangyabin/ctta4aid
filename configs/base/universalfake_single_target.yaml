@@ -1,0 +1,51 @@
+seed: 0
+device: auto
+output_dir: outputs/universalfake/single_target
+
+protocol:
+  name: predict_then_adapt
+  source_free_during_test: true
+  target_labels_available_to_method: false
+  generator_id_available_to_method: false
+  passes: 1
+  updates_per_batch: 1
+
+model:
+  architecture: resnet50
+  pretrained: false
+  num_classes: 2
+  checkpoint: ${UFD_SOURCE_CHECKPOINT}
+
+data:
+  format: universalfake
+  # Point this at a merged directory containing one folder per domain below.
+  root: ${UFD_TEST_ROOT}
+  image_size: 224
+  batch_size: 16
+  num_workers: 4
+  shuffle: true
+  max_samples_per_class: 1000
+  # ProGAN is the source and is excluded from the cross-generator target table.
+  targets:
+    - cyclegan
+    - biggan
+    - stylegan
+    - stargan
+    - gaugan
+    - crn
+    - dalle
+    - deepfake
+    - glide_50_27
+    - glide_100_10
+    - glide_100_27
+    - guided
+    - imle
+    - ldm_100
+    - ldm_200
+    - ldm_200_cfg
+    - san
+    - seeingdark
+
+evaluation:
+  threshold: 0.5
+  curve_window_batches: 20

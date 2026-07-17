@@ -1,0 +1,11 @@
+extends:
+  - base/caidbench_genimage_continual.yaml
+  - methods/source.yaml
+  - methods/tent.yaml
+  - methods/eata.yaml
+  - methods/cotta.yaml
+  - methods/rotta.yaml
+  - methods/lame.yaml
+  - methods/t2a.yaml
+methods: [source, tent, eata, cotta, rotta, lame, t2a]
+output_dir: outputs/caidbench/genimage/continual/all_methods

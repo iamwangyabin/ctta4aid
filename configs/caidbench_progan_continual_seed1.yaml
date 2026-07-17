@@ -1,0 +1,3 @@
+extends: caidbench_progan_continual.yaml
+seed: 1
+output_dir: outputs/caidbench/progan/continual/seed1

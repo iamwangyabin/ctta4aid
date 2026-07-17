@@ -1,0 +1,35 @@
+methods: [t2a]
+
+method_configs:
+  t2a:
+    # Mirrors the authors' released configs/T2A.yaml.
+    steps: 1
+    episodic: false
+    optimizer: Adam
+    optimizer_config:
+      lr: 0.0001
+      beta1: 0.9
+      beta2: 0.999
+      weight_decay: 0.0
+    l1_lambda: 0.0
+    num_classes: 2
+    entropy_fn: entropy
+    noise_type: bernoulli
+    psi: 0.01
+    gamma: 2.0
+    alpha: 1.0
+    beta: 1.0
+    # These attributes are referenced but absent from the public YAML/code init.
+    # They are isolated here so they cannot be mistaken for reported defaults.
+    release_repairs:
+      e_margin: 0.2772588722239781
+      filter_grad: true
+      cosine_strategy: zero_pad
+      status: required_to_execute_not_reported_as_official_hyperparameters
+    reference:
+      profile: authors_public_t2a_yaml_plus_explicit_release_repairs
+      repository: https://github.com/HongHanh2104/T2A-Think-Twice-Before-Adaptation
+      commit: 33c8ccc64afdda260564123d6c790d030a89ff81
+      upstream_config: configs/T2A.yaml
+      original_batch_size: 32
+      transfer_note: Reported YAML values are retained; release_repairs require sensitivity analysis and author clarification.

@@ -1,0 +1,9 @@
+methods: [source]
+
+method_configs:
+  source:
+    adaptation: none
+    reference:
+      role: shared_source_checkpoint_control
+      trainable_parameters: 0
+      note: Prediction only; no test-time update.

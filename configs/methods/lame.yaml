@@ -1,0 +1,30 @@
+methods: [lame]
+
+method_configs:
+  lame:
+    # Official defaults.py plus configs/method/best/LAME/overall_best.yaml.
+    affinity: rbf
+    knn: 5
+    sigma: 1.0
+    force_symmetry: false
+    bound_lambda: 1.0
+    max_steps: 100
+    feature_normalization: l2
+    parameter_update: none
+    # The released rbf_affinity stores LAME_SIGMA but recomputes the effective
+    # bandwidth from the batch's mean k-th distance; the port preserves that.
+    official_symbols:
+      LAME_AFFINITY: rbf
+      LAME_KNN: 5
+      LAME_SIGMA: 1.0
+      LAME_FORCE_SYMMETRY: false
+      STEPS: 100
+    reference:
+      profile: official_lame_overall_best
+      repository: https://github.com/fiveai/LAME
+      commit: d2e5f63090bc1c8129bf7cbd781029a5955e1a67
+      upstream_config: configs/method/best/LAME/overall_best.yaml
+      upstream_defaults: src/config/defaults.py
+      original_batch_size: 16
+      transfer_note: Official parameter-free RBF/k=5 Laplacian optimization is retained; framework supplies binary logits and penultimate features.
+      license: CC-BY-NC-SA-4.0

@@ -1,0 +1,1 @@
+extends: [../../../base/universalfake_continual.yaml, ../../../methods/cotta.yaml]

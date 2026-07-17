@@ -1,0 +1,26 @@
+extends: iapl_official_ufd.yaml
+repo_path: ${IAPL_REPO_PATH}
+dataset_path: ${IAPL_PROGAN_PROXY_ROOT}
+pretrained_model: ${IAPL_UFD_CHECKPOINT}
+clip_path: ${CLIP_VIT_L14_CHECKPOINT}
+output_dir: outputs/iapl_official/caidbench_progan_proxy_1gpu
+nproc_per_node: 1
+test_selected_subsets:
+  - CycleGAN
+  - BigGAN
+  - StyleGAN
+  - StarGAN
+  - GauGAN
+  - CRN
+  - DeepFakes
+  - GLIDE
+  - IMLE
+  - LDM
+reference_metrics: null
+require_reference_match: false
+
+runtime_deviations:
+  - This is a CAIDBench ten-domain proxy, not the authors' nineteen-domain
+    UniversalFakeDetect reference benchmark; no paper-reference gate is applied.
+  - Official shell uses eight local processes; available servers provide one GPU each,
+    so evaluation uses one DDP process without changing model or TTA hyperparameters.

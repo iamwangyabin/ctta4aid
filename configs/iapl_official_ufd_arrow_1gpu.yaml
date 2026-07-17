@@ -1,0 +1,17 @@
+extends: iapl_official_ufd.yaml
+
+repo_path: ${IAPL_REPO_PATH}
+dataset_path: "hf_arrow://${UFD_FORENSYNTHS_ARROW_ROOT}|${UFD_OJHA_ARROW_ROOT}"
+pretrained_model: ${IAPL_UFD_CHECKPOINT}
+clip_path: ${CLIP_VIT_L14_CHECKPOINT}
+output_dir: outputs/iapl_official/universalfake_arrow_1gpu
+
+# The 3090 host is single-GPU. This preserves the released per-image TTA
+# settings but is an engineering reproduction of the authors' 8-process run.
+nproc_per_node: 1
+master_port: 29581
+num_workers: 0
+
+protocol:
+  distributed_execution: single_gpu_engineering_reproduction
+  data_backend: huggingface_arrow_memory_mapped

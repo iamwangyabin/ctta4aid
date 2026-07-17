@@ -1,0 +1,25 @@
+extends:
+  - base/caidbench_progan_continual.yaml
+  - methods/source.yaml
+  - methods/tent.yaml
+  - methods/eata.yaml
+  - methods/cotta.yaml
+  - methods/rotta.yaml
+  - methods/lame.yaml
+  - methods/t2a.yaml
+methods: [source, tent, eata, cotta, rotta, lame, t2a]
+output_dir: outputs/smoke/caidbench/progan/continual
+
+data:
+  batch_size: 8
+  num_workers: 2
+  max_samples_per_class: 8
+  final_eval_max_samples_per_class: 4
+  stream: [CycleGAN, BigGAN]
+
+method_configs:
+  cotta:
+    augmentations: 2
+  rotta:
+    memory_size: 8
+    update_frequency: 8

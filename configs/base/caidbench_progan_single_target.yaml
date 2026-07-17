@@ -1,0 +1,43 @@
+seed: 0
+device: auto
+output_dir: outputs/caidbench/progan/single_target
+
+protocol:
+  name: predict_then_adapt
+  source_free_during_test: true
+  target_labels_available_to_method: false
+  generator_id_available_to_method: false
+  passes: 1
+  updates_per_batch: 1
+
+model:
+  architecture: resnet50
+  pretrained: false
+  num_classes: 2
+  checkpoint: ${CAID_PROGAN_SOURCE_CHECKPOINT}
+
+data:
+  format: caidbench_arrow
+  root: ${CAIDBENCH_ROOT}
+  split: test
+  image_size: 224
+  resize_before_crop: false
+  batch_size: 16
+  num_workers: 8
+  shuffle: true
+  max_samples_per_class: 1000
+  targets:
+    - CycleGAN
+    - BigGAN
+    - StyleGAN
+    - StarGAN
+    - GauGAN
+    - CRN
+    - DeepFakes
+    - GLIDE
+    - IMLE
+    - LDM
+
+evaluation:
+  threshold: 0.5
+  curve_window_batches: 20

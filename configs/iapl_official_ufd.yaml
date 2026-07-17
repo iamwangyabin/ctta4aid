@@ -1,0 +1,66 @@
+repo_path: external/IAPL
+dataset: UniversalFakeDetect
+dataset_path: ${IAPL_UFD_ROOT}
+train_selected_subsets: [car, cat, chair, horse]
+test_selected_subsets:
+  - crn
+  - cyclegan
+  - dalle
+  - biggan
+  - deepfake
+  - gaugan
+  - glide_50_27
+  - glide_100_10
+  - glide_100_27
+  - guided
+  - imle
+  - ldm_100
+  - ldm_200
+  - ldm_200_cfg
+  - progan
+  - san
+  - seeingdark
+  - stargan
+  - stylegan
+
+pretrained_model: ${IAPL_UFD_CHECKPOINT}
+clip_path: ${CLIP_VIT_L14_CHECKPOINT}
+output_dir: outputs/iapl_official/universalfake
+model_name: tta
+epoch: 1
+lr_drop: 10
+gate: true
+condition: true
+tta: true
+eval: true
+
+# Names and values mirror the authors' tta_universalfake.sh/main.py arguments.
+nproc_per_node: 8
+master_port: 29579
+batchsize: 32
+evalbatchsize: 32
+lr: 0.005
+tta_steps: 2
+selection_p: 0.2
+ois: true
+smooth: false
+num_workers: 0          # Released shell omits it; parser default is 0.
+seed: 100
+
+protocol:
+  name: official_iapl
+  order: adapt_then_predict
+  reset: per_image
+  parameter_accumulation_between_images: false
+  comparable_as_end_to_end_official_baseline: true
+  comparable_to_controlled_predict_then_adapt_ablation: false
+
+reference:
+  repository: https://github.com/liyih/IAPL
+  commit: a173e7783bbafaa00d60e6e31774a0bc14411a23
+  upstream_script: tta_universalfake.sh
+
+# Authors' README: UniversalFakeDetect mACC=95.61%, mAP=99.32%.
+reference_metrics: {acc: 0.9561, ap: 0.9932}
+reference_tolerance: 0.01
+require_reference_match: true
