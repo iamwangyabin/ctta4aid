@@ -56,6 +56,19 @@ class IAPLOfficialRunnerTests(unittest.TestCase):
                 "7389de40b5e60d6490f6ca3546d37be8d6c0cfdf1c52143cb4ff828bc9124fdc",
             )
 
+    def test_bn_ablation_patch_is_opt_in_and_records_protocol(self) -> None:
+        patch = (
+            Path(__file__).resolve().parents[1]
+            / "patches"
+            / "iapl-a173e77-bn-buffer-ablation.patch"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn('IAPL_RESET_BN_PER_SAMPLE', patch)
+        self.assertIn('IAPL_DDP_BROADCAST_BUFFERS', patch)
+        self.assertIn('if initial_bn_buffers is not None:', patch)
+        self.assertIn('"reset_bn_per_sample": reset_bn_per_sample', patch)
+        self.assertIn('"ddp_broadcast_buffers": ddp_broadcast_buffers', patch)
+
     def test_false_boolean_flag_is_omitted_for_authors_argparse(self) -> None:
         config = dict(self.config, smooth=False)
         command = build_command(config, python_executable="python")

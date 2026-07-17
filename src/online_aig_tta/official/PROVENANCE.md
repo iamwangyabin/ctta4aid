@@ -90,3 +90,11 @@ The same audited compatibility patch also opts out of PyTorch 2.6+
 `weights_only=True` checkpoint loading and adds an ImageFolder-compatible
 adapter for memory-mapped Hugging Face Arrow datasets. It does not change IAPL's
 transforms, sample labels, TTA views, optimizer, or adapt-then-predict protocol.
+
+P0 diagnostic runs apply two additional, separately recorded patches after the
+compatibility patch. `iapl-a173e77-prediction-capture.patch` only saves sampler
+indices, labels, and probabilities. `iapl-a173e77-bn-buffer-ablation.patch`
+adds opt-in environment switches for restoring checkpoint BatchNorm buffers
+before every sample and disabling DDP buffer broadcasts. Both switches default
+to the authors' released behavior. Results produced with either ablation must be
+reported as diagnostics, not as unmodified official-protocol reproduction.
