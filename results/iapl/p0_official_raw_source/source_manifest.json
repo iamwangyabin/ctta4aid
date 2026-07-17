@@ -1,0 +1,28 @@
+{
+  "discovered_at": "2026-07-17T14:22:00+08:00",
+  "ufd_repository": {
+    "url": "https://github.com/WisconsinAIVision/UniversalFakeDetect",
+    "commit": "76a0e3e60a8a06458707a625d269ba815a2e5919",
+    "relationship": "The UFD README identifies the first 11 domains as the test set released by Wang et al. and links to the authors' download scripts."
+  },
+  "upstream_dataset_repository": {
+    "url": "https://github.com/PeterWang512/CNNDetection",
+    "commit": "ea0b5622365e3a9cd31d1b54b6b5971131a839ab",
+    "download_script": "dataset/test/download_testset.sh",
+    "download_script_url": "https://raw.githubusercontent.com/PeterWang512/CNNDetection/ea0b5622365e3a9cd31d1b54b6b5971131a839ab/dataset/test/download_testset.sh"
+  },
+  "official_archive": {
+    "url": "https://huggingface.co/datasets/sywang/CNNDetection/resolve/main/CNN_synth_testset.zip",
+    "huggingface_repository_commit": "f287cf3c3e92ca2e5451ce200bab8b6f5e0175b2",
+    "expected_size_bytes": 20052866587,
+    "linked_etag": "d87eeff4eb6d1061f57620aa1bd54e699a18cc9860fcdc6a55bf4cf643008d85",
+    "xet_hash": "b3a9c6bef12154e77a6f7eec7af42c947d2749e7c3b35313eb2d2d90fe7632e5"
+  },
+  "active_download": {
+    "host": "4090-1",
+    "path": "/home/yabin/ctta4aid_assets/data/ufd_official_raw/cnndetection_official/CNN_synth_testset.zip",
+    "transport": "hf-mirror resolver with the upstream Xet object, HTTP/1.1, resume enabled",
+    "pid": 436869,
+    "status": "running"
+  }
+}
