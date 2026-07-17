@@ -84,6 +84,28 @@
     "all_three_gpus_active": true,
     "fatal_errors": 0
   },
+  "progress": {
+    "validated_at": "2026-07-17T21:27:46+08:00",
+    "completed_domains": ["crn"],
+    "active_domain": "cyclegan",
+    "crn": {
+      "dataset_size": 12764,
+      "samples_with_distributed_padding": 12768,
+      "duplicate_sampler_indices": 4,
+      "accuracy": 0.9253602756892231,
+      "average_precision": 0.9277511266172409,
+      "real_accuracy": 0.8507673034763545,
+      "fake_accuracy": 1.0,
+      "paper_accuracy": 0.9247,
+      "paper_average_precision": 0.9997,
+      "accuracy_delta": 0.000660275689223111,
+      "average_precision_delta": -0.07194887338275913
+    },
+    "artifact_sha256": {
+      "predictions/crn.json": "fec4cd33f4ab52d485d3ac722ba0fdaea3d3a053e6b87e2a7b7052aa971e1933",
+      "partial_comparison.json": "f1239b6d9b0258663f4a8d422f8e3b81a11230e90e2370ef5414f8fcd1d21b34"
+    }
+  },
   "reference": {
     "paper_macc": 0.9561,
     "paper_map": 0.9932,
