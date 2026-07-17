@@ -85,9 +85,9 @@
     "fatal_errors": 0
   },
   "progress": {
-    "validated_at": "2026-07-17T21:56:55+08:00",
-    "completed_domains": ["crn", "cyclegan", "dalle"],
-    "active_domain": "biggan",
+    "validated_at": "2026-07-17T22:16:13+08:00",
+    "completed_domains": ["crn", "cyclegan", "dalle", "biggan"],
+    "active_domain": "deepfake",
     "crn": {
       "dataset_size": 12764,
       "samples_with_distributed_padding": 12768,
@@ -127,20 +127,34 @@
       "accuracy_delta": 0.0015000000000000568,
       "average_precision_delta": -0.0038326431308148834
     },
+    "biggan": {
+      "dataset_size": 4000,
+      "samples_with_distributed_padding": 4000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9875,
+      "average_precision": 0.9795846191720229,
+      "real_accuracy": 0.9775,
+      "fake_accuracy": 0.9975,
+      "paper_accuracy": 0.9865,
+      "paper_average_precision": 0.9995,
+      "accuracy_delta": 0.0010000000000000009,
+      "average_precision_delta": -0.01991538082797717
+    },
     "completed_domain_mean": {
-      "domain_count": 3,
-      "accuracy": 0.9679252278480693,
-      "average_precision": 0.9677962699653072,
-      "paper_accuracy": 0.9665666666666666,
-      "paper_average_precision": 0.9997000000000001,
-      "accuracy_delta": 0.001358561181402762,
-      "average_precision_delta": -0.031903730034692934
+      "domain_count": 4,
+      "accuracy": 0.9728189208860519,
+      "average_precision": 0.9707433572669861,
+      "paper_accuracy": 0.97155,
+      "paper_average_precision": 0.9996500000000001,
+      "accuracy_delta": 0.0012689208860519052,
+      "average_precision_delta": -0.02890664273301402
     },
     "artifact_sha256": {
       "predictions/crn.json": "fec4cd33f4ab52d485d3ac722ba0fdaea3d3a053e6b87e2a7b7052aa971e1933",
       "predictions/cyclegan.json": "0e68a3f26a51e3bcb7b12c3a5bc4423afdff029bebe7ee1e9c694f7ca41008d8",
       "predictions/dalle.json": "f651b22cd001974b9dbbf9dd9d12e31a1e5b67e20d5956f7de7f6a9cfc87ad13",
-      "partial_comparison.json": "1d9dc2783e0b78300c478f2d43a94940ced38e86154b390d115409e4909a26b1"
+      "predictions/biggan.json": "cf7f3f2a778ac896c5a7860f586af747758005bed462312745505bf703cbd4e9",
+      "partial_comparison.json": "28324b42d0e0cfcd62be265ddb6b157ff014483c37572427c8c3b9ee7c71cd50"
     }
   },
   "reference": {
