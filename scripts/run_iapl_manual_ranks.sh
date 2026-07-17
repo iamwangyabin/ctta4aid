@@ -21,7 +21,7 @@ world_size=${WORLD_SIZE:?WORLD_SIZE is required}
 project_root=${PROJECT_ROOT:-/home/yabin/ctta4aid-arrow}
 iapl_repo=${IAPL_REPO_PATH:-/home/yabin/ctta4aid_assets/external/IAPL}
 python=${IAPL_PYTHON:-/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python}
-dataset_path=${IAPL_DATASET_PATH:-hf_arrow:///home/yabin/ctta4aid_assets/data/df_arrow_20260717/ForenSynths\|/home/yabin/ctta4aid_assets/data/df_arrow_20260717/Ojha}
+dataset_path=${IAPL_DATASET_PATH:-}
 pretrained_model=${IAPL_UFD_CHECKPOINT:-/home/yabin/ctta4aid_assets/weights/iapl/checkpoint_best_acc_progan.pth}
 clip_path=${CLIP_VIT_L14_CHECKPOINT:-/home/yabin/.cache/clip/ViT-L-14.pt}
 output_dir=${IAPL_OUTPUT_DIR:-$project_root/outputs/iapl_official/manual_ranks}
@@ -29,6 +29,37 @@ prediction_dir=${IAPL_PREDICTION_DIR:-$output_dir/predictions}
 master_addr=${MASTER_ADDR:?MASTER_ADDR is required}
 master_port=${MASTER_PORT:-29621}
 nccl_lib_dir=${IAPL_NCCL_LIB_DIR:-}
+
+if [[ -z $dataset_path ]]; then
+  for dataset_root in \
+    /home/yabin/ctta4aid_assets/data/df_arrow_20260717 \
+    /home/yabin/ctta4aid_assets/data/df_arrow_20260716; do
+    if [[ -f $dataset_root/ForenSynths/state.json && -f $dataset_root/Ojha/state.json ]]; then
+      dataset_path="hf_arrow://$dataset_root/ForenSynths|$dataset_root/Ojha"
+      break
+    fi
+  done
+fi
+if [[ -z $dataset_path ]]; then
+  echo "No complete UFD Arrow dataset root was found" >&2
+  exit 1
+fi
+if [[ ! -x $python ]]; then
+  echo "IAPL Python is not executable: $python" >&2
+  exit 1
+fi
+if [[ ! -d $iapl_repo ]]; then
+  echo "IAPL repository is missing: $iapl_repo" >&2
+  exit 1
+fi
+if [[ ! -f $pretrained_model ]]; then
+  echo "IAPL checkpoint is missing: $pretrained_model" >&2
+  exit 1
+fi
+if [[ ! -f $clip_path ]]; then
+  echo "CLIP checkpoint is missing: $clip_path" >&2
+  exit 1
+fi
 
 if [[ -z $nccl_lib_dir ]]; then
   nccl_lib_dir=$("$python" -c '
@@ -62,6 +93,12 @@ print(version.value)
     exit 1
   fi
   echo "Using NCCL $nccl_version from $nccl_lib_dir"
+fi
+
+if [[ ${IAPL_PREFLIGHT_ONLY:-0} == 1 ]]; then
+  printf 'python=%s\ndataset_path=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\n' \
+    "$python" "$dataset_path" "$iapl_repo" "$pretrained_model" "$clip_path"
+  exit 0
 fi
 
 export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}

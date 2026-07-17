@@ -1,0 +1,41 @@
+{
+  "checked_at": "2026-07-17T14:09:00+08:00",
+  "hosts": {
+    "A6000": {
+      "dataset_root": "/home/yabin/ctta4aid_assets/data/df_arrow_20260717",
+      "python": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python"
+    },
+    "4090-1": {
+      "dataset_root": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716",
+      "python": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python"
+    },
+    "4090-2": {
+      "dataset_root": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716",
+      "python": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python"
+    }
+  },
+  "sha256": {
+    "ForenSynths/data-00000-of-00192.arrow": "c46da617da08bdf34d93ae63015dfdf9671d8806f7e126e784bc0c0269ed1f77",
+    "ForenSynths/data-00096-of-00192.arrow": "0537dfbddbf8856213633fa24de8bb1b12e1f585488a37f00008d3e5d5ddf82c",
+    "ForenSynths/data-00191-of-00192.arrow": "6204f5908cb6f9a1451022e68ea3f9093a1b121885eba2d7de4bbd8298ded372",
+    "ForenSynths/dataset_info.json": "7cfc89c8c68aff7d81095b6c555e69c04c724a9df34252396587af38a7ff3a53",
+    "ForenSynths/state.json": "3efd851dd1a5a6e76cc0109d473ccbaae54f981c018c5900835f177c0baf9d91",
+    "Ojha/data-00000-of-00003.arrow": "73dbfbe5f0726d952582afbf52dba7ba6f753c379f94cad5eb6bf094b85a212e",
+    "Ojha/data-00001-of-00003.arrow": "106c515e2174e0f514dbd69e4903d4dfebc27852f8aef23dcce176954dca33e3",
+    "Ojha/data-00002-of-00003.arrow": "d296f1c7d69e040417d3be994e6198d5a471a0374aac17f8d8aad28a1b2484bc",
+    "Ojha/dataset_info.json": "7cfc89c8c68aff7d81095b6c555e69c04c724a9df34252396587af38a7ff3a53",
+    "Ojha/state.json": "6e3c2da3310416358387a0c91c50cb55c8bb93cc991ea9f4175ac1a9abb172f2"
+  },
+  "verification": {
+    "hosts_checked": 3,
+    "files_checked_per_host": 10,
+    "all_hashes_match": true,
+    "launcher_preflight_passed": true,
+    "nccl_version_on_all_hosts": 23007,
+    "rank_mapping": {
+      "A6000": [0, 1, 2, 3],
+      "4090-1": [4, 5],
+      "4090-2": [6, 7]
+    }
+  }
+}
