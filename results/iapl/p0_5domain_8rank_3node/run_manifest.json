@@ -1,6 +1,6 @@
 {
   "experiment": "P0 three-node eight-rank five-domain official-protocol diagnosis",
-  "status": "retry_preparing",
+  "status": "attempt_2_running",
   "source_commit": "1eb37d3e32523e2617ffcec3f93879e9010384ba",
   "protocol": {
     "world_size": 8,
@@ -43,7 +43,8 @@
     },
     {
       "attempt": 2,
-      "status": "preparing",
+      "status": "running",
+      "started_at": "2026-07-17T16:53:37+08:00",
       "master_addr": "192.168.10.2",
       "master_port": 29625,
       "distributed_timeout_seconds": 7200,
@@ -56,6 +57,14 @@
     "observed_sum": 36.0,
     "runtime_nccl_version": 23007,
     "timeout_seconds": 7200
+  },
+  "attempt_2_startup_verification": {
+    "validated_at": "2026-07-17T16:54:07+08:00",
+    "all_eight_rank_processes_live": true,
+    "all_eight_ranks_report_timeout_seconds": 7200,
+    "all_eight_ranks_passed_initial_distributed_barrier": true,
+    "all_three_gpus_active": true,
+    "fatal_errors": 0
   },
   "artifact_sha256": {
     "scripts/run_iapl_manual_ranks.sh": "9c9260023a66fd916d20f9f5103f163c1c117cbdf622f4e2cd0886f33a379fbb",
