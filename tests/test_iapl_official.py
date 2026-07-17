@@ -69,6 +69,26 @@ class IAPLOfficialRunnerTests(unittest.TestCase):
         self.assertIn('"reset_bn_per_sample": reset_bn_per_sample', patch)
         self.assertIn('"ddp_broadcast_buffers": ddp_broadcast_buffers', patch)
 
+    def test_shared_gpu_launcher_extends_collective_timeout(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        patch = (
+            root / "patches" / "iapl-a173e77-distributed-timeout.patch"
+        ).read_text(encoding="utf-8")
+        launcher = (root / "scripts" / "run_iapl_manual_ranks.sh").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn('IAPL_DISTRIBUTED_TIMEOUT_SECONDS', patch)
+        self.assertIn("datetime.timedelta(seconds=timeout_seconds)", patch)
+        self.assertIn(
+            'distributed_timeout_seconds=${IAPL_DISTRIBUTED_TIMEOUT_SECONDS:-7200}',
+            launcher,
+        )
+        self.assertIn(
+            'export IAPL_DISTRIBUTED_TIMEOUT_SECONDS="$distributed_timeout_seconds"',
+            launcher,
+        )
+
     def test_false_boolean_flag_is_omitted_for_authors_argparse(self) -> None:
         config = dict(self.config, smooth=False)
         command = build_command(config, python_executable="python")

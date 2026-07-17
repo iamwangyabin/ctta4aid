@@ -29,6 +29,7 @@ prediction_dir=${IAPL_PREDICTION_DIR:-$output_dir/predictions}
 master_addr=${MASTER_ADDR:?MASTER_ADDR is required}
 master_port=${MASTER_PORT:-29621}
 nccl_lib_dir=${IAPL_NCCL_LIB_DIR:-}
+distributed_timeout_seconds=${IAPL_DISTRIBUTED_TIMEOUT_SECONDS:-7200}
 
 if [[ -z $dataset_path ]]; then
   for dataset_root in \
@@ -96,8 +97,9 @@ print(version.value)
 fi
 
 if [[ ${IAPL_PREFLIGHT_ONLY:-0} == 1 ]]; then
-  printf 'python=%s\ndataset_path=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\n' \
-    "$python" "$dataset_path" "$iapl_repo" "$pretrained_model" "$clip_path"
+  printf 'python=%s\ndataset_path=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\ndistributed_timeout_seconds=%s\n' \
+    "$python" "$dataset_path" "$iapl_repo" "$pretrained_model" "$clip_path" \
+    "$distributed_timeout_seconds"
   exit 0
 fi
 
@@ -112,6 +114,7 @@ fi
 export NCCL_MULTI_RANK_GPU_ENABLE=${NCCL_MULTI_RANK_GPU_ENABLE:-1}
 export NCCL_MAX_CTAS=${NCCL_MAX_CTAS:-2}
 export NCCL_NVLS_ENABLE=${NCCL_NVLS_ENABLE:-0}
+export IAPL_DISTRIBUTED_TIMEOUT_SECONDS="$distributed_timeout_seconds"
 export IAPL_PREDICTION_DIR="$prediction_dir"
 mkdir -p "$output_dir" "$prediction_dir"
 cd "$iapl_repo"

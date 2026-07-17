@@ -98,3 +98,12 @@ adds opt-in environment switches for restoring checkpoint BatchNorm buffers
 before every sample and disabling DDP buffer broadcasts. Both switches default
 to the authors' released behavior. Results produced with either ablation must be
 reported as diagnostics, not as unmodified official-protocol reproduction.
+
+The three-host shared-GPU topology can finish a large domain at different times
+on the A6000 and 4090 hosts. The authors' default 600-second process-group
+timeout therefore expired at the first end-of-domain collective even though all
+ranks had completed inference normally. The opt-in
+`iapl-a173e77-distributed-timeout.patch` reads
+`IAPL_DISTRIBUTED_TIMEOUT_SECONDS`; the shared-GPU launcher sets 7,200 seconds.
+This changes only the failure threshold for collectives and leaves sampling,
+model state, predictions, and metric computation unchanged.

@@ -1,14 +1,9 @@
 {
   "experiment": "P0 three-node eight-rank five-domain official-protocol diagnosis",
-  "status": "running",
-  "started_at": "2026-07-17T15:20:00+08:00",
-  "validated_at": "2026-07-17T15:21:17+08:00",
+  "status": "retry_preparing",
   "source_commit": "1eb37d3e32523e2617ffcec3f93879e9010384ba",
-  "remote_output_dir": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p0_5domain_8rank_3node_20260717",
   "protocol": {
     "world_size": 8,
-    "master_addr": "100.86.243.3",
-    "master_port": 29622,
     "domains": ["crn", "guided", "imle", "san", "seeingdark"],
     "seed": 100,
     "eval_batch_size": 32,
@@ -34,14 +29,38 @@
     "4090-2": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716",
     "cross_host_asset_hashes_match": true
   },
-  "startup_verification": {
-    "all_eight_rank_processes_live": true,
-    "all_eight_ranks_passed_initial_distributed_barrier": true,
-    "all_three_gpus_active": true,
-    "fatal_errors": 0
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "failed_collective_timeout",
+      "started_at": "2026-07-17T15:20:00+08:00",
+      "failed_at": "2026-07-17T16:35:40+08:00",
+      "master_addr": "100.86.243.3",
+      "master_port": 29622,
+      "distributed_timeout_seconds": 600,
+      "remote_output_dir": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p0_5domain_8rank_3node_20260717",
+      "failure_analysis": "attempt1/failure_analysis.json"
+    },
+    {
+      "attempt": 2,
+      "status": "preparing",
+      "master_addr": "192.168.10.2",
+      "master_port": 29625,
+      "distributed_timeout_seconds": 7200,
+      "remote_output_dir": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p0_5domain_8rank_3node_retry_timeout7200"
+    }
+  ],
+  "retry_preflight": {
+    "collective_probe": "collective_probe.json",
+    "all_eight_ranks_passed": true,
+    "observed_sum": 36.0,
+    "runtime_nccl_version": 23007,
+    "timeout_seconds": 7200
   },
   "artifact_sha256": {
-    "scripts/run_iapl_manual_ranks.sh": "3fcf6c39bdc3814f0f9993e311db8fcc42391e04428c6772105e587525884d48",
+    "scripts/run_iapl_manual_ranks.sh": "9c9260023a66fd916d20f9f5103f163c1c117cbdf622f4e2cd0886f33a379fbb",
+    "scripts/probe_iapl_collective.py": "126958b7f28f4cd9a16e70307cf6fb72acc87f38313653a84c4463a066628795",
+    "patches/iapl-a173e77-distributed-timeout.patch": "f3da89cfdf09f60a34a4d89a8f5c365d7ec06994565447ffe3797057a3320f7b",
     "src/online_aig_tta/data/hf_arrow.py": "fee4e07583e1e9e12607a6ef61addf254a60694e785a71376e2de5b6be638f08"
   }
 }

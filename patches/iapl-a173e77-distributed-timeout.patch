@@ -1,0 +1,28 @@
+--- a/utils/misc.py
++++ b/utils/misc.py
+@@ -501,8 +501,24 @@
+     torch.cuda.set_device(args.local_rank)
+     args.dist_backend = 'nccl'
+     print('| distributed init (rank {}): {}'.format(args.rank, args.dist_url), flush=True)
++    timeout_value = os.environ.get('IAPL_DISTRIBUTED_TIMEOUT_SECONDS')
++    process_group_options = {}
++    if timeout_value is not None:
++        try:
++            timeout_seconds = int(timeout_value)
++        except ValueError as error:
++            raise ValueError(
++                'IAPL_DISTRIBUTED_TIMEOUT_SECONDS must be a positive integer'
++            ) from error
++        if timeout_seconds <= 0:
++            raise ValueError(
++                'IAPL_DISTRIBUTED_TIMEOUT_SECONDS must be a positive integer'
++            )
++        process_group_options['timeout'] = datetime.timedelta(seconds=timeout_seconds)
++        print('distributed collective timeout: {} seconds'.format(timeout_seconds))
+     torch.distributed.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
+-                                         world_size=args.world_size, rank=args.rank)
++                                         world_size=args.world_size, rank=args.rank,
++                                         **process_group_options)
+     print("Before torch.distributed.barrier()")
+     torch.distributed.barrier()
+     print("End torch.distributed.barrier()")

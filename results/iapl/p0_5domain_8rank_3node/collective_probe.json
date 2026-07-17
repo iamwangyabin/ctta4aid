@@ -1,0 +1,29 @@
+{
+  "experiment": "P0 three-host eight-rank LAN collective preflight",
+  "status": "passed",
+  "completed_at": "2026-07-17T16:49:19+08:00",
+  "master_addr": "192.168.10.2",
+  "master_port": 29624,
+  "world_size": 8,
+  "collective": "ALLREDUCE",
+  "expected_sum": 36.0,
+  "observed_sum_on_all_ranks": 36.0,
+  "timeout_seconds_on_all_ranks": 7200,
+  "delay_injection": {
+    "rank": 0,
+    "seconds": 5.0
+  },
+  "torch_nccl_compile_version": [2, 19, 3],
+  "runtime_nccl_version": 23007,
+  "rank_mapping": {
+    "A6000": [0, 1, 2, 3],
+    "4090-1": [4, 5],
+    "4090-2": [6, 7]
+  },
+  "lan_interfaces": {
+    "A6000": "enp3s0",
+    "4090-1": "eno1",
+    "4090-2": "enp4s0"
+  },
+  "probe_sha256": "126958b7f28f4cd9a16e70307cf6fb72acc87f38313653a84c4463a066628795"
+}
