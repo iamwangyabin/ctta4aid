@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import random
+import sys
+from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import lru_cache
 from io import BytesIO
@@ -11,6 +13,26 @@ from typing import Any, Iterable, Sequence
 from PIL import Image
 
 HF_ARROW_URI_PREFIX = "hf_arrow://"
+
+
+@contextmanager
+def _preserve_global_rng_state() -> Iterable[None]:
+    """Keep metadata loading from changing the caller's augmentation stream."""
+    python_state = random.getstate()
+    numpy_module = sys.modules.get("numpy")
+    numpy_state = (
+        numpy_module.random.get_state() if numpy_module is not None else None
+    )
+    torch_module = sys.modules.get("torch")
+    torch_state = torch_module.get_rng_state() if torch_module is not None else None
+    try:
+        yield
+    finally:
+        random.setstate(python_state)
+        if numpy_state is not None:
+            numpy_module.random.set_state(numpy_state)
+        if torch_state is not None:
+            torch_module.set_rng_state(torch_state)
 
 
 @dataclass(frozen=True)
@@ -47,12 +69,13 @@ class HFDiskArrowDataset:
         if not split:
             raise ValueError("Hugging Face Arrow format requires a split")
 
-        roots = _resolve_dataset_roots(root)
-        records = [
-            record
-            for dataset_root in roots
-            for record in _records_from_root(dataset_root, generator, split)
-        ]
+        with _preserve_global_rng_state():
+            roots = _resolve_dataset_roots(root)
+            records = [
+                record
+                for dataset_root in roots
+                for record in _records_from_root(dataset_root, generator, split)
+            ]
         if not records:
             joined = ", ".join(str(path) for path in roots)
             raise FileNotFoundError(

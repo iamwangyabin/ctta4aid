@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import io
 import json
+import random
 import tempfile
 import unittest
 from pathlib import Path
@@ -22,6 +23,25 @@ DATASETS_AVAILABLE = importlib.util.find_spec("datasets") is not None
 
 @unittest.skipUnless(DATASETS_AVAILABLE, "datasets and pyarrow are required")
 class HFDiskArrowTests(unittest.TestCase):
+    def test_construction_preserves_python_rng_state(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "ForenSynths"
+            _save_dataset(
+                root,
+                {
+                    "test/crn/0_real/a.png": 0,
+                    "test/crn/1_fake/b.png": 1,
+                },
+                split_name="test",
+                domain="crn",
+            )
+            random.seed(12345)
+            before = random.getstate()
+
+            HFDiskArrowDataset(root=root, generator="crn", split="test")
+
+            self.assertEqual(random.getstate(), before)
+
     def test_combines_roots_and_uses_split_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
