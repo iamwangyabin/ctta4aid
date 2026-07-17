@@ -1,0 +1,47 @@
+{
+  "experiment": "P0 three-node eight-rank five-domain official-protocol diagnosis",
+  "status": "running",
+  "started_at": "2026-07-17T15:20:00+08:00",
+  "validated_at": "2026-07-17T15:21:17+08:00",
+  "source_commit": "1eb37d3e32523e2617ffcec3f93879e9010384ba",
+  "remote_output_dir": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p0_5domain_8rank_3node_20260717",
+  "protocol": {
+    "world_size": 8,
+    "master_addr": "100.86.243.3",
+    "master_port": 29622,
+    "domains": ["crn", "guided", "imle", "san", "seeingdark"],
+    "seed": 100,
+    "eval_batch_size": 32,
+    "tta_steps": 2,
+    "selection_p": 0.2,
+    "gate": true,
+    "condition": true,
+    "ois": true
+  },
+  "rank_mapping": {
+    "A6000": [0, 1, 2, 3],
+    "4090-1": [4, 5],
+    "4090-2": [6, 7]
+  },
+  "runtime": {
+    "python": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python",
+    "nccl_version": 23007,
+    "reason_not_cl": "The existing cl environments remain the default for ordinary runs. This run intentionally places multiple ranks on each physical GPU, which requires the separately validated NCCL 2.30 runtime."
+  },
+  "data_roots": {
+    "A6000": "/home/yabin/ctta4aid_assets/data/df_arrow_20260717",
+    "4090-1": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716",
+    "4090-2": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716",
+    "cross_host_asset_hashes_match": true
+  },
+  "startup_verification": {
+    "all_eight_rank_processes_live": true,
+    "all_eight_ranks_passed_initial_distributed_barrier": true,
+    "all_three_gpus_active": true,
+    "fatal_errors": 0
+  },
+  "artifact_sha256": {
+    "scripts/run_iapl_manual_ranks.sh": "3fcf6c39bdc3814f0f9993e311db8fcc42391e04428c6772105e587525884d48",
+    "src/online_aig_tta/data/hf_arrow.py": "fee4e07583e1e9e12607a6ef61addf254a60694e785a71376e2de5b6be638f08"
+  }
+}
