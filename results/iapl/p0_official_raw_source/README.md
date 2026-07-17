@@ -5,16 +5,14 @@ also points to the dataset scripts maintained by the authors of the earlier
 CNNDetection work. Their current official `download_testset.sh` downloads
 `CNN_synth_testset.zip` from the `sywang/CNNDetection` Hugging Face repository.
 
-The 20,052,866,587-byte archive is downloading with resume support on 4090-1.
+The 20,052,866,587-byte archive was downloaded with resume support on 4090-1.
 The host cannot reach `huggingface.co` directly because of its network setup, so
-the transfer uses the Hugging Face mirror resolver. The mirror redirects to the
-same upstream Xet object recorded in `source_manifest.json`; after the transfer,
-the archive size and SHA-256 digest will be frozen before extraction.
+the transfer used the Hugging Face mirror resolver. The mirror redirected to the
+same upstream Xet object recorded in `source_manifest.json`.
 
-Once extracted, P0 will compare file counts, paths, image bytes, and per-domain
-prediction behavior against the existing Arrow copy. This provides stronger
-evidence than treating the now-dead UFD Drive link as an unresolved data-source
-ambiguity.
+P0 then compared file counts, paths, and image bytes against the existing Arrow
+copy. This provides stronger evidence than treating the now-dead UFD Drive link
+as an unresolved data-source ambiguity.
 
 The byte audit is implemented in `scripts/compare_ufd_raw_arrow.py`. For the P0
 diagnostic it compares `crn`, `imle`, `san`, and `seeingdark` from the
@@ -28,9 +26,9 @@ samples from each of the four ForenSynths P0 domains matched their Arrow payload
 exactly, including the deterministic aggregate hashes. The project test suite
 then passed all 54 tests on A6000.
 
-`scripts/postprocess_ufd_official_archive.sh` is waiting on the active transfer.
-It verifies the exact archive size, records SHA-256, tests the ZIP structure, and
-extracts with idle I/O priority so the running IAPL inference keeps precedence.
+`scripts/postprocess_ufd_official_archive.sh` handled the completed transfer. It
+verified the exact archive size, recorded SHA-256, tested the ZIP structure, and
+extracted with idle I/O priority so the running IAPL inference kept precedence.
 
 The separate official `diffusion_datasets.zip` archive is complete and verified:
 917,979,875 bytes, SHA-256
@@ -40,3 +38,16 @@ no ZIP errors. UFD's pinned `dataset_paths.py` pairs `imagenet/0_real` with
 Arrow copy match the official archive byte for byte, with no missing or extra
 paths. This rules out Arrow serialization and the Guided dataset copy as causes
 of the remaining metric differences.
+
+The CNNDetection archive is now also complete. Its exact size matches the Hub
+metadata, SHA-256 is
+`d87eeff4eb6d1061f57620aa1bd54e699a18cc9860fcdc6a55bf4cf643008d85`
+(the same value as the linked ETag), and the ZIP test and extraction succeeded.
+All 26,326 official files across CRN, IMLE, SAN, and SeeingDark match the
+ForenSynths Arrow payloads byte for byte, with no missing or extra paths.
+
+Together with the 2,000-file Guided audit, all five P0 abnormal domains are now
+proven to use the official released image bytes. Their residual metric gaps
+cannot be attributed to Arrow serialization, ImageFolder decoding, or a
+different dataset copy; the remaining live hypothesis is execution protocol,
+especially rank sampling, rank RNG, and accumulating BatchNorm buffers.

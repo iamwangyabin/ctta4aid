@@ -16,7 +16,22 @@
     "huggingface_repository_commit": "f287cf3c3e92ca2e5451ce200bab8b6f5e0175b2",
     "expected_size_bytes": 20052866587,
     "linked_etag": "d87eeff4eb6d1061f57620aa1bd54e699a18cc9860fcdc6a55bf4cf643008d85",
-    "xet_hash": "b3a9c6bef12154e77a6f7eec7af42c947d2749e7c3b35313eb2d2d90fe7632e5"
+    "xet_hash": "b3a9c6bef12154e77a6f7eec7af42c947d2749e7c3b35313eb2d2d90fe7632e5",
+    "downloaded_size_bytes": 20052866587,
+    "sha256": "d87eeff4eb6d1061f57620aa1bd54e699a18cc9860fcdc6a55bf4cf643008d85",
+    "sha256_matches_linked_etag": true,
+    "zip_test_passed": true,
+    "extract_host": "4090-1",
+    "extract_root": "/home/yabin/ctta4aid_assets/data/ufd_official_raw/cnndetection_official/extracted",
+    "p0_forensynths_byte_audit": {
+      "domains": ["crn", "imle", "san", "seeingdark"],
+      "expected_files": 26326,
+      "exact_byte_matches": 26326,
+      "missing_paths": 0,
+      "extra_paths": 0,
+      "byte_mismatches": 0,
+      "all_exact": true
+    }
   },
   "official_diffusion_archive": {
     "google_drive_file_id": "1FXlGIRh_Ud3cScMgSVDbEWmPDmjcrm1t",
@@ -46,6 +61,7 @@
     "path": "/home/yabin/ctta4aid_assets/data/ufd_official_raw/cnndetection_official/CNN_synth_testset.zip",
     "transport": "hf-mirror resolver with the upstream Xet object, HTTP/1.1, resume enabled",
     "pid": 436869,
-    "status": "running"
+    "status": "complete",
+    "postprocess_completed_at": "2026-07-17T14:58:56+08:00"
   }
 }

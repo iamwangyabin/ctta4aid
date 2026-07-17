@@ -1,0 +1,132 @@
+{
+  "arrow_root": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716/ForenSynths",
+  "raw_root": "/home/yabin/ctta4aid_assets/data/ufd_official_raw/cnndetection_official/extracted",
+  "resolved_raw_layout": {
+    "base": "/home/yabin/ctta4aid_assets/data/ufd_official_raw/cnndetection_official/extracted",
+    "strip_test_prefix": true,
+    "path_aliases": []
+  },
+  "domains": [
+    "crn",
+    "imle",
+    "san",
+    "seeingdark"
+  ],
+  "domain_count": 4,
+  "exact_domain_count": 4,
+  "all_exact": true,
+  "by_domain": {
+    "crn": {
+      "domain": "crn",
+      "expected_files": 12764,
+      "checked_files": 12764,
+      "raw_files": 12764,
+      "sampled_only": false,
+      "expected_by_label": {
+        "real": 6382,
+        "fake": 6382,
+        "unknown": 0
+      },
+      "missing_raw_paths": 0,
+      "extra_raw_paths": 0,
+      "mapping_missing": 0,
+      "row_path_mismatches": 0,
+      "label_path_mismatches": 0,
+      "missing_raw_files": 0,
+      "exact_byte_matches": 12764,
+      "byte_mismatches": 0,
+      "metadata_md5_mismatches": 0,
+      "arrow_manifest_sha256": "4a334d917dddb34f879e16f4e9e33f740198efe360c74da26e47f5a17ec84e4f",
+      "raw_manifest_sha256": "4a334d917dddb34f879e16f4e9e33f740198efe360c74da26e47f5a17ec84e4f",
+      "checked_exact": true,
+      "exact": true,
+      "missing_raw_path_examples": [],
+      "extra_raw_path_examples": [],
+      "details": []
+    },
+    "imle": {
+      "domain": "imle",
+      "expected_files": 12764,
+      "checked_files": 12764,
+      "raw_files": 12764,
+      "sampled_only": false,
+      "expected_by_label": {
+        "real": 6382,
+        "fake": 6382,
+        "unknown": 0
+      },
+      "missing_raw_paths": 0,
+      "extra_raw_paths": 0,
+      "mapping_missing": 0,
+      "row_path_mismatches": 0,
+      "label_path_mismatches": 0,
+      "missing_raw_files": 0,
+      "exact_byte_matches": 12764,
+      "byte_mismatches": 0,
+      "metadata_md5_mismatches": 0,
+      "arrow_manifest_sha256": "6280b66be9a6dce59b7cc51d74286d64c3d107db398436546e25df780e0bb334",
+      "raw_manifest_sha256": "6280b66be9a6dce59b7cc51d74286d64c3d107db398436546e25df780e0bb334",
+      "checked_exact": true,
+      "exact": true,
+      "missing_raw_path_examples": [],
+      "extra_raw_path_examples": [],
+      "details": []
+    },
+    "san": {
+      "domain": "san",
+      "expected_files": 438,
+      "checked_files": 438,
+      "raw_files": 438,
+      "sampled_only": false,
+      "expected_by_label": {
+        "real": 219,
+        "fake": 219,
+        "unknown": 0
+      },
+      "missing_raw_paths": 0,
+      "extra_raw_paths": 0,
+      "mapping_missing": 0,
+      "row_path_mismatches": 0,
+      "label_path_mismatches": 0,
+      "missing_raw_files": 0,
+      "exact_byte_matches": 438,
+      "byte_mismatches": 0,
+      "metadata_md5_mismatches": 0,
+      "arrow_manifest_sha256": "b7443d4b54c8318d14aa5579965b0c99e8088ae45946b5de72b51fe959fcb605",
+      "raw_manifest_sha256": "b7443d4b54c8318d14aa5579965b0c99e8088ae45946b5de72b51fe959fcb605",
+      "checked_exact": true,
+      "exact": true,
+      "missing_raw_path_examples": [],
+      "extra_raw_path_examples": [],
+      "details": []
+    },
+    "seeingdark": {
+      "domain": "seeingdark",
+      "expected_files": 360,
+      "checked_files": 360,
+      "raw_files": 360,
+      "sampled_only": false,
+      "expected_by_label": {
+        "real": 180,
+        "fake": 180,
+        "unknown": 0
+      },
+      "missing_raw_paths": 0,
+      "extra_raw_paths": 0,
+      "mapping_missing": 0,
+      "row_path_mismatches": 0,
+      "label_path_mismatches": 0,
+      "missing_raw_files": 0,
+      "exact_byte_matches": 360,
+      "byte_mismatches": 0,
+      "metadata_md5_mismatches": 0,
+      "arrow_manifest_sha256": "36dd842b8f1679cd705fd3f8aa414e7d5dd8a346b80cb0ff56612ea91189bfb2",
+      "raw_manifest_sha256": "36dd842b8f1679cd705fd3f8aa414e7d5dd8a346b80cb0ff56612ea91189bfb2",
+      "checked_exact": true,
+      "exact": true,
+      "missing_raw_path_examples": [],
+      "extra_raw_path_examples": [],
+      "details": []
+    }
+  }
+}
