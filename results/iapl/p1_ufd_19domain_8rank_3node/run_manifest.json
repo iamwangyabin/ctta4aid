@@ -1,0 +1,98 @@
+{
+  "experiment": "P1 public UFD 19-domain official-protocol full rerun",
+  "status": "running",
+  "started_at": "2026-07-17T20:08:28+08:00",
+  "source_commit": "fc6efbb523d0e1e37ad16fa3b0349e238d5bc1db",
+  "remote_output_dir": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p1_ufd_19domain_8rank_3node_20260717",
+  "protocol": {
+    "source": "IAPL tta_universalfake.sh at a173e7783bbafaa00d60e6e31774a0bc14411a23",
+    "world_size": 8,
+    "master_addr": "192.168.10.2",
+    "master_port": 29626,
+    "distributed_timeout_seconds": 7200,
+    "domains": [
+      "crn",
+      "cyclegan",
+      "dalle",
+      "biggan",
+      "deepfake",
+      "gaugan",
+      "glide_50_27",
+      "glide_100_10",
+      "glide_100_27",
+      "guided",
+      "imle",
+      "ldm_100",
+      "ldm_200",
+      "ldm_200_cfg",
+      "progan",
+      "san",
+      "seeingdark",
+      "stargan",
+      "stylegan"
+    ],
+    "domain_order_matches_upstream_script": true,
+    "seed": 100,
+    "eval_batch_size": 32,
+    "tta_steps": 2,
+    "selection_p": 0.2,
+    "learning_rate": 0.005,
+    "gate": true,
+    "condition": true,
+    "ois": true,
+    "reset_bn_per_sample": false,
+    "ddp_broadcast_buffers": true
+  },
+  "public_dataset_scope": {
+    "total_images": 88353,
+    "cnn_detection_domains": 11,
+    "cnn_detection_images": 72353,
+    "diffusion_domains": 8,
+    "diffusion_images": 16000,
+    "all_images_match_official_public_archives_byte_for_byte": true,
+    "paper_only_diffusion_sample_count_available": false,
+    "note": "The paper evaluated 10,000 randomly sampled images per diffusion domain, while the public release contains 1,000 real and 1,000 fake images per domain. P1 is exact for the public 2,000-image protocol and does not claim access to the unreleased paper sample."
+  },
+  "rank_mapping": {
+    "A6000": [0, 1, 2, 3],
+    "4090-1": [4, 5],
+    "4090-2": [6, 7]
+  },
+  "runtime": {
+    "python": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python",
+    "nccl_version": 23007,
+    "physical_gpus": 3,
+    "reason_not_cl": "The cl environments remain the default for normal single-rank work. Rank-faithful eight-process execution shares each physical GPU and therefore uses the separately validated NCCL 2.30 environment."
+  },
+  "data_roots": {
+    "A6000": "/home/yabin/ctta4aid_assets/data/df_arrow_20260717",
+    "4090-1": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716",
+    "4090-2": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716",
+    "cross_host_asset_hashes_match": true
+  },
+  "source_verification": {
+    "test_time.py_sha256": "c00056d4ee8ddb7e11ec5ec0a6e9aff6892bb86f18dc0715b3da8e96ede96b7c",
+    "bn_diagnostic_patch_reverted_on_all_hosts": true,
+    "utils/misc.py_sha256": "2b67dca0ad7a7d5ac2d415f3cf8935f02e56818a8e4243ded58c362b66c33855",
+    "only_runtime_semantic_change": "The opt-in process-group timeout is 7,200 seconds instead of 600 seconds; model, data, sampling, adaptation, predictions, and metrics are unchanged."
+  },
+  "startup_verification": {
+    "validated_at": "2026-07-17T20:09:14+08:00",
+    "all_eight_rank_processes_live": true,
+    "all_eight_ranks_report_timeout_seconds": 7200,
+    "all_eight_ranks_passed_initial_distributed_barrier": true,
+    "all_three_gpus_active": true,
+    "fatal_errors": 0
+  },
+  "reference": {
+    "paper_macc": 0.9561,
+    "paper_map": 0.9932,
+    "target_absolute_tolerance": 0.01
+  },
+  "artifact_sha256": {
+    "configs/iapl_official_ufd.yaml": "93bca2fa9acda7e0622fa60a1068af7b39f2c7260467abca7408fbdd0afe1359",
+    "scripts/run_iapl_manual_ranks.sh": "9c9260023a66fd916d20f9f5103f163c1c117cbdf622f4e2cd0886f33a379fbb",
+    "patches/iapl-a173e77-distributed-timeout.patch": "f3da89cfdf09f60a34a4d89a8f5c365d7ec06994565447ffe3797057a3320f7b",
+    "src/online_aig_tta/data/hf_arrow.py": "fee4e07583e1e9e12607a6ef61addf254a60694e785a71376e2de5b6be638f08"
+  }
+}
