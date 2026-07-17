@@ -88,6 +88,31 @@ def parse_run(value: str) -> tuple[str, Path]:
     return label, Path(path)
 
 
+def aggregate_run(run: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    domains = [domain for domain in PAPER_UFD if domain in run]
+    metrics = {
+        metric: float(np.mean([run[domain][metric] for domain in domains]))
+        for metric in ("acc", "ap", "racc", "facc")
+        if domains and all(metric in run[domain] for domain in domains)
+    }
+    paper = {
+        metric: float(np.mean([PAPER_UFD[domain][metric] for domain in domains]))
+        for metric in ("acc", "ap")
+        if domains
+    }
+    return {
+        "domains": domains,
+        "domain_count": len(domains),
+        "metrics": metrics,
+        "paper_same_domains": paper,
+        "delta_to_paper": {
+            metric: metrics[metric] - paper[metric]
+            for metric in ("acc", "ap")
+            if metric in metrics and metric in paper
+        },
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run", action="append", required=True, type=parse_run)
@@ -96,7 +121,12 @@ def main() -> None:
 
     runs = {label: load_run(path) for label, path in args.run}
     domains = [domain for domain in PAPER_UFD if any(domain in run for run in runs.values())]
-    report: dict[str, Any] = {"paper": PAPER_UFD, "runs": runs, "deltas": {}}
+    report: dict[str, Any] = {
+        "paper": PAPER_UFD,
+        "runs": runs,
+        "aggregates": {label: aggregate_run(run) for label, run in runs.items()},
+        "deltas": {},
+    }
     for label, run in runs.items():
         report["deltas"][label] = {
             domain: {
@@ -121,6 +151,24 @@ def main() -> None:
                 else ["", ""]
             )
         print("\t".join(row))
+
+    print("\naggregate")
+    print("run\tdomains\tacc\tap\tdelta_acc\tdelta_ap")
+    for label, aggregate in report["aggregates"].items():
+        metrics = aggregate["metrics"]
+        deltas = aggregate["delta_to_paper"]
+        print(
+            "\t".join(
+                [
+                    label,
+                    str(aggregate["domain_count"]),
+                    f"{metrics.get('acc', float('nan')):.4f}",
+                    f"{metrics.get('ap', float('nan')):.4f}",
+                    f"{deltas.get('acc', float('nan')):+.4f}",
+                    f"{deltas.get('ap', float('nan')):+.4f}",
+                ]
+            )
+        )
 
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

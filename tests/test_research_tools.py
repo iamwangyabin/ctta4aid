@@ -9,7 +9,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from scripts.compare_iapl_ufd_runs import parse_official_summary
+from scripts.compare_iapl_ufd_runs import aggregate_run, parse_official_summary
 from scripts.export_hf_arrow_imagefolder import _safe_relative_path, export_domains
 
 
@@ -17,6 +17,22 @@ DATASETS_AVAILABLE = importlib.util.find_spec("datasets") is not None
 
 
 class IAPLResearchToolTests(unittest.TestCase):
+    def test_aggregate_uses_matching_paper_domains(self) -> None:
+        aggregate = aggregate_run(
+            {
+                "crn": {"acc": 0.90, "ap": 0.91, "racc": 0.80, "facc": 1.0},
+                "guided": {"acc": 0.70, "ap": 0.95, "racc": 0.90, "facc": 0.5},
+            }
+        )
+
+        self.assertEqual(aggregate["domains"], ["crn", "guided"])
+        self.assertEqual(aggregate["domain_count"], 2)
+        self.assertAlmostEqual(aggregate["metrics"]["acc"], 0.80)
+        self.assertAlmostEqual(
+            aggregate["delta_to_paper"]["ap"],
+            0.93 - (0.9997 + 0.9625) / 2,
+        )
+
     def test_parse_numbered_official_summary(self) -> None:
         parsed = parse_official_summary(
             "(0 crn       ) acc: 92.47; ap: 99.97; racc: 90.00; facc: 94.94;\n"
