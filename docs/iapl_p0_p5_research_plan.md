@@ -32,6 +32,21 @@ CUDA all-reduce 已通过，所有 rank 得到同一和值 36。这个设置忠�
 sampler padding、rank seed、DDP gradient/buffer 同步语义，但物理拓扑不是论文常见的
 一卡一 rank；结果中必须单独披露，不能写成硬件拓扑完全一致。
 
+### P0 conclusion
+
+P0 于 2026-07-17 完成。三机八 rank 五域均值为 87.99% Accuracy / 92.72% AP，
+相对论文五域均值分别低 0.53 / 5.61 个百分点。Accuracy 已进入一个百分点，AP
+差距仍明显。11 个 CNNDetection 域和 8 个公开 diffusion 域共 88,353 张均已逐字节
+匹配官方归档；Arrow/ImageFolder、单进程/多进程、sampler padding、rank seed、
+BatchNorm 每样本恢复和 DDP buffer broadcast 均已做对照。
+
+四 rank SAN 中，关闭 buffer broadcast 只改变 AP +0.006 个百分点，每样本恢复
+BatchNorm 只改变 -0.045 个百分点。单 rank SAN/SeeingDark 的 BatchNorm 效应方向
+相反，两域平均 AP 反而降低 0.63 个百分点。因此主要差距不是数据副本、Arrow 后端、
+随机视图的 rank 划分或简单 buffer 状态，而是论文 AP 与公开 checkpoint、公开数据和
+公开推理路径能够产生的结果之间的 artifact-level reproduction gap。P1 继续完整报告
+公开协议实测结果，不通过未披露的协议修改追数值。
+
 ## P1: UFD official full rerun
 
 使用官方 19 域顺序、32 views、top-6 confidence selection、2 TTA steps、学习率

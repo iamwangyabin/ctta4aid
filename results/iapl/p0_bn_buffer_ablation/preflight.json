@@ -1,7 +1,8 @@
 {
   "experiment": "P0 IAPL BatchNorm buffer and DDP broadcast ablation",
-  "status": "implementation_validated_waiting_for_active_eight_rank_run",
+  "status": "completed",
   "prepared_at": "2026-07-17T15:36:00+08:00",
+  "completed_at": "2026-07-17T19:59:20+08:00",
   "official_behavior": {
     "prompt_parameters_reset_per_sample": true,
     "optimizer_state_reset_per_sample": true,
@@ -45,11 +46,14 @@
     "snapshot_restore_exact": true,
     "strict_boolean_parser_passed": true,
     "project_tests_passed": 56,
-    "active_iapl_checkout_modified": false
+    "live_ablation_runs_passed": 3,
+    "active_iapl_checkout_modified_during_runs": true,
+    "active_iapl_checkout_restored_after_runs": true
   },
   "sha256": {
     "patch": "014b3eed4d09b48022c740198bc98b69a6ff13b6ca6ffb63c17df920fabe6651",
     "instrumented_test_time_before_patch": "c00056d4ee8ddb7e11ec5ec0a6e9aff6892bb86f18dc0715b3da8e96ede96b7c",
-    "instrumented_test_time_after_patch": "08db4be24e54f584660f7fb14d1ca6da7cd8b2f61a50c6590e50d0c6cda70027"
+    "instrumented_test_time_after_patch": "15c26123ad76805608e8da16ae89930040d28236ab675373ae14c52090f912ec",
+    "instrumented_test_time_after_restore": "c00056d4ee8ddb7e11ec5ec0a6e9aff6892bb86f18dc0715b3da8e96ede96b7c"
   }
 }

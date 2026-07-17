@@ -1,6 +1,6 @@
 {
   "experiment": "P0 three-node eight-rank five-domain official-protocol diagnosis",
-  "status": "eight_rank_completed_bn_ablation_pending",
+  "status": "completed",
   "source_commit": "1eb37d3e32523e2617ffcec3f93879e9010384ba",
   "protocol": {
     "world_size": 8,
@@ -172,6 +172,20 @@
       "attempt2/rank6.log": "5c4b11ec4c9f5c1dbef0bb4757e889ed12d5c30ff75ff46fcab04f049ea90bfc",
       "attempt2/rank7.log": "ef1ef7f60177813a0842286e734e60a2a41036725759be7c476cefa1a90ff625"
     }
+  },
+  "p0_conclusion": {
+    "five_domain_accuracy_gap_percentage_points": -0.5323079668869135,
+    "five_domain_average_precision_gap_percentage_points": -5.605832309016856,
+    "official_public_bytes_are_exact": true,
+    "arrow_and_imagefolder_backends_match": true,
+    "rank_faithful_eight_process_protocol_closes_accuracy_gap": true,
+    "rank_faithful_eight_process_protocol_closes_average_precision_gap": false,
+    "batchnorm_or_ddp_buffer_state_is_primary_gap_source": false,
+    "primary_error_source": "artifact_level_paper_release_mismatch",
+    "interpretation": "The released checkpoint, public datasets, released inference path, and rank-faithful sampler reproduce five-domain mean Accuracy within one point but remain 5.61 points below the paper in AP. Exact-byte, backend, world-size, sampler, BatchNorm reset, and DDP buffer-broadcast controls do not explain that gap.",
+    "batchnorm_ablation": "../p0_bn_buffer_ablation/run_manifest.json",
+    "official_byte_audit": "../p0_official_raw_source/source_manifest.json",
+    "single_backend_control": "../p0_single_backends/prediction_comparison_5domain.json"
   },
   "artifact_sha256": {
     "scripts/run_iapl_manual_ranks.sh": "9c9260023a66fd916d20f9f5103f163c1c117cbdf622f4e2cd0886f33a379fbb",

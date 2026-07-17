@@ -1,0 +1,95 @@
+world size: 1, rank: 0, local rank: 0
+{
+  "SHELL": "/bin/bash",
+  "IAPL_DISTRIBUTED_TIMEOUT_SECONDS": "7200",
+  "PYTHONUNBUFFERED": "1",
+  "no_proxy": "localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10",
+  "MASTER_PORT": "29661",
+  "NCCL_SOCKET_IFNAME": "lo",
+  "NCCL_NVLS_ENABLE": "0",
+  "NCCL_MAX_CTAS": "2",
+  "PWD": "/home/yabin/ctta4aid_assets/external/IAPL",
+  "LOGNAME": "yabin",
+  "XDG_SESSION_TYPE": "tty",
+  "IAPL_OUTPUT_DIR": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p0_bn_reset_single_san_seeingdark_20260717",
+  "NCCL_DEBUG": "WARN",
+  "WORLD_SIZE": "1",
+  "HOME": "/home/yabin",
+  "LANG": "zh_CN.UTF-8",
+  "https_proxy": "http://127.0.0.1:17890",
+  "SSH_CONNECTION": "100.70.179.13 52403 100.125.129.111 22",
+  "IAPL_RESET_BN_PER_SAMPLE": "1",
+  "MASTER_ADDR": "127.0.0.1",
+  "CUDA_VISIBLE_DEVICES": "0",
+  "XDG_SESSION_CLASS": "user",
+  "NCCL_MULTI_RANK_GPU_ENABLE": "1",
+  "PYTHONPATH": "/home/yabin/ctta4aid-arrow/src",
+  "USER": "yabin",
+  "SHLVL": "1",
+  "IAPL_DDP_BROADCAST_BUFFERS": "1",
+  "XDG_SESSION_ID": "1564",
+  "http_proxy": "http://127.0.0.1:17890",
+  "IAPL_PYTHON": "/home/yabin/miniconda3/envs/cl/bin/python",
+  "LD_LIBRARY_PATH": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/../../lib64:/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/nvidia/nccl/lib",
+  "LC_CTYPE": "C.UTF-8",
+  "XDG_RUNTIME_DIR": "/run/user/1000",
+  "SSH_CLIENT": "100.70.179.13 52403 22",
+  "LC_ALL": "C.UTF-8",
+  "IAPL_PREDICTION_DIR": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p0_bn_reset_single_san_seeingdark_20260717/predictions",
+  "all_proxy": "socks5://127.0.0.1:17891",
+  "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+  "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus",
+  "OLDPWD": "/home/yabin",
+  "_": "/usr/bin/env",
+  "RANK": "0",
+  "LOCAL_RANK": "0",
+  "TORCHINDUCTOR_CACHE_DIR": "/tmp/torchinductor_yabin",
+  "QT_QPA_PLATFORM_PLUGIN_PATH": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/qt/plugins",
+  "QT_QPA_FONTDIR": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/qt/fonts",
+  "KMP_DUPLICATE_LIB_OK": "True",
+  "KMP_INIT_AT_FORK": "FALSE"
+}
+world_size:1 rank:0 local_rank:0
+| distributed init (rank 0): env://
+distributed collective timeout: 7200 seconds
+Before torch.distributed.barrier()
+/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[rank0]:[W717 19:45:43.670323872 ProcessGroupNCCL.cpp:5324] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+NCCL version 2.29.3+cuda12.9
+End torch.distributed.barrier()
+-----------freezen TTA mode-----------
+-----------freezen TTA mode-----------
+{'reset_bn_per_sample': True, 'ddp_broadcast_buffers': True, 'batchnorm_buffer_count': 72}
+[{'params': ['prompt_learner.ctx']}]
+/home/yabin/ctta4aid_assets/external/IAPL/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [  0/438]  eta: 0:08:54    time: 1.2195  data: 0.0248  max mem: 8437
+Test:  [ 50/438]  eta: 0:02:25    time: 0.3568  data: 0.0100  max mem: 8437
+Test:  [100/438]  eta: 0:02:03    time: 0.3580  data: 0.0104  max mem: 8437
+Test:  [150/438]  eta: 0:01:45    time: 0.3708  data: 0.0205  max mem: 8437
+Test:  [200/438]  eta: 0:01:27    time: 0.3725  data: 0.0220  max mem: 8437
+Test:  [250/438]  eta: 0:01:08    time: 0.3586  data: 0.0105  max mem: 8437
+Test:  [300/438]  eta: 0:00:50    time: 0.3584  data: 0.0104  max mem: 8437
+Test:  [350/438]  eta: 0:00:32    time: 0.3716  data: 0.0211  max mem: 8437
+Test:  [400/438]  eta: 0:00:13    time: 0.3722  data: 0.0219  max mem: 8437
+Test:  [437/438]  eta: 0:00:00    time: 0.3610  data: 0.0122  max mem: 8437
+Test: Total time: 0:02:40 (0.3659 s / it)
+(san) acc: 92.24; ap: 94.91; racc: 95.43; facc: 89.04;
+/home/yabin/ctta4aid_assets/external/IAPL/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [  0/360]  eta: 0:03:41    time: 0.6142  data: 0.2585  max mem: 8437
+Test:  [ 50/360]  eta: 0:03:51    time: 0.7948  data: 0.4391  max mem: 8437
+Test:  [100/360]  eta: 0:03:19    time: 0.8339  data: 0.4784  max mem: 8437
+Test:  [150/360]  eta: 0:02:44    time: 0.7100  data: 0.3548  max mem: 8437
+Test:  [200/360]  eta: 0:02:00    time: 0.6475  data: 0.2923  max mem: 8437
+Test:  [250/360]  eta: 0:01:20    time: 0.6454  data: 0.2901  max mem: 8437
+Test:  [300/360]  eta: 0:00:43    time: 0.7587  data: 0.4029  max mem: 8437
+Test:  [350/360]  eta: 0:00:07    time: 0.5674  data: 0.2117  max mem: 8437
+Test:  [359/360]  eta: 0:00:00    time: 0.5763  data: 0.2208  max mem: 8437
+Test: Total time: 0:04:13 (0.7041 s / it)
+(seeingdark) acc: 90.56; ap: 88.81; racc: 81.11; facc: 100.00;
+(0 san       ) acc: 92.24; ap: 94.91; racc: 95.43; facc: 89.04;
+(1 seeingdark) acc: 90.56; ap: 88.81; racc: 81.11; facc: 100.00;
+(2 mean      ) acc: 91.40; ap: 91.86; racc: 88.27; facc: 94.52;
+[rank0]:[W717 19:52:40.582825101 ProcessGroupNCCL.cpp:1647] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
