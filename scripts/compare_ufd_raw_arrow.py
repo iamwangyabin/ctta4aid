@@ -14,17 +14,32 @@ IMAGE_SUFFIXES = {".bmp", ".jpeg", ".jpg", ".png", ".webp"}
 class RawLayout:
     base: Path
     strip_test_prefix: bool
+    path_aliases: tuple[tuple[str, str], ...] = ()
 
-    def file_for(self, arrow_path: str) -> Path:
+    def _relative_path(self, arrow_path: str) -> PurePosixPath:
         relative = PurePosixPath(arrow_path)
         if self.strip_test_prefix and relative.parts[:1] == ("test",):
             relative = PurePosixPath(*relative.parts[1:])
+        for source_value, target_value in self.path_aliases:
+            source = PurePosixPath(source_value)
+            if self.strip_test_prefix and source.parts[:1] == ("test",):
+                source = PurePosixPath(*source.parts[1:])
+            if relative.parts[: len(source.parts)] == source.parts:
+                target = PurePosixPath(target_value)
+                return PurePosixPath(*target.parts, *relative.parts[len(source.parts) :])
+        return relative
+
+    def file_for(self, arrow_path: str) -> Path:
+        relative = self._relative_path(arrow_path)
         return self.base.joinpath(*relative.parts)
 
-    def domain_root(self, domain: str) -> Path:
-        if self.strip_test_prefix:
-            return self.base / domain
-        return self.base / "test" / domain
+    def domain_root(self, domain: str, arrow_paths: Sequence[str]) -> Path:
+        has_test_prefix = any(
+            PurePosixPath(path).parts[:1] == ("test",) for path in arrow_paths
+        )
+        if has_test_prefix and not self.strip_test_prefix:
+            return self.base / "test" / domain
+        return self.base / domain
 
     def canonical_path(self, raw_path: Path) -> str:
         relative = raw_path.relative_to(self.base).as_posix()
@@ -32,8 +47,37 @@ class RawLayout:
             return f"test/{relative}"
         return relative
 
+    def aliased_paths_for_domain(
+        self, domain: str, arrow_paths: Sequence[str]
+    ) -> set[str]:
+        has_test_prefix = any(
+            PurePosixPath(path).parts[:1] == ("test",) for path in arrow_paths
+        )
+        canonical_paths = set()
+        for source_value, target_value in self.path_aliases:
+            source = PurePosixPath(source_value)
+            source_parts = source.parts[1:] if source.parts[:1] == ("test",) else source.parts
+            if not source_parts or source_parts[0] != domain:
+                continue
+            target_root = self.base.joinpath(*PurePosixPath(target_value).parts)
+            if not target_root.is_dir():
+                continue
+            for raw_path in target_root.rglob("*"):
+                if not raw_path.is_file() or raw_path.suffix.lower() not in IMAGE_SUFFIXES:
+                    continue
+                relative = PurePosixPath(raw_path.relative_to(target_root).as_posix())
+                canonical = PurePosixPath(*source_parts, *relative.parts)
+                if has_test_prefix:
+                    canonical = PurePosixPath("test", *canonical.parts)
+                canonical_paths.add(canonical.as_posix())
+        return canonical_paths
 
-def resolve_raw_layout(raw_root: Path, arrow_paths: Sequence[str]) -> RawLayout:
+
+def resolve_raw_layout(
+    raw_root: Path,
+    arrow_paths: Sequence[str],
+    path_aliases: Sequence[tuple[str, str]] = (),
+) -> RawLayout:
     root = raw_root.expanduser().resolve()
     if not root.is_dir():
         raise FileNotFoundError(f"Raw dataset root does not exist: {root}")
@@ -51,7 +95,11 @@ def resolve_raw_layout(raw_root: Path, arrow_paths: Sequence[str]) -> RawLayout:
     candidates: list[tuple[int, RawLayout]] = []
     for base in bases:
         for strip_test_prefix in (False, True):
-            layout = RawLayout(base=base, strip_test_prefix=strip_test_prefix)
+            layout = RawLayout(
+                base=base,
+                strip_test_prefix=strip_test_prefix,
+                path_aliases=tuple(path_aliases),
+            )
             hits = sum(layout.file_for(path).is_file() for path in probes)
             candidates.append((hits, layout))
     hits, layout = max(candidates, key=lambda item: item[0])
@@ -93,6 +141,19 @@ def _append_detail(details: list[dict[str, Any]], value: dict[str, Any], limit: 
         details.append(value)
 
 
+def parse_path_alias(value: str) -> tuple[str, str]:
+    if "=" not in value:
+        raise argparse.ArgumentTypeError("path alias must be SOURCE=TARGET")
+    source, target = value.split("=", 1)
+    for name, path_value in (("source", source), ("target", target)):
+        path = PurePosixPath(path_value)
+        if not path_value or path.is_absolute() or ".." in path.parts:
+            raise argparse.ArgumentTypeError(
+                f"path alias {name} must be a non-empty relative path"
+            )
+    return source, target
+
+
 def compare_domain(
     *,
     domain: str,
@@ -108,12 +169,13 @@ def compare_domain(
         all_expected_paths[:sample_limit] if sample_limit is not None else all_expected_paths
     )
     expected_set = set(all_expected_paths)
-    raw_domain_root = raw_layout.domain_root(domain)
+    raw_domain_root = raw_layout.domain_root(domain, all_expected_paths)
     raw_paths = {
         raw_layout.canonical_path(path)
         for path in raw_domain_root.rglob("*")
         if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES
     } if raw_domain_root.is_dir() else set()
+    raw_paths.update(raw_layout.aliased_paths_for_domain(domain, all_expected_paths))
 
     missing_raw_paths = sorted(expected_set - raw_paths)
     extra_raw_paths = sorted(raw_paths - expected_set)
@@ -272,6 +334,13 @@ def main() -> None:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--max-details", type=int, default=20)
     parser.add_argument("--sample-limit", type=int)
+    parser.add_argument(
+        "--path-alias",
+        action="append",
+        default=[],
+        type=parse_path_alias,
+        help="Map an Arrow path prefix to a raw path prefix, as SOURCE=TARGET.",
+    )
     parser.add_argument("--require-exact", action="store_true")
     args = parser.parse_args()
 
@@ -292,7 +361,7 @@ def main() -> None:
         for domain in domains
         for path in list(split_metadata[domain])[:128]
     ]
-    raw_layout = resolve_raw_layout(args.raw_root, probe_paths)
+    raw_layout = resolve_raw_layout(args.raw_root, probe_paths, args.path_alias)
 
     try:
         from datasets import load_from_disk
@@ -318,6 +387,10 @@ def main() -> None:
         "resolved_raw_layout": {
             "base": str(raw_layout.base),
             "strip_test_prefix": raw_layout.strip_test_prefix,
+            "path_aliases": [
+                {"source": source, "target": target}
+                for source, target in raw_layout.path_aliases
+            ],
         },
         "domains": domains,
         "domain_count": len(domains),

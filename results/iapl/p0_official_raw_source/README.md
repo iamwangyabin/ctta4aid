@@ -31,3 +31,12 @@ then passed all 54 tests on A6000.
 `scripts/postprocess_ufd_official_archive.sh` is waiting on the active transfer.
 It verifies the exact archive size, records SHA-256, tests the ZIP structure, and
 extracts with idle I/O priority so the running IAPL inference keeps precedence.
+
+The separate official `diffusion_datasets.zip` archive is complete and verified:
+917,979,875 bytes, SHA-256
+`916cc972810e51f6ca1be30d7a85c84230310a4e4b141a90c47f20ee310ac0fc`, and
+no ZIP errors. UFD's pinned `dataset_paths.py` pairs `imagenet/0_real` with
+`guided/1_fake`. With that explicit alias, all 2,000 Guided files in the Ojha
+Arrow copy match the official archive byte for byte, with no missing or extra
+paths. This rules out Arrow serialization and the Guided dataset copy as causes
+of the remaining metric differences.

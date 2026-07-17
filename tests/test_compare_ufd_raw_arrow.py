@@ -85,6 +85,52 @@ class CompareUFDRawArrowTest(unittest.TestCase):
             self.assertEqual(result["extra_raw_paths"], 1)
             self.assertEqual(result["byte_mismatches"], 1)
 
+    def test_explicit_real_source_alias(self):
+        with tempfile.TemporaryDirectory() as directory:
+            raw_base = Path(directory) / "diffusion_datasets"
+            real_bytes = b"imagenet-real"
+            fake_bytes = b"guided-fake"
+            real_path = raw_base / "imagenet/0_real/real.JPEG"
+            fake_path = raw_base / "guided/1_fake/fake.png"
+            real_path.parent.mkdir(parents=True)
+            fake_path.parent.mkdir(parents=True)
+            real_path.write_bytes(real_bytes)
+            fake_path.write_bytes(fake_bytes)
+            entries = {
+                "guided/0_real/real.JPEG": 0,
+                "guided/1_fake/fake.png": 1,
+            }
+            mapping = {
+                "guided/0_real/real.JPEG": 0,
+                "guided/1_fake/fake.png": 1,
+            }
+            rows = [
+                {
+                    "image_path": "guided/0_real/real.JPEG",
+                    "image": real_bytes,
+                    "md5": hashlib.md5(real_bytes).hexdigest(),
+                },
+                {
+                    "image_path": "guided/1_fake/fake.png",
+                    "image": fake_bytes,
+                    "md5": hashlib.md5(fake_bytes).hexdigest(),
+                },
+            ]
+            aliases = [("guided/0_real", "imagenet/0_real")]
+            layout = resolve_raw_layout(raw_base, list(entries), aliases)
+
+            result = compare_domain(
+                domain="guided",
+                entries=entries,
+                mapping=mapping,
+                arrow_dataset=rows,
+                raw_layout=layout,
+            )
+
+            self.assertTrue(result["exact"])
+            self.assertEqual(result["raw_files"], 2)
+            self.assertEqual(result["exact_byte_matches"], 2)
+
 
 if __name__ == "__main__":
     unittest.main()

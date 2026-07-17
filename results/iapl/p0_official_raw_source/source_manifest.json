@@ -18,6 +18,29 @@
     "linked_etag": "d87eeff4eb6d1061f57620aa1bd54e699a18cc9860fcdc6a55bf4cf643008d85",
     "xet_hash": "b3a9c6bef12154e77a6f7eec7af42c947d2749e7c3b35313eb2d2d90fe7632e5"
   },
+  "official_diffusion_archive": {
+    "google_drive_file_id": "1FXlGIRh_Ud3cScMgSVDbEWmPDmjcrm1t",
+    "url": "https://drive.google.com/file/d/1FXlGIRh_Ud3cScMgSVDbEWmPDmjcrm1t/view",
+    "file_name": "diffusion_datasets.zip",
+    "size_bytes": 917979875,
+    "sha256": "916cc972810e51f6ca1be30d7a85c84230310a4e4b141a90c47f20ee310ac0fc",
+    "zip_test_passed": true,
+    "extract_host": "A6000",
+    "extract_root": "/home/yabin/ctta4aid_assets/data/ufd_official_raw/diffusion_official/extracted/diffusion_datasets",
+    "guided_official_pairing": {
+      "real": "imagenet/0_real",
+      "fake": "guided/1_fake",
+      "source": "dataset_paths.py at the pinned UFD repository commit"
+    },
+    "guided_arrow_byte_audit": {
+      "expected_files": 2000,
+      "exact_byte_matches": 2000,
+      "missing_paths": 0,
+      "extra_paths": 0,
+      "byte_mismatches": 0,
+      "all_exact": true
+    }
+  },
   "active_download": {
     "host": "4090-1",
     "path": "/home/yabin/ctta4aid_assets/data/ufd_official_raw/cnndetection_official/CNN_synth_testset.zip",
