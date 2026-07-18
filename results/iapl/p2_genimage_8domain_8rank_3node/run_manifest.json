@@ -1,0 +1,76 @@
+{
+  "experiment": "P2 original GenImage eight-domain official-protocol rerun",
+  "status": "preparing",
+  "prepared_at": "2026-07-19T04:05:02+08:00",
+  "source_commit": "80a13780d8676808fd3a5be7251a9b0526356f75",
+  "remote_output_dir": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p2_genimage_8domain_8rank_3node_20260719",
+  "protocol": {
+    "source": "IAPL tta_genimage.sh at a173e7783bbafaa00d60e6e31774a0bc14411a23",
+    "world_size": 8,
+    "master_addr": "192.168.10.2",
+    "master_port": 29631,
+    "distributed_timeout_seconds": 7200,
+    "domains": [
+      "ADM",
+      "BigGAN",
+      "glide",
+      "Midjourney",
+      "stable_diffusion_v_1_4",
+      "stable_diffusion_v_1_5",
+      "VQDM",
+      "wukong"
+    ],
+    "domain_order_matches_upstream_script": true,
+    "seed": 100,
+    "eval_batch_size": 32,
+    "tta_steps": 2,
+    "selection_p": 0.2,
+    "learning_rate": 0.005,
+    "gate": true,
+    "condition": true,
+    "ois": true,
+    "smooth": true,
+    "num_workers": 8
+  },
+  "dataset": {
+    "source_host": "3090",
+    "source_archive": "/data/DF-arrow-data/GenImage_official_test/genimage_test.zip",
+    "target_archive": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/genimage_test.zip",
+    "target_root": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage",
+    "archive_bytes": 25408572820,
+    "archive_sha256": "1ee98d0958a5905b4e1b2f7f44bb384069704cad8f70e741512e1911e29dba97",
+    "archive_full_crc_test_passed": true,
+    "zip_image_members": 100000,
+    "extracted_image_files_per_host": 100000,
+    "extract_manifest_sha256": "a32bb7ae5bb27b18b48dd87951cdbba246491deefc9cad93dc4a2f1d80d1f6c9",
+    "extract_manifests_match_across_hosts": true,
+    "uses_caidbench_proxy": false
+  },
+  "assets": {
+    "iapl_checkpoint": "/home/yabin/ctta4aid_assets/weights/iapl/checkpoint_best_acc_sd14.pth",
+    "iapl_checkpoint_bytes": 1693567399,
+    "iapl_checkpoint_sha256": "4f86a1e3e93bfa8c0cf1099413f872dccd34b6ec3f26dec2162bcf2430552018"
+  },
+  "rank_mapping": {
+    "A6000": [0, 1, 2, 3],
+    "4090-1": [4, 5],
+    "4090-2": [6, 7]
+  },
+  "runtime": {
+    "python": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python",
+    "nccl_version": 23007,
+    "physical_gpus": 3,
+    "reason_not_cl": "The cl environments are used for normal single-rank work and data preparation. Rank-faithful eight-process execution shares physical GPUs and therefore uses the validated NCCL 2.30 compatibility environment."
+  },
+  "artifact_sha256": {
+    "configs/iapl_official_genimage.yaml": "e65b7443d0f079fd65b5fca96bc3e1bbf13ad11125141d9d357a99f20b5f80ac",
+    "scripts/run_iapl_genimage_manual_ranks.sh": "11ac9c974210c2aa4948f654c73c83819564d5076c71bb580caaea8bba3854c1",
+    "scripts/extract_iapl_genimage_test.py": "cceb53ffa620b67d86d791623ca5c248935c41ff47e029f1ef100f0ee7b3bce7",
+    "patches/iapl-a173e77-distributed-timeout.patch": "f3da89cfdf09f60a34a4d89a8f5c365d7ec06994565447ffe3797057a3320f7b"
+  },
+  "reference": {
+    "paper_macc": 0.967,
+    "paper_map": 0.995,
+    "target_absolute_tolerance": 0.01
+  }
+}
