@@ -1,7 +1,8 @@
 {
   "experiment": "P1 public UFD 19-domain official-protocol full rerun",
-  "status": "running",
+  "status": "completed",
   "started_at": "2026-07-17T20:08:28+08:00",
+  "observed_complete_at": "2026-07-18T05:02:09+08:00",
   "source_commit": "fc6efbb523d0e1e37ad16fa3b0349e238d5bc1db",
   "remote_output_dir": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p1_ufd_19domain_8rank_3node_20260717",
   "protocol": {
@@ -85,9 +86,29 @@
     "fatal_errors": 0
   },
   "progress": {
-    "validated_at": "2026-07-17T23:44:00+08:00",
-    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan"],
-    "active_domain": "glide_50_27",
+    "validated_at": "2026-07-18T05:02:09+08:00",
+    "completed_domains": [
+      "crn",
+      "cyclegan",
+      "dalle",
+      "biggan",
+      "deepfake",
+      "gaugan",
+      "glide_50_27",
+      "glide_100_10",
+      "glide_100_27",
+      "guided",
+      "imle",
+      "ldm_100",
+      "ldm_200",
+      "ldm_200_cfg",
+      "progan",
+      "san",
+      "seeingdark",
+      "stargan",
+      "stylegan"
+    ],
+    "active_domain": null,
     "crn": {
       "dataset_size": 12764,
       "samples_with_distributed_padding": 12768,
@@ -167,13 +188,15 @@
       "average_precision_delta": -0.00833289186760422
     },
     "completed_domain_mean": {
-      "domain_count": 6,
-      "accuracy": 0.9741633535690051,
-      "average_precision": 0.9744651346583862,
-      "paper_accuracy": 0.9731666666666666,
-      "paper_average_precision": 0.99575,
-      "accuracy_delta": 0.0009966869023384506,
-      "average_precision_delta": -0.02128486534161378
+      "domain_count": 19,
+      "accuracy": 0.9549230231997763,
+      "average_precision": 0.972173971158963,
+      "real_accuracy": 0.9627500452306085,
+      "fake_accuracy": 0.9470821121276851,
+      "paper_accuracy": 0.9560947368421053,
+      "paper_average_precision": 0.9931736842105263,
+      "accuracy_delta": -0.001171713642329042,
+      "average_precision_delta": -0.02099971305156334
     },
     "artifact_sha256": {
       "predictions/crn.json": "fec4cd33f4ab52d485d3ac722ba0fdaea3d3a053e6b87e2a7b7052aa971e1933",
@@ -185,6 +208,42 @@
       "partial_comparison.json": "bbb0a72c4016ffe7e8eac0e53dd085e73a4d7c2bb2a9b7a938f87d756a93d47a"
     }
   },
+  "completion_verification": {
+    "all_nineteen_prediction_files_present": true,
+    "dataset_size": 88353,
+    "samples_with_distributed_padding": 88376,
+    "unique_sampler_indices": 88353,
+    "duplicate_sampler_indices": 23,
+    "prediction_structure_checks_passed": true,
+    "all_eight_rank_processes_exited": true,
+    "all_three_launchers_exited": true,
+    "fatal_errors": 0
+  },
+  "final_result": {
+    "macc": 0.9549230231997763,
+    "map": 0.972173971158963,
+    "mean_real_accuracy": 0.9627500452306085,
+    "mean_fake_accuracy": 0.9470821121276851,
+    "paper_macc_rounded": 0.9561,
+    "paper_map_rounded": 0.9932,
+    "macc_delta_to_rounded_paper": -0.0011769768002236614,
+    "map_delta_to_rounded_paper": -0.021026028841036992,
+    "macc_delta_percentage_points": -0.11769768002236614,
+    "map_delta_percentage_points": -2.102602884103699,
+    "macc_within_one_percentage_point": true,
+    "map_within_one_percentage_point": false,
+    "both_metrics_within_one_percentage_point": false,
+    "ap_domains_outside_one_percentage_point": [
+      "cyclegan",
+      "biggan",
+      "stargan",
+      "seeingdark",
+      "san",
+      "crn",
+      "imle"
+    ],
+    "comparison": "comparison.json"
+  },
   "reference": {
     "paper_macc": 0.9561,
     "paper_map": 0.9932,
@@ -195,5 +254,39 @@
     "scripts/run_iapl_manual_ranks.sh": "9c9260023a66fd916d20f9f5103f163c1c117cbdf622f4e2cd0886f33a379fbb",
     "patches/iapl-a173e77-distributed-timeout.patch": "f3da89cfdf09f60a34a4d89a8f5c365d7ec06994565447ffe3797057a3320f7b",
     "src/online_aig_tta/data/hf_arrow.py": "fee4e07583e1e9e12607a6ef61addf254a60694e785a71376e2de5b6be638f08"
+  },
+  "result_artifact_sha256": {
+    "README.md": "6416fb78d9066742c39fe7b8f908456634da0bc8610fb4100814cd87f9134a02",
+    "comparison.json": "8bb65ec7d28eb38af0dcd96ebf454e50a02384bffa196d752bc0e6cd0378a911",
+    "launcher_a6000.log": "760c3f2c50a7058f76e3746891236bb651c40e69cc917ea2f11ae8bb3004588b",
+    "launcher_4090_1.log": "760c3f2c50a7058f76e3746891236bb651c40e69cc917ea2f11ae8bb3004588b",
+    "launcher_4090_2.log": "760c3f2c50a7058f76e3746891236bb651c40e69cc917ea2f11ae8bb3004588b",
+    "rank0.log": "81d47a2616f147ea1c619f6ddaa09d45efd2a239decd751006b44fb242a2f18a",
+    "rank1.log": "5be9a9c540e75d2a578f786952257c340154a0f955aa92e0e87774fbb9780a82",
+    "rank2.log": "3a1cbde5f7d1203c3b28f395ed9380578e1b0ef333273ebb2b0f007891a05893",
+    "rank3.log": "588c3b7a9fa668ce8b72aa0b6b78c0d436ffb985d45d8ebea797a972afaedb0b",
+    "rank4.log": "4f9713503de703c27b720975bf8529e08addff288ee671235fe41ee7711ad184",
+    "rank5.log": "a1cbd1ba44937cf8d721025f5f95b857750d0403421d94dae69dfc2b9a064e5a",
+    "rank6.log": "e56655eab36a871d2e2583cd463865bfaa941759a0874e49bb6177851a193385",
+    "rank7.log": "698e85cae24ef3d5f963cfc078e26b223265c314b4d1617bea1c7395dbc1af9f",
+    "predictions/progan.json": "c6927d1d4e1a9bb618c94b4c77027c17ed60ffd5b542dafac464b507de696277",
+    "predictions/cyclegan.json": "0e68a3f26a51e3bcb7b12c3a5bc4423afdff029bebe7ee1e9c694f7ca41008d8",
+    "predictions/biggan.json": "cf7f3f2a778ac896c5a7860f586af747758005bed462312745505bf703cbd4e9",
+    "predictions/stylegan.json": "bc1cbd2d8240e2c6b73b37afe6c3a98c18edc8dc16dbf4099c126bef9df65b1b",
+    "predictions/gaugan.json": "b95f70d612dca5afc0faf8538395a45142bce1d2492f914416148d79c361ef48",
+    "predictions/stargan.json": "0aeeaef932ebd86e9d72e0744f94b7d1ff089d7b6e65a40e0d14ad8acd0daddc",
+    "predictions/deepfake.json": "0486a45ffcdf188645b0f5ef50acb897c553e2d781e8e3137f2f9aa2d147df4e",
+    "predictions/seeingdark.json": "9af21ee1cba21e755f2653ccd39c36f8d12fdda71bcb713517f94c8b2010f9cb",
+    "predictions/san.json": "99e06a232448ca28cf33503bc2310df8f0064646c3f33d2061e877e197ce189e",
+    "predictions/crn.json": "fec4cd33f4ab52d485d3ac722ba0fdaea3d3a053e6b87e2a7b7052aa971e1933",
+    "predictions/imle.json": "acb79fa1f4f578518b2ee29adcf03db5159579b411a83c411478caf080ae694e",
+    "predictions/guided.json": "24e614761ce9d1f85d9592ecf7d8403bf0d9ceac73a4c83daa9cc5427b8fd1f0",
+    "predictions/ldm_200.json": "95ec508b472e6b3933bd7a6cde69712a3eb7a4ae4ae98d2e16d784279cf4c21a",
+    "predictions/ldm_200_cfg.json": "9982868ce839c9cd5e57905b9a5786f842d93240eb9b98f700d3914fab122ce7",
+    "predictions/ldm_100.json": "bc27aaa9542125d3b3bc83a710b45b30f29395aaff6417f62606db3e89df8643",
+    "predictions/glide_100_27.json": "4349cd9dd551ad6c20c7665fcd3770497f3f55221269f82918ee53c93393c99c",
+    "predictions/glide_50_27.json": "f021d3f0ac0e68c4afab0966d56205e5cd9180bb1dec2d5b15884eb0278df992",
+    "predictions/glide_100_10.json": "ef0978e6fe35723b333a72009711a21fc3002770b5a20821f938e516d60c6d71",
+    "predictions/dalle.json": "f651b22cd001974b9dbbf9dd9d12e31a1e5b67e20d5956f7de7f6a9cfc87ad13"
   }
 }

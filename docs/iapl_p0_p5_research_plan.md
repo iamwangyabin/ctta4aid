@@ -62,6 +62,17 @@ BatchNorm 只改变 -0.045 个百分点。单 rank SAN/SeeingDark 的 BatchNorm 
 1,000 real + 1,000 fake；因此本项目的“官方协议复跑”严格指公开可复现的
 2,000 张/域版本，不把无法取得的 10,000 张/域原始抽样宣称为已复现。
 
+### P1 result
+
+P1 于 2026-07-18 完成。19 域、88,353 个唯一公开样本全部得到样本级预测；
+8-rank padding 后共 88,376 条记录，其中 23 条为可核验的 sampler 重复项。最终
+mAcc 为 95.49%，相对论文 95.61% 低 0.12 个百分点，达到一个百分点标准；mAP
+为 97.22%，相对论文 99.32% 低 2.10 个百分点，未达到标准。
+
+AP 超出一个百分点的域为 CycleGAN、BigGAN、StarGAN、SeeingDark、SAN、CRN
+和 IMLE。完整逐域 Accuracy/AP、real/fake Accuracy、indices、labels、probabilities
+及日志均已归档。按研究计划保留这个负结果并进入 P2，不修改协议追数值。
+
 ## P2: original GenImage
 
 使用 SD1.4 checkpoint 和原版 8 测试域：ADM、BigGAN、GLIDE、Midjourney、
