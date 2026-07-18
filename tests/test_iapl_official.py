@@ -89,6 +89,27 @@ class IAPLOfficialRunnerTests(unittest.TestCase):
             launcher,
         )
 
+    def test_genimage_manual_launcher_preserves_official_protocol(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        launcher = (
+            root / "scripts" / "run_iapl_genimage_manual_ranks.sh"
+        ).read_text(encoding="utf-8")
+
+        for argument in (
+            "--dataset GenImage",
+            "--train_selected_subsets SDv14",
+            "--evalbatchsize 32",
+            "--tta_steps 2",
+            "--selection_p 0.2",
+            "--ois True",
+            "--smooth True",
+            "--num_workers 8",
+            "--seed 100",
+        ):
+            self.assertIn(argument, launcher)
+        self.assertIn("checkpoint_best_acc_sd14.pth", launcher)
+        self.assertIn("extract_manifest.json", launcher)
+
     def test_false_boolean_flag_is_omitted_for_authors_argparse(self) -> None:
         config = dict(self.config, smooth=False)
         command = build_command(config, python_executable="python")
