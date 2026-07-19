@@ -1,0 +1,43 @@
+{
+  "experiment": "P3 IAPL training from scratch",
+  "status": "running",
+  "prepared_at": "2026-07-20T04:54:41+08:00",
+  "source_commit": "6b3b595aca3d363ab6391a92ae50edd730a98298",
+  "seeds": [100, 101, 102],
+  "ufd": {
+    "status": "starting",
+    "source": "IAPL run_universalfake.sh at a173e7783bbafaa00d60e6e31774a0bc14411a23",
+    "train_subsets": ["car", "cat", "chair", "horse"],
+    "train_images_per_subset": 36006,
+    "train_images_total": 144024,
+    "batch_size": 16,
+    "eval_batch_size": 32,
+    "learning_rate": 0.00005,
+    "epochs": 1,
+    "lr_drop": 10,
+    "gate": true,
+    "condition": true,
+    "pretrained_iapl_checkpoint": null,
+    "initialization": "CLIP ViT-L/14 plus freshly initialized IAPL modules",
+    "seed_hosts": {
+      "100": "A6000",
+      "101": "4090-1",
+      "102": "4090-2"
+    },
+    "python_environment": "cl",
+    "remote_output_root": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_ufd_train"
+  },
+  "genimage": {
+    "status": "data_preparation",
+    "source_host": "3090",
+    "source_root": "/data/DF-arrow-data/GenImage",
+    "expected_arrow_shards": 1214,
+    "observed_arrow_shards": 985,
+    "observed_bytes": 492504613104,
+    "source_complete": false,
+    "policy": "Do not launch or report official GenImage training until all source shards and SD1.4 rows are verified."
+  },
+  "artifact_sha256": {
+    "scripts/run_iapl_ufd_train_single.sh": "ed27fbf0c14983e5f86fb80ed5a6dc593e1dcf568c66da3ca816a7635d8a4948"
+  }
+}
