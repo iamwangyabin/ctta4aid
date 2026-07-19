@@ -1,0 +1,58 @@
+{
+  "by_domain": {
+    "ADM": {
+      "domain": "ADM",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.8553333333333333,
+      "average_precision": 0.9829280126259667,
+      "real_accuracy": 0.9976666666666667,
+      "fake_accuracy": 0.713,
+      "world_size": 8
+    },
+    "BigGAN": {
+      "domain": "BigGAN",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9869166666666667,
+      "average_precision": 0.996542884200156,
+      "real_accuracy": 0.998,
+      "fake_accuracy": 0.9758333333333333,
+      "world_size": 8
+    },
+    "Midjourney": {
+      "domain": "Midjourney",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9574166666666667,
+      "average_precision": 0.9911810121022196,
+      "real_accuracy": 0.9978333333333333,
+      "fake_accuracy": 0.917,
+      "world_size": 8
+    },
+    "glide": {
+      "domain": "glide",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9595,
+      "average_precision": 0.9945441382335037,
+      "real_accuracy": 0.9968333333333333,
+      "fake_accuracy": 0.9221666666666667,
+      "world_size": 8
+    }
+  },
+  "mean": {
+    "accuracy": 0.9397916666666667,
+    "average_precision": 0.9912990117904615,
+    "real_accuracy": 0.9975833333333334,
+    "fake_accuracy": 0.882
+  }
+}

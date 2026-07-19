@@ -1,7 +1,8 @@
 {
   "experiment": "P2 original GenImage eight-domain official-protocol rerun",
-  "status": "preparing",
+  "status": "running",
   "prepared_at": "2026-07-19T04:05:02+08:00",
+  "started_at": "2026-07-19T07:42:12+08:00",
   "source_commit": "80a13780d8676808fd3a5be7251a9b0526356f75",
   "remote_output_dir": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p2_genimage_8domain_8rank_3node_20260719",
   "protocol": {
@@ -44,7 +45,8 @@
     "extracted_image_files_per_host": 100000,
     "extract_manifest_sha256": "a32bb7ae5bb27b18b48dd87951cdbba246491deefc9cad93dc4a2f1d80d1f6c9",
     "extract_manifests_match_across_hosts": true,
-    "uses_caidbench_proxy": false
+    "uses_caidbench_proxy": false,
+    "temporary_source_http_server_stopped_after_copy": true
   },
   "assets": {
     "iapl_checkpoint": "/home/yabin/ctta4aid_assets/weights/iapl/checkpoint_best_acc_sd14.pth",
@@ -61,6 +63,73 @@
     "nccl_version": 23007,
     "physical_gpus": 3,
     "reason_not_cl": "The cl environments are used for normal single-rank work and data preparation. Rank-faithful eight-process execution shares physical GPUs and therefore uses the validated NCCL 2.30 compatibility environment."
+  },
+  "startup_verification": {
+    "all_eight_rank_processes_live": true,
+    "all_eight_ranks_report_timeout_seconds": 7200,
+    "all_eight_ranks_passed_initial_distributed_barrier": true,
+    "all_three_gpus_active": true,
+    "fatal_errors": 0
+  },
+  "progress": {
+    "observed_at": "2026-07-19T12:20:57+08:00",
+    "completed_domains": [
+      "ADM",
+      "BigGAN",
+      "glide",
+      "Midjourney"
+    ],
+    "active_domain": "stable_diffusion_v_1_4",
+    "ADM": {
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.8553333333333333,
+      "average_precision": 0.9829280126259667,
+      "real_accuracy": 0.9976666666666667,
+      "fake_accuracy": 0.713
+    },
+    "BigGAN": {
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9869166666666667,
+      "average_precision": 0.996542884200156,
+      "real_accuracy": 0.998,
+      "fake_accuracy": 0.9758333333333333
+    },
+    "glide": {
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9595,
+      "average_precision": 0.9945441382335037,
+      "real_accuracy": 0.9968333333333333,
+      "fake_accuracy": 0.9221666666666667
+    },
+    "Midjourney": {
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9574166666666667,
+      "average_precision": 0.9911810121022196,
+      "real_accuracy": 0.9978333333333333,
+      "fake_accuracy": 0.917
+    },
+    "completed_domain_mean": {
+      "domain_count": 4,
+      "accuracy": 0.9397916666666667,
+      "average_precision": 0.9912990117904615,
+      "real_accuracy": 0.9975833333333334,
+      "fake_accuracy": 0.882
+    },
+    "artifact_sha256": {
+      "predictions/ADM.json": "61d85dd26ae189f423c277c2c38a6c941a29f163380f69a6f3a9a640113c6f24",
+      "predictions/BigGAN.json": "0c035dbbea31e75141004409355377c6ecee9b0265a4ef214bcfa1d7a41e70e1",
+      "predictions/glide.json": "7065145dee9a53da84348b1c79784a364f52a111e4b1dbedecb31e0a18025cc5",
+      "predictions/Midjourney.json": "1bc8c335187b29429d59fcf3ea93f7f714ef5516439ac619b54ec04d06f737a6",
+      "partial_comparison.json": "43e1711937e31066e151a9c1f7731c31d4300fd6943889f4e58cdf6ac94ba00b"
+    }
   },
   "artifact_sha256": {
     "configs/iapl_official_genimage.yaml": "e65b7443d0f079fd65b5fca96bc3e1bbf13ad11125141d9d357a99f20b5f80ac",

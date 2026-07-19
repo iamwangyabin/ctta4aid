@@ -18,5 +18,8 @@ released SD1.4 checkpoint. As in P0/P1, the eight ranks are mapped to three
 physical GPUs using the validated NCCL 2.30 shared-GPU mode. This preserves the
 official rank sampler and seed semantics but is not an eight-GPU topology.
 
-Status: data preparation complete; launcher preflight and experiment startup in
-progress. The paper reference is 96.7% mAcc and 99.5% mAP.
+The run started at 2026-07-19 07:42 +08. All eight ranks completed the initial
+distributed barrier and are processing the test domains. ADM, BigGAN, GLIDE,
+and Midjourney are complete; their current mean is 93.98% Accuracy / 99.13% AP.
+SD1.4 is active. The paper reference for all eight domains is 96.7% mAcc and
+99.5% mAP, so the partial mean is not yet a final comparison.
