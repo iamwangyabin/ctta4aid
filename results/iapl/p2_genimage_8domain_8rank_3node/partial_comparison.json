@@ -47,12 +47,36 @@
       "real_accuracy": 0.9968333333333333,
       "fake_accuracy": 0.9221666666666667,
       "world_size": 8
+    },
+    "stable_diffusion_v_1_4": {
+      "domain": "stable_diffusion_v_1_4",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9990833333333333,
+      "average_precision": 0.9994035853554378,
+      "real_accuracy": 0.9981666666666666,
+      "fake_accuracy": 1.0,
+      "world_size": 8
+    },
+    "stable_diffusion_v_1_5": {
+      "domain": "stable_diffusion_v_1_5",
+      "dataset_size": 16000,
+      "samples_with_distributed_padding": 16000,
+      "unique_sampler_indices": 16000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.997375,
+      "average_precision": 0.998698830114109,
+      "real_accuracy": 0.995875,
+      "fake_accuracy": 0.998875,
+      "world_size": 8
     }
   },
   "mean": {
-    "accuracy": 0.9397916666666667,
-    "average_precision": 0.9912990117904615,
-    "real_accuracy": 0.9975833333333334,
-    "fake_accuracy": 0.882
+    "accuracy": 0.9592708333333334,
+    "average_precision": 0.9938830771052322,
+    "real_accuracy": 0.9973958333333334,
+    "fake_accuracy": 0.9211458333333334
   }
 }

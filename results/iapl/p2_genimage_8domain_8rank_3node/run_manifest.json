@@ -72,14 +72,16 @@
     "fatal_errors": 0
   },
   "progress": {
-    "observed_at": "2026-07-19T12:20:57+08:00",
+    "observed_at": "2026-07-19T15:24:37+08:00",
     "completed_domains": [
       "ADM",
       "BigGAN",
       "glide",
-      "Midjourney"
+      "Midjourney",
+      "stable_diffusion_v_1_4",
+      "stable_diffusion_v_1_5"
     ],
-    "active_domain": "stable_diffusion_v_1_4",
+    "active_domain": "VQDM",
     "ADM": {
       "dataset_size": 12000,
       "samples_with_distributed_padding": 12000,
@@ -116,19 +118,39 @@
       "real_accuracy": 0.9978333333333333,
       "fake_accuracy": 0.917
     },
+    "stable_diffusion_v_1_4": {
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9990833333333333,
+      "average_precision": 0.9994035853554378,
+      "real_accuracy": 0.9981666666666666,
+      "fake_accuracy": 1.0
+    },
+    "stable_diffusion_v_1_5": {
+      "dataset_size": 16000,
+      "samples_with_distributed_padding": 16000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.997375,
+      "average_precision": 0.998698830114109,
+      "real_accuracy": 0.995875,
+      "fake_accuracy": 0.998875
+    },
     "completed_domain_mean": {
-      "domain_count": 4,
-      "accuracy": 0.9397916666666667,
-      "average_precision": 0.9912990117904615,
-      "real_accuracy": 0.9975833333333334,
-      "fake_accuracy": 0.882
+      "domain_count": 6,
+      "accuracy": 0.9592708333333334,
+      "average_precision": 0.9938830771052322,
+      "real_accuracy": 0.9973958333333334,
+      "fake_accuracy": 0.9211458333333334
     },
     "artifact_sha256": {
       "predictions/ADM.json": "61d85dd26ae189f423c277c2c38a6c941a29f163380f69a6f3a9a640113c6f24",
       "predictions/BigGAN.json": "0c035dbbea31e75141004409355377c6ecee9b0265a4ef214bcfa1d7a41e70e1",
       "predictions/glide.json": "7065145dee9a53da84348b1c79784a364f52a111e4b1dbedecb31e0a18025cc5",
       "predictions/Midjourney.json": "1bc8c335187b29429d59fcf3ea93f7f714ef5516439ac619b54ec04d06f737a6",
-      "partial_comparison.json": "43e1711937e31066e151a9c1f7731c31d4300fd6943889f4e58cdf6ac94ba00b"
+      "predictions/stable_diffusion_v_1_4.json": "10544c726cea060836a488bb1d7d3554798251bd58e2226e3ed149e504de6ad1",
+      "predictions/stable_diffusion_v_1_5.json": "ed40b7900a870264915ea5a0fc02c67d6322f6542f6e1f3897855b32bb84b24e",
+      "partial_comparison.json": "1954ec6106ddfddf1802bcc072a789cc1ee1e99e2097af327340cc0f8a5aa4a4"
     }
   },
   "artifact_sha256": {

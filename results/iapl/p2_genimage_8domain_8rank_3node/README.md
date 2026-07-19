@@ -20,6 +20,6 @@ official rank sampler and seed semantics but is not an eight-GPU topology.
 
 The run started at 2026-07-19 07:42 +08. All eight ranks completed the initial
 distributed barrier and are processing the test domains. ADM, BigGAN, GLIDE,
-and Midjourney are complete; their current mean is 93.98% Accuracy / 99.13% AP.
-SD1.4 is active. The paper reference for all eight domains is 96.7% mAcc and
-99.5% mAP, so the partial mean is not yet a final comparison.
+Midjourney, SD1.4, and SD1.5 are complete; their current mean is 95.93%
+Accuracy / 99.39% AP. VQDM is active. The paper reference for all eight domains
+is 96.7% mAcc and 99.5% mAP, so the partial mean is not yet a final comparison.
