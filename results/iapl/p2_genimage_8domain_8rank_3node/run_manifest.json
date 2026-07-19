@@ -72,16 +72,17 @@
     "fatal_errors": 0
   },
   "progress": {
-    "observed_at": "2026-07-19T15:24:37+08:00",
+    "observed_at": "2026-07-19T16:26:26+08:00",
     "completed_domains": [
       "ADM",
       "BigGAN",
       "glide",
       "Midjourney",
       "stable_diffusion_v_1_4",
-      "stable_diffusion_v_1_5"
+      "stable_diffusion_v_1_5",
+      "VQDM"
     ],
-    "active_domain": "VQDM",
+    "active_domain": "wukong",
     "ADM": {
       "dataset_size": 12000,
       "samples_with_distributed_padding": 12000,
@@ -136,12 +137,21 @@
       "real_accuracy": 0.995875,
       "fake_accuracy": 0.998875
     },
+    "VQDM": {
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9879166666666667,
+      "average_precision": 0.9968941216303054,
+      "real_accuracy": 0.9966666666666667,
+      "fake_accuracy": 0.9791666666666666
+    },
     "completed_domain_mean": {
-      "domain_count": 6,
-      "accuracy": 0.9592708333333334,
-      "average_precision": 0.9938830771052322,
-      "real_accuracy": 0.9973958333333334,
-      "fake_accuracy": 0.9211458333333334
+      "domain_count": 7,
+      "accuracy": 0.9633630952380952,
+      "average_precision": 0.9943132263230998,
+      "real_accuracy": 0.9972916666666667,
+      "fake_accuracy": 0.9294345238095237
     },
     "artifact_sha256": {
       "predictions/ADM.json": "61d85dd26ae189f423c277c2c38a6c941a29f163380f69a6f3a9a640113c6f24",
@@ -150,7 +160,8 @@
       "predictions/Midjourney.json": "1bc8c335187b29429d59fcf3ea93f7f714ef5516439ac619b54ec04d06f737a6",
       "predictions/stable_diffusion_v_1_4.json": "10544c726cea060836a488bb1d7d3554798251bd58e2226e3ed149e504de6ad1",
       "predictions/stable_diffusion_v_1_5.json": "ed40b7900a870264915ea5a0fc02c67d6322f6542f6e1f3897855b32bb84b24e",
-      "partial_comparison.json": "1954ec6106ddfddf1802bcc072a789cc1ee1e99e2097af327340cc0f8a5aa4a4"
+      "predictions/VQDM.json": "b9eb123ae5fff8a43d3888ad3d81cf192c5df9cd5f84e66bdb5ad99730ef2afc",
+      "partial_comparison.json": "a89bd4c019985ead776ce99f8fe20028869bae7a5cba434c7552bb28d071f329"
     }
   },
   "artifact_sha256": {

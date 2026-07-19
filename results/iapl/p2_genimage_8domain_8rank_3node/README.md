@@ -20,6 +20,7 @@ official rank sampler and seed semantics but is not an eight-GPU topology.
 
 The run started at 2026-07-19 07:42 +08. All eight ranks completed the initial
 distributed barrier and are processing the test domains. ADM, BigGAN, GLIDE,
-Midjourney, SD1.4, and SD1.5 are complete; their current mean is 95.93%
-Accuracy / 99.39% AP. VQDM is active. The paper reference for all eight domains
-is 96.7% mAcc and 99.5% mAP, so the partial mean is not yet a final comparison.
+Midjourney, SD1.4, SD1.5, and VQDM are complete; their current mean is 96.34%
+Accuracy / 99.43% AP. Wukong is the final active domain. The paper reference for
+all eight domains is 96.7% mAcc and 99.5% mAP, so the partial mean is not yet a
+final comparison.

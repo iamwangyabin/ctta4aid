@@ -36,6 +36,18 @@
       "fake_accuracy": 0.917,
       "world_size": 8
     },
+    "VQDM": {
+      "domain": "VQDM",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9879166666666667,
+      "average_precision": 0.9968941216303054,
+      "real_accuracy": 0.9966666666666667,
+      "fake_accuracy": 0.9791666666666666,
+      "world_size": 8
+    },
     "glide": {
       "domain": "glide",
       "dataset_size": 12000,
@@ -74,9 +86,9 @@
     }
   },
   "mean": {
-    "accuracy": 0.9592708333333334,
-    "average_precision": 0.9938830771052322,
-    "real_accuracy": 0.9973958333333334,
-    "fake_accuracy": 0.9211458333333334
+    "accuracy": 0.9633630952380952,
+    "average_precision": 0.9943132263230998,
+    "real_accuracy": 0.9972916666666667,
+    "fake_accuracy": 0.9294345238095237
   }
 }
