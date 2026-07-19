@@ -1,0 +1,106 @@
+{
+  "by_domain": {
+    "ADM": {
+      "domain": "ADM",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.8553333333333333,
+      "average_precision": 0.9829280126259667,
+      "real_accuracy": 0.9976666666666667,
+      "fake_accuracy": 0.713,
+      "world_size": 8
+    },
+    "BigGAN": {
+      "domain": "BigGAN",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9869166666666667,
+      "average_precision": 0.996542884200156,
+      "real_accuracy": 0.998,
+      "fake_accuracy": 0.9758333333333333,
+      "world_size": 8
+    },
+    "Midjourney": {
+      "domain": "Midjourney",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9574166666666667,
+      "average_precision": 0.9911810121022196,
+      "real_accuracy": 0.9978333333333333,
+      "fake_accuracy": 0.917,
+      "world_size": 8
+    },
+    "VQDM": {
+      "domain": "VQDM",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9879166666666667,
+      "average_precision": 0.9968941216303054,
+      "real_accuracy": 0.9966666666666667,
+      "fake_accuracy": 0.9791666666666666,
+      "world_size": 8
+    },
+    "glide": {
+      "domain": "glide",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9595,
+      "average_precision": 0.9945441382335037,
+      "real_accuracy": 0.9968333333333333,
+      "fake_accuracy": 0.9221666666666667,
+      "world_size": 8
+    },
+    "stable_diffusion_v_1_4": {
+      "domain": "stable_diffusion_v_1_4",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9990833333333333,
+      "average_precision": 0.9994035853554378,
+      "real_accuracy": 0.9981666666666666,
+      "fake_accuracy": 1.0,
+      "world_size": 8
+    },
+    "stable_diffusion_v_1_5": {
+      "domain": "stable_diffusion_v_1_5",
+      "dataset_size": 16000,
+      "samples_with_distributed_padding": 16000,
+      "unique_sampler_indices": 16000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.997375,
+      "average_precision": 0.998698830114109,
+      "real_accuracy": 0.995875,
+      "fake_accuracy": 0.998875,
+      "world_size": 8
+    },
+    "wukong": {
+      "domain": "wukong",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9981666666666666,
+      "average_precision": 0.998968699718955,
+      "real_accuracy": 0.9966666666666667,
+      "fake_accuracy": 0.9996666666666667,
+      "world_size": 8
+    }
+  },
+  "mean": {
+    "accuracy": 0.9677135416666667,
+    "average_precision": 0.9948951604975816,
+    "real_accuracy": 0.9972135416666666,
+    "fake_accuracy": 0.9382135416666667
+  }
+}

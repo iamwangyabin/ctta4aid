@@ -1,8 +1,9 @@
 {
   "experiment": "P2 original GenImage eight-domain official-protocol rerun",
-  "status": "running",
+  "status": "completed",
   "prepared_at": "2026-07-19T04:05:02+08:00",
   "started_at": "2026-07-19T07:42:12+08:00",
+  "observed_complete_at": "2026-07-19T17:12:30+08:00",
   "source_commit": "80a13780d8676808fd3a5be7251a9b0526356f75",
   "remote_output_dir": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p2_genimage_8domain_8rank_3node_20260719",
   "protocol": {
@@ -71,8 +72,16 @@
     "all_three_gpus_active": true,
     "fatal_errors": 0
   },
+  "source_verification": {
+    "test_time.py_sha256": "c00056d4ee8ddb7e11ec5ec0a6e9aff6892bb86f18dc0715b3da8e96ede96b7c",
+    "utils/misc.py_sha256": "2b67dca0ad7a7d5ac2d415f3cf8935f02e56818a8e4243ded58c362b66c33855",
+    "source_hashes_match_across_hosts": true,
+    "checkpoint_hash_matches_across_hosts": true,
+    "bn_diagnostic_patch_reverted_on_all_hosts": true,
+    "only_runtime_semantic_change": "The opt-in process-group timeout is 7,200 seconds instead of 600 seconds; model, data, sampling, adaptation, predictions, and metrics are unchanged."
+  },
   "progress": {
-    "observed_at": "2026-07-19T16:26:26+08:00",
+    "observed_at": "2026-07-19T17:12:30+08:00",
     "completed_domains": [
       "ADM",
       "BigGAN",
@@ -80,9 +89,10 @@
       "Midjourney",
       "stable_diffusion_v_1_4",
       "stable_diffusion_v_1_5",
-      "VQDM"
+      "VQDM",
+      "wukong"
     ],
-    "active_domain": "wukong",
+    "active_domain": null,
     "ADM": {
       "dataset_size": 12000,
       "samples_with_distributed_padding": 12000,
@@ -146,12 +156,21 @@
       "real_accuracy": 0.9966666666666667,
       "fake_accuracy": 0.9791666666666666
     },
+    "wukong": {
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9981666666666666,
+      "average_precision": 0.998968699718955,
+      "real_accuracy": 0.9966666666666667,
+      "fake_accuracy": 0.9996666666666667
+    },
     "completed_domain_mean": {
-      "domain_count": 7,
-      "accuracy": 0.9633630952380952,
-      "average_precision": 0.9943132263230998,
-      "real_accuracy": 0.9972916666666667,
-      "fake_accuracy": 0.9294345238095237
+      "domain_count": 8,
+      "accuracy": 0.9677135416666667,
+      "average_precision": 0.9948951604975816,
+      "real_accuracy": 0.9972135416666666,
+      "fake_accuracy": 0.9382135416666667
     },
     "artifact_sha256": {
       "predictions/ADM.json": "61d85dd26ae189f423c277c2c38a6c941a29f163380f69a6f3a9a640113c6f24",
@@ -161,14 +180,69 @@
       "predictions/stable_diffusion_v_1_4.json": "10544c726cea060836a488bb1d7d3554798251bd58e2226e3ed149e504de6ad1",
       "predictions/stable_diffusion_v_1_5.json": "ed40b7900a870264915ea5a0fc02c67d6322f6542f6e1f3897855b32bb84b24e",
       "predictions/VQDM.json": "b9eb123ae5fff8a43d3888ad3d81cf192c5df9cd5f84e66bdb5ad99730ef2afc",
+      "predictions/wukong.json": "b1fe5c4d134ce2a92fb3276827718d4be128d614da31f74b6f596fb71eb6818b",
+      "comparison.json": "8c3cfcf6f9488da172df6baac6edb2df30051b09cab21d96cb8cf8c63b3421c0",
       "partial_comparison.json": "a89bd4c019985ead776ce99f8fe20028869bae7a5cba434c7552bb28d071f329"
     }
+  },
+  "completion_verification": {
+    "all_eight_prediction_files_present": true,
+    "dataset_size": 100000,
+    "samples_with_distributed_padding": 100000,
+    "unique_sampler_indices_within_domains": 100000,
+    "duplicate_sampler_indices": 0,
+    "prediction_structure_checks_passed": true,
+    "all_eight_rank_processes_exited": true,
+    "all_three_launchers_exited": true,
+    "all_three_gpus_released": true,
+    "fatal_errors": 0
+  },
+  "final_result": {
+    "macc": 0.9677135416666667,
+    "map": 0.9948951604975816,
+    "mean_real_accuracy": 0.9972135416666666,
+    "mean_fake_accuracy": 0.9382135416666667,
+    "paper_macc_rounded": 0.967,
+    "paper_map_rounded": 0.995,
+    "macc_delta_to_rounded_paper": 0.0007135416666667069,
+    "map_delta_to_rounded_paper": -0.00010483950241835216,
+    "macc_delta_percentage_points": 0.07135416666667069,
+    "map_delta_percentage_points": -0.010483950241835216,
+    "macc_within_one_percentage_point": true,
+    "map_within_one_percentage_point": true,
+    "both_metrics_within_one_percentage_point": true,
+    "comparison": "comparison.json"
   },
   "artifact_sha256": {
     "configs/iapl_official_genimage.yaml": "e65b7443d0f079fd65b5fca96bc3e1bbf13ad11125141d9d357a99f20b5f80ac",
     "scripts/run_iapl_genimage_manual_ranks.sh": "11ac9c974210c2aa4948f654c73c83819564d5076c71bb580caaea8bba3854c1",
     "scripts/extract_iapl_genimage_test.py": "cceb53ffa620b67d86d791623ca5c248935c41ff47e029f1ef100f0ee7b3bce7",
+    "scripts/summarize_iapl_predictions.py": "b8187d99505aa34815947e3c3d5d0d4aea0cac204a9c4ee718544802696ede26",
     "patches/iapl-a173e77-distributed-timeout.patch": "f3da89cfdf09f60a34a4d89a8f5c365d7ec06994565447ffe3797057a3320f7b"
+  },
+  "result_artifact_sha256": {
+    "README.md": "faed2c79e9b8327b4d2e47a89d1073d1546185cd33aa2354a8def323cf64cef1",
+    "comparison.json": "8c3cfcf6f9488da172df6baac6edb2df30051b09cab21d96cb8cf8c63b3421c0",
+    "partial_comparison.json": "a89bd4c019985ead776ce99f8fe20028869bae7a5cba434c7552bb28d071f329",
+    "launcher_a6000.log": "760c3f2c50a7058f76e3746891236bb651c40e69cc917ea2f11ae8bb3004588b",
+    "launcher_4090_1.log": "760c3f2c50a7058f76e3746891236bb651c40e69cc917ea2f11ae8bb3004588b",
+    "launcher_4090_2.log": "760c3f2c50a7058f76e3746891236bb651c40e69cc917ea2f11ae8bb3004588b",
+    "rank0.log": "71445862efd934118047f8cc1f9f4a2bda0eafe44137198ca93348351a0bcc06",
+    "rank1.log": "68ed648ce8eb4c6a206c3ddd77015303a88a04901f78d1733a113bb06d21d853",
+    "rank2.log": "c6f3786a432d5443ac6e57e106f47ca05531c17d1b91254d33a23c492ce78c89",
+    "rank3.log": "cdb22b7b7c876a06a28e5aefdcd28d6bd08aab637f1d771c7632318348fa7f52",
+    "rank4.log": "18c0fdbdae980793e1a2b90d8740bde365208118b53f7ae26549f4a432c2e6c0",
+    "rank5.log": "2a20cc197164af72f8cf2b2dd2b6faf04dccb069f0cfb941540bf49b2c0aab60",
+    "rank6.log": "fcec0c402e1fa4cfcb7b90b3b393ec7ed45df0d9ec21091970185e3539f5d0bd",
+    "rank7.log": "01a4c834b145da9f9e7815062831a2a7c16d701336473e14b11ebe740eec7769",
+    "predictions/ADM.json": "61d85dd26ae189f423c277c2c38a6c941a29f163380f69a6f3a9a640113c6f24",
+    "predictions/BigGAN.json": "0c035dbbea31e75141004409355377c6ecee9b0265a4ef214bcfa1d7a41e70e1",
+    "predictions/glide.json": "7065145dee9a53da84348b1c79784a364f52a111e4b1dbedecb31e0a18025cc5",
+    "predictions/Midjourney.json": "1bc8c335187b29429d59fcf3ea93f7f714ef5516439ac619b54ec04d06f737a6",
+    "predictions/stable_diffusion_v_1_4.json": "10544c726cea060836a488bb1d7d3554798251bd58e2226e3ed149e504de6ad1",
+    "predictions/stable_diffusion_v_1_5.json": "ed40b7900a870264915ea5a0fc02c67d6322f6542f6e1f3897855b32bb84b24e",
+    "predictions/VQDM.json": "b9eb123ae5fff8a43d3888ad3d81cf192c5df9cd5f84e66bdb5ad99730ef2afc",
+    "predictions/wukong.json": "b1fe5c4d134ce2a92fb3276827718d4be128d614da31f74b6f596fb71eb6818b"
   },
   "reference": {
     "paper_macc": 0.967,

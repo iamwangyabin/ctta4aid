@@ -79,6 +79,15 @@ AP 超出一个百分点的域为 CycleGAN、BigGAN、StarGAN、SeeingDark、SAN
 SD1.4、SD1.5、VQDM、Wukong。目标是核对论文 96.7% mAcc，不使用 CAIDBench
 同名映射替代。
 
+### P2 result
+
+P2 于 2026-07-19 完成。原版公开 `genimage_test.zip` 的 100,000 张图片全部
+通过 ZIP CRC 和提取清单核验，三台计算节点的数据、代码及 SD1.4 checkpoint
+哈希一致。官方 8-rank、32 views、2 TTA steps、OIS、smooth 协议得到 96.77%
+mAcc / 99.49% mAP，相对论文 96.7% / 99.5% 分别为 +0.07 / -0.01 个百分点，
+两个指标均达到一个百分点复现标准。所有样本级预测、8 个 rank 日志和 3 个
+launcher 日志已归档；100,000 个 sampler index 全部唯一，无分布式 padding 重复。
+
 ## P3: training reproduction
 
 分别从 ProGAN 四类和 SD1.4 开始训练 IAPL，冻结完整配置和 checkpoint 哈希。
