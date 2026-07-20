@@ -33,10 +33,9 @@ PAPER_UFD = {
 
 def parse_official_summary(text: str) -> dict[str, Any]:
     pattern = re.compile(
-        r"^\((?P<index>\d+)\s+(?P<name>.+?)\)\s+acc:\s*(?P<acc>[\d.]+);\s*"
+        r"\((?P<index>\d+)\s+(?P<name>.+?)\)\s+acc:\s*(?P<acc>[\d.]+);\s*"
         r"ap:\s*(?P<ap>[\d.]+);\s*racc:\s*(?P<racc>[\d.]+);\s*"
         r"facc:\s*(?P<facc>[\d.]+);",
-        flags=re.MULTILINE,
     )
     rows = {}
     for match in pattern.finditer(text):
