@@ -1,0 +1,17 @@
+{
+  "host": "4090-2",
+  "remote_directory": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_ufd_train/universalfake_progan_seed102",
+  "training_time": "0:40:52",
+  "static_full_domain_evaluation": {
+    "accuracy": 0.8644,
+    "average_precision": 0.9713,
+    "real_accuracy": 0.8280,
+    "fake_accuracy": 0.9008,
+    "comparable_to_tta_table": false
+  },
+  "checkpoint_sha256": {
+    "checkpoint.pth": "cd751a7cecbe77524e6f127fe29bdc9030fa2abe18fe571ef3565d2670d8139e",
+    "checkpoint_best_acc.pth": "d324bac298ddd827ee17b688e932da03cf864d0e0933320c269a2d343811313d",
+    "checkpoint_best_ap.pth": "d311db14307b4d5b3d5831ff4ac9b065839527ef2cb4ec8b02835c06bb033ad0"
+  }
+}
