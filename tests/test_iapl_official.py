@@ -104,7 +104,8 @@ class IAPLOfficialRunnerTests(unittest.TestCase):
             "--ois True",
             "--smooth True",
             "--num_workers 8",
-            "--seed 100",
+            'seed=${IAPL_SEED:-100}',
+            '--seed "$seed"',
         ):
             self.assertIn(argument, launcher)
         self.assertIn("checkpoint_best_acc_sd14.pth", launcher)

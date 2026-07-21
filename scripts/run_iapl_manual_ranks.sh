@@ -30,6 +30,7 @@ master_addr=${MASTER_ADDR:?MASTER_ADDR is required}
 master_port=${MASTER_PORT:-29621}
 nccl_lib_dir=${IAPL_NCCL_LIB_DIR:-}
 distributed_timeout_seconds=${IAPL_DISTRIBUTED_TIMEOUT_SECONDS:-7200}
+seed=${IAPL_SEED:-100}
 
 if [[ -z $dataset_path ]]; then
   for dataset_root in \
@@ -97,9 +98,9 @@ print(version.value)
 fi
 
 if [[ ${IAPL_PREFLIGHT_ONLY:-0} == 1 ]]; then
-  printf 'python=%s\ndataset_path=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\ndistributed_timeout_seconds=%s\n' \
+  printf 'python=%s\ndataset_path=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\ndistributed_timeout_seconds=%s\nseed=%s\n' \
     "$python" "$dataset_path" "$iapl_repo" "$pretrained_model" "$clip_path" \
-    "$distributed_timeout_seconds"
+    "$distributed_timeout_seconds" "$seed"
   exit 0
 fi
 
@@ -159,7 +160,7 @@ for rank in "${ranks[@]}"; do
       --selection_p 0.2 \
       --ois True \
       --num_workers 0 \
-      --seed 100 \
+      --seed "$seed" \
       --output_dir "$output_dir" \
       --eval \
       >"$log" 2>&1 &

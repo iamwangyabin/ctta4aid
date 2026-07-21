@@ -30,6 +30,7 @@ master_addr=${MASTER_ADDR:?MASTER_ADDR is required}
 master_port=${MASTER_PORT:-29631}
 nccl_lib_dir=${IAPL_NCCL_LIB_DIR:-}
 distributed_timeout_seconds=${IAPL_DISTRIBUTED_TIMEOUT_SECONDS:-7200}
+seed=${IAPL_SEED:-100}
 
 if [[ ! -x $python ]]; then
   echo "IAPL Python is not executable: $python" >&2
@@ -91,9 +92,9 @@ print(version.value)
 fi
 
 if [[ ${IAPL_PREFLIGHT_ONLY:-0} == 1 ]]; then
-  printf 'python=%s\ndataset_path=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\ndistributed_timeout_seconds=%s\n' \
+  printf 'python=%s\ndataset_path=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\ndistributed_timeout_seconds=%s\nseed=%s\n' \
     "$python" "$dataset_path" "$iapl_repo" "$pretrained_model" "$clip_path" \
-    "$distributed_timeout_seconds"
+    "$distributed_timeout_seconds" "$seed"
   exit 0
 fi
 
@@ -152,7 +153,7 @@ for rank in "${ranks[@]}"; do
       --ois True \
       --smooth True \
       --num_workers 8 \
-      --seed 100 \
+      --seed "$seed" \
       --output_dir "$output_dir" \
       --eval \
       >"$log" 2>&1 &
