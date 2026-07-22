@@ -43,6 +43,27 @@ class IAPLTrainingLauncherTests(unittest.TestCase):
         self.assertEqual(parsed["by_domain"]["crn"]["acc"], 0.9)
         self.assertNotIn("mean", parsed["by_domain"])
 
+    def test_genimage_launcher_preserves_authors_training_protocol(self) -> None:
+        launcher = (
+            ROOT / "scripts" / "run_iapl_genimage_train_single.sh"
+        ).read_text(encoding="utf-8")
+        for argument in (
+            "--nproc_per_node=1",
+            "--batchsize 32",
+            "--evalbatchsize 32",
+            "--train_selected_subsets SDv14",
+            "--lr 0.00005",
+            "--dataset GenImage",
+            "--epoch 1",
+            "--lr_drop 10",
+            "--gate True",
+            "--condition True",
+            "--smooth True",
+        ):
+            self.assertIn(argument, launcher)
+        self.assertNotIn("--pretrained_model", launcher)
+        self.assertIn("hf_arrow://", launcher)
+
 
 if __name__ == "__main__":
     unittest.main()

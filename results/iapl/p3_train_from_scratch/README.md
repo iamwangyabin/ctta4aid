@@ -42,3 +42,11 @@ retained and a lower-concurrency resume was started. The archive parts will be
 verified and converted to the project's Hugging Face Arrow format before any
 GenImage training begins. No partial-data result will be reported as the
 official training reproduction.
+
+The conversion path is fixed in `scripts/import_genimage_to_hf_arrow.py`. It
+requires a JSON plan with explicit subset, split, label, source directory and
+optional expected counts/bytes; writes `save_to_disk` Arrow shards plus
+`mapping.json` and split metadata; and checks representative source/Arrow byte
+hashes before atomically publishing the output. GenImage training then uses the
+authors' `run_genimage.sh` settings through
+`scripts/run_iapl_genimage_train_single.sh` and refuses non-Arrow input.
