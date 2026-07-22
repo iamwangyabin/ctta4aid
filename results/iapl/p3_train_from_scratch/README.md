@@ -34,18 +34,16 @@ partial attempt. All eight rank logs and the exact failure layout are retained;
 the run will restart from the beginning with the previously validated 4+2+2
 layout when the third 24 GiB node is available.
 
-The GenImage source on 3090 currently contains 985 of 1,214 Arrow shards. It is
-not being treated as complete. Instead, the 96.4 GB, 30-part official SD1.4
-archive mirror is being downloaded on 4090-2. The first transfer stopped after
-43 GB when the mirror closed a response early; the Hugging Face cache was
-retained and a lower-concurrency resume was started. The archive parts will be
-verified and converted to the project's Hugging Face Arrow format before any
-GenImage training begins. No partial-data result will be reported as the
+The GenImage source on 3090 contains only 985 of 1,214 Arrow shards and is not
+being treated as complete. Instead, the 96.4 GB, 30-part official SD1.4 archive
+mirror was downloaded on 4090-2. The first transfer stopped after 43 GB when
+the mirror closed a response early; its cache was retained and the
+lower-concurrency retry completed. No partial-data result is reported as the
 official training reproduction.
 
 The conversion path is fixed in `scripts/import_genimage_to_hf_arrow.py`. It
-requires a JSON plan with explicit subset, split, label, source directory and
-optional expected counts/bytes; writes `save_to_disk` Arrow shards plus
+requires a JSON plan with explicit subset, split, label, source directory or
+ZIP prefix, and optional expected counts/bytes; writes `save_to_disk` Arrow shards plus
 `mapping.json` and split metadata; and checks representative source/Arrow byte
 hashes before atomically publishing the output. GenImage training then uses the
 authors' `run_genimage.sh` settings through
@@ -53,3 +51,20 @@ authors' `run_genimage.sh` settings through
 The two-record end-to-end smoke test passed in 4090-2's `cl` environment with
 `datasets` 5.0.0: conversion, `save_to_disk` reload, representative byte hashes,
 the framework reader and the training-launcher preflight all succeeded.
+The resumed official SD1.4 download also completed: 30 files totaling exactly
+96,413,397,770 bytes. Per-file size and SHA256 manifests are archived.
+
+Multipart join and the full CRC test subsequently passed. The joined archive
+contains 336,000 files; the official training split is exactly 162,000 AI plus
+162,000 nature images totaling 93,016,744,367 uncompressed bytes. The converter
+now reads those members directly from the verified ZIP into Arrow, so no
+intermediate image-tree extraction is needed. A second two-record end-to-end
+test confirmed ZIP member enumeration, byte-preserving Arrow storage and reload.
+
+The first full ZIP-to-Arrow attempt exposed a performance bug after 1,176 rows:
+the cache expression reopened the 336,000-entry ZIP directory for every image,
+limiting conversion to 1.18 rows/s and projecting 76 hours. The run was stopped
+without publishing an output, its log and incomplete 126 MiB cache were kept,
+and the iterator was fixed to open each archive once. A regression test now
+checks the handle count; the retry uses a fresh cache and the unchanged source
+plan.

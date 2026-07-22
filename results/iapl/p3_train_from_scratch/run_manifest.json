@@ -85,11 +85,17 @@
       "repository": "ENSTA-U2IS/GenImage",
       "path_filter": "stable_diffusion_v_1_4/*",
       "files": 30,
-      "download_bytes_human": "96.4 GB",
+      "download_bytes": 96413397770,
       "remote_root": "/home/yabin/ctta4aid_assets/data/genimage_official_train_20260721/hf_mirror",
       "first_attempt": "failed_after_43 GB with httpx.RemoteProtocolError; cache retained",
       "retry": "completed with max_workers=4 through https://hf-mirror.com",
-      "download_status": "30 of 30 files downloaded; per-part hashing and archive integrity verification running"
+      "download_status": "30 of 30 files downloaded; all per-part sizes and SHA256 hashes recorded; multipart join and full CRC verification passed",
+      "joined_archive_bytes": 96417319462,
+      "joined_archive_sha256": "46630a7126f061629ab9c58a9478f733d97349d3584a6bdf10d35eca32182979",
+      "archive_files": 336000,
+      "train_images": 324000,
+      "train_image_bytes": 93016744367,
+      "artifacts": "genimage/data"
     },
     "arrow_pipeline_smoke": {
       "status": "passed",
@@ -101,11 +107,33 @@
       "training_launcher_preflight": true,
       "artifacts": "genimage/arrow_smoke"
     },
+    "arrow_zip_pipeline_smoke": {
+      "status": "passed",
+      "host": "4090-2",
+      "rows": 2,
+      "bytes": 10,
+      "source_extraction_required": false,
+      "zip_member_to_arrow_byte_check": true,
+      "save_reload_byte_check": true,
+      "artifacts": "genimage/arrow_zip_smoke"
+    },
+    "arrow_conversion_progress": {
+      "status": "retry_running_after_handle_cache_fix",
+      "failed_attempt": "genimage/arrow_attempt1_handle_cache_bug",
+      "failed_attempt_rows": 1176,
+      "failed_attempt_rows_per_second": 1.18,
+      "published_output_created": false,
+      "retry_host": "4090-2",
+      "retry_cache": "/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/.datasets_cache_retry1",
+      "retry_output": "/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train",
+      "source_plan": "genimage/data/sd14_train_arrow_plan.json",
+      "source_plan_sha256": "fa4bc25075b7cfb4ce78c05ad50b61ebfd7dcea49956de9fc34d4eefda3dc0f0"
+    },
     "policy": "Do not launch or report official GenImage training until all source shards and SD1.4 rows are verified."
   },
   "artifact_sha256": {
     "scripts/run_iapl_ufd_train_single.sh": "ed27fbf0c14983e5f86fb80ed5a6dc593e1dcf568c66da3ca816a7635d8a4948",
-    "scripts/import_genimage_to_hf_arrow.py": "0860dcb157101af7c139f1a563c311beba7916a376a9fd379e2bd15bf188fb95",
+    "scripts/import_genimage_to_hf_arrow.py": "782e4912fc6acf89358325c722a23e5dfcd84bd8b066ab00611112708f1ed29c",
     "scripts/run_iapl_genimage_train_single.sh": "76ef1b37bf20c20bc682adde4241d8cd1a952fc27795777dec73d04c31d2c133"
   }
 }

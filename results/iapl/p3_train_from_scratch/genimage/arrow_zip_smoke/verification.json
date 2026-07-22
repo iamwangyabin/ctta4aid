@@ -1,0 +1,27 @@
+{
+  "host": "4090-2",
+  "environment": "cl",
+  "datasets": "5.0.0",
+  "input_format": "zip",
+  "input_rows": 2,
+  "input_bytes": 10,
+  "conversion_completed": true,
+  "save_to_disk_reload_completed": true,
+  "representative_zip_member_and_arrow_byte_hashes_match": true,
+  "source_extracted_before_conversion": false,
+  "fixed_handle_cache_regression": {
+    "passed": true,
+    "zip_opens_for_two_members_from_one_archive": 1,
+    "smoke_generation_rows_per_second": 2162.01
+  },
+  "canonical_paths": [
+    "SDv14/train/nature/real.jpg",
+    "SDv14/train/ai/fake.jpg"
+  ],
+  "artifact_sha256": {
+    "scripts/import_genimage_to_hf_arrow.py": "782e4912fc6acf89358325c722a23e5dfcd84bd8b066ab00611112708f1ed29c",
+    "conversion_manifest.json": "bab2df881dfb14246d42444e664829fae2c758a276abe7d55f5cad48e635f9f4",
+    "conversion_manifest_fixed.json": "6aae84a170faa8366e512becaf2597aa9a4af0f548ee9bb983c421fcd182e4f6",
+    "plan.json": "cdcf2107935c5618a94ebfe25adcfa7338579b975dfa557288d28ffde556c886"
+  }
+}

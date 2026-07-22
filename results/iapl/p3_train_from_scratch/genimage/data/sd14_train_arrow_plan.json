@@ -1,0 +1,31 @@
+{
+  "dataset": "GenImage",
+  "training_subset": "SDv14",
+  "source": "ENSTA-U2IS/GenImage stable_diffusion_v_1_4 multipart archive",
+  "archive": {
+    "path": "/home/yabin/ctta4aid_assets/data/genimage_official_train_20260721/assembled/imagenet_ai_0419_sdv4.zip",
+    "bytes": 96417319462,
+    "sha256": "46630a7126f061629ab9c58a9478f733d97349d3584a6bdf10d35eca32182979",
+    "full_crc_passed": true
+  },
+  "sources": [
+    {
+      "subset": "SDv14",
+      "split": "train",
+      "label": 0,
+      "archive": "/home/yabin/ctta4aid_assets/data/genimage_official_train_20260721/assembled/imagenet_ai_0419_sdv4.zip",
+      "prefix": "imagenet_ai_0419_sdv4/train/nature",
+      "expected_count": 162000,
+      "expected_bytes": 18512732443
+    },
+    {
+      "subset": "SDv14",
+      "split": "train",
+      "label": 1,
+      "archive": "/home/yabin/ctta4aid_assets/data/genimage_official_train_20260721/assembled/imagenet_ai_0419_sdv4.zip",
+      "prefix": "imagenet_ai_0419_sdv4/train/ai",
+      "expected_count": 162000,
+      "expected_bytes": 74504011924
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "experiment": "P3 GenImage official SDv1.4 ZIP to Arrow conversion",
+  "status": "stopped_for_performance_bug",
+  "host": "4090-2",
+  "environment": "cl",
+  "source_rows": 324000,
+  "rows_processed": 1176,
+  "elapsed": "0:16:34",
+  "observed_rows_per_second": 1.18,
+  "projected_total_hours": 76.3,
+  "root_cause": "dict.setdefault evaluated ZipFile(record.source_path) for every row, reopening and rescanning the 336000-entry central directory even when the archive handle was already cached.",
+  "cleanup": {
+    "conversion_process_terminated": true,
+    "published_output_created": false,
+    "incomplete_cache_retained": true,
+    "incomplete_cache_bytes_human": "126 MiB"
+  },
+  "fix": "Use dict.get and construct one ZipFile handle only on the first record for each archive; close cached handles after iteration.",
+  "regression_test": "The ZIP row iterator now asserts that two members from one archive open ZipFile exactly once.",
+  "retry_policy": "Restart from row zero with a new datasets cache directory and the same frozen source plan.",
+  "artifact_sha256": {
+    "conversion.log": "49b1124417c76963da79ffe70a2b6e53ae356a151a7c9ac89c8d38b3ddc36101"
+  }
+}

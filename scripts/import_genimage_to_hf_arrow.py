@@ -7,6 +7,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable
+from zipfile import ZipFile
 
 
 IMAGE_SUFFIXES = {
@@ -25,7 +26,9 @@ class SourceSpec:
     subset: str
     split: str
     label: int
-    path: Path
+    directory: Path | None = None
+    archive: Path | None = None
+    prefix: str | None = None
     expected_count: int | None = None
     expected_bytes: int | None = None
 
@@ -33,6 +36,7 @@ class SourceSpec:
 @dataclass(frozen=True)
 class ImageRecord:
     source_path: Path
+    archive_member: str | None
     image_path: str
     subset: str
     split: str
@@ -63,18 +67,37 @@ def load_plan(path: Path) -> tuple[dict[str, Any], list[SourceSpec]]:
         label = int(item.get("label"))
         if label not in {0, 1}:
             raise ValueError(f"Source label must be 0 or 1, got {label}")
-        source_path = Path(str(item.get("path", ""))).expanduser()
-        if not source_path.is_absolute():
-            source_path = path.parent / source_path
-        source_path = source_path.resolve()
-        if not source_path.is_dir():
-            raise FileNotFoundError(f"Source directory does not exist: {source_path}")
+        directory_value = item.get("path")
+        archive_value = item.get("archive")
+        if (directory_value is None) == (archive_value is None):
+            raise ValueError(f"Source {index} must contain exactly one of path or archive")
+        directory = None
+        archive = None
+        prefix = None
+        if directory_value is not None:
+            directory = _resolve_plan_path(path, directory_value)
+            if not directory.is_dir():
+                raise FileNotFoundError(f"Source directory does not exist: {directory}")
+        else:
+            archive = _resolve_plan_path(path, archive_value)
+            if not archive.is_file():
+                raise FileNotFoundError(f"Source archive does not exist: {archive}")
+            prefix_path = PurePosixPath(str(item.get("prefix", "")).strip("/"))
+            if (
+                not prefix_path.parts
+                or prefix_path.is_absolute()
+                or ".." in prefix_path.parts
+            ):
+                raise ValueError(f"Invalid archive prefix: {item.get('prefix')!r}")
+            prefix = prefix_path.as_posix()
         sources.append(
             SourceSpec(
                 subset=subset,
                 split=split,
                 label=label,
-                path=source_path,
+                directory=directory,
+                archive=archive,
+                prefix=prefix,
                 expected_count=(
                     int(item["expected_count"])
                     if item.get("expected_count") is not None
@@ -99,6 +122,13 @@ def load_plan(path: Path) -> tuple[dict[str, Any], list[SourceSpec]]:
     return plan, sources
 
 
+def _resolve_plan_path(plan_path: Path, value: Any) -> Path:
+    resolved = Path(str(value)).expanduser()
+    if not resolved.is_absolute():
+        resolved = plan_path.parent / resolved
+    return resolved.resolve()
+
+
 def collect_records(
     sources: list[SourceSpec],
 ) -> tuple[list[ImageRecord], list[dict[str, Any]]]:
@@ -107,28 +137,31 @@ def collect_records(
     seen_paths: set[str] = set()
     for source in sources:
         class_name = "nature" if source.label == 0 else "ai"
-        files = sorted(
-            candidate
-            for candidate in source.path.rglob("*")
-            if candidate.is_file() and candidate.suffix.lower() in IMAGE_SUFFIXES
-        )
-        byte_count = sum(candidate.stat().st_size for candidate in files)
-        if source.expected_count is not None and len(files) != source.expected_count:
+        candidates = _source_candidates(source)
+        byte_count = sum(size for _, _, size in candidates)
+        if source.expected_count is not None and len(candidates) != source.expected_count:
             raise ValueError(
-                f"Unexpected image count under {source.path}: "
-                f"expected {source.expected_count}, got {len(files)}"
+                f"Unexpected image count under {_source_description(source)}: "
+                f"expected {source.expected_count}, got {len(candidates)}"
             )
         if source.expected_bytes is not None and byte_count != source.expected_bytes:
             raise ValueError(
-                f"Unexpected byte count under {source.path}: "
+                f"Unexpected byte count under {_source_description(source)}: "
                 f"expected {source.expected_bytes}, got {byte_count}"
             )
-        if not files:
-            raise ValueError(f"Source directory has no supported images: {source.path}")
+        if not candidates:
+            raise ValueError(
+                f"Source has no supported images: {_source_description(source)}"
+            )
 
         start_index = len(records)
-        for candidate in files:
-            relative = candidate.relative_to(source.path)
+        for source_path, archive_member, size in candidates:
+            if archive_member is None:
+                relative = source_path.relative_to(source.directory)
+            else:
+                member_path = PurePosixPath(archive_member)
+                prefix_path = PurePosixPath(source.prefix)
+                relative = PurePosixPath(*member_path.parts[len(prefix_path.parts) :])
             image_path = PurePosixPath(
                 source.subset, source.split, class_name, *relative.parts
             ).as_posix()
@@ -137,27 +170,65 @@ def collect_records(
             seen_paths.add(image_path)
             records.append(
                 ImageRecord(
-                    source_path=candidate,
+                    source_path=source_path,
+                    archive_member=archive_member,
                     image_path=image_path,
                     subset=source.subset,
                     split=source.split,
                     label=source.label,
-                    size=candidate.stat().st_size,
+                    size=size,
                 )
             )
-        source_summaries.append(
-            {
-                "subset": source.subset,
-                "split": source.split,
-                "label": source.label,
-                "path": str(source.path),
-                "rows": len(files),
-                "bytes": byte_count,
-                "row_start": start_index,
-                "row_end_exclusive": len(records),
-            }
-        )
+        summary = {
+            "subset": source.subset,
+            "split": source.split,
+            "label": source.label,
+            "source_type": "directory" if source.directory else "zip",
+            "rows": len(candidates),
+            "bytes": byte_count,
+            "row_start": start_index,
+            "row_end_exclusive": len(records),
+        }
+        if source.directory:
+            summary["path"] = str(source.directory)
+        else:
+            summary["archive"] = str(source.archive)
+            summary["prefix"] = source.prefix
+        source_summaries.append(summary)
     return records, source_summaries
+
+
+def _source_description(source: SourceSpec) -> str:
+    if source.directory:
+        return str(source.directory)
+    return f"{source.archive}!/{source.prefix}"
+
+
+def _source_candidates(
+    source: SourceSpec,
+) -> list[tuple[Path, str | None, int]]:
+    if source.directory:
+        return [
+            (candidate, None, candidate.stat().st_size)
+            for candidate in sorted(source.directory.rglob("*"))
+            if candidate.is_file() and candidate.suffix.lower() in IMAGE_SUFFIXES
+        ]
+
+    prefix_path = PurePosixPath(source.prefix)
+    candidates = []
+    with ZipFile(source.archive) as archive:
+        for info in sorted(archive.infolist(), key=lambda item: item.filename):
+            member_path = PurePosixPath(info.filename)
+            if info.is_dir() or member_path.suffix.lower() not in IMAGE_SUFFIXES:
+                continue
+            if member_path.is_absolute() or ".." in member_path.parts:
+                raise ValueError(f"Unsafe ZIP member: {info.filename}")
+            if member_path.parts[: len(prefix_path.parts)] != prefix_path.parts:
+                continue
+            if len(member_path.parts) == len(prefix_path.parts):
+                continue
+            candidates.append((source.archive, info.filename, info.file_size))
+    return candidates
 
 
 def _sha256(path: Path) -> str:
@@ -176,6 +247,31 @@ def _inventory_sha256(records: Iterable[ImageRecord]) -> str:
         digest.update(str(record.size).encode("ascii"))
         digest.update(b"\n")
     return digest.hexdigest()
+
+
+def _record_bytes(record: ImageRecord) -> bytes:
+    if record.archive_member is None:
+        return record.source_path.read_bytes()
+    with ZipFile(record.source_path) as archive:
+        return archive.read(record.archive_member)
+
+
+def _iter_arrow_rows(records: Iterable[ImageRecord]) -> Iterable[dict[str, Any]]:
+    archives: dict[Path, ZipFile] = {}
+    try:
+        for record in records:
+            if record.archive_member is None:
+                payload = record.source_path.read_bytes()
+            else:
+                archive = archives.get(record.source_path)
+                if archive is None:
+                    archive = ZipFile(record.source_path)
+                    archives[record.source_path] = archive
+                payload = archive.read(record.archive_member)
+            yield {"image_path": record.image_path, "image": payload}
+    finally:
+        for archive in archives.values():
+            archive.close()
 
 
 def convert(
@@ -198,17 +294,10 @@ def convert(
     except ImportError as exc:
         raise RuntimeError("datasets is required for GenImage Arrow conversion") from exc
 
-    def rows() -> Iterable[dict[str, Any]]:
-        for record in records:
-            yield {
-                "image_path": record.image_path,
-                "image": record.source_path.read_bytes(),
-            }
-
     output.parent.mkdir(parents=True, exist_ok=True)
     cache_dir.mkdir(parents=True, exist_ok=True)
     dataset = Dataset.from_generator(
-        rows,
+        lambda: _iter_arrow_rows(records),
         features=Features(
             {
                 "image_path": Value("string"),
@@ -252,7 +341,7 @@ def convert(
         payload = row["image"]
         if not isinstance(payload, (bytes, bytearray, memoryview)):
             raise RuntimeError(f"Arrow image is not binary at row {index}")
-        source_sha = _sha256(expected.source_path)
+        source_sha = hashlib.sha256(_record_bytes(expected)).hexdigest()
         arrow_sha = hashlib.sha256(bytes(payload)).hexdigest()
         if source_sha != arrow_sha:
             raise RuntimeError(f"Arrow bytes changed at row {index}")
