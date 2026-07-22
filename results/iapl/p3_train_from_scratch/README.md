@@ -50,3 +50,6 @@ optional expected counts/bytes; writes `save_to_disk` Arrow shards plus
 hashes before atomically publishing the output. GenImage training then uses the
 authors' `run_genimage.sh` settings through
 `scripts/run_iapl_genimage_train_single.sh` and refuses non-Arrow input.
+The two-record end-to-end smoke test passed in 4090-2's `cl` environment with
+`datasets` 5.0.0: conversion, `save_to_disk` reload, representative byte hashes,
+the framework reader and the training-launcher preflight all succeeded.

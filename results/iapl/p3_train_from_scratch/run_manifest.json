@@ -88,11 +88,24 @@
       "download_bytes_human": "96.4 GB",
       "remote_root": "/home/yabin/ctta4aid_assets/data/genimage_official_train_20260721/hf_mirror",
       "first_attempt": "failed_after_43 GB with httpx.RemoteProtocolError; cache retained",
-      "retry": "running with max_workers=4 through https://hf-mirror.com"
+      "retry": "completed with max_workers=4 through https://hf-mirror.com",
+      "download_status": "30 of 30 files downloaded; per-part hashing and archive integrity verification running"
+    },
+    "arrow_pipeline_smoke": {
+      "status": "passed",
+      "host": "4090-2",
+      "rows": 2,
+      "bytes": 10,
+      "save_reload_byte_check": true,
+      "framework_reader_check": true,
+      "training_launcher_preflight": true,
+      "artifacts": "genimage/arrow_smoke"
     },
     "policy": "Do not launch or report official GenImage training until all source shards and SD1.4 rows are verified."
   },
   "artifact_sha256": {
-    "scripts/run_iapl_ufd_train_single.sh": "ed27fbf0c14983e5f86fb80ed5a6dc593e1dcf568c66da3ca816a7635d8a4948"
+    "scripts/run_iapl_ufd_train_single.sh": "ed27fbf0c14983e5f86fb80ed5a6dc593e1dcf568c66da3ca816a7635d8a4948",
+    "scripts/import_genimage_to_hf_arrow.py": "0860dcb157101af7c139f1a563c311beba7916a376a9fd379e2bd15bf188fb95",
+    "scripts/run_iapl_genimage_train_single.sh": "76ef1b37bf20c20bc682adde4241d8cd1a952fc27795777dec73d04c31d2c133"
   }
 }
