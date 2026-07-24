@@ -22,6 +22,17 @@
     "all_domains_contain_both_labels": true,
     "all_first_images_passed_pil_verify": true
   },
+  "full_decode_audit": {
+    "passed": true,
+    "rows": 100000,
+    "valid_rows": 100000,
+    "invalid_rows": 0,
+    "formats": {
+      "JPEG": 50000,
+      "PNG": 50000
+    },
+    "elapsed_seconds": 331.970915379934
+  },
   "iapl_creator_check": {
     "passed": true,
     "training_subset": "SDv14",
@@ -36,6 +47,8 @@
     "conversion.log": "cbd8eee9cc14808505aa7b4619d9764fbd05ff9234535e26245929cfc1278195",
     "conversion_manifest.json": "754db2885f78e00421b10e314529a4e703bcb53acd88718d09394f999b44c5f1",
     "framework_verification.json": "8cf0cc8f7a83deefe362f25ff1ebef3ecd34051d9451a39d564eaacf02be8e47",
+    "genimage_test_full_decode_audit.json": "5bd664befb695593cee199a815f36df5940844fb19df6e47e5f8a4440f4243f8",
+    "genimage_test_full_decode_audit.log": "208378092c2880aa3b5b5ac3335b64fb3f95b55a6565d65e47c78dc6611663f3",
     "scripts/check_hf_arrow_datasets.py": "445718f67fc280d655b831d92c39118ee4d993946fbe59e14f935d6394fbfcac",
     "patches/iapl-a173e77-compat.patch": "27e43a857bbeb3a349291b026992ba002ae34197bf3b2539195f0edcebabbce2"
   }

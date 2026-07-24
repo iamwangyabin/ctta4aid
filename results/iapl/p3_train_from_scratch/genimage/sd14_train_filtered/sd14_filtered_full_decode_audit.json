@@ -1,0 +1,16 @@
+{
+  "format": "ctta4aid_hf_arrow_image_audit_v1",
+  "root": "/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train_filtered",
+  "generator": "SDv14",
+  "split": "train",
+  "rows": 323997,
+  "valid_rows": 323997,
+  "invalid_rows": 0,
+  "formats": {
+    "JPEG": 162000,
+    "PNG": 161997
+  },
+  "elapsed_seconds": 1044.1972173349932,
+  "rows_per_second": 310.28333979562524,
+  "failures": []
+}

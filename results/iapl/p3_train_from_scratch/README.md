@@ -80,7 +80,8 @@ The byte-verified P2 test extraction was then converted separately. Its eight
 domains contain exactly 100,000 rows and 25,451,020,754 image bytes in 26
 Arrow shards; every domain has the expected balanced real/fake counts. The
 framework loaded and decoded all eight domains, including the 16,000-row
-SD1.5 domain, and reported 100,000 rows in total.
+SD1.5 domain, and reported 100,000 rows in total. A later exhaustive pass fully
+decoded all 100,000 payloads (50,000 JPEG and 50,000 PNG) with zero failures.
 
 The final preflight found one more integration defect before training: the
 compatibility patch added Arrow loading only to IAPL's generic
@@ -103,5 +104,9 @@ The immutable 324,000-row conversion remains untouched. A separate atomic
 metadata view hard-links the same 94 Arrow shards while selecting 323,997 rows
 (162,000 real and 161,997 fake) and excluding only the three audited empty
 payloads. Its row counts, excluded paths, and hard-link identities passed; a
-second exhaustive decode of the selected view is running before seed 100 is
-restarted from scratch.
+second exhaustive decode then validated all 323,997 selected payloads (162,000
+JPEG and 161,997 PNG) with zero failures. The 100,000-row test Arrow also
+passed its exhaustive decode with zero failures. Seed 100 attempt 2 restarted
+from scratch on 4090-2 at 10:54:36 +08:00, entered its 10,124-batch training
+loop, and is running from the filtered training root plus the verified test
+root.

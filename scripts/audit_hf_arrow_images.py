@@ -41,29 +41,32 @@ def audit(
         from datasets import load_from_disk
 
         dataset = load_from_disk(str(root), keep_in_memory=False)
-        rows = (
-            (str(row.get("image_path", "")), _image_bytes(row))
-            for row in dataset
-        )
         total_rows = len(dataset)
+
+        def get_row(index: int) -> tuple[str, bytes]:
+            row = dataset[index]
+            return str(row.get("image_path", "")), _image_bytes(row)
+
     else:
         from online_aig_tta.data.hf_arrow import HFDiskArrowDataset
 
         selected = HFDiskArrowDataset(
             root=root, generator=generator, split=split, return_sample_id=True
         )
-        rows = (
-            (sample_id, payload)
-            for payload, _, sample_id in (
-                selected.raw_item(index) for index in range(len(selected))
-            )
-        )
         total_rows = len(selected)
+
+        def get_row(index: int) -> tuple[str, bytes]:
+            payload, _, sample_id = selected.raw_item(index)
+            return sample_id, payload
+
     started = time.monotonic()
     formats: Counter[str] = Counter()
     failures = []
-    for index, (image_path, payload) in enumerate(rows):
+    for index in range(total_rows):
+        image_path = ""
+        payload = b""
         try:
+            image_path, payload = get_row(index)
             formats[inspect_payload(payload)] += 1
         except Exception as error:  # Continue the audit to enumerate every bad row.
             failures.append(

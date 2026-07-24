@@ -41,6 +41,7 @@
   "artifact_sha256": {
     "launcher.log": "e3df0d295e8b1f9592fe42f0f5a5d085208299cfd7525a8e97017b0a2124491e",
     "sd14_full_decode_audit.json": "ab7fe8bb370175deccb819020f69cd88a12f7a8788ad242058fc6390bae1a30a",
+    "source_verification.json": "da0e4f88e50a2029bc673edb3a234fb62a277098521acc1cb028cecb56a113ad",
     "sd14_train_filter_plan.json": "779b7e6b104d3db759917fb75fb822cc70146459bc2036be77d33219713d11eb"
   }
 }

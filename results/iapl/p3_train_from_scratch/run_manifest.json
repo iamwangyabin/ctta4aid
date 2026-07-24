@@ -148,6 +148,8 @@
       "image_bytes": 25451020754,
       "arrow_shards": 26,
       "all_eight_domains_verified": true,
+      "full_decode_valid_rows": 100000,
+      "full_decode_invalid_rows": 0,
       "artifacts": "genimage/genimage_test_arrow"
     },
     "iapl_arrow_compatibility": {
@@ -177,7 +179,15 @@
         "real": 162000,
         "fake": 161997
       },
-      "filtered_view_full_decode": "running",
+      "filtered_view_full_decode": {
+        "status": "passed",
+        "rows": 323997,
+        "valid_rows": 323997,
+        "invalid_rows": 0,
+        "jpeg": 162000,
+        "png": 161997,
+        "elapsed_seconds": 1044.1972173349932
+      },
       "artifacts": [
         "genimage/sd14_full_decode_audit",
         "genimage/data/sd14_train_filter_plan.json"
@@ -186,9 +196,20 @@
     "training": {
       "dataset_uri": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train_filtered|/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
       "seeds": {
-        "100": "attempt1_failed_on_zero_byte_image; filtered_view_audit_running_before_restart",
+        "100": "attempt2_running_from_scratch_after_attempt1_zero_byte_failure",
         "101": "pending",
         "102": "pending"
+      },
+      "seed100_attempt2": {
+        "status": "running",
+        "started_at": "2026-07-24T10:54:36+08:00",
+        "host": "4090-2",
+        "environment": "cl",
+        "iapl_worktree": "/home/yabin/ctta4aid_assets/external/IAPL-p3-train",
+        "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed100_attempt2_filtered",
+        "batches": 10124,
+        "first_batch_completed": true,
+        "observed_cuda_memory_mib": 15588
       }
     },
     "policy": "Keep the immutable 324,000-row conversion for audit, but train only from the 323,997-row filtered metadata view after its full decode passes. Preserve the failed 324,000-row attempt."
