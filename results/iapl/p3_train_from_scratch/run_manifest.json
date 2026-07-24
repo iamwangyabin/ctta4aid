@@ -289,12 +289,13 @@
     "scripts/run_iapl_genimage_train_single.sh": "76ef1b37bf20c20bc682adde4241d8cd1a952fc27795777dec73d04c31d2c133"
   },
   "trained_checkpoint_tta": {
-    "status": "waiting_for_third_24_gib_gpu",
+    "status": "waiting_for_third_24_gib_gpu_or_approved_6plus2_preflight",
     "runs_total": 6,
     "runs_completed": 0,
     "execution_plan": "tta_execution_plan.json",
     "required_rank_layout": "A6000 4 ranks; 4090-1 2 ranks; 4090-2 2 ranks",
-    "latest_resource_audit": "resource_audit_20260724_1718.json",
-    "latest_resource_conclusion": "4090-2 is idle and A6000 is online, but 4090-1 remains unreachable; 3090 authentication stalls and 3070x2 PyTorch cannot initialize CUDA, so the validated 4+2+2 layout is still unavailable"
+    "latest_resource_audit": "resource_audit_20260724_1726.json",
+    "latest_resource_conclusion": "A6000 and 4090-2 are idle, but the validated 4+2+2 layout is unavailable. A 6+2 layout is protocol-equivalent but has not passed a six-rank A6000 memory preflight and requires explicit approval.",
+    "preserved_partial_launch": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable"
   }
 }

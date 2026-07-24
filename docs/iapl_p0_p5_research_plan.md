@@ -118,6 +118,12 @@ A6000 `4 ranks` + 4090-1 `2 ranks` + 4090-2 `2 ranks`，但 4090-1
 也不能作为临时节点：GPU 1 虽可被 `nvidia-smi` 单独看到，但 `cl` 环境的
 PyTorch 在 `CUDA_VISIBLE_DEVICES=1` 下仍报告 CUDA 不可用且设备数为 0。
 
+17:26 再检查时 A6000 已完全空闲，因此 6+2 rank 是不改变 8-rank 数据分片与
+TTA 超参数的候选布局；但 48 GiB 上并发 6 个 IAPL 进程尚无显存预检证据。
+一次成对启动只有 4090-2 的 ranks 6-7 实际运行，它们在分布式 world 形成前
+被终止，完成 0 个 batch、0 个 domain，日志按失败尝试保留。后续优先等待
+4090-1 恢复 4+2+2；若要试 6+2，先取得明确授权并做受监控的显存预检。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

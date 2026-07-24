@@ -1,6 +1,6 @@
 {
   "experiment": "P3 trained-checkpoint official TTA execution plan",
-  "status": "waiting_for_third_24_gib_gpu",
+  "status": "waiting_for_third_24_gib_gpu_or_approved_6plus2_preflight",
   "prepared_at": "2026-07-24T17:05:28+08:00",
   "source": {
     "iapl_upstream_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
@@ -132,13 +132,15 @@
     ]
   },
   "resource_audit": {
-    "observed_at": "2026-07-24T17:18:48+08:00",
-    "artifact": "resource_audit_20260724_1718.json",
-    "A6000": "online at 0% utilization with 4751/49140 MiB allocated by an unrelated process",
+    "observed_at": "2026-07-24T17:26:46+08:00",
+    "artifact": "resource_audit_20260724_1726.json",
+    "A6000": "online and idle at 0% utilization with 17/49140 MiB allocated and no compute process",
     "4090-1": "Tailscale SSH timeout; LAN SSH reports host down",
-    "4090-2": "online and idle at 0% utilization with 252/24564 MiB allocated",
+    "4090-2": "online and idle after terminating the two orphaned ranks from the partial launch",
     "3090": "Tailscale SSH timeout; LAN reaches public-key authentication but does not complete it",
     "3070x2": "GPU 0 has a device-handle error; GPU 1 is visible to nvidia-smi, but cl PyTorch reports CUDA unavailable and zero devices even with CUDA_VISIBLE_DEVICES=1",
-    "conclusion": "No protocol-faithful eight-rank layout is currently available. The failed 5+3 layout is not reused, and shared hosts are not reset or rebooted without explicit approval."
+    "candidate": "A monitored 6+2 preflight is now technically possible because A6000 is fully idle, but six concurrent ranks on 48 GiB are unvalidated and require explicit approval.",
+    "partial_launch_artifact": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
+    "conclusion": "The validated 4+2+2 layout remains unavailable. Keep all six runs pending until 4090-1 returns or the 6+2 preflight is explicitly approved."
   }
 }

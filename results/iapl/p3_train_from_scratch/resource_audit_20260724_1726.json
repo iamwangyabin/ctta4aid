@@ -1,0 +1,41 @@
+{
+  "observed_at": "2026-07-24T17:26:46+08:00",
+  "purpose": "Recheck whether P3 official TTA can proceed after the earlier resource audit.",
+  "hosts": {
+    "A6000": {
+      "ssh": "online",
+      "gpu": "NVIDIA RTX A6000",
+      "gpu_utilization_percent": 0,
+      "memory_used_mib": 17,
+      "memory_total_mib": 49140,
+      "compute_processes": 0
+    },
+    "4090-1": {
+      "tailscale_ssh": "timeout",
+      "lan_ssh": "host_down"
+    },
+    "4090-2": {
+      "ssh": "online",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "gpu_utilization_percent": 0,
+      "memory_used_mib_after_cleanup": 255,
+      "memory_total_mib": 24564,
+      "orphaned_attempt_processes_after_cleanup": 0
+    },
+    "3090": {
+      "tailscale_ssh": "timeout",
+      "lan_ssh": "public-key authentication did not complete"
+    },
+    "3070x2": {
+      "status": "not usable",
+      "reason": "The cl PyTorch runtime cannot initialize CUDA even when only the nvidia-smi-visible GPU 1 is selected."
+    }
+  },
+  "candidate_layout": {
+    "mapping": "A6000 ranks 0-5; 4090-2 ranks 6-7",
+    "why_considered": "A6000 released the previously observed unrelated 4.75 GiB allocation.",
+    "risk": "Six concurrent IAPL processes on the 48 GiB A6000 have not passed a memory preflight.",
+    "status": "explicit_approval_required_before_preflight"
+  },
+  "decision": "Keep the six-run TTA queue pending. Prefer 4+2+2 after 4090-1 recovers; otherwise require explicit approval for the monitored 6+2 preflight."
+}

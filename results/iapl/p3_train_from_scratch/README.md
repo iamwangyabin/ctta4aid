@@ -152,3 +152,12 @@ eight-rank TTA evaluation. The validated 4+2+2 layout still requires
 visible to `nvidia-smi`, but the `cl` PyTorch runtime reports CUDA unavailable
 and zero devices even with `CUDA_VISIBLE_DEVICES=1`. The exact host audit is
 stored in `resource_audit_20260724_1718.json`.
+
+At 17:26 +08:00 the unrelated A6000 allocation had disappeared, leaving both
+A6000 and 4090-2 idle. This makes a 6+2 rank layout technically possible
+without changing the eight-rank data or TTA protocol, but six concurrent IAPL
+processes have not passed a 48 GiB A6000 memory preflight. A paired launch was
+not authorized on A6000; only ranks 6 and 7 started on 4090-2, waited before
+the distributed world formed, and were terminated. No batch or domain ran,
+and no metric is reported. The logs are preserved under
+`ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable`.
