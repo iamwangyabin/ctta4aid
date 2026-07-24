@@ -37,3 +37,13 @@ diff --git a/utils/dataset.py b/utils/dataset.py
 +            if arrow_dataset is not None:
 +                sub_datasets.append(arrow_dataset)
 +                continue
+@@ -186,0 +197,9 @@ class Dataset_Creator_GenImage:
++            arrow_dataset = build_iapl_arrow_dataset(
++                self.dataset_path,
++                split=spilt_dataset,
++                subset=subset,
++                transform=self.transforms[spilt_dataset],
++            )
++            if arrow_dataset is not None:
++                sub_datasets.append(arrow_dataset)
++                continue

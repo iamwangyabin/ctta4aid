@@ -120,10 +120,13 @@ class HFDiskArrowDataset:
 
     def __getitem__(self, index: int) -> Any:
         image_bytes, label, sample_id = self.raw_item(index)
-        with Image.open(BytesIO(image_bytes)) as image:
-            image = image.convert("RGB")
-            if self.transform is not None:
-                image = self.transform(image)
+        try:
+            with Image.open(BytesIO(image_bytes)) as image:
+                image = image.convert("RGB")
+                if self.transform is not None:
+                    image = self.transform(image)
+        except OSError as error:
+            raise RuntimeError(f"Unable to decode Arrow image: {sample_id}") from error
         if self.return_sample_id:
             return image, label, sample_id
         return image, label

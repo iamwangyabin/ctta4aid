@@ -73,7 +73,7 @@
     }
   },
   "genimage": {
-    "status": "data_preparation",
+    "status": "arrow_data_complete_training_pending",
     "source_host": "3090",
     "source_root": "/data/DF-arrow-data/GenImage",
     "expected_arrow_shards": 1214,
@@ -118,7 +118,7 @@
       "artifacts": "genimage/arrow_zip_smoke"
     },
     "arrow_conversion_progress": {
-      "status": "retry_running_after_handle_cache_fix",
+      "status": "completed_after_handle_cache_fix",
       "failed_attempt": "genimage/arrow_attempt1_handle_cache_bug",
       "failed_attempt_rows": 1176,
       "failed_attempt_rows_per_second": 1.18,
@@ -127,9 +127,71 @@
       "retry_cache": "/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/.datasets_cache_retry1",
       "retry_output": "/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train",
       "source_plan": "genimage/data/sd14_train_arrow_plan.json",
-      "source_plan_sha256": "fa4bc25075b7cfb4ce78c05ad50b61ebfd7dcea49956de9fc34d4eefda3dc0f0"
+      "source_plan_sha256": "fa4bc25075b7cfb4ce78c05ad50b61ebfd7dcea49956de9fc34d4eefda3dc0f0",
+      "rows": 324000,
+      "real_rows": 162000,
+      "fake_rows": 162000,
+      "image_bytes": 93016744367,
+      "arrow_shards": 94,
+      "framework_reader_check": true,
+      "artifacts": "genimage/sd14_train_arrow"
     },
-    "policy": "Do not launch or report official GenImage training until all source shards and SD1.4 rows are verified."
+    "test_arrow": {
+      "status": "completed",
+      "host": "4090-2",
+      "source_plan": "genimage/data/genimage_test_arrow_plan.json",
+      "source_plan_sha256": "277ccab46de309f5eb87f34e61acab396f0c854f75820a32f5621dc342101142",
+      "output": "/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+      "rows": 100000,
+      "real_rows": 50000,
+      "fake_rows": 50000,
+      "image_bytes": 25451020754,
+      "arrow_shards": 26,
+      "all_eight_domains_verified": true,
+      "artifacts": "genimage/genimage_test_arrow"
+    },
+    "iapl_arrow_compatibility": {
+      "status": "fixed_and_preflight_passed",
+      "failure_found_before_training": "The original compatibility patch injected the Arrow loader only into Dataset_Creator, while GenImage training instantiates Dataset_Creator_GenImage.",
+      "fix": "Patch both pinned IAPL dataset creators and require both loop anchors during checkout verification.",
+      "training_rows_seen_by_iapl": 324000,
+      "representative_test_rows_seen_by_iapl": {
+        "ADM": 12000,
+        "stable_diffusion_v_1_5": 16000
+      }
+    },
+    "training_data_decode_audit": {
+      "status": "completed_with_three_invalid_rows",
+      "rows": 324000,
+      "valid_rows": 323997,
+      "invalid_rows": 3,
+      "invalid_payload_bytes": 0,
+      "invalid_paths": [
+        "SDv14/train/ai/033_sdv4_00134.png",
+        "SDv14/train/ai/033_sdv4_00137.png",
+        "SDv14/train/ai/033_sdv4_00152.png"
+      ],
+      "filtered_view": "/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train_filtered",
+      "filtered_rows": 323997,
+      "filtered_label_counts": {
+        "real": 162000,
+        "fake": 161997
+      },
+      "filtered_view_full_decode": "running",
+      "artifacts": [
+        "genimage/sd14_full_decode_audit",
+        "genimage/data/sd14_train_filter_plan.json"
+      ]
+    },
+    "training": {
+      "dataset_uri": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train_filtered|/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+      "seeds": {
+        "100": "attempt1_failed_on_zero_byte_image; filtered_view_audit_running_before_restart",
+        "101": "pending",
+        "102": "pending"
+      }
+    },
+    "policy": "Keep the immutable 324,000-row conversion for audit, but train only from the 323,997-row filtered metadata view after its full decode passes. Preserve the failed 324,000-row attempt."
   },
   "artifact_sha256": {
     "scripts/run_iapl_ufd_train_single.sh": "ed27fbf0c14983e5f86fb80ed5a6dc593e1dcf568c66da3ca816a7635d8a4948",

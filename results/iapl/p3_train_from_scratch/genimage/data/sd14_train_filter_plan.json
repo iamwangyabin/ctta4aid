@@ -1,0 +1,21 @@
+{
+  "dataset": "GenImage",
+  "reason": "The official mirror contains three zero-byte SD1.4 PNG entries. Full decoding found no other invalid rows, and an independent GenImage cleaning appendix lists the same three paths as removed files.",
+  "source_root": "/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train",
+  "source_conversion_manifest_sha256": "2df25985868f164fe3efc9e733e04e82d3d992d8f4b9c055b4fa43fd0a887b74",
+  "source_archive_sha256": "46630a7126f061629ab9c58a9478f733d97349d3584a6bdf10d35eca32182979",
+  "source_decode_audit": "../sd14_full_decode_audit/sd14_full_decode_audit.json",
+  "independent_corroboration": "https://odr.chalmers.se/bitstreams/4d33db44-520b-485a-9be1-609caa9b8e21/download",
+  "generator": "SDv14",
+  "split": "train",
+  "exclude_image_paths": [
+    "SDv14/train/ai/033_sdv4_00134.png",
+    "SDv14/train/ai/033_sdv4_00137.png",
+    "SDv14/train/ai/033_sdv4_00152.png"
+  ],
+  "expected_rows": 323997,
+  "expected_label_counts": {
+    "0": 162000,
+    "1": 161997
+  }
+}

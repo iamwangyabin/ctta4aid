@@ -1,0 +1,43 @@
+{
+  "host": "4090-2",
+  "environment": "cl",
+  "datasets": "5.0.0",
+  "status": "conversion_passed_full_decode_found_3_empty_rows",
+  "source_plan": "../data/sd14_train_arrow_plan.json",
+  "source_plan_sha256": "fa4bc25075b7cfb4ce78c05ad50b61ebfd7dcea49956de9fc34d4eefda3dc0f0",
+  "source_archive_sha256": "46630a7126f061629ab9c58a9478f733d97349d3584a6bdf10d35eca32182979",
+  "output": "/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train",
+  "rows": 324000,
+  "real_rows": 162000,
+  "fake_rows": 162000,
+  "image_bytes": 93016744367,
+  "arrow_shards": 94,
+  "generation_elapsed": "03:42",
+  "save_elapsed": "01:26",
+  "atomic_publish_completed": true,
+  "framework_reader_check": {
+    "passed": true,
+    "generator": "SDv14",
+    "split": "train",
+    "rows": 324000,
+    "labels": {
+      "0": 162000,
+      "1": 162000
+    },
+    "verified_rows": [0, 161999, 162000, 323999],
+    "all_representative_images_passed_pil_verify": true
+  },
+  "full_decode_audit": {
+    "rows": 324000,
+    "valid_rows": 323997,
+    "invalid_rows": 3,
+    "invalid_rows_are_zero_bytes": true,
+    "artifact": "../sd14_full_decode_audit/sd14_full_decode_audit.json",
+    "training_root": "../SDv14_train_filtered metadata view"
+  },
+  "artifact_sha256": {
+    "conversion_manifest.json": "2df25985868f164fe3efc9e733e04e82d3d992d8f4b9c055b4fa43fd0a887b74",
+    "sd14_arrow_conversion_retry1.log": "f23edd578149c445d730d5f931e8c0a57c027c48fa6985fadfbf81397b2f967d",
+    "scripts/import_genimage_to_hf_arrow.py": "782e4912fc6acf89358325c722a23e5dfcd84bd8b066ab00611112708f1ed29c"
+  }
+}

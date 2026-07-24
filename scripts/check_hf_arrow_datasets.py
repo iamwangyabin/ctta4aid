@@ -52,7 +52,7 @@ def main() -> None:
     args = parser.parse_args()
 
     domains = UFD_DOMAINS if args.suite == "ufd" else GENIMAGE_DOMAINS
-    split = "test" if args.suite == "ufd" else "val"
+    split = "test"
     results = {}
     for domain in domains:
         dataset = HFDiskArrowDataset(

@@ -5,10 +5,12 @@ import unittest
 from pathlib import Path
 
 from run_iapl_official import (
+    IAPL_DATASET_LOOP_ANCHOR,
     IAPL_COMMIT,
     build_command,
     file_identity,
     parse_official_summary,
+    patched_iapl_dataset_source,
     resolve_runtime_paths,
     validate_official_metrics,
 )
@@ -131,6 +133,25 @@ class IAPLOfficialRunnerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             resolved = resolve_runtime_paths(config, Path(temporary))
         self.assertEqual(resolved["dataset_path"], config["dataset_path"])
+
+    def test_arrow_compatibility_patches_ufd_and_genimage_creators(self) -> None:
+        source = (
+            "from torch.utils.data import ConcatDataset\n"
+            "class Dataset_Creator:\n"
+            + IAPL_DATASET_LOOP_ANCHOR
+            + "class Dataset_Creator_GenImage:\n"
+            + IAPL_DATASET_LOOP_ANCHOR
+        )
+
+        patched = patched_iapl_dataset_source(source)
+
+        self.assertEqual(patched.count("arrow_dataset = build_iapl_arrow_dataset("), 2)
+        self.assertEqual(
+            patched.count(
+                "from online_aig_tta.data.hf_arrow import build_iapl_arrow_dataset"
+            ),
+            1,
+        )
 
     def test_parse_official_summary(self) -> None:
         log = """

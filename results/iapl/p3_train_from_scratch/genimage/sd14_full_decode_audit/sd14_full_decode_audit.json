@@ -1,0 +1,39 @@
+{
+  "format": "ctta4aid_hf_arrow_image_audit_v1",
+  "root": "/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train",
+  "rows": 324000,
+  "valid_rows": 323997,
+  "invalid_rows": 3,
+  "formats": {
+    "JPEG": 162000,
+    "PNG": 161997
+  },
+  "elapsed_seconds": 997.6463786973618,
+  "rows_per_second": 324.7643723450893,
+  "failures": [
+    {
+      "row": 167455,
+      "image_path": "SDv14/train/ai/033_sdv4_00134.png",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "error_type": "UnidentifiedImageError",
+      "error": "cannot identify image file <_io.BytesIO object at 0x7319bc8aab10>"
+    },
+    {
+      "row": 167456,
+      "image_path": "SDv14/train/ai/033_sdv4_00137.png",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "error_type": "UnidentifiedImageError",
+      "error": "cannot identify image file <_io.BytesIO object at 0x7319bc8aab10>"
+    },
+    {
+      "row": 167469,
+      "image_path": "SDv14/train/ai/033_sdv4_00152.png",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "error_type": "UnidentifiedImageError",
+      "error": "cannot identify image file <_io.BytesIO object at 0x7319bdde5ee0>"
+    }
+  ]
+}

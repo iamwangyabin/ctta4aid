@@ -126,6 +126,35 @@ class HFDiskArrowTests(unittest.TestCase):
             assert dataset is not None
             self.assertEqual(len(dataset[0]), 2)
 
+    def test_decode_error_reports_arrow_sample_id(self) -> None:
+        from datasets import Dataset
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "balanced"
+            image_path = "SDv14/train/nature/bad.jpg"
+            fake_path = "SDv14/train/ai/fake.png"
+            dataset = Dataset.from_dict(
+                {
+                    "image_path": [image_path, fake_path],
+                    "image": [b"not an image", _image_bytes(0)],
+                }
+            )
+            dataset.save_to_disk(root)
+            mapping = {image_path: 0, fake_path: 1}
+            (root / "mapping.json").write_text(
+                json.dumps(mapping), encoding="utf-8"
+            )
+            (root / "train.json").write_text(
+                json.dumps({"SDv14": {image_path: 0, fake_path: 1}}),
+                encoding="utf-8",
+            )
+
+            arrow_dataset = HFDiskArrowDataset(
+                root=root, generator="SDv14", split="train"
+            )
+            with self.assertRaisesRegex(RuntimeError, "SDv14/train/nature/bad.jpg"):
+                arrow_dataset[1]
+
 
 def _save_dataset(
     root: Path,

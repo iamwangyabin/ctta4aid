@@ -1,0 +1,151 @@
+{
+  "dataset": "GenImage",
+  "evaluation_subsets": [
+    "ADM",
+    "BigGAN",
+    "glide",
+    "Midjourney",
+    "stable_diffusion_v_1_4",
+    "stable_diffusion_v_1_5",
+    "VQDM",
+    "wukong"
+  ],
+  "source": "P2 byte-verified original GenImage test archive extraction",
+  "archive": {
+    "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/genimage_test.zip",
+    "bytes": 25408572820,
+    "sha256": "1ee98d0958a5905b4e1b2f7f44bb384069704cad8f70e741512e1911e29dba97",
+    "full_crc_passed": true,
+    "extract_manifest_sha256": "a32bb7ae5bb27b18b48dd87951cdbba246491deefc9cad93dc4a2f1d80d1f6c9"
+  },
+  "sources": [
+    {
+      "subset": "ADM",
+      "split": "test",
+      "label": 0,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/ADM/0_real",
+      "expected_count": 6000,
+      "expected_bytes": 802004677
+    },
+    {
+      "subset": "ADM",
+      "split": "test",
+      "label": 1,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/ADM/1_fake",
+      "expected_count": 6000,
+      "expected_bytes": 718039954
+    },
+    {
+      "subset": "BigGAN",
+      "split": "test",
+      "label": 0,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/BigGAN/0_real",
+      "expected_count": 6000,
+      "expected_bytes": 804034061
+    },
+    {
+      "subset": "BigGAN",
+      "split": "test",
+      "label": 1,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/BigGAN/1_fake",
+      "expected_count": 6000,
+      "expected_bytes": 178062713
+    },
+    {
+      "subset": "glide",
+      "split": "test",
+      "label": 0,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/glide/0_real",
+      "expected_count": 6000,
+      "expected_bytes": 790353194
+    },
+    {
+      "subset": "glide",
+      "split": "test",
+      "label": 1,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/glide/1_fake",
+      "expected_count": 6000,
+      "expected_bytes": 465804038
+    },
+    {
+      "subset": "Midjourney",
+      "split": "test",
+      "label": 0,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/Midjourney/0_real",
+      "expected_count": 6000,
+      "expected_bytes": 814458980
+    },
+    {
+      "subset": "Midjourney",
+      "split": "test",
+      "label": 1,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/Midjourney/1_fake",
+      "expected_count": 6000,
+      "expected_bytes": 7513753781
+    },
+    {
+      "subset": "stable_diffusion_v_1_4",
+      "split": "test",
+      "label": 0,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/stable_diffusion_v_1_4/0_real",
+      "expected_count": 6000,
+      "expected_bytes": 808458936
+    },
+    {
+      "subset": "stable_diffusion_v_1_4",
+      "split": "test",
+      "label": 1,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/stable_diffusion_v_1_4/1_fake",
+      "expected_count": 6000,
+      "expected_bytes": 2749074377
+    },
+    {
+      "subset": "stable_diffusion_v_1_5",
+      "split": "test",
+      "label": 0,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/stable_diffusion_v_1_5/0_real",
+      "expected_count": 8000,
+      "expected_bytes": 1095782018
+    },
+    {
+      "subset": "stable_diffusion_v_1_5",
+      "split": "test",
+      "label": 1,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/stable_diffusion_v_1_5/1_fake",
+      "expected_count": 8000,
+      "expected_bytes": 3653325050
+    },
+    {
+      "subset": "VQDM",
+      "split": "test",
+      "label": 0,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/VQDM/0_real",
+      "expected_count": 6000,
+      "expected_bytes": 801720291
+    },
+    {
+      "subset": "VQDM",
+      "split": "test",
+      "label": 1,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/VQDM/1_fake",
+      "expected_count": 6000,
+      "expected_bytes": 676082229
+    },
+    {
+      "subset": "wukong",
+      "split": "test",
+      "label": 0,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/wukong/0_real",
+      "expected_count": 6000,
+      "expected_bytes": 789748162
+    },
+    {
+      "subset": "wukong",
+      "split": "test",
+      "label": 1,
+      "path": "/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage/test/wukong/1_fake",
+      "expected_count": 6000,
+      "expected_bytes": 2790318293
+    }
+  ]
+}

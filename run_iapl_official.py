@@ -53,6 +53,7 @@ IAPL_DATASET_LOOP_REPLACEMENT = (
     "                continue\n"
     "            if spilt_dataset == 'tta':\n"
 )
+IAPL_DATASET_PATCH_COUNT = 2
 IAPL_MAIN_PATH = "main.py"
 IAPL_TEST_TIME_PATH = "test_time.py"
 IAPL_TORCH_LOAD = "torch.load(args.pretrained_model, map_location='cpu')"
@@ -211,8 +212,27 @@ def build_command(config: dict[str, Any], python_executable: str = sys.executabl
     return command
 
 
+def patched_iapl_dataset_source(committed_dataset: str) -> str:
+    if IAPL_DATASET_IMPORT_ANCHOR not in committed_dataset:
+        raise RuntimeError("Pinned IAPL dataset source no longer contains the import anchor")
+    if committed_dataset.count(IAPL_DATASET_LOOP_ANCHOR) < IAPL_DATASET_PATCH_COUNT:
+        raise RuntimeError(
+            "Pinned IAPL dataset source no longer contains both UFD and GenImage "
+            "dataset-loop anchors"
+        )
+    return committed_dataset.replace(
+        IAPL_DATASET_IMPORT_ANCHOR,
+        IAPL_DATASET_IMPORT_ANCHOR + IAPL_DATASET_IMPORT,
+        1,
+    ).replace(
+        IAPL_DATASET_LOOP_ANCHOR,
+        IAPL_DATASET_LOOP_REPLACEMENT,
+        IAPL_DATASET_PATCH_COUNT,
+    )
+
+
 def verify_checkout(repo_path: Path) -> None:
-    if not (repo_path / ".git").is_dir():
+    if not (repo_path / ".git").exists():
         raise FileNotFoundError(
             f"IAPL checkout not found at {repo_path}. Run: python fetch_official_baselines.py iapl"
         )
@@ -241,15 +261,7 @@ def verify_checkout(repo_path: Path) -> None:
         text=True,
         capture_output=True,
     ).stdout
-    if IAPL_DATASET_IMPORT_ANCHOR not in committed_dataset:
-        raise RuntimeError("Pinned IAPL dataset source no longer contains the import anchor")
-    if IAPL_DATASET_LOOP_ANCHOR not in committed_dataset:
-        raise RuntimeError("Pinned IAPL dataset source no longer contains the loop anchor")
-    expected_dataset = committed_dataset.replace(
-        IAPL_DATASET_IMPORT_ANCHOR,
-        IAPL_DATASET_IMPORT_ANCHOR + IAPL_DATASET_IMPORT,
-        1,
-    ).replace(IAPL_DATASET_LOOP_ANCHOR, IAPL_DATASET_LOOP_REPLACEMENT, 1)
+    expected_dataset = patched_iapl_dataset_source(committed_dataset)
     dataset_source = (repo_path / IAPL_DATASET_PATH).read_text(encoding="utf-8")
     committed_main = subprocess.run(
         ["git", "show", f"HEAD:{IAPL_MAIN_PATH}"],

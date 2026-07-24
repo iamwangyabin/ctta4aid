@@ -1,0 +1,149 @@
+world size: 1, rank: 0, local rank: 0
+{
+  "SHELL": "/bin/bash",
+  "PYTHONUNBUFFERED": "1",
+  "CONDA_EXE": "/home/yabin/miniconda3/bin/conda",
+  "_CE_M": "",
+  "IAPL_TRAIN_OUTPUT_ROOT": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed100",
+  "MASTER_PORT": "29711",
+  "PWD": "/home/yabin/ctta4aid_assets/external/IAPL-p3-train",
+  "LOGNAME": "yabin",
+  "XDG_SESSION_TYPE": "tty",
+  "CONDA_PREFIX": "/home/yabin/miniconda3/envs/cl",
+  "IAPL_DATASET_PATH": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train|/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+  "HOME": "/home/yabin",
+  "LANG": "zh_CN.UTF-8",
+  "CONDA_PROMPT_MODIFIER": "(cl) ",
+  "SSH_CONNECTION": "100.70.179.13 65406 100.69.251.94 22",
+  "CUDA_VISIBLE_DEVICES": "0",
+  "_CONDA_EXE": "/home/yabin/miniconda3/bin/conda",
+  "XDG_SESSION_CLASS": "user",
+  "_CONDA_ROOT": "/home/yabin/miniconda3",
+  "PYTHONPATH": "/home/yabin/ctta4aid-arrow/src",
+  "_CE_CONDA": "",
+  "USER": "yabin",
+  "CONDA_SHLVL": "1",
+  "SHLVL": "1",
+  "XDG_SESSION_ID": "12575",
+  "CONDA_PYTHON_EXE": "/home/yabin/miniconda3/bin/python",
+  "LC_CTYPE": "C.UTF-8",
+  "XDG_RUNTIME_DIR": "/run/user/1000",
+  "SSH_CLIENT": "100.70.179.13 65406 22",
+  "CONDA_DEFAULT_ENV": "cl",
+  "DEBUGINFOD_URLS": "https://debuginfod.ubuntu.com ",
+  "IAPL_REPO_PATH": "/home/yabin/ctta4aid_assets/external/IAPL-p3-train",
+  "LC_ALL": "C.UTF-8",
+  "XDG_DATA_DIRS": "/usr/share/gnome:/usr/local/share:/usr/share:/var/lib/snapd/desktop",
+  "PATH": "/home/yabin/miniconda3/envs/cl/bin:/home/yabin/miniconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+  "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus",
+  "OLDPWD": "/home/yabin/ctta4aid-arrow",
+  "TORCHELASTIC_SIGNALS_TO_HANDLE": "SIGTERM,SIGINT,SIGHUP,SIGQUIT",
+  "RANK": "0",
+  "GROUP_RANK": "0",
+  "ROLE_RANK": "0",
+  "ROLE_NAME": "default",
+  "LOCAL_WORLD_SIZE": "1",
+  "WORLD_SIZE": "1",
+  "GROUP_WORLD_SIZE": "1",
+  "ROLE_WORLD_SIZE": "1",
+  "MASTER_ADDR": "127.0.0.1",
+  "TORCHELASTIC_RESTART_COUNT": "0",
+  "TORCHELASTIC_MAX_RESTARTS": "0",
+  "TORCHELASTIC_RUN_ID": "none",
+  "TORCHELASTIC_USE_AGENT_STORE": "True",
+  "TORCH_NCCL_ASYNC_ERROR_HANDLING": "1",
+  "LOCAL_RANK": "0",
+  "TORCHELASTIC_ERROR_FILE": "/tmp/torchelastic_o9befyqo/none_vf6z08i2/attempt_0/0/error.json",
+  "TORCHINDUCTOR_CACHE_DIR": "/tmp/torchinductor_yabin",
+  "QT_QPA_PLATFORM_PLUGIN_PATH": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/qt/plugins",
+  "QT_QPA_FONTDIR": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/qt/fonts",
+  "LD_LIBRARY_PATH": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/../../lib64:",
+  "KMP_DUPLICATE_LIB_OK": "True",
+  "KMP_INIT_AT_FORK": "FALSE"
+}
+world_size:1 rank:0 local_rank:0
+| distributed init (rank 0): env://
+Before torch.distributed.barrier()
+/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[rank0]:[W724 02:44:49.733510206 ProcessGroupNCCL.cpp:5324] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+End torch.distributed.barrier()
+['transformer.resblocks.1.gamma', 'transformer.resblocks.2.gamma', 'transformer.resblocks.3.gamma', 'transformer.resblocks.3.adapter.down_proj.weight', 'transformer.resblocks.3.adapter.down_proj.bias', 'transformer.resblocks.3.adapter.up_proj.weight', 'transformer.resblocks.3.adapter.up_proj.bias', 'transformer.resblocks.4.gamma', 'transformer.resblocks.5.gamma', 'transformer.resblocks.6.gamma', 'transformer.resblocks.7.gamma', 'transformer.resblocks.7.adapter.down_proj.weight', 'transformer.resblocks.7.adapter.down_proj.bias', 'transformer.resblocks.7.adapter.up_proj.weight', 'transformer.resblocks.7.adapter.up_proj.bias', 'transformer.resblocks.8.gamma', 'transformer.resblocks.11.adapter.down_proj.weight', 'transformer.resblocks.11.adapter.down_proj.bias', 'transformer.resblocks.11.adapter.up_proj.weight', 'transformer.resblocks.11.adapter.up_proj.bias', 'transformer.resblocks.15.adapter.down_proj.weight', 'transformer.resblocks.15.adapter.down_proj.bias', 'transformer.resblocks.15.adapter.up_proj.weight', 'transformer.resblocks.15.adapter.up_proj.bias', 'transformer.resblocks.19.adapter.down_proj.weight', 'transformer.resblocks.19.adapter.down_proj.bias', 'transformer.resblocks.19.adapter.up_proj.weight', 'transformer.resblocks.19.adapter.up_proj.bias', 'transformer.resblocks.23.adapter.down_proj.weight', 'transformer.resblocks.23.adapter.down_proj.bias', 'transformer.resblocks.23.adapter.up_proj.weight', 'transformer.resblocks.23.adapter.up_proj.bias']
+/home/yabin/ctta4aid_assets/external/IAPL-p3-train/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Epoch: [0]  [    0/10125]  eta: 3:18:23  lr: 0.000050  loss: 1.4267 (1.4267)  loss_adapter: 0.6926 (0.6926)  loss_condition: 0.7341 (0.7341)  loss_adapter_unscaled: 0.6926 (0.6926)  loss_condition_unscaled: 0.7341 (0.7341)  time: 1.1756  data: 0.2156  max mem: 13540
+Epoch: [0]  [   50/10125]  eta: 1:43:34  lr: 0.000050  loss: 1.2362 (1.2766)  loss_adapter: 0.6607 (0.6768)  loss_condition: 0.5817 (0.5998)  loss_adapter_unscaled: 0.6607 (0.6768)  loss_condition_unscaled: 0.5817 (0.5998)  time: 0.6083  data: 0.1597  max mem: 13847
+Epoch: [0]  [  100/10125]  eta: 1:41:55  lr: 0.000050  loss: 1.0845 (1.2207)  loss_adapter: 0.5419 (0.6296)  loss_condition: 0.5631 (0.5910)  loss_adapter_unscaled: 0.5419 (0.6296)  loss_condition_unscaled: 0.5631 (0.5910)  time: 0.6116  data: 0.1621  max mem: 13847
+Epoch: [0]  [  150/10125]  eta: 1:40:22  lr: 0.000050  loss: 0.9254 (1.1458)  loss_adapter: 0.3782 (0.5642)  loss_condition: 0.5608 (0.5816)  loss_adapter_unscaled: 0.3782 (0.5642)  loss_condition_unscaled: 0.5608 (0.5816)  time: 0.5978  data: 0.1480  max mem: 13847
+Epoch: [0]  [  200/10125]  eta: 1:39:36  lr: 0.000050  loss: 0.7945 (1.0605)  loss_adapter: 0.2424 (0.4928)  loss_condition: 0.5387 (0.5677)  loss_adapter_unscaled: 0.2424 (0.4928)  loss_condition_unscaled: 0.5387 (0.5677)  time: 0.6089  data: 0.1597  max mem: 13847
+Epoch: [0]  [  250/10125]  eta: 1:38:58  lr: 0.000050  loss: 0.6820 (0.9891)  loss_adapter: 0.2078 (0.4371)  loss_condition: 0.4741 (0.5520)  loss_adapter_unscaled: 0.2078 (0.4371)  loss_condition_unscaled: 0.4741 (0.5520)  time: 0.6152  data: 0.1664  max mem: 13847
+Epoch: [0]  [  300/10125]  eta: 1:38:35  lr: 0.000050  loss: 0.7012 (0.9431)  loss_adapter: 0.2028 (0.3987)  loss_condition: 0.4903 (0.5444)  loss_adapter_unscaled: 0.2028 (0.3987)  loss_condition_unscaled: 0.4903 (0.5444)  time: 0.6089  data: 0.1600  max mem: 13847
+Epoch: [0]  [  350/10125]  eta: 1:38:05  lr: 0.000050  loss: 0.6559 (0.9093)  loss_adapter: 0.2025 (0.3711)  loss_condition: 0.4540 (0.5382)  loss_adapter_unscaled: 0.2025 (0.3711)  loss_condition_unscaled: 0.4540 (0.5382)  time: 0.5934  data: 0.1433  max mem: 13847
+Epoch: [0]  [  400/10125]  eta: 1:37:25  lr: 0.000050  loss: 0.7230 (0.8834)  loss_adapter: 0.2019 (0.3505)  loss_condition: 0.5203 (0.5329)  loss_adapter_unscaled: 0.2019 (0.3505)  loss_condition_unscaled: 0.5203 (0.5329)  time: 0.5848  data: 0.1349  max mem: 13847
+Epoch: [0]  [  450/10125]  eta: 1:36:49  lr: 0.000050  loss: 0.6805 (0.8611)  loss_adapter: 0.2015 (0.3344)  loss_condition: 0.4791 (0.5267)  loss_adapter_unscaled: 0.2015 (0.3344)  loss_condition_unscaled: 0.4791 (0.5267)  time: 0.5903  data: 0.1406  max mem: 13847
+Epoch: [0]  [  500/10125]  eta: 1:36:10  lr: 0.000050  loss: 0.6596 (0.8436)  loss_adapter: 0.2022 (0.3213)  loss_condition: 0.4514 (0.5224)  loss_adapter_unscaled: 0.2022 (0.3213)  loss_condition_unscaled: 0.4514 (0.5224)  time: 0.5926  data: 0.1425  max mem: 13847
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/home/yabin/ctta4aid_assets/external/IAPL-p3-train/main.py", line 284, in <module>
+[rank0]:     main(args)
+[rank0]:   File "/home/yabin/ctta4aid_assets/external/IAPL-p3-train/main.py", line 216, in main
+[rank0]:     train_one_epoch(model, data_loader_train, optimizer, device, epoch, lr_scheduler, args.clip_max_norm, args=args, model_ema = model_ema)
+[rank0]:   File "/home/yabin/ctta4aid_assets/external/IAPL-p3-train/engine.py", line 19, in train_one_epoch
+[rank0]:     for samples in metric_logger.log_every(data_loader, print_freq, header):
+[rank0]:   File "/home/yabin/ctta4aid_assets/external/IAPL-p3-train/utils/misc.py", line 235, in log_every
+[rank0]:     for obj in iterable:
+[rank0]:   File "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 718, in __next__
+[rank0]:     data = self._next_data()
+[rank0]:            ^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 778, in _next_data
+[rank0]:     data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 54, in fetch
+[rank0]:     data = [self.dataset[idx] for idx in possibly_batched_index]
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 54, in <listcomp>
+[rank0]:     data = [self.dataset[idx] for idx in possibly_batched_index]
+[rank0]:             ~~~~~~~~~~~~^^^^^
+[rank0]:   File "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/utils/data/dataset.py", line 345, in __getitem__
+[rank0]:     return self.datasets[dataset_idx][sample_idx]
+[rank0]:            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+[rank0]:   File "/home/yabin/ctta4aid-arrow/src/online_aig_tta/data/hf_arrow.py", line 123, in __getitem__
+[rank0]:     with Image.open(BytesIO(image_bytes)) as image:
+[rank0]:          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/PIL/Image.py", line 3711, in open
+[rank0]:     raise UnidentifiedImageError(msg)
+[rank0]: PIL.UnidentifiedImageError: cannot identify image file <_io.BytesIO object at 0x741756eb77e0>
+[rank0]:[W724 02:50:11.462046434 ProcessGroupNCCL.cpp:1647] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+E0724 02:50:13.732000 2371879 site-packages/torch/distributed/elastic/multiprocessing/api.py:988] failed (exitcode: 1) local_rank: 0 (pid: 2371915) of binary: /home/yabin/miniconda3/envs/cl/bin/python
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/distributed/run.py", line 1020, in <module>
+    main()
+  File "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 367, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/distributed/run.py", line 1016, in main
+    run(args)
+  File "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/distributed/run.py", line 1007, in run
+    elastic_launch(
+  File "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 191, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 371, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+main.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-07-24_02:50:13
+  host      : yabin-local4090-yaohui
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 2371915) 
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================

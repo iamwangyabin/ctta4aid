@@ -68,3 +68,40 @@ without publishing an output, its log and incomplete 126 MiB cache were kept,
 and the iterator was fixed to open each archive once. A regression test now
 checks the handle count; the retry uses a fresh cache and the unchanged source
 plan.
+
+The fixed full conversion completed and atomically published 324,000 SD1.4
+training rows (162,000 real and 162,000 fake) in 94 Arrow shards. The source
+images total 93,016,744,367 bytes. Generation took 3m42s and the final
+`save_to_disk` pass took 1m26s. Four boundary samples passed both byte-hash and
+PIL decoding checks through the framework reader. Those checks were
+representative rather than exhaustive.
+
+The byte-verified P2 test extraction was then converted separately. Its eight
+domains contain exactly 100,000 rows and 25,451,020,754 image bytes in 26
+Arrow shards; every domain has the expected balanced real/fake counts. The
+framework loaded and decoded all eight domains, including the 16,000-row
+SD1.5 domain, and reported 100,000 rows in total.
+
+The final preflight found one more integration defect before training: the
+compatibility patch added Arrow loading only to IAPL's generic
+`Dataset_Creator`, but GenImage uses `Dataset_Creator_GenImage`. The pinned
+checkout patch and verifier now require Arrow injection in both creators. The
+fixed GenImage creator sees all 324,000 physical training rows and the expected
+12,000 ADM / 16,000 SD1.5 test rows.
+
+Seed 100 then started from a separate clean worktree at the pinned IAPL commit.
+It reached reported batch 500 of 10,125 before PIL raised
+`UnidentifiedImageError`; the attempt produced no checkpoint or metric and is
+retained as a failed run. A subsequent exhaustive decode of all 324,000 Arrow
+rows found exactly three invalid samples, all zero-byte SD1.4 fake PNGs:
+`033_sdv4_00134.png`, `033_sdv4_00137.png`, and `033_sdv4_00152.png`. The ZIP
+CRC had passed because zero-length members are structurally valid. An
+independent GenImage cleaning appendix lists the same three SD1.4 files among
+its removals, so this is a source-data defect rather than Arrow corruption.
+
+The immutable 324,000-row conversion remains untouched. A separate atomic
+metadata view hard-links the same 94 Arrow shards while selecting 323,997 rows
+(162,000 real and 161,997 fake) and excluding only the three audited empty
+payloads. Its row counts, excluded paths, and hard-link identities passed; a
+second exhaustive decode of the selected view is running before seed 100 is
+restarted from scratch.
