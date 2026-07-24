@@ -1,0 +1,78 @@
+{
+  "observed_at": "2026-07-25T06:14:34+08:00",
+  "host": "4090-2",
+  "status": "cuda_recovered_without_reboot_or_system_package_change",
+  "failure": {
+    "system_nvidia_smi": "Failed to initialize NVML: Driver/library version mismatch",
+    "system_nvml_version": "580.173.02",
+    "loaded_kernel_module_version": "580.159.03",
+    "on_disk_kernel_module_version": "580.173.02",
+    "system_libcuda_version": "580.173.02",
+    "torch_cuda_error": "804: forward compatibility was attempted on non supported HW",
+    "torch_cuda_available_before_fix": false,
+    "torch_cuda_device_count_before_fix": 0,
+    "root_cause": "NVIDIA user-space packages were upgraded from 580.159.03 to 580.173.02 while the running kernel still had the 580.159.03 module loaded."
+  },
+  "failed_recovery_attempt": {
+    "method": "apt-get download with an exact old version",
+    "result": "Version 580.159.03-0ubuntu0.24.04.1 was no longer available from the configured APT indexes.",
+    "system_changes": false
+  },
+  "isolated_recovery": {
+    "root": "/home/yabin/ctta4aid_assets/driver_compat/nvidia-580.159.03",
+    "source": "Canonical Launchpad librarian",
+    "packages": [
+      {
+        "package": "libnvidia-compute-580",
+        "version": "580.159.03-0ubuntu0.24.04.1",
+        "url": "https://launchpadlibrarian.net/859848987/libnvidia-compute-580_580.159.03-0ubuntu0.24.04.1_amd64.deb",
+        "sha256": "ef6a70b0d3816c9945d31fb9e4ccb94596317aa3451d80fd6fc3b742c7e1c6bb"
+      },
+      {
+        "package": "nvidia-utils-580",
+        "version": "580.159.03-0ubuntu0.24.04.1",
+        "url": "https://launchpadlibrarian.net/859849006/nvidia-utils-580_580.159.03-0ubuntu0.24.04.1_amd64.deb",
+        "sha256": "3e9a29c58a6b393c905efb2387341e08ba39c5b4bdd3ebddbb836a87eebc8219"
+      }
+    ],
+    "lib_dir": "/home/yabin/ctta4aid_assets/driver_compat/nvidia-580.159.03/rootfs/usr/lib/x86_64-linux-gnu",
+    "nvidia_smi": {
+      "driver_version": "580.159.03",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "memory_used_mib": 252,
+      "memory_total_mib": 24564,
+      "gpu_utilization_percent": 0
+    },
+    "torch_tests": [
+      {
+        "environment": "cl",
+        "torch": "2.12.0+cu126",
+        "cuda_available": true,
+        "device_count": 1,
+        "tensor_sum": 4.0
+      },
+      {
+        "environment": "caid-gemini-compat",
+        "torch": "2.2.2+cu121",
+        "cuda_available": true,
+        "device_count": 1,
+        "tensor_sum": 4.0
+      }
+    ],
+    "system_packages_modified": false,
+    "kernel_modules_reloaded": false,
+    "host_rebooted": false
+  },
+  "launcher_support": {
+    "environment_variable": "IAPL_NVIDIA_COMPAT_LIB_DIR",
+    "run_iapl_manual_ranks_sha256": "30bee65d01b99043d8517747bf9df4b487349120a611aabaa029576fa17a43a7",
+    "run_iapl_genimage_manual_ranks_sha256": "19a7c79fd20734f4a90b327ba0d703d1e1df8784721deafb7801ec9ea8547340",
+    "deployed_hosts": [
+      "A6000",
+      "4090-2",
+      "3070x2"
+    ],
+    "4090-2_preflight": "passed with NCCL 23007, the complete UFD Arrow path, seed100 checkpoint, and the isolated compatibility directory"
+  },
+  "operational_rule": "Set IAPL_NVIDIA_COMPAT_LIB_DIR on 4090-2 only while /proc/driver/nvidia/version reports 580.159.03. Re-run the CUDA preflight after any reboot or driver change."
+}

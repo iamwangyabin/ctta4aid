@@ -16,6 +16,8 @@
     },
     "python": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python",
     "nccl_version": 23007,
+    "4090-2_nvidia_compat_lib_dir": "/home/yabin/ctta4aid_assets/driver_compat/nvidia-580.159.03/rootfs/usr/lib/x86_64-linux-gnu",
+    "4090-2_nvidia_compat_policy": "Set IAPL_NVIDIA_COMPAT_LIB_DIR only while the loaded kernel driver is 580.159.03; repeat CUDA preflight after any reboot or driver change.",
     "eval_batch_size": 32,
     "learning_rate": 0.005,
     "tta_steps": 2,
@@ -132,17 +134,17 @@
     ]
   },
   "resource_audit": {
-    "observed_at": "2026-07-24T22:58:50+08:00",
-    "artifact": "resource_audit_20260724_2258.json",
+    "observed_at": "2026-07-25T06:14:34+08:00",
+    "artifact": "driver_compat_recovery_20260725.json",
     "A6000": "online through LAN and idle at 0% utilization with 17/49140 MiB allocated",
     "4090-1": "Tailscale SSH timeout; LAN SSH reports host down",
-    "4090-2": "online and idle at 0% utilization with 252/24564 MiB allocated",
+    "4090-2": "system NVIDIA 580.173.02 user libraries mismatch the loaded 580.159.03 kernel module; isolated matching libraries restore nvidia-smi and CUDA in both required PyTorch environments without reboot",
     "3090": "Tailscale SSH timeout",
     "3070x2": "both GPUs recovered, but each 8 GiB GPU failed a single-rank official-batch preflight before the first batch at sampled peaks of 7857 and 7845 MiB",
     "rejected_fallback": "A6000 4 ranks; 3070x2 one rank per GPU; 4090-2 2 ranks",
     "preflight_artifact": "ufd/seed100/tta_preflight_3070x2",
     "candidate": "A monitored 6+2 preflight is technically possible because A6000 is fully idle, but six concurrent ranks on 48 GiB are unvalidated and require explicit approval.",
     "partial_launch_artifact": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
-    "conclusion": "The validated 4+2+2 layout remains unavailable, and the 4+1+1+2 fallback is disproved. Keep all six runs pending until 4090-1 returns or the 6+2 preflight is explicitly approved."
+    "conclusion": "4090-2 is recovered for experiments through the isolated compatibility path, but the validated 4+2+2 layout remains unavailable because 4090-1 is offline. The 4+1+1+2 fallback is disproved; keep all six runs pending until 4090-1 returns or the 6+2 preflight is explicitly approved."
   }
 }

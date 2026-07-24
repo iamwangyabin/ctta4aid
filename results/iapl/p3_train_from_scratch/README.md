@@ -175,3 +175,17 @@ disabling the cuDNN plan cache. Both failures occurred before the first batch
 completed, so no metric is reported and the proposed 4+1+1+2 layout is
 rejected. Full setup and failure evidence is under
 `ufd/seed100/tta_preflight_3070x2`.
+
+At 06:03 +08:00 on 2026-07-25, 4090-2 developed an independent driver
+failure: the running kernel still had NVIDIA 580.159.03 loaded after the
+user-space packages and on-disk module had been upgraded to 580.173.02.
+System `nvidia-smi` failed with an NVML version mismatch and both PyTorch
+environments reported zero CUDA devices. No reboot, module reload, package
+downgrade, or other system change was made. Matching 580.159.03
+`libnvidia-compute-580` and `nvidia-utils-580` packages were downloaded from
+Canonical Launchpad and extracted under the user-owned asset tree. With that
+library directory, `nvidia-smi`, `cl` torch 2.12.0, and the official
+`caid-gemini-compat` torch 2.2.2 all passed CUDA tensor tests. Both launchers
+now accept `IAPL_NVIDIA_COMPAT_LIB_DIR`; identical script hashes were deployed
+to A6000, 4090-2, and 3070x2. This repairs 4090-2 without hiding the host
+failure, but does not remove the missing-third-node blocker.

@@ -29,6 +29,7 @@ prediction_dir=${IAPL_PREDICTION_DIR:-$output_dir/predictions}
 master_addr=${MASTER_ADDR:?MASTER_ADDR is required}
 master_port=${MASTER_PORT:-29621}
 nccl_lib_dir=${IAPL_NCCL_LIB_DIR:-}
+nvidia_compat_lib_dir=${IAPL_NVIDIA_COMPAT_LIB_DIR:-}
 distributed_timeout_seconds=${IAPL_DISTRIBUTED_TIMEOUT_SECONDS:-7200}
 seed=${IAPL_SEED:-100}
 
@@ -60,6 +61,13 @@ if [[ ! -f $pretrained_model ]]; then
 fi
 if [[ ! -f $clip_path ]]; then
   echo "CLIP checkpoint is missing: $clip_path" >&2
+  exit 1
+fi
+if [[ -n $nvidia_compat_lib_dir ]] && {
+  [[ ! -f $nvidia_compat_lib_dir/libcuda.so.1 ]] ||
+    [[ ! -f $nvidia_compat_lib_dir/libnvidia-ml.so.1 ]]
+}; then
+  echo "NVIDIA compatibility libraries are incomplete: $nvidia_compat_lib_dir" >&2
   exit 1
 fi
 
@@ -98,15 +106,18 @@ print(version.value)
 fi
 
 if [[ ${IAPL_PREFLIGHT_ONLY:-0} == 1 ]]; then
-  printf 'python=%s\ndataset_path=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\ndistributed_timeout_seconds=%s\nseed=%s\n' \
+  printf 'python=%s\ndataset_path=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\nnvidia_compat_lib_dir=%s\ndistributed_timeout_seconds=%s\nseed=%s\n' \
     "$python" "$dataset_path" "$iapl_repo" "$pretrained_model" "$clip_path" \
-    "$distributed_timeout_seconds" "$seed"
+    "$nvidia_compat_lib_dir" "$distributed_timeout_seconds" "$seed"
   exit 0
 fi
 
 export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
 export PYTHONPATH="$project_root/src${PYTHONPATH:+:$PYTHONPATH}"
 export PYTHONUNBUFFERED=1
+if [[ -n $nvidia_compat_lib_dir ]]; then
+  export LD_LIBRARY_PATH="$nvidia_compat_lib_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+fi
 if [[ -n $nccl_lib_dir ]]; then
   export LD_LIBRARY_PATH="$nccl_lib_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 fi

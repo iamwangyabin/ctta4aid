@@ -133,6 +133,14 @@ OOM，采样峰值为 7857/7845 MiB；第二张卡已加入 expandable segments�
 延迟加载和关闭 cuDNN 计划缓存，仍然失败。因此 4+1+1+2 布局被实验证伪，
 不能通过偷偷降低 batch size 代替官方协议。
 
+2026-07-25 06:03，4090-2 又出现独立故障：系统用户态 NVIDIA 库已自动升级到
+580.173.02，但运行中的内核模块仍为 580.159.03，导致 NVML 版本不匹配，
+两个 PyTorch 环境均看不到 CUDA。未重启、未重载模块、未降级系统包；从
+Canonical Launchpad 下载匹配的 580.159.03 用户态包，仅解压到用户资产目录。
+通过该隔离目录后，`nvidia-smi`、`cl` 和 `caid-gemini-compat` 均通过 CUDA
+张量测试。两个评测启动器新增 `IAPL_NVIDIA_COMPAT_LIB_DIR`，并以一致哈希
+同步至三台现有节点。4090-2 已无系统侵入地恢复，但第三个大显存节点仍缺失。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
