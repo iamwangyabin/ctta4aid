@@ -148,4 +148,7 @@ The UFD three-seed static aggregate is 88.67 +/- 1.94% Accuracy and
 but P3 remains open until every trained checkpoint receives the full official
 eight-rank TTA evaluation. The validated 4+2+2 layout still requires
 4090-1 or an equivalent third 24 GiB node; 4090-1 remained unreachable at
-17:05 +08:00.
+17:18 +08:00. The 3070x2 fallback was also ruled out: its second GPU is
+visible to `nvidia-smi`, but the `cl` PyTorch runtime reports CUDA unavailable
+and zero devices even with `CUDA_VISIBLE_DEVICES=1`. The exact host audit is
+stored in `resource_audit_20260724_1718.json`.

@@ -1,0 +1,40 @@
+{
+  "observed_at": "2026-07-24T17:18:48+08:00",
+  "purpose": "Find a protocol-faithful eight-rank layout for the six pending P3 official TTA evaluations.",
+  "hosts": {
+    "A6000": {
+      "ssh": "online",
+      "gpu": "NVIDIA RTX A6000",
+      "gpu_utilization_percent": 0,
+      "memory_used_mib": 4751,
+      "memory_total_mib": 49140,
+      "note": "An unrelated process still owns GPU memory; it was not interrupted."
+    },
+    "4090-1": {
+      "tailscale_ssh": "timeout",
+      "lan_ssh": "host_down",
+      "lan_address": "192.168.10.188"
+    },
+    "4090-2": {
+      "ssh": "online",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "gpu_utilization_percent": 0,
+      "memory_used_mib": 252,
+      "memory_total_mib": 24564
+    },
+    "3090": {
+      "tailscale_ssh": "timeout",
+      "lan_ssh": "TCP and key exchange succeeded, but public-key authentication did not complete",
+      "lan_address": "192.168.10.52"
+    },
+    "3070x2": {
+      "ssh": "online",
+      "global_nvidia_smi": "failed with exit status 255 because GPU 0 returned an unknown device-handle error",
+      "gpu_1_nvidia_smi": "NVIDIA GeForce RTX 3070 Ti visible with 8192 MiB",
+      "cl_pytorch_cuda_available": false,
+      "cl_pytorch_cuda_device_count": 0,
+      "note": "CUDA initialization fails even with CUDA_VISIBLE_DEVICES=1, so this host cannot launch an evaluation rank."
+    }
+  },
+  "decision": "No protocol-faithful eight-rank layout is currently available. Keep all six runs pending, do not retry the failed 5+3 layout, and do not reset or reboot shared hosts without explicit approval."
+}

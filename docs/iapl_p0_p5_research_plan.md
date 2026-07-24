@@ -114,7 +114,9 @@ seed102 得到 82.78% mAcc / 99.14% mAP。三 seed 静态汇总为
 UFD 与 GenImage 的三 seed 从头训练链路和静态全测试集评测均已完成。P3 尚未
 结束：六个训练检查点都还需要官方 8-rank TTA。已验证布局为
 A6000 `4 ranks` + 4090-1 `2 ranks` + 4090-2 `2 ranks`，但 4090-1
-截至 2026-07-24 17:05 仍离线，因此不使用失败过的 5+3 布局代替。
+截至 2026-07-24 17:18 仍离线，因此不使用失败过的 5+3 布局代替。3070x2
+也不能作为临时节点：GPU 1 虽可被 `nvidia-smi` 单独看到，但 `cl` 环境的
+PyTorch 在 `CUDA_VISIBLE_DEVICES=1` 下仍报告 CUDA 不可用且设备数为 0。
 
 ## P4: inference ablations
 

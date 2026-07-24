@@ -132,12 +132,13 @@
     ]
   },
   "resource_audit": {
-    "observed_at": "2026-07-24T17:05:28+08:00",
-    "A6000": "online but occupied by an unrelated 99%-utilization job",
-    "4090-1": "SSH timeout",
-    "4090-2": "online and idle after seed102",
-    "3090": "SSH timeout",
-    "3070x2": "GPU 0 device-handle error; the usable GPU 1 has only 8 GiB, below the observed per-rank peak",
-    "conclusion": "No protocol-faithful eight-rank layout is currently available. The failed 5+3 layout is not reused."
+    "observed_at": "2026-07-24T17:18:48+08:00",
+    "artifact": "resource_audit_20260724_1718.json",
+    "A6000": "online at 0% utilization with 4751/49140 MiB allocated by an unrelated process",
+    "4090-1": "Tailscale SSH timeout; LAN SSH reports host down",
+    "4090-2": "online and idle at 0% utilization with 252/24564 MiB allocated",
+    "3090": "Tailscale SSH timeout; LAN reaches public-key authentication but does not complete it",
+    "3070x2": "GPU 0 has a device-handle error; GPU 1 is visible to nvidia-smi, but cl PyTorch reports CUDA unavailable and zero devices even with CUDA_VISIBLE_DEVICES=1",
+    "conclusion": "No protocol-faithful eight-rank layout is currently available. The failed 5+3 layout is not reused, and shared hosts are not reset or rebooted without explicit approval."
   }
 }
