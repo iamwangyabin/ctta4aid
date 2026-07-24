@@ -119,6 +119,14 @@ real-biased on ADM, BigGAN, GLIDE, and Midjourney; it is retained as observed
 and is not substituted for the pending official TTA evaluation.
 
 Seed 101 started from scratch on the same clean pinned worktree and filtered
-data at 13:08:46 +08:00. It entered the 10,124-batch training loop in the
-`cl` environment on 4090-2. Seed 102 remains queued behind it so the three
-GenImage seeds do not compete for GPU memory or disk bandwidth.
+data at 13:08:46 +08:00. It completed the 10,124-batch loop in 1h41m10s and
+the eight-domain static evaluation at 15:06:01. Its result was 95.44% mAcc /
+99.62% mAP, with 99.79% real accuracy and 91.09% fake accuracy. The
+1,693,607,565-byte checkpoint has SHA256
+`4cbaec6c15a9a0219d68cb5ef947585b5362ed4a5befe3e359b3152e84eaf2d9`.
+The 11.41-point mAcc difference from seed 100 is retained as an observed seed
+sensitivity rather than hidden by selecting the better run.
+
+Seed 102 started from scratch at 15:08:33 +08:00 using the same pinned
+worktree, verified data, `cl` environment, and single-GPU protocol. It entered
+the final 10,124-batch GenImage training loop without error.

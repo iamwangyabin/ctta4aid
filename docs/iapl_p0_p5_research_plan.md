@@ -105,7 +105,9 @@ GenImage seed100 的修复后训练已完成，静态结果为 84.03% mAcc / 98.
 检查点哈希为
 `aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096`。
 该结果的 real/fake Accuracy 为 99.98% / 68.08%，说明固定阈值明显偏向 real；
-这项负结果不做协议外校准。Seed101 已按相同设置顺序启动，seed102 随后运行。
+这项负结果不做协议外校准。Seed101 随后得到 95.44% mAcc / 99.62% mAP，
+说明训练存在明显 seed 敏感性；不挑选更优 seed。Seed102 已按相同设置启动，
+三 seed 汇总须等最后一轮完成后再计算。
 
 ## P4: inference ablations
 

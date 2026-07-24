@@ -197,8 +197,8 @@
       "dataset_uri": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train_filtered|/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
       "seeds": {
         "100": "attempt2_training_and_static_evaluation_completed",
-        "101": "running",
-        "102": "pending"
+        "101": "training_and_static_evaluation_completed",
+        "102": "running"
       },
       "seed100_attempt2": {
         "status": "training_and_static_evaluation_completed",
@@ -220,14 +220,35 @@
         "artifacts": "genimage/seed100/attempt2_filtered"
       },
       "seed101": {
-        "status": "running",
+        "status": "training_and_static_evaluation_completed",
         "started_at": "2026-07-24T13:08:46+08:00",
+        "completed_at": "2026-07-24T15:06:01+08:00",
         "host": "4090-2",
         "environment": "cl",
         "iapl_worktree": "/home/yabin/ctta4aid_assets/external/IAPL-p3-train",
         "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed101_filtered",
         "model_name": "genimage_sd14_seed101_filtered",
         "master_port": 29713,
+        "batches": 10124,
+        "training_time": "1:41:10",
+        "observed_cuda_memory_mib": 15588,
+        "checkpoint_bytes": 1693607565,
+        "checkpoint_sha256": "4cbaec6c15a9a0219d68cb5ef947585b5362ed4a5befe3e359b3152e84eaf2d9",
+        "static_accuracy": 0.9544,
+        "static_average_precision": 0.9962,
+        "static_real_accuracy": 0.9979,
+        "static_fake_accuracy": 0.9109,
+        "artifacts": "genimage/seed101"
+      },
+      "seed102": {
+        "status": "running",
+        "started_at": "2026-07-24T15:08:33+08:00",
+        "host": "4090-2",
+        "environment": "cl",
+        "iapl_worktree": "/home/yabin/ctta4aid_assets/external/IAPL-p3-train",
+        "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed102_filtered",
+        "model_name": "genimage_sd14_seed102_filtered",
+        "master_port": 29714,
         "batches": 10124,
         "first_batch_completed": true
       }

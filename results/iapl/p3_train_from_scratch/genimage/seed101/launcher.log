@@ -1,0 +1,397 @@
+world size: 1, rank: 0, local rank: 0
+{
+  "SHELL": "/bin/bash",
+  "PYTHONUNBUFFERED": "1",
+  "CONDA_EXE": "/home/yabin/miniconda3/bin/conda",
+  "_CE_M": "",
+  "IAPL_TRAIN_OUTPUT_ROOT": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed101_filtered",
+  "MASTER_PORT": "29713",
+  "PWD": "/home/yabin/ctta4aid_assets/external/IAPL-p3-train",
+  "LOGNAME": "yabin",
+  "XDG_SESSION_TYPE": "tty",
+  "CONDA_PREFIX": "/home/yabin/miniconda3/envs/cl",
+  "IAPL_DATASET_PATH": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train_filtered|/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+  "HOME": "/home/yabin",
+  "LANG": "zh_CN.UTF-8",
+  "CONDA_PROMPT_MODIFIER": "(cl) ",
+  "SSH_CONNECTION": "100.70.179.13 58216 100.69.251.94 22",
+  "IAPL_MODEL_NAME": "genimage_sd14_seed101_filtered",
+  "CUDA_VISIBLE_DEVICES": "0",
+  "_CONDA_EXE": "/home/yabin/miniconda3/bin/conda",
+  "XDG_SESSION_CLASS": "user",
+  "_CONDA_ROOT": "/home/yabin/miniconda3",
+  "PYTHONPATH": "/home/yabin/ctta4aid-arrow/src",
+  "_CE_CONDA": "",
+  "USER": "yabin",
+  "CONDA_SHLVL": "1",
+  "SHLVL": "0",
+  "XDG_SESSION_ID": "12729",
+  "CONDA_PYTHON_EXE": "/home/yabin/miniconda3/bin/python",
+  "LC_CTYPE": "C.UTF-8",
+  "XDG_RUNTIME_DIR": "/run/user/1000",
+  "SSH_CLIENT": "100.70.179.13 58216 22",
+  "CONDA_DEFAULT_ENV": "cl",
+  "DEBUGINFOD_URLS": "https://debuginfod.ubuntu.com ",
+  "IAPL_REPO_PATH": "/home/yabin/ctta4aid_assets/external/IAPL-p3-train",
+  "LC_ALL": "C.UTF-8",
+  "XDG_DATA_DIRS": "/usr/share/gnome:/usr/local/share:/usr/share:/var/lib/snapd/desktop",
+  "PATH": "/home/yabin/miniconda3/envs/cl/bin:/home/yabin/miniconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+  "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus",
+  "OLDPWD": "/home/yabin/ctta4aid-arrow",
+  "TORCHELASTIC_SIGNALS_TO_HANDLE": "SIGTERM,SIGINT,SIGHUP,SIGQUIT",
+  "RANK": "0",
+  "GROUP_RANK": "0",
+  "ROLE_RANK": "0",
+  "ROLE_NAME": "default",
+  "LOCAL_WORLD_SIZE": "1",
+  "WORLD_SIZE": "1",
+  "GROUP_WORLD_SIZE": "1",
+  "ROLE_WORLD_SIZE": "1",
+  "MASTER_ADDR": "127.0.0.1",
+  "TORCHELASTIC_RESTART_COUNT": "0",
+  "TORCHELASTIC_MAX_RESTARTS": "0",
+  "TORCHELASTIC_RUN_ID": "none",
+  "TORCHELASTIC_USE_AGENT_STORE": "True",
+  "TORCH_NCCL_ASYNC_ERROR_HANDLING": "1",
+  "LOCAL_RANK": "0",
+  "TORCHELASTIC_ERROR_FILE": "/tmp/torchelastic_5ks80vxx/none_fe6wyl__/attempt_0/0/error.json",
+  "TORCHINDUCTOR_CACHE_DIR": "/tmp/torchinductor_yabin",
+  "QT_QPA_PLATFORM_PLUGIN_PATH": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/qt/plugins",
+  "QT_QPA_FONTDIR": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/qt/fonts",
+  "LD_LIBRARY_PATH": "/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/cv2/../../lib64:",
+  "KMP_DUPLICATE_LIB_OK": "True",
+  "KMP_INIT_AT_FORK": "FALSE"
+}
+world_size:1 rank:0 local_rank:0
+| distributed init (rank 0): env://
+Before torch.distributed.barrier()
+/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[rank0]:[W724 13:08:46.222794732 ProcessGroupNCCL.cpp:5324] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+End torch.distributed.barrier()
+['transformer.resblocks.1.gamma', 'transformer.resblocks.2.gamma', 'transformer.resblocks.3.gamma', 'transformer.resblocks.3.adapter.down_proj.weight', 'transformer.resblocks.3.adapter.down_proj.bias', 'transformer.resblocks.3.adapter.up_proj.weight', 'transformer.resblocks.3.adapter.up_proj.bias', 'transformer.resblocks.4.gamma', 'transformer.resblocks.5.gamma', 'transformer.resblocks.6.gamma', 'transformer.resblocks.7.gamma', 'transformer.resblocks.7.adapter.down_proj.weight', 'transformer.resblocks.7.adapter.down_proj.bias', 'transformer.resblocks.7.adapter.up_proj.weight', 'transformer.resblocks.7.adapter.up_proj.bias', 'transformer.resblocks.8.gamma', 'transformer.resblocks.11.adapter.down_proj.weight', 'transformer.resblocks.11.adapter.down_proj.bias', 'transformer.resblocks.11.adapter.up_proj.weight', 'transformer.resblocks.11.adapter.up_proj.bias', 'transformer.resblocks.15.adapter.down_proj.weight', 'transformer.resblocks.15.adapter.down_proj.bias', 'transformer.resblocks.15.adapter.up_proj.weight', 'transformer.resblocks.15.adapter.up_proj.bias', 'transformer.resblocks.19.adapter.down_proj.weight', 'transformer.resblocks.19.adapter.down_proj.bias', 'transformer.resblocks.19.adapter.up_proj.weight', 'transformer.resblocks.19.adapter.up_proj.bias', 'transformer.resblocks.23.adapter.down_proj.weight', 'transformer.resblocks.23.adapter.down_proj.bias', 'transformer.resblocks.23.adapter.up_proj.weight', 'transformer.resblocks.23.adapter.up_proj.bias']
+/home/yabin/ctta4aid_assets/external/IAPL-p3-train/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Epoch: [0]  [    0/10124]  eta: 2:47:24  lr: 0.000050  loss: 1.4466 (1.4466)  loss_adapter: 0.7661 (0.7661)  loss_condition: 0.6805 (0.6805)  loss_adapter_unscaled: 0.7661 (0.7661)  loss_condition_unscaled: 0.6805 (0.6805)  time: 0.9922  data: 0.1761  max mem: 13540
+Epoch: [0]  [   50/10124]  eta: 1:42:05  lr: 0.000050  loss: 1.2626 (1.2866)  loss_adapter: 0.6767 (0.6946)  loss_condition: 0.5845 (0.5919)  loss_adapter_unscaled: 0.6767 (0.6946)  loss_condition_unscaled: 0.5845 (0.5919)  time: 0.6000  data: 0.1522  max mem: 13847
+Epoch: [0]  [  100/10124]  eta: 1:41:22  lr: 0.000050  loss: 1.1392 (1.2377)  loss_adapter: 0.5807 (0.6541)  loss_condition: 0.5386 (0.5835)  loss_adapter_unscaled: 0.5807 (0.6541)  loss_condition_unscaled: 0.5386 (0.5835)  time: 0.6144  data: 0.1651  max mem: 13847
+Epoch: [0]  [  150/10124]  eta: 1:40:18  lr: 0.000050  loss: 0.9501 (1.1684)  loss_adapter: 0.4214 (0.5969)  loss_condition: 0.5220 (0.5715)  loss_adapter_unscaled: 0.4214 (0.5969)  loss_condition_unscaled: 0.5220 (0.5715)  time: 0.5975  data: 0.1493  max mem: 13847
+Epoch: [0]  [  200/10124]  eta: 1:39:43  lr: 0.000050  loss: 0.7658 (1.0846)  loss_adapter: 0.2617 (0.5257)  loss_condition: 0.4940 (0.5589)  loss_adapter_unscaled: 0.2617 (0.5257)  loss_condition_unscaled: 0.4940 (0.5589)  time: 0.5971  data: 0.1477  max mem: 13847
+Epoch: [0]  [  250/10124]  eta: 1:39:18  lr: 0.000050  loss: 0.7367 (1.0223)  loss_adapter: 0.2077 (0.4655)  loss_condition: 0.5311 (0.5568)  loss_adapter_unscaled: 0.2077 (0.4655)  loss_condition_unscaled: 0.5311 (0.5568)  time: 0.6028  data: 0.1543  max mem: 13847
+Epoch: [0]  [  300/10124]  eta: 1:38:42  lr: 0.000050  loss: 0.7210 (0.9739)  loss_adapter: 0.2032 (0.4231)  loss_condition: 0.5144 (0.5508)  loss_adapter_unscaled: 0.2032 (0.4231)  loss_condition_unscaled: 0.5144 (0.5508)  time: 0.5881  data: 0.1382  max mem: 13847
+Epoch: [0]  [  350/10124]  eta: 1:38:08  lr: 0.000050  loss: 0.7221 (0.9365)  loss_adapter: 0.2025 (0.3929)  loss_condition: 0.5164 (0.5436)  loss_adapter_unscaled: 0.2025 (0.3929)  loss_condition_unscaled: 0.5164 (0.5436)  time: 0.5955  data: 0.1436  max mem: 13847
+Epoch: [0]  [  400/10124]  eta: 1:37:26  lr: 0.000050  loss: 0.6826 (0.9086)  loss_adapter: 0.2014 (0.3694)  loss_condition: 0.4826 (0.5392)  loss_adapter_unscaled: 0.2014 (0.3694)  loss_condition_unscaled: 0.4826 (0.5392)  time: 0.6013  data: 0.1484  max mem: 13847
+Epoch: [0]  [  450/10124]  eta: 1:37:08  lr: 0.000050  loss: 0.6882 (0.8850)  loss_adapter: 0.2016 (0.3511)  loss_condition: 0.4823 (0.5338)  loss_adapter_unscaled: 0.2016 (0.3511)  loss_condition_unscaled: 0.4823 (0.5338)  time: 0.6163  data: 0.1652  max mem: 13847
+Epoch: [0]  [  500/10124]  eta: 1:36:32  lr: 0.000050  loss: 0.6656 (0.8656)  loss_adapter: 0.2010 (0.3363)  loss_condition: 0.4645 (0.5293)  loss_adapter_unscaled: 0.2010 (0.3363)  loss_condition_unscaled: 0.4645 (0.5293)  time: 0.6108  data: 0.1597  max mem: 13847
+Epoch: [0]  [  550/10124]  eta: 1:35:58  lr: 0.000050  loss: 0.6814 (0.8490)  loss_adapter: 0.2008 (0.3243)  loss_condition: 0.4814 (0.5247)  loss_adapter_unscaled: 0.2008 (0.3243)  loss_condition_unscaled: 0.4814 (0.5247)  time: 0.5848  data: 0.1325  max mem: 13847
+Epoch: [0]  [  600/10124]  eta: 1:35:19  lr: 0.000050  loss: 0.6540 (0.8337)  loss_adapter: 0.2006 (0.3142)  loss_condition: 0.4479 (0.5195)  loss_adapter_unscaled: 0.2006 (0.3142)  loss_condition_unscaled: 0.4479 (0.5195)  time: 0.5833  data: 0.1327  max mem: 13847
+Epoch: [0]  [  650/10124]  eta: 1:34:47  lr: 0.000050  loss: 0.6750 (0.8218)  loss_adapter: 0.2004 (0.3058)  loss_condition: 0.4621 (0.5161)  loss_adapter_unscaled: 0.2004 (0.3058)  loss_condition_unscaled: 0.4621 (0.5161)  time: 0.6091  data: 0.1582  max mem: 13847
+Epoch: [0]  [  700/10124]  eta: 1:34:15  lr: 0.000050  loss: 0.6139 (0.8094)  loss_adapter: 0.2004 (0.2983)  loss_condition: 0.4141 (0.5111)  loss_adapter_unscaled: 0.2004 (0.2983)  loss_condition_unscaled: 0.4141 (0.5111)  time: 0.6078  data: 0.1570  max mem: 13847
+Epoch: [0]  [  750/10124]  eta: 1:33:43  lr: 0.000050  loss: 0.6168 (0.7977)  loss_adapter: 0.2002 (0.2918)  loss_condition: 0.4156 (0.5059)  loss_adapter_unscaled: 0.2002 (0.2918)  loss_condition_unscaled: 0.4156 (0.5059)  time: 0.5919  data: 0.1409  max mem: 13847
+Epoch: [0]  [  800/10124]  eta: 1:33:11  lr: 0.000050  loss: 0.6034 (0.7874)  loss_adapter: 0.2004 (0.2862)  loss_condition: 0.4035 (0.5013)  loss_adapter_unscaled: 0.2004 (0.2862)  loss_condition_unscaled: 0.4035 (0.5013)  time: 0.5872  data: 0.1353  max mem: 13847
+Epoch: [0]  [  850/10124]  eta: 1:32:36  lr: 0.000050  loss: 0.6098 (0.7787)  loss_adapter: 0.2000 (0.2814)  loss_condition: 0.4092 (0.4974)  loss_adapter_unscaled: 0.2000 (0.2814)  loss_condition_unscaled: 0.4092 (0.4974)  time: 0.5961  data: 0.1449  max mem: 13847
+Epoch: [0]  [  900/10124]  eta: 1:32:00  lr: 0.000050  loss: 0.6251 (0.7700)  loss_adapter: 0.2000 (0.2769)  loss_condition: 0.4252 (0.4931)  loss_adapter_unscaled: 0.2000 (0.2769)  loss_condition_unscaled: 0.4252 (0.4931)  time: 0.5887  data: 0.1377  max mem: 13847
+Epoch: [0]  [  950/10124]  eta: 1:31:35  lr: 0.000050  loss: 0.6245 (0.7630)  loss_adapter: 0.2001 (0.2730)  loss_condition: 0.4250 (0.4901)  loss_adapter_unscaled: 0.2001 (0.2730)  loss_condition_unscaled: 0.4250 (0.4901)  time: 0.6108  data: 0.1592  max mem: 13847
+Epoch: [0]  [ 1000/10124]  eta: 1:31:06  lr: 0.000050  loss: 0.6337 (0.7568)  loss_adapter: 0.1999 (0.2694)  loss_condition: 0.4343 (0.4875)  loss_adapter_unscaled: 0.1999 (0.2694)  loss_condition_unscaled: 0.4343 (0.4875)  time: 0.5950  data: 0.1433  max mem: 13847
+Epoch: [0]  [ 1050/10124]  eta: 1:30:42  lr: 0.000050  loss: 0.6177 (0.7506)  loss_adapter: 0.1996 (0.2662)  loss_condition: 0.4179 (0.4844)  loss_adapter_unscaled: 0.1996 (0.2662)  loss_condition_unscaled: 0.4179 (0.4844)  time: 0.6079  data: 0.1559  max mem: 13847
+Epoch: [0]  [ 1100/10124]  eta: 1:30:11  lr: 0.000050  loss: 0.6152 (0.7451)  loss_adapter: 0.1996 (0.2633)  loss_condition: 0.4158 (0.4819)  loss_adapter_unscaled: 0.1996 (0.2633)  loss_condition_unscaled: 0.4158 (0.4819)  time: 0.5883  data: 0.1370  max mem: 13847
+Epoch: [0]  [ 1150/10124]  eta: 1:29:38  lr: 0.000050  loss: 0.6031 (0.7395)  loss_adapter: 0.1995 (0.2605)  loss_condition: 0.4030 (0.4789)  loss_adapter_unscaled: 0.1995 (0.2605)  loss_condition_unscaled: 0.4030 (0.4789)  time: 0.5941  data: 0.1429  max mem: 13847
+Epoch: [0]  [ 1200/10124]  eta: 1:29:07  lr: 0.000050  loss: 0.5802 (0.7334)  loss_adapter: 0.1996 (0.2581)  loss_condition: 0.3798 (0.4753)  loss_adapter_unscaled: 0.1996 (0.2581)  loss_condition_unscaled: 0.3798 (0.4753)  time: 0.5902  data: 0.1389  max mem: 13847
+Epoch: [0]  [ 1250/10124]  eta: 1:28:36  lr: 0.000050  loss: 0.5499 (0.7279)  loss_adapter: 0.1995 (0.2559)  loss_condition: 0.3502 (0.4720)  loss_adapter_unscaled: 0.1995 (0.2559)  loss_condition_unscaled: 0.3502 (0.4720)  time: 0.5933  data: 0.1416  max mem: 13847
+Epoch: [0]  [ 1300/10124]  eta: 1:28:08  lr: 0.000050  loss: 0.5558 (0.7228)  loss_adapter: 0.1994 (0.2538)  loss_condition: 0.3567 (0.4690)  loss_adapter_unscaled: 0.1994 (0.2538)  loss_condition_unscaled: 0.3567 (0.4690)  time: 0.5990  data: 0.1449  max mem: 13847
+Epoch: [0]  [ 1350/10124]  eta: 1:27:42  lr: 0.000050  loss: 0.5768 (0.7177)  loss_adapter: 0.1992 (0.2518)  loss_condition: 0.3776 (0.4659)  loss_adapter_unscaled: 0.1992 (0.2518)  loss_condition_unscaled: 0.3776 (0.4659)  time: 0.6018  data: 0.1511  max mem: 13847
+Epoch: [0]  [ 1400/10124]  eta: 1:27:14  lr: 0.000050  loss: 0.5762 (0.7133)  loss_adapter: 0.1993 (0.2500)  loss_condition: 0.3753 (0.4633)  loss_adapter_unscaled: 0.1993 (0.2500)  loss_condition_unscaled: 0.3753 (0.4633)  time: 0.6014  data: 0.1491  max mem: 13847
+Epoch: [0]  [ 1450/10124]  eta: 1:26:47  lr: 0.000050  loss: 0.5658 (0.7088)  loss_adapter: 0.1993 (0.2483)  loss_condition: 0.3666 (0.4605)  loss_adapter_unscaled: 0.1993 (0.2483)  loss_condition_unscaled: 0.3666 (0.4605)  time: 0.6113  data: 0.1585  max mem: 13847
+Epoch: [0]  [ 1500/10124]  eta: 1:26:14  lr: 0.000050  loss: 0.6001 (0.7048)  loss_adapter: 0.1993 (0.2467)  loss_condition: 0.4006 (0.4581)  loss_adapter_unscaled: 0.1993 (0.2467)  loss_condition_unscaled: 0.4006 (0.4581)  time: 0.5872  data: 0.1355  max mem: 13847
+Epoch: [0]  [ 1550/10124]  eta: 1:25:42  lr: 0.000050  loss: 0.5799 (0.7009)  loss_adapter: 0.1992 (0.2452)  loss_condition: 0.3796 (0.4557)  loss_adapter_unscaled: 0.1992 (0.2452)  loss_condition_unscaled: 0.3796 (0.4557)  time: 0.5898  data: 0.1379  max mem: 13847
+Epoch: [0]  [ 1600/10124]  eta: 1:25:10  lr: 0.000050  loss: 0.5816 (0.6967)  loss_adapter: 0.1993 (0.2439)  loss_condition: 0.3824 (0.4529)  loss_adapter_unscaled: 0.1993 (0.2439)  loss_condition_unscaled: 0.3824 (0.4529)  time: 0.5859  data: 0.1331  max mem: 13847
+Epoch: [0]  [ 1650/10124]  eta: 1:24:37  lr: 0.000050  loss: 0.5387 (0.6927)  loss_adapter: 0.1992 (0.2425)  loss_condition: 0.3391 (0.4502)  loss_adapter_unscaled: 0.1992 (0.2425)  loss_condition_unscaled: 0.3391 (0.4502)  time: 0.5828  data: 0.1309  max mem: 13847
+Epoch: [0]  [ 1700/10124]  eta: 1:24:08  lr: 0.000050  loss: 0.5760 (0.6893)  loss_adapter: 0.1992 (0.2412)  loss_condition: 0.3765 (0.4481)  loss_adapter_unscaled: 0.1992 (0.2412)  loss_condition_unscaled: 0.3765 (0.4481)  time: 0.5973  data: 0.1452  max mem: 13847
+Epoch: [0]  [ 1750/10124]  eta: 1:23:38  lr: 0.000050  loss: 0.5438 (0.6860)  loss_adapter: 0.1992 (0.2401)  loss_condition: 0.3441 (0.4459)  loss_adapter_unscaled: 0.1992 (0.2401)  loss_condition_unscaled: 0.3441 (0.4459)  time: 0.6108  data: 0.1582  max mem: 13847
+Epoch: [0]  [ 1800/10124]  eta: 1:23:12  lr: 0.000050  loss: 0.5241 (0.6821)  loss_adapter: 0.1992 (0.2390)  loss_condition: 0.3246 (0.4432)  loss_adapter_unscaled: 0.1992 (0.2390)  loss_condition_unscaled: 0.3246 (0.4432)  time: 0.6178  data: 0.1656  max mem: 13847
+Epoch: [0]  [ 1850/10124]  eta: 1:22:42  lr: 0.000050  loss: 0.5422 (0.6789)  loss_adapter: 0.1992 (0.2379)  loss_condition: 0.3428 (0.4409)  loss_adapter_unscaled: 0.1992 (0.2379)  loss_condition_unscaled: 0.3428 (0.4409)  time: 0.6060  data: 0.1537  max mem: 13847
+Epoch: [0]  [ 1900/10124]  eta: 1:22:12  lr: 0.000050  loss: 0.5715 (0.6759)  loss_adapter: 0.1990 (0.2369)  loss_condition: 0.3717 (0.4390)  loss_adapter_unscaled: 0.1990 (0.2369)  loss_condition_unscaled: 0.3717 (0.4390)  time: 0.5914  data: 0.1393  max mem: 13847
+Epoch: [0]  [ 1950/10124]  eta: 1:21:42  lr: 0.000050  loss: 0.5597 (0.6734)  loss_adapter: 0.1991 (0.2360)  loss_condition: 0.3527 (0.4374)  loss_adapter_unscaled: 0.1991 (0.2360)  loss_condition_unscaled: 0.3527 (0.4374)  time: 0.6090  data: 0.1560  max mem: 13847
+Epoch: [0]  [ 2000/10124]  eta: 1:21:11  lr: 0.000050  loss: 0.5543 (0.6706)  loss_adapter: 0.1991 (0.2351)  loss_condition: 0.3541 (0.4355)  loss_adapter_unscaled: 0.1991 (0.2351)  loss_condition_unscaled: 0.3541 (0.4355)  time: 0.5960  data: 0.1436  max mem: 13847
+Epoch: [0]  [ 2050/10124]  eta: 1:20:43  lr: 0.000050  loss: 0.5459 (0.6676)  loss_adapter: 0.1991 (0.2343)  loss_condition: 0.3418 (0.4333)  loss_adapter_unscaled: 0.1991 (0.2343)  loss_condition_unscaled: 0.3418 (0.4333)  time: 0.6106  data: 0.1591  max mem: 13847
+Epoch: [0]  [ 2100/10124]  eta: 1:20:12  lr: 0.000050  loss: 0.5332 (0.6645)  loss_adapter: 0.1991 (0.2334)  loss_condition: 0.3332 (0.4311)  loss_adapter_unscaled: 0.1991 (0.2334)  loss_condition_unscaled: 0.3332 (0.4311)  time: 0.5924  data: 0.1400  max mem: 13847
+Epoch: [0]  [ 2150/10124]  eta: 1:19:42  lr: 0.000050  loss: 0.5426 (0.6618)  loss_adapter: 0.1990 (0.2327)  loss_condition: 0.3436 (0.4291)  loss_adapter_unscaled: 0.1990 (0.2327)  loss_condition_unscaled: 0.3436 (0.4291)  time: 0.5988  data: 0.1464  max mem: 13847
+Epoch: [0]  [ 2200/10124]  eta: 1:19:13  lr: 0.000050  loss: 0.4992 (0.6590)  loss_adapter: 0.1990 (0.2319)  loss_condition: 0.3000 (0.4271)  loss_adapter_unscaled: 0.1990 (0.2319)  loss_condition_unscaled: 0.3000 (0.4271)  time: 0.6064  data: 0.1550  max mem: 13847
+Epoch: [0]  [ 2250/10124]  eta: 1:18:42  lr: 0.000050  loss: 0.5489 (0.6565)  loss_adapter: 0.1990 (0.2312)  loss_condition: 0.3498 (0.4254)  loss_adapter_unscaled: 0.1990 (0.2312)  loss_condition_unscaled: 0.3498 (0.4254)  time: 0.6032  data: 0.1503  max mem: 13847
+Epoch: [0]  [ 2300/10124]  eta: 1:18:14  lr: 0.000050  loss: 0.5443 (0.6542)  loss_adapter: 0.1990 (0.2305)  loss_condition: 0.3453 (0.4237)  loss_adapter_unscaled: 0.1990 (0.2305)  loss_condition_unscaled: 0.3453 (0.4237)  time: 0.6055  data: 0.1531  max mem: 13847
+Epoch: [0]  [ 2350/10124]  eta: 1:17:45  lr: 0.000050  loss: 0.5464 (0.6518)  loss_adapter: 0.1989 (0.2298)  loss_condition: 0.3474 (0.4220)  loss_adapter_unscaled: 0.1989 (0.2298)  loss_condition_unscaled: 0.3474 (0.4220)  time: 0.6145  data: 0.1621  max mem: 13847
+Epoch: [0]  [ 2400/10124]  eta: 1:17:12  lr: 0.000050  loss: 0.5152 (0.6494)  loss_adapter: 0.1989 (0.2292)  loss_condition: 0.3162 (0.4202)  loss_adapter_unscaled: 0.1989 (0.2292)  loss_condition_unscaled: 0.3162 (0.4202)  time: 0.5820  data: 0.1301  max mem: 13847
+Epoch: [0]  [ 2450/10124]  eta: 1:16:40  lr: 0.000050  loss: 0.5504 (0.6471)  loss_adapter: 0.1989 (0.2286)  loss_condition: 0.3515 (0.4185)  loss_adapter_unscaled: 0.1989 (0.2286)  loss_condition_unscaled: 0.3515 (0.4185)  time: 0.5852  data: 0.1334  max mem: 13847
+Epoch: [0]  [ 2500/10124]  eta: 1:16:10  lr: 0.000050  loss: 0.5488 (0.6450)  loss_adapter: 0.1989 (0.2280)  loss_condition: 0.3499 (0.4170)  loss_adapter_unscaled: 0.1989 (0.2280)  loss_condition_unscaled: 0.3499 (0.4170)  time: 0.6039  data: 0.1516  max mem: 13847
+Epoch: [0]  [ 2550/10124]  eta: 1:15:39  lr: 0.000050  loss: 0.4976 (0.6426)  loss_adapter: 0.1989 (0.2274)  loss_condition: 0.2985 (0.4152)  loss_adapter_unscaled: 0.1989 (0.2274)  loss_condition_unscaled: 0.2985 (0.4152)  time: 0.5912  data: 0.1394  max mem: 13847
+Epoch: [0]  [ 2600/10124]  eta: 1:15:09  lr: 0.000050  loss: 0.5336 (0.6407)  loss_adapter: 0.1990 (0.2269)  loss_condition: 0.3336 (0.4138)  loss_adapter_unscaled: 0.1990 (0.2269)  loss_condition_unscaled: 0.3336 (0.4138)  time: 0.5887  data: 0.1364  max mem: 13847
+Epoch: [0]  [ 2650/10124]  eta: 1:14:38  lr: 0.000050  loss: 0.5272 (0.6388)  loss_adapter: 0.1989 (0.2264)  loss_condition: 0.3274 (0.4124)  loss_adapter_unscaled: 0.1989 (0.2264)  loss_condition_unscaled: 0.3274 (0.4124)  time: 0.5948  data: 0.1427  max mem: 13847
+Epoch: [0]  [ 2700/10124]  eta: 1:14:09  lr: 0.000050  loss: 0.5115 (0.6369)  loss_adapter: 0.1989 (0.2259)  loss_condition: 0.3125 (0.4109)  loss_adapter_unscaled: 0.1989 (0.2259)  loss_condition_unscaled: 0.3125 (0.4109)  time: 0.5970  data: 0.1455  max mem: 13847
+Epoch: [0]  [ 2750/10124]  eta: 1:13:39  lr: 0.000050  loss: 0.5055 (0.6349)  loss_adapter: 0.1989 (0.2255)  loss_condition: 0.3066 (0.4095)  loss_adapter_unscaled: 0.1989 (0.2255)  loss_condition_unscaled: 0.3066 (0.4095)  time: 0.6012  data: 0.1489  max mem: 13847
+Epoch: [0]  [ 2800/10124]  eta: 1:13:10  lr: 0.000050  loss: 0.5260 (0.6332)  loss_adapter: 0.1988 (0.2250)  loss_condition: 0.3271 (0.4082)  loss_adapter_unscaled: 0.1988 (0.2250)  loss_condition_unscaled: 0.3271 (0.4082)  time: 0.6048  data: 0.1526  max mem: 13847
+Epoch: [0]  [ 2850/10124]  eta: 1:12:39  lr: 0.000050  loss: 0.5450 (0.6314)  loss_adapter: 0.1989 (0.2246)  loss_condition: 0.3223 (0.4068)  loss_adapter_unscaled: 0.1989 (0.2246)  loss_condition_unscaled: 0.3223 (0.4068)  time: 0.6000  data: 0.1488  max mem: 13847
+Epoch: [0]  [ 2900/10124]  eta: 1:12:09  lr: 0.000050  loss: 0.5199 (0.6296)  loss_adapter: 0.1989 (0.2241)  loss_condition: 0.3211 (0.4055)  loss_adapter_unscaled: 0.1989 (0.2241)  loss_condition_unscaled: 0.3211 (0.4055)  time: 0.6165  data: 0.1645  max mem: 13847
+Epoch: [0]  [ 2950/10124]  eta: 1:11:38  lr: 0.000050  loss: 0.4814 (0.6276)  loss_adapter: 0.1988 (0.2237)  loss_condition: 0.2827 (0.4039)  loss_adapter_unscaled: 0.1988 (0.2237)  loss_condition_unscaled: 0.2827 (0.4039)  time: 0.5965  data: 0.1448  max mem: 13847
+Epoch: [0]  [ 3000/10124]  eta: 1:11:09  lr: 0.000050  loss: 0.5358 (0.6261)  loss_adapter: 0.1989 (0.2233)  loss_condition: 0.3369 (0.4028)  loss_adapter_unscaled: 0.1989 (0.2233)  loss_condition_unscaled: 0.3369 (0.4028)  time: 0.6017  data: 0.1505  max mem: 13847
+Epoch: [0]  [ 3050/10124]  eta: 1:10:40  lr: 0.000050  loss: 0.5570 (0.6243)  loss_adapter: 0.1989 (0.2229)  loss_condition: 0.3581 (0.4014)  loss_adapter_unscaled: 0.1989 (0.2229)  loss_condition_unscaled: 0.3581 (0.4014)  time: 0.5996  data: 0.1473  max mem: 13847
+Epoch: [0]  [ 3100/10124]  eta: 1:10:10  lr: 0.000050  loss: 0.5162 (0.6228)  loss_adapter: 0.1989 (0.2226)  loss_condition: 0.3174 (0.4002)  loss_adapter_unscaled: 0.1989 (0.2226)  loss_condition_unscaled: 0.3174 (0.4002)  time: 0.5942  data: 0.1428  max mem: 13847
+Epoch: [0]  [ 3150/10124]  eta: 1:09:40  lr: 0.000050  loss: 0.4628 (0.6209)  loss_adapter: 0.1988 (0.2222)  loss_condition: 0.2641 (0.3988)  loss_adapter_unscaled: 0.1988 (0.2222)  loss_condition_unscaled: 0.2641 (0.3988)  time: 0.5997  data: 0.1480  max mem: 13847
+Epoch: [0]  [ 3200/10124]  eta: 1:09:10  lr: 0.000050  loss: 0.4909 (0.6194)  loss_adapter: 0.1988 (0.2218)  loss_condition: 0.2921 (0.3975)  loss_adapter_unscaled: 0.1988 (0.2218)  loss_condition_unscaled: 0.2921 (0.3975)  time: 0.5954  data: 0.1443  max mem: 13847
+Epoch: [0]  [ 3250/10124]  eta: 1:08:40  lr: 0.000050  loss: 0.5025 (0.6177)  loss_adapter: 0.1988 (0.2215)  loss_condition: 0.3038 (0.3963)  loss_adapter_unscaled: 0.1988 (0.2215)  loss_condition_unscaled: 0.3038 (0.3963)  time: 0.6160  data: 0.1636  max mem: 13847
+Epoch: [0]  [ 3300/10124]  eta: 1:08:09  lr: 0.000050  loss: 0.5014 (0.6163)  loss_adapter: 0.1988 (0.2211)  loss_condition: 0.3026 (0.3951)  loss_adapter_unscaled: 0.1988 (0.2211)  loss_condition_unscaled: 0.3026 (0.3951)  time: 0.5898  data: 0.1383  max mem: 13847
+Epoch: [0]  [ 3350/10124]  eta: 1:07:37  lr: 0.000050  loss: 0.4962 (0.6146)  loss_adapter: 0.1988 (0.2208)  loss_condition: 0.2974 (0.3938)  loss_adapter_unscaled: 0.1988 (0.2208)  loss_condition_unscaled: 0.2974 (0.3938)  time: 0.5795  data: 0.1274  max mem: 13847
+Epoch: [0]  [ 3400/10124]  eta: 1:07:08  lr: 0.000050  loss: 0.5210 (0.6132)  loss_adapter: 0.1988 (0.2205)  loss_condition: 0.3222 (0.3928)  loss_adapter_unscaled: 0.1988 (0.2205)  loss_condition_unscaled: 0.3222 (0.3928)  time: 0.5970  data: 0.1449  max mem: 13847
+Epoch: [0]  [ 3450/10124]  eta: 1:06:38  lr: 0.000050  loss: 0.4808 (0.6118)  loss_adapter: 0.1988 (0.2202)  loss_condition: 0.2821 (0.3916)  loss_adapter_unscaled: 0.1988 (0.2202)  loss_condition_unscaled: 0.2821 (0.3916)  time: 0.6064  data: 0.1541  max mem: 13847
+Epoch: [0]  [ 3500/10124]  eta: 1:06:08  lr: 0.000050  loss: 0.4916 (0.6103)  loss_adapter: 0.1988 (0.2199)  loss_condition: 0.2928 (0.3904)  loss_adapter_unscaled: 0.1988 (0.2199)  loss_condition_unscaled: 0.2928 (0.3904)  time: 0.5984  data: 0.1460  max mem: 13847
+Epoch: [0]  [ 3550/10124]  eta: 1:05:38  lr: 0.000050  loss: 0.4878 (0.6088)  loss_adapter: 0.1988 (0.2196)  loss_condition: 0.2890 (0.3892)  loss_adapter_unscaled: 0.1988 (0.2196)  loss_condition_unscaled: 0.2890 (0.3892)  time: 0.6085  data: 0.1564  max mem: 13847
+Epoch: [0]  [ 3600/10124]  eta: 1:05:09  lr: 0.000050  loss: 0.5022 (0.6072)  loss_adapter: 0.1988 (0.2193)  loss_condition: 0.3034 (0.3879)  loss_adapter_unscaled: 0.1988 (0.2193)  loss_condition_unscaled: 0.3034 (0.3879)  time: 0.6159  data: 0.1638  max mem: 13847
+Epoch: [0]  [ 3650/10124]  eta: 1:04:39  lr: 0.000050  loss: 0.5050 (0.6057)  loss_adapter: 0.1988 (0.2190)  loss_condition: 0.3040 (0.3866)  loss_adapter_unscaled: 0.1988 (0.2190)  loss_condition_unscaled: 0.3040 (0.3866)  time: 0.6017  data: 0.1503  max mem: 13847
+Epoch: [0]  [ 3700/10124]  eta: 1:04:08  lr: 0.000050  loss: 0.4840 (0.6044)  loss_adapter: 0.1988 (0.2188)  loss_condition: 0.2853 (0.3856)  loss_adapter_unscaled: 0.1988 (0.2188)  loss_condition_unscaled: 0.2853 (0.3856)  time: 0.5784  data: 0.1264  max mem: 13847
+Epoch: [0]  [ 3750/10124]  eta: 1:03:37  lr: 0.000050  loss: 0.4929 (0.6031)  loss_adapter: 0.1988 (0.2185)  loss_condition: 0.2942 (0.3846)  loss_adapter_unscaled: 0.1988 (0.2185)  loss_condition_unscaled: 0.2942 (0.3846)  time: 0.5844  data: 0.1315  max mem: 13847
+Epoch: [0]  [ 3800/10124]  eta: 1:03:07  lr: 0.000050  loss: 0.4928 (0.6017)  loss_adapter: 0.1988 (0.2183)  loss_condition: 0.2938 (0.3834)  loss_adapter_unscaled: 0.1988 (0.2183)  loss_condition_unscaled: 0.2938 (0.3834)  time: 0.5935  data: 0.1414  max mem: 13847
+Epoch: [0]  [ 3850/10124]  eta: 1:02:37  lr: 0.000050  loss: 0.4895 (0.6004)  loss_adapter: 0.1987 (0.2180)  loss_condition: 0.2907 (0.3824)  loss_adapter_unscaled: 0.1987 (0.2180)  loss_condition_unscaled: 0.2907 (0.3824)  time: 0.5915  data: 0.1397  max mem: 13847
+Epoch: [0]  [ 3900/10124]  eta: 1:02:07  lr: 0.000050  loss: 0.5051 (0.5991)  loss_adapter: 0.1987 (0.2178)  loss_condition: 0.3063 (0.3814)  loss_adapter_unscaled: 0.1987 (0.2178)  loss_condition_unscaled: 0.3063 (0.3814)  time: 0.5928  data: 0.1403  max mem: 13847
+Epoch: [0]  [ 3950/10124]  eta: 1:01:37  lr: 0.000050  loss: 0.5133 (0.5982)  loss_adapter: 0.1987 (0.2175)  loss_condition: 0.3145 (0.3807)  loss_adapter_unscaled: 0.1987 (0.2175)  loss_condition_unscaled: 0.3145 (0.3807)  time: 0.6025  data: 0.1509  max mem: 13847
+Epoch: [0]  [ 4000/10124]  eta: 1:01:07  lr: 0.000050  loss: 0.4908 (0.5971)  loss_adapter: 0.1987 (0.2173)  loss_condition: 0.2921 (0.3798)  loss_adapter_unscaled: 0.1987 (0.2173)  loss_condition_unscaled: 0.2921 (0.3798)  time: 0.5880  data: 0.1362  max mem: 13847
+Epoch: [0]  [ 4050/10124]  eta: 1:00:37  lr: 0.000050  loss: 0.4939 (0.5958)  loss_adapter: 0.1988 (0.2171)  loss_condition: 0.2890 (0.3788)  loss_adapter_unscaled: 0.1988 (0.2171)  loss_condition_unscaled: 0.2890 (0.3788)  time: 0.5978  data: 0.1451  max mem: 13847
+Epoch: [0]  [ 4100/10124]  eta: 1:00:08  lr: 0.000050  loss: 0.4827 (0.5949)  loss_adapter: 0.1987 (0.2169)  loss_condition: 0.2839 (0.3781)  loss_adapter_unscaled: 0.1987 (0.2169)  loss_condition_unscaled: 0.2839 (0.3781)  time: 0.6075  data: 0.1554  max mem: 13847
+Epoch: [0]  [ 4150/10124]  eta: 0:59:39  lr: 0.000050  loss: 0.4736 (0.5937)  loss_adapter: 0.1987 (0.2167)  loss_condition: 0.2749 (0.3771)  loss_adapter_unscaled: 0.1987 (0.2167)  loss_condition_unscaled: 0.2749 (0.3771)  time: 0.6268  data: 0.1749  max mem: 13847
+Epoch: [0]  [ 4200/10124]  eta: 0:59:09  lr: 0.000050  loss: 0.4958 (0.5927)  loss_adapter: 0.1987 (0.2164)  loss_condition: 0.2968 (0.3762)  loss_adapter_unscaled: 0.1987 (0.2164)  loss_condition_unscaled: 0.2968 (0.3762)  time: 0.6076  data: 0.1558  max mem: 13847
+Epoch: [0]  [ 4250/10124]  eta: 0:58:39  lr: 0.000050  loss: 0.4812 (0.5916)  loss_adapter: 0.1987 (0.2162)  loss_condition: 0.2825 (0.3754)  loss_adapter_unscaled: 0.1987 (0.2162)  loss_condition_unscaled: 0.2825 (0.3754)  time: 0.5962  data: 0.1441  max mem: 13847
+Epoch: [0]  [ 4300/10124]  eta: 0:58:09  lr: 0.000050  loss: 0.4770 (0.5905)  loss_adapter: 0.1987 (0.2160)  loss_condition: 0.2782 (0.3745)  loss_adapter_unscaled: 0.1987 (0.2160)  loss_condition_unscaled: 0.2782 (0.3745)  time: 0.5938  data: 0.1411  max mem: 13847
+Epoch: [0]  [ 4350/10124]  eta: 0:57:39  lr: 0.000050  loss: 0.4783 (0.5892)  loss_adapter: 0.1987 (0.2158)  loss_condition: 0.2795 (0.3734)  loss_adapter_unscaled: 0.1987 (0.2158)  loss_condition_unscaled: 0.2795 (0.3734)  time: 0.6075  data: 0.1555  max mem: 13847
+Epoch: [0]  [ 4400/10124]  eta: 0:57:09  lr: 0.000050  loss: 0.4732 (0.5880)  loss_adapter: 0.1987 (0.2156)  loss_condition: 0.2745 (0.3724)  loss_adapter_unscaled: 0.1987 (0.2156)  loss_condition_unscaled: 0.2745 (0.3724)  time: 0.5950  data: 0.1432  max mem: 13847
+Epoch: [0]  [ 4450/10124]  eta: 0:56:40  lr: 0.000050  loss: 0.4997 (0.5870)  loss_adapter: 0.1987 (0.2154)  loss_condition: 0.3010 (0.3716)  loss_adapter_unscaled: 0.1987 (0.2154)  loss_condition_unscaled: 0.3010 (0.3716)  time: 0.6178  data: 0.1662  max mem: 13847
+Epoch: [0]  [ 4500/10124]  eta: 0:56:09  lr: 0.000050  loss: 0.4793 (0.5860)  loss_adapter: 0.1987 (0.2153)  loss_condition: 0.2775 (0.3708)  loss_adapter_unscaled: 0.1987 (0.2153)  loss_condition_unscaled: 0.2775 (0.3708)  time: 0.5955  data: 0.1423  max mem: 13847
+Epoch: [0]  [ 4550/10124]  eta: 0:55:40  lr: 0.000050  loss: 0.4665 (0.5851)  loss_adapter: 0.1987 (0.2151)  loss_condition: 0.2678 (0.3700)  loss_adapter_unscaled: 0.1987 (0.2151)  loss_condition_unscaled: 0.2678 (0.3700)  time: 0.6017  data: 0.1494  max mem: 13847
+Epoch: [0]  [ 4600/10124]  eta: 0:55:10  lr: 0.000050  loss: 0.4542 (0.5841)  loss_adapter: 0.1987 (0.2149)  loss_condition: 0.2555 (0.3692)  loss_adapter_unscaled: 0.1987 (0.2149)  loss_condition_unscaled: 0.2555 (0.3692)  time: 0.5939  data: 0.1415  max mem: 13847
+Epoch: [0]  [ 4650/10124]  eta: 0:54:39  lr: 0.000050  loss: 0.4743 (0.5830)  loss_adapter: 0.1987 (0.2147)  loss_condition: 0.2757 (0.3682)  loss_adapter_unscaled: 0.1987 (0.2147)  loss_condition_unscaled: 0.2757 (0.3682)  time: 0.5846  data: 0.1319  max mem: 13847
+Epoch: [0]  [ 4700/10124]  eta: 0:54:10  lr: 0.000050  loss: 0.4830 (0.5820)  loss_adapter: 0.1987 (0.2146)  loss_condition: 0.2843 (0.3674)  loss_adapter_unscaled: 0.1987 (0.2146)  loss_condition_unscaled: 0.2843 (0.3674)  time: 0.6078  data: 0.1549  max mem: 13847
+Epoch: [0]  [ 4750/10124]  eta: 0:53:40  lr: 0.000050  loss: 0.4821 (0.5810)  loss_adapter: 0.1987 (0.2144)  loss_condition: 0.2834 (0.3666)  loss_adapter_unscaled: 0.1987 (0.2144)  loss_condition_unscaled: 0.2834 (0.3666)  time: 0.6092  data: 0.1570  max mem: 13847
+Epoch: [0]  [ 4800/10124]  eta: 0:53:10  lr: 0.000050  loss: 0.4853 (0.5802)  loss_adapter: 0.1987 (0.2143)  loss_condition: 0.2853 (0.3659)  loss_adapter_unscaled: 0.1987 (0.2143)  loss_condition_unscaled: 0.2853 (0.3659)  time: 0.5868  data: 0.1346  max mem: 13847
+Epoch: [0]  [ 4850/10124]  eta: 0:52:39  lr: 0.000050  loss: 0.4807 (0.5793)  loss_adapter: 0.1987 (0.2141)  loss_condition: 0.2821 (0.3652)  loss_adapter_unscaled: 0.1987 (0.2141)  loss_condition_unscaled: 0.2821 (0.3652)  time: 0.5920  data: 0.1396  max mem: 13847
+Epoch: [0]  [ 4900/10124]  eta: 0:52:09  lr: 0.000050  loss: 0.5084 (0.5785)  loss_adapter: 0.1987 (0.2140)  loss_condition: 0.3097 (0.3645)  loss_adapter_unscaled: 0.1987 (0.2140)  loss_condition_unscaled: 0.3097 (0.3645)  time: 0.5991  data: 0.1463  max mem: 13847
+Epoch: [0]  [ 4950/10124]  eta: 0:51:40  lr: 0.000050  loss: 0.4905 (0.5778)  loss_adapter: 0.1988 (0.2138)  loss_condition: 0.2916 (0.3639)  loss_adapter_unscaled: 0.1988 (0.2138)  loss_condition_unscaled: 0.2916 (0.3639)  time: 0.6075  data: 0.1550  max mem: 13847
+Epoch: [0]  [ 5000/10124]  eta: 0:51:09  lr: 0.000050  loss: 0.4852 (0.5769)  loss_adapter: 0.1987 (0.2137)  loss_condition: 0.2865 (0.3632)  loss_adapter_unscaled: 0.1987 (0.2137)  loss_condition_unscaled: 0.2865 (0.3632)  time: 0.5831  data: 0.1308  max mem: 13847
+Epoch: [0]  [ 5050/10124]  eta: 0:50:39  lr: 0.000050  loss: 0.4477 (0.5759)  loss_adapter: 0.1987 (0.2135)  loss_condition: 0.2489 (0.3623)  loss_adapter_unscaled: 0.1987 (0.2135)  loss_condition_unscaled: 0.2489 (0.3623)  time: 0.5960  data: 0.1435  max mem: 13847
+Epoch: [0]  [ 5100/10124]  eta: 0:50:09  lr: 0.000050  loss: 0.4688 (0.5750)  loss_adapter: 0.1987 (0.2134)  loss_condition: 0.2701 (0.3616)  loss_adapter_unscaled: 0.1987 (0.2134)  loss_condition_unscaled: 0.2701 (0.3616)  time: 0.6074  data: 0.1553  max mem: 13847
+Epoch: [0]  [ 5150/10124]  eta: 0:49:39  lr: 0.000050  loss: 0.5102 (0.5741)  loss_adapter: 0.1987 (0.2133)  loss_condition: 0.3115 (0.3609)  loss_adapter_unscaled: 0.1987 (0.2133)  loss_condition_unscaled: 0.3115 (0.3609)  time: 0.6072  data: 0.1554  max mem: 13847
+Epoch: [0]  [ 5200/10124]  eta: 0:49:09  lr: 0.000050  loss: 0.4935 (0.5734)  loss_adapter: 0.1987 (0.2131)  loss_condition: 0.2948 (0.3603)  loss_adapter_unscaled: 0.1987 (0.2131)  loss_condition_unscaled: 0.2948 (0.3603)  time: 0.5891  data: 0.1374  max mem: 13847
+Epoch: [0]  [ 5250/10124]  eta: 0:48:39  lr: 0.000050  loss: 0.4859 (0.5725)  loss_adapter: 0.1987 (0.2130)  loss_condition: 0.2872 (0.3595)  loss_adapter_unscaled: 0.1987 (0.2130)  loss_condition_unscaled: 0.2872 (0.3595)  time: 0.5888  data: 0.1362  max mem: 13847
+Epoch: [0]  [ 5300/10124]  eta: 0:48:09  lr: 0.000050  loss: 0.4847 (0.5717)  loss_adapter: 0.1986 (0.2128)  loss_condition: 0.2860 (0.3589)  loss_adapter_unscaled: 0.1986 (0.2128)  loss_condition_unscaled: 0.2860 (0.3589)  time: 0.6086  data: 0.1560  max mem: 13847
+Epoch: [0]  [ 5350/10124]  eta: 0:47:39  lr: 0.000050  loss: 0.4759 (0.5709)  loss_adapter: 0.1987 (0.2127)  loss_condition: 0.2772 (0.3581)  loss_adapter_unscaled: 0.1987 (0.2127)  loss_condition_unscaled: 0.2772 (0.3581)  time: 0.5853  data: 0.1330  max mem: 13847
+Epoch: [0]  [ 5400/10124]  eta: 0:47:09  lr: 0.000050  loss: 0.4796 (0.5700)  loss_adapter: 0.1987 (0.2126)  loss_condition: 0.2809 (0.3574)  loss_adapter_unscaled: 0.1987 (0.2126)  loss_condition_unscaled: 0.2809 (0.3574)  time: 0.5960  data: 0.1441  max mem: 13847
+Epoch: [0]  [ 5450/10124]  eta: 0:46:39  lr: 0.000050  loss: 0.4817 (0.5691)  loss_adapter: 0.1987 (0.2125)  loss_condition: 0.2831 (0.3566)  loss_adapter_unscaled: 0.1987 (0.2125)  loss_condition_unscaled: 0.2831 (0.3566)  time: 0.5910  data: 0.1389  max mem: 13847
+Epoch: [0]  [ 5500/10124]  eta: 0:46:09  lr: 0.000050  loss: 0.4757 (0.5684)  loss_adapter: 0.1987 (0.2124)  loss_condition: 0.2770 (0.3561)  loss_adapter_unscaled: 0.1987 (0.2124)  loss_condition_unscaled: 0.2770 (0.3561)  time: 0.6092  data: 0.1560  max mem: 13847
+Epoch: [0]  [ 5550/10124]  eta: 0:45:39  lr: 0.000050  loss: 0.4592 (0.5676)  loss_adapter: 0.1987 (0.2122)  loss_condition: 0.2605 (0.3554)  loss_adapter_unscaled: 0.1987 (0.2122)  loss_condition_unscaled: 0.2605 (0.3554)  time: 0.5944  data: 0.1422  max mem: 13847
+Epoch: [0]  [ 5600/10124]  eta: 0:45:10  lr: 0.000050  loss: 0.4790 (0.5669)  loss_adapter: 0.1987 (0.2121)  loss_condition: 0.2797 (0.3547)  loss_adapter_unscaled: 0.1987 (0.2121)  loss_condition_unscaled: 0.2797 (0.3547)  time: 0.6084  data: 0.1550  max mem: 13847
+Epoch: [0]  [ 5650/10124]  eta: 0:44:40  lr: 0.000050  loss: 0.4720 (0.5661)  loss_adapter: 0.1987 (0.2120)  loss_condition: 0.2733 (0.3540)  loss_adapter_unscaled: 0.1987 (0.2120)  loss_condition_unscaled: 0.2733 (0.3540)  time: 0.6068  data: 0.1551  max mem: 13847
+Epoch: [0]  [ 5700/10124]  eta: 0:44:10  lr: 0.000050  loss: 0.4773 (0.5653)  loss_adapter: 0.1987 (0.2119)  loss_condition: 0.2786 (0.3534)  loss_adapter_unscaled: 0.1987 (0.2119)  loss_condition_unscaled: 0.2786 (0.3534)  time: 0.6027  data: 0.1505  max mem: 13847
+Epoch: [0]  [ 5750/10124]  eta: 0:43:39  lr: 0.000050  loss: 0.4680 (0.5645)  loss_adapter: 0.1987 (0.2118)  loss_condition: 0.2682 (0.3527)  loss_adapter_unscaled: 0.1987 (0.2118)  loss_condition_unscaled: 0.2682 (0.3527)  time: 0.5927  data: 0.1401  max mem: 13847
+Epoch: [0]  [ 5800/10124]  eta: 0:43:09  lr: 0.000050  loss: 0.4702 (0.5637)  loss_adapter: 0.1987 (0.2117)  loss_condition: 0.2716 (0.3520)  loss_adapter_unscaled: 0.1987 (0.2117)  loss_condition_unscaled: 0.2716 (0.3520)  time: 0.5898  data: 0.1380  max mem: 13847
+Epoch: [0]  [ 5850/10124]  eta: 0:42:39  lr: 0.000050  loss: 0.4770 (0.5631)  loss_adapter: 0.1987 (0.2116)  loss_condition: 0.2783 (0.3515)  loss_adapter_unscaled: 0.1987 (0.2116)  loss_condition_unscaled: 0.2783 (0.3515)  time: 0.6039  data: 0.1524  max mem: 13847
+Epoch: [0]  [ 5900/10124]  eta: 0:42:09  lr: 0.000050  loss: 0.4457 (0.5623)  loss_adapter: 0.1986 (0.2115)  loss_condition: 0.2471 (0.3508)  loss_adapter_unscaled: 0.1986 (0.2115)  loss_condition_unscaled: 0.2471 (0.3508)  time: 0.5941  data: 0.1424  max mem: 13847
+Epoch: [0]  [ 5950/10124]  eta: 0:41:40  lr: 0.000050  loss: 0.4717 (0.5615)  loss_adapter: 0.1986 (0.2114)  loss_condition: 0.2731 (0.3501)  loss_adapter_unscaled: 0.1986 (0.2114)  loss_condition_unscaled: 0.2731 (0.3501)  time: 0.6183  data: 0.1660  max mem: 13847
+Epoch: [0]  [ 6000/10124]  eta: 0:41:10  lr: 0.000050  loss: 0.4423 (0.5607)  loss_adapter: 0.1986 (0.2113)  loss_condition: 0.2436 (0.3494)  loss_adapter_unscaled: 0.1986 (0.2113)  loss_condition_unscaled: 0.2436 (0.3494)  time: 0.6119  data: 0.1600  max mem: 13847
+Epoch: [0]  [ 6050/10124]  eta: 0:40:40  lr: 0.000050  loss: 0.4473 (0.5599)  loss_adapter: 0.1986 (0.2112)  loss_condition: 0.2486 (0.3488)  loss_adapter_unscaled: 0.1986 (0.2112)  loss_condition_unscaled: 0.2486 (0.3488)  time: 0.6058  data: 0.1531  max mem: 13847
+Epoch: [0]  [ 6100/10124]  eta: 0:40:11  lr: 0.000050  loss: 0.4583 (0.5592)  loss_adapter: 0.1986 (0.2111)  loss_condition: 0.2596 (0.3481)  loss_adapter_unscaled: 0.1986 (0.2111)  loss_condition_unscaled: 0.2596 (0.3481)  time: 0.6117  data: 0.1587  max mem: 13847
+Epoch: [0]  [ 6150/10124]  eta: 0:39:41  lr: 0.000050  loss: 0.4629 (0.5585)  loss_adapter: 0.1986 (0.2110)  loss_condition: 0.2642 (0.3475)  loss_adapter_unscaled: 0.1986 (0.2110)  loss_condition_unscaled: 0.2642 (0.3475)  time: 0.6030  data: 0.1501  max mem: 13847
+Epoch: [0]  [ 6200/10124]  eta: 0:39:12  lr: 0.000050  loss: 0.4404 (0.5578)  loss_adapter: 0.1987 (0.2109)  loss_condition: 0.2418 (0.3469)  loss_adapter_unscaled: 0.1987 (0.2109)  loss_condition_unscaled: 0.2418 (0.3469)  time: 0.6175  data: 0.1649  max mem: 13847
+Epoch: [0]  [ 6250/10124]  eta: 0:38:42  lr: 0.000050  loss: 0.4700 (0.5572)  loss_adapter: 0.1986 (0.2108)  loss_condition: 0.2713 (0.3464)  loss_adapter_unscaled: 0.1986 (0.2108)  loss_condition_unscaled: 0.2713 (0.3464)  time: 0.6139  data: 0.1622  max mem: 13847
+Epoch: [0]  [ 6300/10124]  eta: 0:38:13  lr: 0.000050  loss: 0.4686 (0.5566)  loss_adapter: 0.1986 (0.2107)  loss_condition: 0.2700 (0.3459)  loss_adapter_unscaled: 0.1986 (0.2107)  loss_condition_unscaled: 0.2700 (0.3459)  time: 0.6064  data: 0.1542  max mem: 13847
+Epoch: [0]  [ 6350/10124]  eta: 0:37:43  lr: 0.000050  loss: 0.4446 (0.5558)  loss_adapter: 0.1986 (0.2106)  loss_condition: 0.2459 (0.3452)  loss_adapter_unscaled: 0.1986 (0.2106)  loss_condition_unscaled: 0.2459 (0.3452)  time: 0.6038  data: 0.1524  max mem: 13847
+Epoch: [0]  [ 6400/10124]  eta: 0:37:13  lr: 0.000050  loss: 0.4591 (0.5552)  loss_adapter: 0.1986 (0.2105)  loss_condition: 0.2605 (0.3447)  loss_adapter_unscaled: 0.1986 (0.2105)  loss_condition_unscaled: 0.2605 (0.3447)  time: 0.6082  data: 0.1566  max mem: 13847
+Epoch: [0]  [ 6450/10124]  eta: 0:36:43  lr: 0.000050  loss: 0.4523 (0.5545)  loss_adapter: 0.1986 (0.2104)  loss_condition: 0.2536 (0.3441)  loss_adapter_unscaled: 0.1986 (0.2104)  loss_condition_unscaled: 0.2536 (0.3441)  time: 0.6047  data: 0.1534  max mem: 13847
+Epoch: [0]  [ 6500/10124]  eta: 0:36:14  lr: 0.000050  loss: 0.4717 (0.5540)  loss_adapter: 0.1986 (0.2103)  loss_condition: 0.2730 (0.3437)  loss_adapter_unscaled: 0.1986 (0.2103)  loss_condition_unscaled: 0.2730 (0.3437)  time: 0.6029  data: 0.1511  max mem: 13847
+Epoch: [0]  [ 6550/10124]  eta: 0:35:44  lr: 0.000050  loss: 0.4649 (0.5533)  loss_adapter: 0.1986 (0.2102)  loss_condition: 0.2663 (0.3431)  loss_adapter_unscaled: 0.1986 (0.2102)  loss_condition_unscaled: 0.2663 (0.3431)  time: 0.6166  data: 0.1640  max mem: 13847
+Epoch: [0]  [ 6600/10124]  eta: 0:35:14  lr: 0.000050  loss: 0.4984 (0.5528)  loss_adapter: 0.1987 (0.2102)  loss_condition: 0.2998 (0.3427)  loss_adapter_unscaled: 0.1987 (0.2102)  loss_condition_unscaled: 0.2998 (0.3427)  time: 0.6084  data: 0.1562  max mem: 13847
+Epoch: [0]  [ 6650/10124]  eta: 0:34:44  lr: 0.000050  loss: 0.4452 (0.5522)  loss_adapter: 0.1986 (0.2101)  loss_condition: 0.2466 (0.3421)  loss_adapter_unscaled: 0.1986 (0.2101)  loss_condition_unscaled: 0.2466 (0.3421)  time: 0.5869  data: 0.1348  max mem: 13847
+Epoch: [0]  [ 6700/10124]  eta: 0:34:14  lr: 0.000050  loss: 0.4462 (0.5516)  loss_adapter: 0.1986 (0.2100)  loss_condition: 0.2475 (0.3416)  loss_adapter_unscaled: 0.1986 (0.2100)  loss_condition_unscaled: 0.2475 (0.3416)  time: 0.5959  data: 0.1437  max mem: 13847
+Epoch: [0]  [ 6750/10124]  eta: 0:33:44  lr: 0.000050  loss: 0.4478 (0.5509)  loss_adapter: 0.1987 (0.2099)  loss_condition: 0.2492 (0.3410)  loss_adapter_unscaled: 0.1987 (0.2099)  loss_condition_unscaled: 0.2492 (0.3410)  time: 0.6014  data: 0.1493  max mem: 13847
+Epoch: [0]  [ 6800/10124]  eta: 0:33:14  lr: 0.000050  loss: 0.4595 (0.5503)  loss_adapter: 0.1986 (0.2098)  loss_condition: 0.2609 (0.3405)  loss_adapter_unscaled: 0.1986 (0.2098)  loss_condition_unscaled: 0.2609 (0.3405)  time: 0.5881  data: 0.1361  max mem: 13847
+Epoch: [0]  [ 6850/10124]  eta: 0:32:44  lr: 0.000050  loss: 0.4530 (0.5498)  loss_adapter: 0.1986 (0.2097)  loss_condition: 0.2544 (0.3400)  loss_adapter_unscaled: 0.1986 (0.2097)  loss_condition_unscaled: 0.2544 (0.3400)  time: 0.6018  data: 0.1508  max mem: 13847
+Epoch: [0]  [ 6900/10124]  eta: 0:32:14  lr: 0.000050  loss: 0.4674 (0.5492)  loss_adapter: 0.1986 (0.2097)  loss_condition: 0.2688 (0.3396)  loss_adapter_unscaled: 0.1986 (0.2097)  loss_condition_unscaled: 0.2688 (0.3396)  time: 0.6176  data: 0.1652  max mem: 13847
+Epoch: [0]  [ 6950/10124]  eta: 0:31:44  lr: 0.000050  loss: 0.4593 (0.5487)  loss_adapter: 0.1986 (0.2096)  loss_condition: 0.2607 (0.3391)  loss_adapter_unscaled: 0.1986 (0.2096)  loss_condition_unscaled: 0.2607 (0.3391)  time: 0.5964  data: 0.1439  max mem: 13847
+Epoch: [0]  [ 7000/10124]  eta: 0:31:14  lr: 0.000050  loss: 0.4583 (0.5481)  loss_adapter: 0.1986 (0.2095)  loss_condition: 0.2597 (0.3386)  loss_adapter_unscaled: 0.1986 (0.2095)  loss_condition_unscaled: 0.2597 (0.3386)  time: 0.5881  data: 0.1361  max mem: 13847
+Epoch: [0]  [ 7050/10124]  eta: 0:30:44  lr: 0.000050  loss: 0.4600 (0.5475)  loss_adapter: 0.1986 (0.2094)  loss_condition: 0.2614 (0.3381)  loss_adapter_unscaled: 0.1986 (0.2094)  loss_condition_unscaled: 0.2614 (0.3381)  time: 0.6014  data: 0.1499  max mem: 13847
+Epoch: [0]  [ 7100/10124]  eta: 0:30:13  lr: 0.000050  loss: 0.4449 (0.5469)  loss_adapter: 0.1986 (0.2093)  loss_condition: 0.2463 (0.3376)  loss_adapter_unscaled: 0.1986 (0.2093)  loss_condition_unscaled: 0.2463 (0.3376)  time: 0.5813  data: 0.1285  max mem: 13847
+Epoch: [0]  [ 7150/10124]  eta: 0:29:44  lr: 0.000050  loss: 0.4585 (0.5464)  loss_adapter: 0.1986 (0.2093)  loss_condition: 0.2598 (0.3371)  loss_adapter_unscaled: 0.1986 (0.2093)  loss_condition_unscaled: 0.2598 (0.3371)  time: 0.6037  data: 0.1522  max mem: 13847
+Epoch: [0]  [ 7200/10124]  eta: 0:29:14  lr: 0.000050  loss: 0.4449 (0.5458)  loss_adapter: 0.1986 (0.2092)  loss_condition: 0.2463 (0.3365)  loss_adapter_unscaled: 0.1986 (0.2092)  loss_condition_unscaled: 0.2463 (0.3365)  time: 0.6160  data: 0.1635  max mem: 13847
+Epoch: [0]  [ 7250/10124]  eta: 0:28:44  lr: 0.000050  loss: 0.4796 (0.5452)  loss_adapter: 0.1986 (0.2091)  loss_condition: 0.2810 (0.3361)  loss_adapter_unscaled: 0.1986 (0.2091)  loss_condition_unscaled: 0.2810 (0.3361)  time: 0.6086  data: 0.1562  max mem: 13847
+Epoch: [0]  [ 7300/10124]  eta: 0:28:14  lr: 0.000050  loss: 0.4989 (0.5447)  loss_adapter: 0.1986 (0.2091)  loss_condition: 0.3003 (0.3357)  loss_adapter_unscaled: 0.1986 (0.2091)  loss_condition_unscaled: 0.3003 (0.3357)  time: 0.6044  data: 0.1514  max mem: 13847
+Epoch: [0]  [ 7350/10124]  eta: 0:27:44  lr: 0.000050  loss: 0.4666 (0.5443)  loss_adapter: 0.1986 (0.2090)  loss_condition: 0.2680 (0.3353)  loss_adapter_unscaled: 0.1986 (0.2090)  loss_condition_unscaled: 0.2680 (0.3353)  time: 0.6153  data: 0.1630  max mem: 13847
+Epoch: [0]  [ 7400/10124]  eta: 0:27:14  lr: 0.000050  loss: 0.4376 (0.5437)  loss_adapter: 0.1986 (0.2089)  loss_condition: 0.2390 (0.3348)  loss_adapter_unscaled: 0.1986 (0.2089)  loss_condition_unscaled: 0.2390 (0.3348)  time: 0.6088  data: 0.1569  max mem: 13847
+Epoch: [0]  [ 7450/10124]  eta: 0:26:44  lr: 0.000050  loss: 0.4456 (0.5431)  loss_adapter: 0.1986 (0.2089)  loss_condition: 0.2470 (0.3343)  loss_adapter_unscaled: 0.1986 (0.2089)  loss_condition_unscaled: 0.2470 (0.3343)  time: 0.5910  data: 0.1386  max mem: 13847
+Epoch: [0]  [ 7500/10124]  eta: 0:26:14  lr: 0.000050  loss: 0.4615 (0.5427)  loss_adapter: 0.1987 (0.2088)  loss_condition: 0.2628 (0.3339)  loss_adapter_unscaled: 0.1987 (0.2088)  loss_condition_unscaled: 0.2628 (0.3339)  time: 0.6016  data: 0.1491  max mem: 13847
+Epoch: [0]  [ 7550/10124]  eta: 0:25:44  lr: 0.000050  loss: 0.4491 (0.5422)  loss_adapter: 0.1986 (0.2088)  loss_condition: 0.2505 (0.3334)  loss_adapter_unscaled: 0.1986 (0.2088)  loss_condition_unscaled: 0.2505 (0.3334)  time: 0.6021  data: 0.1493  max mem: 13847
+Epoch: [0]  [ 7600/10124]  eta: 0:25:14  lr: 0.000050  loss: 0.4391 (0.5416)  loss_adapter: 0.1986 (0.2087)  loss_condition: 0.2405 (0.3329)  loss_adapter_unscaled: 0.1986 (0.2087)  loss_condition_unscaled: 0.2405 (0.3329)  time: 0.6016  data: 0.1495  max mem: 13847
+Epoch: [0]  [ 7650/10124]  eta: 0:24:44  lr: 0.000050  loss: 0.4578 (0.5411)  loss_adapter: 0.1986 (0.2086)  loss_condition: 0.2592 (0.3325)  loss_adapter_unscaled: 0.1986 (0.2086)  loss_condition_unscaled: 0.2592 (0.3325)  time: 0.6054  data: 0.1537  max mem: 13847
+Epoch: [0]  [ 7700/10124]  eta: 0:24:14  lr: 0.000050  loss: 0.4540 (0.5407)  loss_adapter: 0.1986 (0.2086)  loss_condition: 0.2554 (0.3321)  loss_adapter_unscaled: 0.1986 (0.2086)  loss_condition_unscaled: 0.2554 (0.3321)  time: 0.6042  data: 0.1524  max mem: 13847
+Epoch: [0]  [ 7750/10124]  eta: 0:23:44  lr: 0.000050  loss: 0.4560 (0.5402)  loss_adapter: 0.1986 (0.2085)  loss_condition: 0.2574 (0.3317)  loss_adapter_unscaled: 0.1986 (0.2085)  loss_condition_unscaled: 0.2574 (0.3317)  time: 0.6046  data: 0.1527  max mem: 13847
+Epoch: [0]  [ 7800/10124]  eta: 0:23:14  lr: 0.000050  loss: 0.4632 (0.5397)  loss_adapter: 0.1986 (0.2084)  loss_condition: 0.2646 (0.3313)  loss_adapter_unscaled: 0.1986 (0.2084)  loss_condition_unscaled: 0.2646 (0.3313)  time: 0.5946  data: 0.1419  max mem: 13847
+Epoch: [0]  [ 7850/10124]  eta: 0:22:44  lr: 0.000050  loss: 0.4463 (0.5392)  loss_adapter: 0.1986 (0.2084)  loss_condition: 0.2477 (0.3308)  loss_adapter_unscaled: 0.1986 (0.2084)  loss_condition_unscaled: 0.2477 (0.3308)  time: 0.5996  data: 0.1469  max mem: 13847
+Epoch: [0]  [ 7900/10124]  eta: 0:22:14  lr: 0.000050  loss: 0.4496 (0.5388)  loss_adapter: 0.1986 (0.2083)  loss_condition: 0.2510 (0.3304)  loss_adapter_unscaled: 0.1986 (0.2083)  loss_condition_unscaled: 0.2510 (0.3304)  time: 0.5871  data: 0.1344  max mem: 13847
+Epoch: [0]  [ 7950/10124]  eta: 0:21:44  lr: 0.000050  loss: 0.4568 (0.5383)  loss_adapter: 0.1986 (0.2082)  loss_condition: 0.2582 (0.3300)  loss_adapter_unscaled: 0.1986 (0.2082)  loss_condition_unscaled: 0.2582 (0.3300)  time: 0.5965  data: 0.1446  max mem: 13847
+Epoch: [0]  [ 8000/10124]  eta: 0:21:14  lr: 0.000050  loss: 0.4450 (0.5379)  loss_adapter: 0.1986 (0.2082)  loss_condition: 0.2464 (0.3297)  loss_adapter_unscaled: 0.1986 (0.2082)  loss_condition_unscaled: 0.2464 (0.3297)  time: 0.5925  data: 0.1399  max mem: 13847
+Epoch: [0]  [ 8050/10124]  eta: 0:20:44  lr: 0.000050  loss: 0.4586 (0.5375)  loss_adapter: 0.1986 (0.2081)  loss_condition: 0.2600 (0.3294)  loss_adapter_unscaled: 0.1986 (0.2081)  loss_condition_unscaled: 0.2600 (0.3294)  time: 0.5996  data: 0.1479  max mem: 13847
+Epoch: [0]  [ 8100/10124]  eta: 0:20:14  lr: 0.000050  loss: 0.4551 (0.5371)  loss_adapter: 0.1986 (0.2081)  loss_condition: 0.2566 (0.3291)  loss_adapter_unscaled: 0.1986 (0.2081)  loss_condition_unscaled: 0.2566 (0.3291)  time: 0.6181  data: 0.1659  max mem: 13847
+Epoch: [0]  [ 8150/10124]  eta: 0:19:44  lr: 0.000050  loss: 0.4501 (0.5367)  loss_adapter: 0.1986 (0.2080)  loss_condition: 0.2515 (0.3287)  loss_adapter_unscaled: 0.1986 (0.2080)  loss_condition_unscaled: 0.2515 (0.3287)  time: 0.5803  data: 0.1284  max mem: 13847
+Epoch: [0]  [ 8200/10124]  eta: 0:19:14  lr: 0.000050  loss: 0.4504 (0.5362)  loss_adapter: 0.1986 (0.2079)  loss_condition: 0.2518 (0.3283)  loss_adapter_unscaled: 0.1986 (0.2079)  loss_condition_unscaled: 0.2518 (0.3283)  time: 0.6104  data: 0.1588  max mem: 13847
+Epoch: [0]  [ 8250/10124]  eta: 0:18:43  lr: 0.000050  loss: 0.4429 (0.5358)  loss_adapter: 0.1986 (0.2079)  loss_condition: 0.2443 (0.3279)  loss_adapter_unscaled: 0.1986 (0.2079)  loss_condition_unscaled: 0.2443 (0.3279)  time: 0.5925  data: 0.1404  max mem: 13847
+Epoch: [0]  [ 8300/10124]  eta: 0:18:13  lr: 0.000050  loss: 0.4403 (0.5353)  loss_adapter: 0.1986 (0.2078)  loss_condition: 0.2417 (0.3274)  loss_adapter_unscaled: 0.1986 (0.2078)  loss_condition_unscaled: 0.2417 (0.3274)  time: 0.5930  data: 0.1414  max mem: 13847
+Epoch: [0]  [ 8350/10124]  eta: 0:17:43  lr: 0.000050  loss: 0.4435 (0.5348)  loss_adapter: 0.1986 (0.2078)  loss_condition: 0.2449 (0.3271)  loss_adapter_unscaled: 0.1986 (0.2078)  loss_condition_unscaled: 0.2449 (0.3271)  time: 0.5992  data: 0.1481  max mem: 13847
+Epoch: [0]  [ 8400/10124]  eta: 0:17:13  lr: 0.000050  loss: 0.4551 (0.5344)  loss_adapter: 0.1986 (0.2077)  loss_condition: 0.2565 (0.3267)  loss_adapter_unscaled: 0.1986 (0.2077)  loss_condition_unscaled: 0.2565 (0.3267)  time: 0.6011  data: 0.1494  max mem: 13847
+Epoch: [0]  [ 8450/10124]  eta: 0:16:43  lr: 0.000050  loss: 0.4795 (0.5340)  loss_adapter: 0.1986 (0.2077)  loss_condition: 0.2809 (0.3263)  loss_adapter_unscaled: 0.1986 (0.2077)  loss_condition_unscaled: 0.2809 (0.3263)  time: 0.6019  data: 0.1496  max mem: 13847
+Epoch: [0]  [ 8500/10124]  eta: 0:16:13  lr: 0.000050  loss: 0.4489 (0.5337)  loss_adapter: 0.1986 (0.2076)  loss_condition: 0.2333 (0.3260)  loss_adapter_unscaled: 0.1986 (0.2076)  loss_condition_unscaled: 0.2333 (0.3260)  time: 0.5979  data: 0.1457  max mem: 13847
+Epoch: [0]  [ 8550/10124]  eta: 0:15:43  lr: 0.000050  loss: 0.4451 (0.5331)  loss_adapter: 0.1986 (0.2076)  loss_condition: 0.2464 (0.3256)  loss_adapter_unscaled: 0.1986 (0.2076)  loss_condition_unscaled: 0.2464 (0.3256)  time: 0.5819  data: 0.1299  max mem: 13847
+Epoch: [0]  [ 8600/10124]  eta: 0:15:13  lr: 0.000050  loss: 0.4354 (0.5327)  loss_adapter: 0.1986 (0.2075)  loss_condition: 0.2368 (0.3252)  loss_adapter_unscaled: 0.1986 (0.2075)  loss_condition_unscaled: 0.2368 (0.3252)  time: 0.5916  data: 0.1390  max mem: 13847
+Epoch: [0]  [ 8650/10124]  eta: 0:14:43  lr: 0.000050  loss: 0.4434 (0.5323)  loss_adapter: 0.1986 (0.2075)  loss_condition: 0.2448 (0.3248)  loss_adapter_unscaled: 0.1986 (0.2075)  loss_condition_unscaled: 0.2448 (0.3248)  time: 0.5934  data: 0.1416  max mem: 13847
+Epoch: [0]  [ 8700/10124]  eta: 0:14:13  lr: 0.000050  loss: 0.4377 (0.5319)  loss_adapter: 0.1986 (0.2074)  loss_condition: 0.2391 (0.3245)  loss_adapter_unscaled: 0.1986 (0.2074)  loss_condition_unscaled: 0.2391 (0.3245)  time: 0.5958  data: 0.1424  max mem: 13847
+Epoch: [0]  [ 8750/10124]  eta: 0:13:43  lr: 0.000050  loss: 0.4484 (0.5315)  loss_adapter: 0.1986 (0.2074)  loss_condition: 0.2498 (0.3241)  loss_adapter_unscaled: 0.1986 (0.2074)  loss_condition_unscaled: 0.2498 (0.3241)  time: 0.6221  data: 0.1705  max mem: 13847
+Epoch: [0]  [ 8800/10124]  eta: 0:13:13  lr: 0.000050  loss: 0.4397 (0.5311)  loss_adapter: 0.1986 (0.2073)  loss_condition: 0.2411 (0.3237)  loss_adapter_unscaled: 0.1986 (0.2073)  loss_condition_unscaled: 0.2411 (0.3237)  time: 0.6002  data: 0.1481  max mem: 13847
+Epoch: [0]  [ 8850/10124]  eta: 0:12:43  lr: 0.000050  loss: 0.4500 (0.5306)  loss_adapter: 0.1986 (0.2073)  loss_condition: 0.2514 (0.3234)  loss_adapter_unscaled: 0.1986 (0.2073)  loss_condition_unscaled: 0.2514 (0.3234)  time: 0.5818  data: 0.1298  max mem: 13847
+Epoch: [0]  [ 8900/10124]  eta: 0:12:13  lr: 0.000050  loss: 0.4308 (0.5302)  loss_adapter: 0.1986 (0.2072)  loss_condition: 0.2322 (0.3230)  loss_adapter_unscaled: 0.1986 (0.2072)  loss_condition_unscaled: 0.2322 (0.3230)  time: 0.5960  data: 0.1445  max mem: 13847
+Epoch: [0]  [ 8950/10124]  eta: 0:11:43  lr: 0.000050  loss: 0.4482 (0.5298)  loss_adapter: 0.1986 (0.2072)  loss_condition: 0.2496 (0.3226)  loss_adapter_unscaled: 0.1986 (0.2072)  loss_condition_unscaled: 0.2496 (0.3226)  time: 0.5907  data: 0.1385  max mem: 13847
+Epoch: [0]  [ 9000/10124]  eta: 0:11:13  lr: 0.000050  loss: 0.4374 (0.5294)  loss_adapter: 0.1986 (0.2071)  loss_condition: 0.2388 (0.3223)  loss_adapter_unscaled: 0.1986 (0.2071)  loss_condition_unscaled: 0.2388 (0.3223)  time: 0.5912  data: 0.1390  max mem: 13847
+Epoch: [0]  [ 9050/10124]  eta: 0:10:43  lr: 0.000050  loss: 0.4529 (0.5290)  loss_adapter: 0.1986 (0.2071)  loss_condition: 0.2544 (0.3219)  loss_adapter_unscaled: 0.1986 (0.2071)  loss_condition_unscaled: 0.2544 (0.3219)  time: 0.5954  data: 0.1440  max mem: 13847
+Epoch: [0]  [ 9100/10124]  eta: 0:10:13  lr: 0.000050  loss: 0.4563 (0.5286)  loss_adapter: 0.1986 (0.2070)  loss_condition: 0.2577 (0.3216)  loss_adapter_unscaled: 0.1986 (0.2070)  loss_condition_unscaled: 0.2577 (0.3216)  time: 0.5983  data: 0.1460  max mem: 13847
+Epoch: [0]  [ 9150/10124]  eta: 0:09:43  lr: 0.000050  loss: 0.4517 (0.5282)  loss_adapter: 0.1986 (0.2070)  loss_condition: 0.2531 (0.3212)  loss_adapter_unscaled: 0.1986 (0.2070)  loss_condition_unscaled: 0.2531 (0.3212)  time: 0.6130  data: 0.1608  max mem: 13847
+Epoch: [0]  [ 9200/10124]  eta: 0:09:13  lr: 0.000050  loss: 0.4204 (0.5278)  loss_adapter: 0.1986 (0.2070)  loss_condition: 0.2218 (0.3208)  loss_adapter_unscaled: 0.1986 (0.2070)  loss_condition_unscaled: 0.2218 (0.3208)  time: 0.6060  data: 0.1531  max mem: 13847
+Epoch: [0]  [ 9250/10124]  eta: 0:08:43  lr: 0.000050  loss: 0.4605 (0.5274)  loss_adapter: 0.1986 (0.2069)  loss_condition: 0.2617 (0.3205)  loss_adapter_unscaled: 0.1986 (0.2069)  loss_condition_unscaled: 0.2617 (0.3205)  time: 0.6089  data: 0.1564  max mem: 13847
+Epoch: [0]  [ 9300/10124]  eta: 0:08:13  lr: 0.000050  loss: 0.4286 (0.5271)  loss_adapter: 0.1986 (0.2069)  loss_condition: 0.2300 (0.3202)  loss_adapter_unscaled: 0.1986 (0.2069)  loss_condition_unscaled: 0.2300 (0.3202)  time: 0.5869  data: 0.1342  max mem: 13847
+Epoch: [0]  [ 9350/10124]  eta: 0:07:43  lr: 0.000050  loss: 0.4357 (0.5267)  loss_adapter: 0.1986 (0.2068)  loss_condition: 0.2371 (0.3199)  loss_adapter_unscaled: 0.1986 (0.2068)  loss_condition_unscaled: 0.2371 (0.3199)  time: 0.5982  data: 0.1464  max mem: 13847
+Epoch: [0]  [ 9400/10124]  eta: 0:07:14  lr: 0.000050  loss: 0.4432 (0.5264)  loss_adapter: 0.1986 (0.2068)  loss_condition: 0.2421 (0.3196)  loss_adapter_unscaled: 0.1986 (0.2068)  loss_condition_unscaled: 0.2421 (0.3196)  time: 0.6152  data: 0.1635  max mem: 13847
+Epoch: [0]  [ 9450/10124]  eta: 0:06:44  lr: 0.000050  loss: 0.4347 (0.5260)  loss_adapter: 0.1986 (0.2067)  loss_condition: 0.2361 (0.3192)  loss_adapter_unscaled: 0.1986 (0.2067)  loss_condition_unscaled: 0.2361 (0.3192)  time: 0.6072  data: 0.1539  max mem: 13847
+Epoch: [0]  [ 9500/10124]  eta: 0:06:14  lr: 0.000050  loss: 0.4541 (0.5256)  loss_adapter: 0.1986 (0.2067)  loss_condition: 0.2544 (0.3189)  loss_adapter_unscaled: 0.1986 (0.2067)  loss_condition_unscaled: 0.2544 (0.3189)  time: 0.6056  data: 0.1535  max mem: 13847
+Epoch: [0]  [ 9550/10124]  eta: 0:05:44  lr: 0.000050  loss: 0.4550 (0.5252)  loss_adapter: 0.1986 (0.2067)  loss_condition: 0.2564 (0.3186)  loss_adapter_unscaled: 0.1986 (0.2067)  loss_condition_unscaled: 0.2564 (0.3186)  time: 0.5916  data: 0.1395  max mem: 13847
+Epoch: [0]  [ 9600/10124]  eta: 0:05:14  lr: 0.000050  loss: 0.4482 (0.5248)  loss_adapter: 0.1986 (0.2066)  loss_condition: 0.2496 (0.3182)  loss_adapter_unscaled: 0.1986 (0.2066)  loss_condition_unscaled: 0.2496 (0.3182)  time: 0.5897  data: 0.1367  max mem: 13847
+Epoch: [0]  [ 9650/10124]  eta: 0:04:44  lr: 0.000050  loss: 0.4382 (0.5245)  loss_adapter: 0.1986 (0.2066)  loss_condition: 0.2396 (0.3180)  loss_adapter_unscaled: 0.1986 (0.2066)  loss_condition_unscaled: 0.2396 (0.3180)  time: 0.5992  data: 0.1477  max mem: 13847
+Epoch: [0]  [ 9700/10124]  eta: 0:04:14  lr: 0.000050  loss: 0.4688 (0.5242)  loss_adapter: 0.1986 (0.2065)  loss_condition: 0.2703 (0.3177)  loss_adapter_unscaled: 0.1986 (0.2065)  loss_condition_unscaled: 0.2703 (0.3177)  time: 0.6065  data: 0.1539  max mem: 13847
+Epoch: [0]  [ 9750/10124]  eta: 0:03:44  lr: 0.000050  loss: 0.4557 (0.5239)  loss_adapter: 0.1986 (0.2065)  loss_condition: 0.2571 (0.3174)  loss_adapter_unscaled: 0.1986 (0.2065)  loss_condition_unscaled: 0.2571 (0.3174)  time: 0.5871  data: 0.1348  max mem: 13847
+Epoch: [0]  [ 9800/10124]  eta: 0:03:14  lr: 0.000050  loss: 0.4613 (0.5236)  loss_adapter: 0.1986 (0.2065)  loss_condition: 0.2628 (0.3172)  loss_adapter_unscaled: 0.1986 (0.2065)  loss_condition_unscaled: 0.2628 (0.3172)  time: 0.5915  data: 0.1389  max mem: 13847
+Epoch: [0]  [ 9850/10124]  eta: 0:02:44  lr: 0.000050  loss: 0.4576 (0.5233)  loss_adapter: 0.1986 (0.2064)  loss_condition: 0.2590 (0.3169)  loss_adapter_unscaled: 0.1986 (0.2064)  loss_condition_unscaled: 0.2590 (0.3169)  time: 0.6152  data: 0.1626  max mem: 13847
+Epoch: [0]  [ 9900/10124]  eta: 0:02:14  lr: 0.000050  loss: 0.4317 (0.5229)  loss_adapter: 0.1986 (0.2064)  loss_condition: 0.2331 (0.3165)  loss_adapter_unscaled: 0.1986 (0.2064)  loss_condition_unscaled: 0.2331 (0.3165)  time: 0.5960  data: 0.1437  max mem: 13847
+Epoch: [0]  [ 9950/10124]  eta: 0:01:44  lr: 0.000050  loss: 0.4504 (0.5226)  loss_adapter: 0.1986 (0.2064)  loss_condition: 0.2518 (0.3162)  loss_adapter_unscaled: 0.1986 (0.2064)  loss_condition_unscaled: 0.2518 (0.3162)  time: 0.6058  data: 0.1541  max mem: 13847
+Epoch: [0]  [10000/10124]  eta: 0:01:14  lr: 0.000050  loss: 0.4403 (0.5222)  loss_adapter: 0.1986 (0.2063)  loss_condition: 0.2418 (0.3159)  loss_adapter_unscaled: 0.1986 (0.2063)  loss_condition_unscaled: 0.2418 (0.3159)  time: 0.6010  data: 0.1478  max mem: 13847
+Epoch: [0]  [10050/10124]  eta: 0:00:44  lr: 0.000050  loss: 0.4520 (0.5219)  loss_adapter: 0.1986 (0.2063)  loss_condition: 0.2534 (0.3156)  loss_adapter_unscaled: 0.1986 (0.2063)  loss_condition_unscaled: 0.2534 (0.3156)  time: 0.6180  data: 0.1654  max mem: 13847
+Epoch: [0]  [10100/10124]  eta: 0:00:14  lr: 0.000050  loss: 0.4369 (0.5216)  loss_adapter: 0.1986 (0.2062)  loss_condition: 0.2384 (0.3153)  loss_adapter_unscaled: 0.1986 (0.2062)  loss_condition_unscaled: 0.2384 (0.3153)  time: 0.5978  data: 0.1459  max mem: 13847
+Epoch: [0]  [10123/10124]  eta: 0:00:00  lr: 0.000050  loss: 0.4484 (0.5214)  loss_adapter: 0.1986 (0.2062)  loss_condition: 0.2498 (0.3152)  loss_adapter_unscaled: 0.1986 (0.2062)  loss_condition_unscaled: 0.2498 (0.3152)  time: 0.6070  data: 0.1545  max mem: 13847
+Epoch: [0] Total time: 1:41:09 (0.5995 s / it)
+/home/yabin/miniconda3/envs/cl/lib/python3.11/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+Averaged stats: lr: 0.000050  loss: 0.4484 (0.5214)  loss_adapter: 0.1986 (0.2062)  loss_condition: 0.2498 (0.3152)  loss_adapter_unscaled: 0.1986 (0.2062)  loss_condition_unscaled: 0.2498 (0.3152)
+Epoch training time 1:41:10
+Test:  [  0/375]  eta: 0:02:14    time: 0.3596  data: 0.0756  max mem: 13847
+Test:  [ 50/375]  eta: 0:01:21    time: 0.2484  data: 0.0611  max mem: 13847
+Test:  [100/375]  eta: 0:01:08    time: 0.2448  data: 0.0575  max mem: 13847
+Test:  [150/375]  eta: 0:00:56    time: 0.2649  data: 0.0770  max mem: 13847
+Test:  [200/375]  eta: 0:00:43    time: 0.2370  data: 0.0494  max mem: 13847
+Test:  [250/375]  eta: 0:00:30    time: 0.2350  data: 0.0476  max mem: 13847
+Test:  [300/375]  eta: 0:00:18    time: 0.2312  data: 0.0436  max mem: 13847
+Test:  [350/375]  eta: 0:00:06    time: 0.2328  data: 0.0453  max mem: 13847
+Test:  [374/375]  eta: 0:00:00    time: 0.2334  data: 0.0458  max mem: 13847
+Test: Total time: 0:01:31 (0.2430 s / it)
+(ADM) acc: 82.27; ap: 97.92; racc: 99.73; facc: 64.82;
+/home/yabin/ctta4aid_assets/external/IAPL-p3-train/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [  0/375]  eta: 0:01:22    time: 0.2206  data: 0.0321  max mem: 13847
+Test:  [ 50/375]  eta: 0:01:08    time: 0.2099  data: 0.0216  max mem: 13847
+Test:  [100/375]  eta: 0:00:57    time: 0.2095  data: 0.0211  max mem: 13847
+Test:  [150/375]  eta: 0:00:47    time: 0.2096  data: 0.0214  max mem: 13847
+Test:  [200/375]  eta: 0:00:36    time: 0.2273  data: 0.0399  max mem: 13847
+Test:  [250/375]  eta: 0:00:26    time: 0.2330  data: 0.0460  max mem: 13847
+Test:  [300/375]  eta: 0:00:16    time: 0.2397  data: 0.0527  max mem: 13847
+Test:  [350/375]  eta: 0:00:05    time: 0.2610  data: 0.0738  max mem: 13847
+Test:  [374/375]  eta: 0:00:00    time: 0.2511  data: 0.0641  max mem: 13847
+Test: Total time: 0:01:24 (0.2265 s / it)
+(BigGAN) acc: 87.77; ap: 99.63; racc: 99.82; facc: 75.72;
+/home/yabin/ctta4aid_assets/external/IAPL-p3-train/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [  0/375]  eta: 0:01:27    time: 0.2320  data: 0.0459  max mem: 13847
+Test:  [ 50/375]  eta: 0:01:16    time: 0.2345  data: 0.0480  max mem: 13847
+Test:  [100/375]  eta: 0:01:04    time: 0.2359  data: 0.0494  max mem: 13847
+Test:  [150/375]  eta: 0:00:53    time: 0.2313  data: 0.0443  max mem: 13847
+Test:  [200/375]  eta: 0:00:41    time: 0.2328  data: 0.0457  max mem: 13847
+Test:  [250/375]  eta: 0:00:29    time: 0.2356  data: 0.0489  max mem: 13847
+Test:  [300/375]  eta: 0:00:17    time: 0.2339  data: 0.0469  max mem: 13847
+Test:  [350/375]  eta: 0:00:05    time: 0.2370  data: 0.0501  max mem: 13847
+Test:  [374/375]  eta: 0:00:00    time: 0.2332  data: 0.0460  max mem: 13847
+Test: Total time: 0:01:28 (0.2352 s / it)
+(glide) acc: 97.32; ap: 99.72; racc: 99.83; facc: 94.82;
+/home/yabin/ctta4aid_assets/external/IAPL-p3-train/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [  0/375]  eta: 0:05:00    time: 0.8013  data: 0.6150  max mem: 13847
+Test:  [ 50/375]  eta: 0:04:13    time: 0.7944  data: 0.6087  max mem: 13847
+Test:  [100/375]  eta: 0:03:35    time: 0.8053  data: 0.6201  max mem: 13847
+Test:  [150/375]  eta: 0:02:57    time: 0.7887  data: 0.6037  max mem: 13847
+Test:  [200/375]  eta: 0:02:12    time: 0.4566  data: 0.2711  max mem: 13847
+Test:  [250/375]  eta: 0:01:22    time: 0.2476  data: 0.0611  max mem: 13847
+Test:  [300/375]  eta: 0:00:44    time: 0.2593  data: 0.0726  max mem: 13847
+Test:  [350/375]  eta: 0:00:13    time: 0.2595  data: 0.0730  max mem: 13847
+Test:  [374/375]  eta: 0:00:00    time: 0.2601  data: 0.0734  max mem: 13847
+Test: Total time: 0:03:16 (0.5245 s / it)
+(Midjourney) acc: 97.15; ap: 99.79; racc: 99.77; facc: 94.53;
+/home/yabin/ctta4aid_assets/external/IAPL-p3-train/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [  0/375]  eta: 0:02:33    time: 0.4097  data: 0.2239  max mem: 13847
+Test:  [ 50/375]  eta: 0:02:10    time: 0.3954  data: 0.2094  max mem: 13847
+Test:  [100/375]  eta: 0:01:49    time: 0.3850  data: 0.1990  max mem: 13847
+Test:  [150/375]  eta: 0:01:27    time: 0.3741  data: 0.1879  max mem: 13847
+Test:  [200/375]  eta: 0:01:05    time: 0.3052  data: 0.1188  max mem: 13847
+Test:  [250/375]  eta: 0:00:44    time: 0.2557  data: 0.0689  max mem: 13847
+Test:  [300/375]  eta: 0:00:25    time: 0.2528  data: 0.0659  max mem: 13847
+Test:  [350/375]  eta: 0:00:08    time: 0.2569  data: 0.0698  max mem: 13847
+Test:  [374/375]  eta: 0:00:00    time: 0.2618  data: 0.0747  max mem: 13847
+Test: Total time: 0:02:00 (0.3216 s / it)
+(stable_diffusion_v_1_4) acc: 99.93; ap: 100.00; racc: 99.87; facc: 100.00;
+/home/yabin/ctta4aid_assets/external/IAPL-p3-train/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [  0/500]  eta: 0:03:01    time: 0.3635  data: 0.1763  max mem: 13847
+Test:  [ 50/500]  eta: 0:02:59    time: 0.4049  data: 0.2185  max mem: 13847
+Test:  [100/500]  eta: 0:02:40    time: 0.4072  data: 0.2211  max mem: 13847
+Test:  [150/500]  eta: 0:02:18    time: 0.3807  data: 0.1943  max mem: 13847
+Test:  [200/500]  eta: 0:01:57    time: 0.3773  data: 0.1911  max mem: 13847
+Test:  [250/500]  eta: 0:01:38    time: 0.3882  data: 0.2020  max mem: 13847
+Test:  [300/500]  eta: 0:01:13    time: 0.2497  data: 0.0628  max mem: 13847
+Test:  [350/500]  eta: 0:00:52    time: 0.2358  data: 0.0491  max mem: 13847
+Test:  [400/500]  eta: 0:00:33    time: 0.2619  data: 0.0745  max mem: 13847
+Test:  [450/500]  eta: 0:00:16    time: 0.2451  data: 0.0582  max mem: 13847
+Test:  [499/500]  eta: 0:00:00    time: 0.2414  data: 0.0543  max mem: 13847
+Test: Total time: 0:02:40 (0.3205 s / it)
+(stable_diffusion_v_1_5) acc: 99.83; ap: 99.94; racc: 99.78; facc: 99.89;
+/home/yabin/ctta4aid_assets/external/IAPL-p3-train/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [  0/375]  eta: 0:01:36    time: 0.2581  data: 0.0691  max mem: 13847
+Test:  [ 50/375]  eta: 0:01:17    time: 0.2396  data: 0.0523  max mem: 13847
+Test:  [100/375]  eta: 0:01:06    time: 0.2507  data: 0.0634  max mem: 13847
+Test:  [150/375]  eta: 0:00:54    time: 0.2383  data: 0.0510  max mem: 13847
+Test:  [200/375]  eta: 0:00:41    time: 0.2371  data: 0.0497  max mem: 13847
+Test:  [250/375]  eta: 0:00:30    time: 0.2418  data: 0.0544  max mem: 13847
+Test:  [300/375]  eta: 0:00:18    time: 0.2438  data: 0.0566  max mem: 13847
+Test:  [350/375]  eta: 0:00:06    time: 0.2557  data: 0.0683  max mem: 13847
+Test:  [374/375]  eta: 0:00:00    time: 0.2611  data: 0.0738  max mem: 13847
+Test: Total time: 0:01:32 (0.2455 s / it)
+(VQDM) acc: 99.33; ap: 99.99; racc: 99.72; facc: 98.93;
+/home/yabin/ctta4aid_assets/external/IAPL-p3-train/models/dct.py:353: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Test:  [  0/375]  eta: 0:02:27    time: 0.3946  data: 0.2079  max mem: 13847
+Test:  [ 50/375]  eta: 0:02:10    time: 0.3971  data: 0.2103  max mem: 13847
+Test:  [100/375]  eta: 0:01:47    time: 0.3681  data: 0.1813  max mem: 13847
+Test:  [150/375]  eta: 0:01:26    time: 0.3626  data: 0.1760  max mem: 13847
+Test:  [200/375]  eta: 0:01:05    time: 0.2770  data: 0.0905  max mem: 13847
+Test:  [250/375]  eta: 0:00:43    time: 0.2478  data: 0.0608  max mem: 13847
+Test:  [300/375]  eta: 0:00:24    time: 0.2372  data: 0.0502  max mem: 13847
+Test:  [350/375]  eta: 0:00:07    time: 0.2524  data: 0.0654  max mem: 13847
+Test:  [374/375]  eta: 0:00:00    time: 0.2319  data: 0.0450  max mem: 13847
+Test: Total time: 0:01:56 (0.3105 s / it)
+(wukong) acc: 99.92; ap: 100.00; racc: 99.85; facc: 99.98;
+(0 ADM       ) acc: 82.27; ap: 97.92; racc: 99.73; facc: 64.82;
+(1 BigGAN    ) acc: 87.77; ap: 99.63; racc: 99.82; facc: 75.72;
+(2 glide     ) acc: 97.32; ap: 99.72; racc: 99.83; facc: 94.82;
+(3 Midjourney) acc: 97.15; ap: 99.79; racc: 99.77; facc: 94.53;
+(4 stable_diffusion_v_1_4) acc: 99.93; ap: 100.00; racc: 99.87; facc: 100.00;
+(5 stable_diffusion_v_1_5) acc: 99.83; ap: 99.94; racc: 99.78; facc: 99.89;
+(6 VQDM      ) acc: 99.33; ap: 99.99; racc: 99.72; facc: 98.93;
+(7 wukong    ) acc: 99.92; ap: 100.00; racc: 99.85; facc: 99.98;
+(8 mean      ) acc: 95.44; ap: 99.62; racc: 99.79; facc: 91.09;
+[rank0]:[W724 15:06:01.319885422 ProcessGroupNCCL.cpp:1647] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
