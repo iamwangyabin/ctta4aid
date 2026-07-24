@@ -161,3 +161,17 @@ not authorized on A6000; only ranks 6 and 7 started on 4090-2, waited before
 the distributed world formed, and were terminated. No batch or domain ran,
 and no metric is reported. The logs are preserved under
 `ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable`.
+
+Later the 3070x2 driver recovered and both GPUs became visible. The exact
+compatibility environment, runtime code, weights, and 91 GiB UFD Arrow tree
+were copied to that host; all 206 files match the source under the ordered
+per-file SHA256 tree hash
+`66e2628c676f43b82d2d5b2f92989525463845cb7f28b47b7d52c7f59dba4132`.
+This did not yield another valid layout. One official-batch rank was tested
+independently on each 3070 Ti. GPU0 failed while requesting another 18 MiB at
+a sampled 7857 MiB peak; GPU1 still failed while requesting 50 MiB at 7845
+MiB after enabling expandable segments, lazy CUDA module loading, and
+disabling the cuDNN plan cache. Both failures occurred before the first batch
+completed, so no metric is reported and the proposed 4+1+1+2 layout is
+rejected. Full setup and failure evidence is under
+`ufd/seed100/tta_preflight_3070x2`.

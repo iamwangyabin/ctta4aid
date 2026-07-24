@@ -1,0 +1,84 @@
+{
+  "experiment": "P3 UFD seed100 3070x2 rank feasibility audit",
+  "status": "failed_insufficient_vram",
+  "completed_at": "2026-07-24T22:58:50+08:00",
+  "host": "3070x2",
+  "gpus": [
+    "NVIDIA GeForce RTX 3070 Ti 8192 MiB",
+    "NVIDIA GeForce RTX 3070 Ti 8192 MiB"
+  ],
+  "environment_setup": {
+    "initial_cl_torch": "2.11.0+cu126",
+    "initial_cuda_devices": 2,
+    "initial_failure": "The existing cl environment lacked datasets and all ctta4aid/IAPL/data/weight assets.",
+    "copied_environment": "/home/yabin/miniconda3/envs/caid-gemini-compat",
+    "copied_environment_versions": {
+      "torch": "2.2.2+cu121",
+      "cuda": "12.1",
+      "datasets": "2.18.0"
+    },
+    "environment_archive_sha256": "553fd7cdb993f1c48cd7cb3509a10428f9d16ab5cf0294d4061725763e0de8f5",
+    "asset_archive_sha256": "45a338ee8542a6f4698709047fe451cb18120c9256c17db6b6fc392c0ce479d6",
+    "preserved_setup_failures": [
+      "The first foreground tar stream was truncated; validation caught a missing Python encodings module and missing assets.",
+      "A macOS rsync retry failed on share/terminfo/n/ncr260vt300wpp with Too many levels of symbolic links.",
+      "The environment was repaired from a complete GNU tar archive before any preflight was launched."
+    ]
+  },
+  "asset_validation": {
+    "launcher_sha256": "a868c531313d70c0a1bde815d9d4ce0c9e2b16f0fcfa7bea3528545f41e57882",
+    "checkpoint_sha256": "1bde24f04bd63adb8f7ac3943e3c56b62180fa5752710c58a62d5080dbd92462",
+    "clip_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+    "iapl_upstream_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
+    "iapl_runtime_patch_files": [
+      "main.py",
+      "models/clip_models.py",
+      "test_time.py",
+      "utils/dataset.py",
+      "utils/misc.py"
+    ]
+  },
+  "dataset_validation": {
+    "source": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716 on 4090-2",
+    "target": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716 on 3070x2",
+    "files": 206,
+    "file_name_and_size_manifest_sha256": "15de1db318190d76e9bd1037037c1341fb2aa3bb963d74aba9b08bfc6cdb0f78",
+    "ordered_per_file_content_tree_sha256": "66e2628c676f43b82d2d5b2f92989525463845cb7f28b47b7d52c7f59dba4132",
+    "source_and_target_match": true
+  },
+  "preflights": [
+    {
+      "name": "ufd_seed100_gpu0_world1",
+      "gpu": 0,
+      "world_size": 1,
+      "domain": "crn",
+      "official_eval_batch_size": 32,
+      "allocator": "expandable_segments:True",
+      "status": "cuda_oom_before_first_batch_completed",
+      "requested_allocation_mib": 18,
+      "reported_process_memory_gib": 7.64,
+      "sampled_peak_memory_mib": 7857,
+      "domains_completed": 0,
+      "metrics_reported": false
+    },
+    {
+      "name": "ufd_seed100_gpu1_world1_lazy",
+      "gpu": 1,
+      "world_size": 1,
+      "domain": "crn",
+      "official_eval_batch_size": 32,
+      "allocator": "expandable_segments:True",
+      "additional_memory_settings": {
+        "CUDA_MODULE_LOADING": "LAZY",
+        "TORCH_CUDNN_V8_API_LRU_CACHE_LIMIT": "-1"
+      },
+      "status": "cuda_oom_before_first_batch_completed",
+      "requested_allocation_mib": 50,
+      "reported_process_memory_gib": 7.64,
+      "sampled_peak_memory_mib": 7845,
+      "domains_completed": 0,
+      "metrics_reported": false
+    }
+  ],
+  "decision": "Neither 8 GiB GPU can host one protocol-faithful IAPL rank at eval batch size 32. Do not use 3070x2 in the official eight-rank layout and do not reduce the batch size as a hidden protocol change."
+}

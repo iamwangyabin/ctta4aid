@@ -124,6 +124,15 @@ TTA 超参数的候选布局；但 48 GiB 上并发 6 个 IAPL 进程尚无显�
 被终止，完成 0 个 batch、0 个 domain，日志按失败尝试保留。后续优先等待
 4090-1 恢复 4+2+2；若要试 6+2，先取得明确授权并做受监控的显存预检。
 
+晚间 3070x2 的驱动恢复，两张卡均重新被 PyTorch 识别。为排除环境与数据问题，
+已复制完全一致的兼容环境、IAPL 代码、权重和 91 GiB UFD Arrow 数据；206 个
+文件的逐文件内容树哈希在源端与目标端同为
+`66e2628c676f43b82d2d5b2f92989525463845cb7f28b47b7d52c7f59dba4132`。
+但两张 8 GiB 卡分别运行单个官方 batch-size 32 rank 时，均在首 batch 完成前
+OOM，采样峰值为 7857/7845 MiB；第二张卡已加入 expandable segments、CUDA
+延迟加载和关闭 cuDNN 计划缓存，仍然失败。因此 4+1+1+2 布局被实验证伪，
+不能通过偷偷降低 batch size 代替官方协议。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

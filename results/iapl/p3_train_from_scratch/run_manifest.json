@@ -294,8 +294,9 @@
     "runs_completed": 0,
     "execution_plan": "tta_execution_plan.json",
     "required_rank_layout": "A6000 4 ranks; 4090-1 2 ranks; 4090-2 2 ranks",
-    "latest_resource_audit": "resource_audit_20260724_1726.json",
-    "latest_resource_conclusion": "A6000 and 4090-2 are idle, but the validated 4+2+2 layout is unavailable. A 6+2 layout is protocol-equivalent but has not passed a six-rank A6000 memory preflight and requires explicit approval.",
-    "preserved_partial_launch": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable"
+    "latest_resource_audit": "resource_audit_20260724_2258.json",
+    "latest_resource_conclusion": "A6000 and 4090-2 are idle, but 4090-1 remains unavailable. Both recovered 3070 Ti GPUs fail one official-batch rank with CUDA OOM, so 4+1+1+2 is not viable; 6+2 remains unapproved.",
+    "preserved_partial_launch": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
+    "preserved_3070_preflight": "ufd/seed100/tta_preflight_3070x2"
   }
 }
