@@ -128,5 +128,24 @@ The 11.41-point mAcc difference from seed 100 is retained as an observed seed
 sensitivity rather than hidden by selecting the better run.
 
 Seed 102 started from scratch at 15:08:33 +08:00 using the same pinned
-worktree, verified data, `cl` environment, and single-GPU protocol. It entered
-the final 10,124-batch GenImage training loop without error.
+worktree, verified data, `cl` environment, and single-GPU protocol. It
+completed the final 10,124-batch loop in 1h41m10s and the eight-domain static
+evaluation at 17:05:28. Its result was 82.78% mAcc / 99.14% mAP, with 99.96%
+real accuracy and 65.59% fake accuracy. The 1,693,607,565-byte checkpoint has
+SHA256
+`5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f`.
+
+Across GenImage seeds 100/101/102, the non-TTA static result is 87.42 +/- 6.98%
+mAcc and 99.21 +/- 0.38% mAP (mean +/- sample standard deviation). Real
+accuracy is stable at 99.91 +/- 0.10%, while fake accuracy is only
+74.92 +/- 14.06%. The instability is therefore a thresholded fake-class
+failure on ADM, BigGAN, GLIDE, and Midjourney, not a loss of ranking quality.
+The complete per-domain aggregate is retained in
+`genimage/static_three_seed_summary.json`; no seed was discarded.
+
+The UFD three-seed static aggregate is 88.67 +/- 1.94% Accuracy and
+97.35 +/- 0.71% AP. Both UFD and GenImage training chains are now complete,
+but P3 remains open until every trained checkpoint receives the full official
+eight-rank TTA evaluation. The validated 4+2+2 layout still requires
+4090-1 or an equivalent third 24 GiB node; 4090-1 remained unreachable at
+17:05 +08:00.

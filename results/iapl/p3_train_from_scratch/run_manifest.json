@@ -56,6 +56,13 @@
         "best_accuracy_checkpoint_sha256": "d324bac298ddd827ee17b688e932da03cf864d0e0933320c269a2d343811313d"
       }
     },
+    "static_three_seed_summary": {
+      "accuracy_mean": 0.886733,
+      "accuracy_sample_std": 0.019362,
+      "average_precision_mean": 0.973533,
+      "average_precision_sample_std": 0.007118,
+      "protocol": "training-time evaluation without official TTA"
+    },
     "tta_progress": {
       "100": {
         "status": "retry_pending_after_oom",
@@ -73,7 +80,7 @@
     }
   },
   "genimage": {
-    "status": "training_in_progress",
+    "status": "training_complete_tta_pending",
     "source_host": "3090",
     "source_root": "/data/DF-arrow-data/GenImage",
     "expected_arrow_shards": 1214,
@@ -198,7 +205,7 @@
       "seeds": {
         "100": "attempt2_training_and_static_evaluation_completed",
         "101": "training_and_static_evaluation_completed",
-        "102": "running"
+        "102": "training_and_static_evaluation_completed"
       },
       "seed100_attempt2": {
         "status": "training_and_static_evaluation_completed",
@@ -241,8 +248,9 @@
         "artifacts": "genimage/seed101"
       },
       "seed102": {
-        "status": "running",
+        "status": "training_and_static_evaluation_completed",
         "started_at": "2026-07-24T15:08:33+08:00",
+        "completed_at": "2026-07-24T17:05:28+08:00",
         "host": "4090-2",
         "environment": "cl",
         "iapl_worktree": "/home/yabin/ctta4aid_assets/external/IAPL-p3-train",
@@ -250,7 +258,27 @@
         "model_name": "genimage_sd14_seed102_filtered",
         "master_port": 29714,
         "batches": 10124,
-        "first_batch_completed": true
+        "training_time": "1:41:10",
+        "observed_cuda_memory_mib": 15588,
+        "checkpoint_bytes": 1693607565,
+        "checkpoint_sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
+        "static_accuracy": 0.8278,
+        "static_average_precision": 0.9914,
+        "static_real_accuracy": 0.9996,
+        "static_fake_accuracy": 0.6559,
+        "artifacts": "genimage/seed102"
+      },
+      "static_three_seed_summary": {
+        "accuracy_mean": 0.874167,
+        "accuracy_sample_std": 0.069765,
+        "average_precision_mean": 0.992067,
+        "average_precision_sample_std": 0.003844,
+        "real_accuracy_mean": 0.9991,
+        "real_accuracy_sample_std": 0.001044,
+        "fake_accuracy_mean": 0.7492,
+        "fake_accuracy_sample_std": 0.140589,
+        "artifacts": "genimage/static_three_seed_summary.json",
+        "protocol": "training-time evaluation without official TTA"
       }
     },
     "policy": "Keep the immutable 324,000-row conversion for audit, but train only from the 323,997-row filtered metadata view after its full decode passes. Preserve the failed 324,000-row attempt."
@@ -259,5 +287,13 @@
     "scripts/run_iapl_ufd_train_single.sh": "ed27fbf0c14983e5f86fb80ed5a6dc593e1dcf568c66da3ca816a7635d8a4948",
     "scripts/import_genimage_to_hf_arrow.py": "782e4912fc6acf89358325c722a23e5dfcd84bd8b066ab00611112708f1ed29c",
     "scripts/run_iapl_genimage_train_single.sh": "76ef1b37bf20c20bc682adde4241d8cd1a952fc27795777dec73d04c31d2c133"
+  },
+  "trained_checkpoint_tta": {
+    "status": "waiting_for_third_24_gib_gpu",
+    "runs_total": 6,
+    "runs_completed": 0,
+    "execution_plan": "tta_execution_plan.json",
+    "required_rank_layout": "A6000 4 ranks; 4090-1 2 ranks; 4090-2 2 ranks",
+    "latest_resource_audit": "4090-2 idle; A6000 occupied at 99% utilization; 4090-1 and 3090 unreachable; 3070x2 has one failed GPU and one insufficient 8 GiB GPU"
   }
 }

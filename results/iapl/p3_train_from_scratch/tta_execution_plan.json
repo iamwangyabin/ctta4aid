@@ -1,0 +1,143 @@
+{
+  "experiment": "P3 trained-checkpoint official TTA execution plan",
+  "status": "waiting_for_third_24_gib_gpu",
+  "prepared_at": "2026-07-24T17:05:28+08:00",
+  "source": {
+    "iapl_upstream_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
+    "runtime_checkout": "/home/yabin/ctta4aid_assets/external/IAPL",
+    "runtime_note": "The runtime checkout adds only Arrow compatibility, a configurable distributed timeout, and sample-level prediction capture to the pinned upstream evaluation path."
+  },
+  "protocol": {
+    "world_size": 8,
+    "rank_mapping": {
+      "A6000": [0, 1, 2, 3],
+      "4090-1": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "python": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python",
+    "nccl_version": 23007,
+    "eval_batch_size": 32,
+    "learning_rate": 0.005,
+    "tta_steps": 2,
+    "selection_p": 0.2,
+    "ois": true,
+    "distributed_timeout_seconds": 7200,
+    "start_policy": "Start each run from rank 0 and an empty output directory. Do not resume a partial domain and do not reuse adaptation state between seeds."
+  },
+  "execution_order": [
+    {
+      "order": 1,
+      "dataset": "UniversalFakeDetect",
+      "seed": 100,
+      "checkpoint_kind": "checkpoint_best_acc.pth",
+      "source_host": "A6000",
+      "source_path": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_ufd_train/universalfake_progan_seed100/checkpoint_best_acc.pth",
+      "sha256": "1bde24f04bd63adb8f7ac3943e3c56b62180fa5752710c58a62d5080dbd92462",
+      "master_port": 29640,
+      "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed100",
+      "status": "retry_pending_after_failed_5plus3_layout"
+    },
+    {
+      "order": 2,
+      "dataset": "UniversalFakeDetect",
+      "seed": 101,
+      "checkpoint_kind": "checkpoint_best_acc.pth",
+      "source_host": "4090-1",
+      "source_path": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_ufd_train/universalfake_progan_seed101/checkpoint_best_acc.pth",
+      "sha256": "f81a0a9d69e57acea79ee8dbb3b00e39e4b5395a084884ec0f99999722f4bb14",
+      "master_port": 29641,
+      "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed101",
+      "status": "pending"
+    },
+    {
+      "order": 3,
+      "dataset": "UniversalFakeDetect",
+      "seed": 102,
+      "checkpoint_kind": "checkpoint_best_acc.pth",
+      "source_host": "4090-2",
+      "source_path": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_ufd_train/universalfake_progan_seed102/checkpoint_best_acc.pth",
+      "sha256": "d324bac298ddd827ee17b688e932da03cf864d0e0933320c269a2d343811313d",
+      "master_port": 29642,
+      "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed102",
+      "status": "pending"
+    },
+    {
+      "order": 4,
+      "dataset": "GenImage",
+      "seed": 100,
+      "checkpoint_kind": "checkpoint.pth",
+      "source_host": "4090-2",
+      "source_path": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed100_attempt2_filtered/genimage_sd14_seed100_filtered/checkpoint.pth",
+      "sha256": "aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096",
+      "master_port": 29643,
+      "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed100",
+      "status": "pending"
+    },
+    {
+      "order": 5,
+      "dataset": "GenImage",
+      "seed": 101,
+      "checkpoint_kind": "checkpoint.pth",
+      "source_host": "4090-2",
+      "source_path": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed101_filtered/genimage_sd14_seed101_filtered/checkpoint.pth",
+      "sha256": "4cbaec6c15a9a0219d68cb5ef947585b5362ed4a5befe3e359b3152e84eaf2d9",
+      "master_port": 29644,
+      "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed101",
+      "status": "pending"
+    },
+    {
+      "order": 6,
+      "dataset": "GenImage",
+      "seed": 102,
+      "checkpoint_kind": "checkpoint.pth",
+      "source_host": "4090-2",
+      "source_path": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed102_filtered/genimage_sd14_seed102_filtered/checkpoint.pth",
+      "sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
+      "master_port": 29645,
+      "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed102",
+      "status": "pending"
+    }
+  ],
+  "domain_order": {
+    "UniversalFakeDetect": [
+      "crn",
+      "cyclegan",
+      "dalle",
+      "biggan",
+      "deepfake",
+      "gaugan",
+      "glide_50_27",
+      "glide_100_10",
+      "glide_100_27",
+      "guided",
+      "imle",
+      "ldm_100",
+      "ldm_200",
+      "ldm_200_cfg",
+      "progan",
+      "san",
+      "seeingdark",
+      "stargan",
+      "stylegan"
+    ],
+    "GenImage": [
+      "ADM",
+      "BigGAN",
+      "glide",
+      "Midjourney",
+      "stable_diffusion_v_1_4",
+      "stable_diffusion_v_1_5",
+      "VQDM",
+      "wukong"
+    ]
+  },
+  "resource_audit": {
+    "observed_at": "2026-07-24T17:05:28+08:00",
+    "A6000": "online but occupied by an unrelated 99%-utilization job",
+    "4090-1": "SSH timeout",
+    "4090-2": "online and idle after seed102",
+    "3090": "SSH timeout",
+    "3070x2": "GPU 0 device-handle error; the usable GPU 1 has only 8 GiB, below the observed per-rank peak",
+    "conclusion": "No protocol-faithful eight-rank layout is currently available. The failed 5+3 layout is not reused."
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "seeds": [100, 101, 102],
+  "protocol": "single-view training-time evaluation without TTA",
+  "source_precision": "Means and sample standard deviations are computed from the two-decimal metrics printed by IAPL.",
+  "aggregate_percent": {
+    "accuracy": {
+      "values": {
+        "100": 84.03,
+        "101": 95.44,
+        "102": 82.78
+      },
+      "mean": 87.416667,
+      "sample_std": 6.976463,
+      "min": 82.78,
+      "max": 95.44
+    },
+    "average_precision": {
+      "values": {
+        "100": 98.86,
+        "101": 99.62,
+        "102": 99.14
+      },
+      "mean": 99.206667,
+      "sample_std": 0.384361,
+      "min": 98.86,
+      "max": 99.62
+    },
+    "real_accuracy": {
+      "values": {
+        "100": 99.98,
+        "101": 99.79,
+        "102": 99.96
+      },
+      "mean": 99.91,
+      "sample_std": 0.104403,
+      "min": 99.79,
+      "max": 99.98
+    },
+    "fake_accuracy": {
+      "values": {
+        "100": 68.08,
+        "101": 91.09,
+        "102": 65.59
+      },
+      "mean": 74.92,
+      "sample_std": 14.058866,
+      "min": 65.59,
+      "max": 91.09
+    }
+  },
+  "domains": {
+    "ADM": {
+      "accuracy_mean": 70.03,
+      "accuracy_sample_std": 10.904898,
+      "average_precision_mean": 96.94,
+      "average_precision_sample_std": 1.637162,
+      "real_accuracy_mean": 99.883333,
+      "fake_accuracy_mean": 40.18,
+      "fake_accuracy_sample_std": 21.942181
+    },
+    "BigGAN": {
+      "accuracy_mean": 66.616667,
+      "accuracy_sample_std": 18.801344,
+      "average_precision_mean": 98.036667,
+      "average_precision_sample_std": 1.48544,
+      "real_accuracy_mean": 99.926667,
+      "fake_accuracy_mean": 33.3,
+      "fake_accuracy_sample_std": 37.698328
+    },
+    "glide": {
+      "accuracy_mean": 81.963333,
+      "accuracy_sample_std": 14.911923,
+      "average_precision_mean": 99.486667,
+      "average_precision_sample_std": 0.284312,
+      "real_accuracy_mean": 99.913333,
+      "fake_accuracy_mean": 64.013333,
+      "fake_accuracy_sample_std": 29.88243
+    },
+    "Midjourney": {
+      "accuracy_mean": 83.873333,
+      "accuracy_sample_std": 11.752941,
+      "average_precision_mean": 99.283333,
+      "average_precision_sample_std": 0.440606,
+      "real_accuracy_mean": 99.89,
+      "fake_accuracy_mean": 67.86,
+      "fake_accuracy_sample_std": 23.611982
+    },
+    "stable_diffusion_v_1_4": {
+      "accuracy_mean": 99.973333,
+      "accuracy_sample_std": 0.037859,
+      "average_precision_mean": 100.0,
+      "average_precision_sample_std": 0.0,
+      "real_accuracy_mean": 99.95,
+      "fake_accuracy_mean": 100.0,
+      "fake_accuracy_sample_std": 0.0
+    },
+    "stable_diffusion_v_1_5": {
+      "accuracy_mean": 99.886667,
+      "accuracy_sample_std": 0.049329,
+      "average_precision_mean": 99.96,
+      "average_precision_sample_std": 0.034641,
+      "real_accuracy_mean": 99.883333,
+      "fake_accuracy_mean": 99.89,
+      "fake_accuracy_sample_std": 0.0
+    },
+    "VQDM": {
+      "accuracy_mean": 97.116667,
+      "accuracy_sample_std": 2.121847,
+      "average_precision_mean": 99.96,
+      "average_precision_sample_std": 0.036056,
+      "real_accuracy_mean": 99.886667,
+      "fake_accuracy_mean": 94.343333,
+      "fake_accuracy_sample_std": 4.369271
+    },
+    "wukong": {
+      "accuracy_mean": 99.866667,
+      "accuracy_sample_std": 0.075719,
+      "average_precision_mean": 100.0,
+      "average_precision_sample_std": 0.0,
+      "real_accuracy_mean": 99.943333,
+      "fake_accuracy_mean": 99.79,
+      "fake_accuracy_sample_std": 0.20664
+    }
+  },
+  "finding": "Average precision is stable, but fixed-threshold accuracy is not. The variation is concentrated in fake-class accuracy on ADM, BigGAN, glide, and Midjourney; no seed is discarded or selected."
+}
