@@ -109,4 +109,16 @@ JPEG and 161,997 PNG) with zero failures. The 100,000-row test Arrow also
 passed its exhaustive decode with zero failures. Seed 100 attempt 2 restarted
 from scratch on 4090-2 at 10:54:36 +08:00, entered its 10,124-batch training
 loop, and is running from the filtered training root plus the verified test
-root.
+root. The retry completed all 10,124 batches in 1h41m13s and produced a
+1,693,607,629-byte checkpoint with SHA256
+`aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096`.
+Its immediate single-view, non-TTA eight-domain evaluation was 84.03% mAcc /
+98.86% mAP, with 99.98% real accuracy but only 68.08% fake accuracy. The high
+AP and low thresholded fake accuracy show that this static result is strongly
+real-biased on ADM, BigGAN, GLIDE, and Midjourney; it is retained as observed
+and is not substituted for the pending official TTA evaluation.
+
+Seed 101 started from scratch on the same clean pinned worktree and filtered
+data at 13:08:46 +08:00. It entered the 10,124-batch training loop in the
+`cl` environment on 4090-2. Seed 102 remains queued behind it so the three
+GenImage seeds do not compete for GPU memory or disk bandwidth.

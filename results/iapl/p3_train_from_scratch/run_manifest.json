@@ -73,7 +73,7 @@
     }
   },
   "genimage": {
-    "status": "arrow_data_complete_training_pending",
+    "status": "training_in_progress",
     "source_host": "3090",
     "source_root": "/data/DF-arrow-data/GenImage",
     "expected_arrow_shards": 1214,
@@ -196,20 +196,40 @@
     "training": {
       "dataset_uri": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train_filtered|/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
       "seeds": {
-        "100": "attempt2_running_from_scratch_after_attempt1_zero_byte_failure",
-        "101": "pending",
+        "100": "attempt2_training_and_static_evaluation_completed",
+        "101": "running",
         "102": "pending"
       },
       "seed100_attempt2": {
-        "status": "running",
+        "status": "training_and_static_evaluation_completed",
         "started_at": "2026-07-24T10:54:36+08:00",
+        "completed_at": "2026-07-24T12:51:36+08:00",
         "host": "4090-2",
         "environment": "cl",
         "iapl_worktree": "/home/yabin/ctta4aid_assets/external/IAPL-p3-train",
         "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed100_attempt2_filtered",
         "batches": 10124,
-        "first_batch_completed": true,
-        "observed_cuda_memory_mib": 15588
+        "training_time": "1:41:13",
+        "observed_cuda_memory_mib": 15588,
+        "checkpoint_bytes": 1693607629,
+        "checkpoint_sha256": "aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096",
+        "static_accuracy": 0.8403,
+        "static_average_precision": 0.9886,
+        "static_real_accuracy": 0.9998,
+        "static_fake_accuracy": 0.6808,
+        "artifacts": "genimage/seed100/attempt2_filtered"
+      },
+      "seed101": {
+        "status": "running",
+        "started_at": "2026-07-24T13:08:46+08:00",
+        "host": "4090-2",
+        "environment": "cl",
+        "iapl_worktree": "/home/yabin/ctta4aid_assets/external/IAPL-p3-train",
+        "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed101_filtered",
+        "model_name": "genimage_sd14_seed101_filtered",
+        "master_port": 29713,
+        "batches": 10124,
+        "first_batch_completed": true
       }
     },
     "policy": "Keep the immutable 324,000-row conversion for audit, but train only from the 323,997-row filtered metadata view after its full decode passes. Preserve the failed 324,000-row attempt."

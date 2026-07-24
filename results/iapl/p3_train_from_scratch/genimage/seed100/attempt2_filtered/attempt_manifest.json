@@ -1,0 +1,93 @@
+{
+  "experiment": "P3 GenImage training from scratch seed 100",
+  "attempt": 2,
+  "status": "training_and_static_evaluation_completed",
+  "host": "4090-2",
+  "environment": "cl",
+  "started_at": "2026-07-24T10:54:36+08:00",
+  "completed_at": "2026-07-24T12:51:36+08:00",
+  "iapl_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
+  "iapl_worktree": "/home/yabin/ctta4aid_assets/external/IAPL-p3-train",
+  "dataset_uri": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/SDv14_train_filtered|/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+  "training_rows": 323997,
+  "training_label_counts": {
+    "real": 162000,
+    "fake": 161997
+  },
+  "test_rows": 100000,
+  "batch_size": 32,
+  "training_batches": 10124,
+  "epochs": 1,
+  "learning_rate": 0.00005,
+  "training_time": "1:41:13",
+  "maximum_internal_cuda_memory_mib": 13847,
+  "observed_nvidia_smi_memory_mib": 15588,
+  "checkpoint": {
+    "remote_path": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed100_attempt2_filtered/genimage_sd14_seed100_filtered/checkpoint.pth",
+    "bytes": 1693607629,
+    "sha256": "aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096"
+  },
+  "static_evaluation": {
+    "protocol": "single-view training-time evaluation without TTA",
+    "domains": {
+      "ADM": {
+        "accuracy_percent": 61.35,
+        "average_precision_percent": 95.05,
+        "real_accuracy_percent": 99.95,
+        "fake_accuracy_percent": 22.75
+      },
+      "BigGAN": {
+        "accuracy_percent": 60.27,
+        "average_precision_percent": 97.79,
+        "real_accuracy_percent": 99.98,
+        "fake_accuracy_percent": 20.55
+      },
+      "glide": {
+        "accuracy_percent": 81.03,
+        "average_precision_percent": 99.17,
+        "real_accuracy_percent": 99.98,
+        "fake_accuracy_percent": 62.07
+      },
+      "Midjourney": {
+        "accuracy_percent": 74.8,
+        "average_precision_percent": 98.99,
+        "real_accuracy_percent": 99.98,
+        "fake_accuracy_percent": 49.62
+      },
+      "stable_diffusion_v_1_4": {
+        "accuracy_percent": 100.0,
+        "average_precision_percent": 100.0,
+        "real_accuracy_percent": 100.0,
+        "fake_accuracy_percent": 100.0
+      },
+      "stable_diffusion_v_1_5": {
+        "accuracy_percent": 99.92,
+        "average_precision_percent": 99.94,
+        "real_accuracy_percent": 99.95,
+        "fake_accuracy_percent": 99.89
+      },
+      "VQDM": {
+        "accuracy_percent": 95.1,
+        "average_precision_percent": 99.92,
+        "real_accuracy_percent": 99.97,
+        "fake_accuracy_percent": 90.23
+      },
+      "wukong": {
+        "accuracy_percent": 99.78,
+        "average_precision_percent": 100.0,
+        "real_accuracy_percent": 100.0,
+        "fake_accuracy_percent": 99.57
+      }
+    },
+    "mean_reported_percent": {
+      "accuracy": 84.03,
+      "average_precision": 98.86,
+      "real_accuracy": 99.98,
+      "fake_accuracy": 68.08
+    },
+    "interpretation": "Ranking remains strong while the fixed decision threshold is strongly biased toward the real class on ADM, BigGAN, glide, and Midjourney. This is not an official TTA result."
+  },
+  "artifacts": {
+    "launcher_log": "launcher.log"
+  }
+}

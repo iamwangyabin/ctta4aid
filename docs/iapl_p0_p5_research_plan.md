@@ -94,6 +94,19 @@ launcher 日志已归档；100,000 个 sampler index 全部唯一，无分布式
 每条训练至少运行三个 seeds；每个 seed 都完成对应完整测试集，报告均值、样本标准差
 和官方 checkpoint 对照。
 
+### P3 progress
+
+截至 2026-07-24，UFD 三个 seed 的训练和非 TTA 静态评测已完成，完整官方
+TTA 因 4090-1 离线而等待已验证的 4+2+2 rank 布局。GenImage 的官方 SD1.4
+训练数据和 8 域测试数据已完成逐样本解码审计；源归档中的 3 个零字节 PNG
+作为失败证据保留，并从训练元数据视图中精确排除。
+
+GenImage seed100 的修复后训练已完成，静态结果为 84.03% mAcc / 98.86% mAP，
+检查点哈希为
+`aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096`。
+该结果的 real/fake Accuracy 为 99.98% / 68.08%，说明固定阈值明显偏向 real；
+这项负结果不做协议外校准。Seed101 已按相同设置顺序启动，seed102 随后运行。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
