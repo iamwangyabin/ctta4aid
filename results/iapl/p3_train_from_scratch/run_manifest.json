@@ -71,7 +71,13 @@
         "failure": "Three IAPL ranks exceeded the 24 GiB capacity of 4090-2 before the first domain completed.",
         "running_attempt": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090",
         "rank_layout": "A6000 ranks 0-3; 3090 ranks 4-5; 4090-2 ranks 6-7",
-        "started_at": "2026-07-25T12:34:11+08:00"
+        "started_at": "2026-07-25T12:34:11+08:00",
+        "domains_completed": 3,
+        "completed_domains": ["crn", "cyclegan", "dalle"],
+        "current_domain": "biggan",
+        "partial_macro_accuracy": 0.850064,
+        "partial_macro_average_precision": 0.828685,
+        "latest_snapshot": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090/snapshot_20260725_1416"
       },
       "101": {
         "status": "pending"

@@ -95,16 +95,25 @@
     "metrics_reported": false
   },
   "latest_observation": {
-    "observed_at": "2026-07-25T12:42:33+08:00",
-    "rank0_progress": "100/1596",
-    "first_domain_eta": "1:09:33",
+    "observed_at": "2026-07-25T14:16:09+08:00",
+    "domains_completed": 3,
+    "completed_domains": [
+      "crn",
+      "cyclegan",
+      "dalle"
+    ],
+    "current_domain": "biggan",
+    "current_domain_progress": "0/500",
+    "partial_macro_accuracy": 0.8500640940215595,
+    "partial_macro_average_precision": 0.8286851566823493,
     "all_three_launchers_alive": true,
     "host_gpu_utilization_percent": {
       "A6000": 100,
       "3090": 100,
       "4090-2": 100
     },
-    "tracebacks_or_cuda_errors": 0
+    "tracebacks_or_cuda_errors": 0,
+    "snapshot": "snapshot_20260725_1416"
   },
   "policy": "Run all 19 domains from the beginning. Preserve this attempt if it fails; do not report a metric until all eight ranks complete a domain."
 }

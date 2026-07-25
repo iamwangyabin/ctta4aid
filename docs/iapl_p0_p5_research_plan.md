@@ -150,6 +150,12 @@ Canonical Launchpad 下载匹配的 580.159.03 用户态包，仅解压到用户
 36,279 / 18,208 / 18,710 MiB，尚无 traceback。当前只记录“运行中”，不把
 首 batch 当成完成结果。
 
+截至 14:16，前三个域已完整结束且预测文件已同步保存：`crn` Acc/AP 为
+59.18%/56.08%，`cyclegan` 为 96.79%/94.02%，`dalle` 为
+99.05%/98.50%。独立复算与运行日志一致，三域宏平均为 85.01%/82.87%。
+`crn` 的明显低值不做筛选或重启，保留到 19 域全部结束后统一分析；当前已进入
+`biggan`，P3 仍为运行中。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

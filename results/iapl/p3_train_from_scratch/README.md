@@ -202,3 +202,11 @@ protocol-faithful A6000 4 + 3090 2 + 4090-2 2 layout. All eight ranks passed
 the distributed barrier and entered `crn`; the initial host allocations were
 36,279 / 18,208 / 18,710 MiB with no traceback. This is a running result, not
 a completed metric.
+
+The first three domains completed without a runtime error. Their official
+Acc / AP values are `crn` 59.18% / 56.08%, `cyclegan` 96.79% / 94.02%, and
+`dalle` 99.05% / 98.50%. The same prediction files were independently
+recalculated with `scripts/compare_iapl_ufd_runs.py`; the three-domain macro
+average is 85.01% Acc / 82.87% AP. The unexpectedly weak `crn` result is kept
+as observed rather than filtered or restarted. The snapshot also records the
+4 and 6 padded DistributedSampler indices in `crn` and `cyclegan`.
