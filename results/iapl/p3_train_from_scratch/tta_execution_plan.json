@@ -66,7 +66,8 @@
       "sha256": "d324bac298ddd827ee17b688e932da03cf864d0e0933320c269a2d343811313d",
       "master_port": 29642,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed102",
-      "status": "pending"
+      "status": "checkpoint_replicated_waiting_behind_seed101",
+      "preflight": "ufd/seed102/preflight_20260726_0123"
     },
     {
       "order": 4,

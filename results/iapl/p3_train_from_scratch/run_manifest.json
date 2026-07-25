@@ -90,7 +90,10 @@
         "preflight": "ufd/seed101/preflight_20260725_2123"
       },
       "102": {
-        "status": "pending"
+        "status": "checkpoint_replicated_waiting_behind_seed101",
+        "checkpoint_replicated_to": ["A6000", "3090", "4090-2"],
+        "checkpoint_sha256": "d324bac298ddd827ee17b688e932da03cf864d0e0933320c269a2d343811313d",
+        "preflight": "ufd/seed102/preflight_20260726_0123"
       }
     }
   },

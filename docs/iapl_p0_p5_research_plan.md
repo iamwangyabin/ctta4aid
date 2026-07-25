@@ -188,6 +188,12 @@ Acc/AP 为 91.69%/90.82%，19 个预测文件独立复算为
 IAPL ranks；21:47 该任务仍持续写入训练日志并报告约 9:55 剩余时间。按顺序
 等待 seed101，不能跳到 seed102。
 
+等待期间只做后续去单点准备：seed102 权重已从 4090-2 复制并在 A6000、
+3090、4090-2 三机核验同一 SHA256
+`d324bac298ddd827ee17b688e932da03cf864d0e0933320c269a2d343811313d`。
+这不改变执行顺序；seed102 必须等 seed101 完成并审计后才能启动。01:22
+A6000 无关任务仍报告约 5:46 剩余时间。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
