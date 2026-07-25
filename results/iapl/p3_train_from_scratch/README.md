@@ -216,3 +216,10 @@ as observed rather than filtered or restarted. The snapshot also records the
 average is 89.23% / 87.50%, 7.68 and 11.99 points below the paper on the same
 domains. The job continues into `gaugan` without selecting away the weak
 domains.
+
+At the ten-domain checkpoint, `gaugan` completed at 96.82% / 94.23%, the
+three GLIDE domains ranged from 97.95% to 98.30% Acc and 97.89% to 98.20% AP,
+and `guided` reached 82.25% / 92.88%. The ten-domain macro average is
+91.95% Acc / 91.86% AP, 3.17 and 7.41 points below the paper on the same
+domains. All ten prediction files and the independent recalculation are
+retained while the unchanged run proceeds through `imle`.

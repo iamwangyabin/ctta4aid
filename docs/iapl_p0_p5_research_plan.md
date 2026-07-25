@@ -161,6 +161,12 @@ Canonical Launchpad 下载匹配的 580.159.03 用户态包，仅解压到用户
 89.23%/87.50%，相同域上较论文低 7.68/11.99 个百分点；预测、日志和
 DistributedSampler padding 审计已保存，当前运行 `gaugan`。
 
+截至 17:46，已完成 10/19 域。`gaugan` 为 96.82%/94.23%，三个 GLIDE
+域的 Acc 为 97.95%-98.30%、AP 为 97.89%-98.20%，`guided` 为
+82.25%/92.88%。十域宏平均 91.95%/91.86%，相同域上较论文低
+3.17/7.41 个百分点。十个预测文件和独立复算已保存，当前 `imle`
+运行到 1150/1596。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
