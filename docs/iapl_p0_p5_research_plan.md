@@ -185,7 +185,8 @@ Acc/AP 为 91.69%/90.82%，19 个预测文件独立复算为
 3090 和 4090-2，三机 SHA256 均为
 `f81a0a9d69e57acea79ee8dbb3b00e39e4b5395a084884ec0f99999722f4bb14`。
 当前 A6000 有无关 CAIDBench 进程占用 6,703 MiB，暂不冒险叠加 4 个
-IAPL ranks；按顺序等待 seed101，不能跳到 seed102。
+IAPL ranks；21:47 该任务仍持续写入训练日志并报告约 9:55 剩余时间。按顺序
+等待 seed101，不能跳到 seed102。
 
 ## P4: inference ablations
 

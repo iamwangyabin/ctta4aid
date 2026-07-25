@@ -141,7 +141,7 @@
   "resource_audit": {
     "observed_at": "2026-07-25T21:23:00+08:00",
     "artifact": "ufd/seed101/preflight_20260725_2123/manifest.json",
-    "A6000": "seed100 ranks exited normally; an unrelated active CAIDBench process now owns 6703/49140 MiB",
+    "A6000": "seed100 ranks exited normally; an unrelated active CAIDBench process owns 6703/49140 MiB and is still writing training progress at 21:47 with a reported ETA of 9:54:38",
     "4090-1": "recovered; seed101 source checkpoint verified, but unrelated CAIDBench work uses 8406/24564 MiB at 100% utilization",
     "4090-2": "seed100 ranks exited normally; isolated 580.159.03 compatibility libraries active; idle at 252/24564 MiB",
     "3090": "seed100 ranks exited normally; idle at 106/24576 MiB",

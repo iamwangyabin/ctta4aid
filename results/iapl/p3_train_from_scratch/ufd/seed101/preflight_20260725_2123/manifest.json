@@ -40,5 +40,13 @@
     "4090-2": "Idle at 252/24564 MiB and 0% utilization through isolated matching driver libraries.",
     "4090-1": "Recovered and source checkpoint verified, but unrelated CAIDBench work uses 8406/24564 MiB at 100% utilization."
   },
+  "followup_observation": {
+    "observed_at": "2026-07-25T21:47:20+08:00",
+    "a6000_process_alive": true,
+    "a6000_log_writing": true,
+    "a6000_latest_sample": 93696,
+    "a6000_reported_eta": "9:54:38",
+    "decision_changed": false
+  },
   "decision": "Do not overlap the four A6000 IAPL ranks with the unrelated allocation. Poll resources and launch seed101 from an empty output directory as soon as A6000 is fully available. Do not skip to seed102."
 }
