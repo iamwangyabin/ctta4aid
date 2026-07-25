@@ -1,0 +1,200 @@
+{
+  "experiment": "P3 GenImage trained-checkpoint official TTA Arrow launcher preflight",
+  "observed_at": "2026-07-26T01:54:00+08:00",
+  "finalized_at": "2026-07-26T02:54:00+08:00",
+  "status": "all_genimage_tta_inputs_ready_waiting_for_ufd",
+  "upstream_runtime": {
+    "commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
+    "finding": "The TTA branch calls testtime_main and builds only split=tta datasets. The train_selected_subsets argument is not accessed.",
+    "conclusion": "A test-only hf_arrow URI is protocol-equivalent for TTA and avoids copying the 93 GB SD1.4 training payload to every evaluation node."
+  },
+  "launcher": {
+    "path": "scripts/run_iapl_genimage_manual_ranks.sh",
+    "sha256": "894f0bfb21d77ffdab11208e64eb35300e186d2637917449fe64c797f10fa137",
+    "dataset_path_precedence": [
+      "IAPL_DATASET_PATH",
+      "IAPL_GENIMAGE_ROOT",
+      "default ImageFolder root"
+    ],
+    "arrow_roots_accepted": [
+      "test root only for TTA",
+      "train and test roots for compatibility"
+    ],
+    "arrow_default_num_workers": 0,
+    "imagefolder_default_num_workers": 8,
+    "replica_sha256_verified_on": [
+      "A6000",
+      "3090",
+      "4090-1",
+      "4090-2"
+    ]
+  },
+  "authoritative_preflight": {
+    "host": "4090-2",
+    "python": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python",
+    "dataset_path": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+    "dataset_format": "hf_arrow",
+    "num_workers": 0,
+    "nccl_version": 23007,
+    "world_size": 8,
+    "local_ranks": [
+      6,
+      7
+    ],
+    "seed": 100,
+    "checkpoint": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed100_attempt2_filtered/genimage_sd14_seed100_filtered/checkpoint.pth",
+    "status": "passed_without_launching_a_batch"
+  },
+  "tests": {
+    "remote_command": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python -m unittest tests/test_iapl_official.py",
+    "tests_run": 14,
+    "status": "passed",
+    "elapsed_seconds": 0.001,
+    "local_dependency_gap": "The system Python lacks PyYAML, so the remote pinned environment is the authoritative full-suite result."
+  },
+  "seed100_checkpoint": {
+    "bytes": 1693607629,
+    "sha256": "aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096",
+    "replicas_verified_on": [
+      "A6000",
+      "3090",
+      "4090-2"
+    ],
+    "A6000_path": "/home/yabin/ctta4aid_assets/weights/iapl/p3/genimage_seed100.pth",
+    "3090_path": "/home/yabin/ctta4aid_assets/weights/iapl/p3/genimage_seed100.pth",
+    "4090-2_source_path": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_genimage_train/seed100_attempt2_filtered/genimage_sd14_seed100_filtered/checkpoint.pth"
+  },
+  "additional_trained_checkpoints": {
+    "101": {
+      "bytes": 1693607565,
+      "sha256": "4cbaec6c15a9a0219d68cb5ef947585b5362ed4a5befe3e359b3152e84eaf2d9",
+      "replicas_verified_on": [
+        "A6000",
+        "3090",
+        "4090-2"
+      ]
+    },
+    "102": {
+      "bytes": 1693607565,
+      "sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
+      "replicas_verified_on": [
+        "A6000",
+        "3090",
+        "4090-2"
+      ]
+    }
+  },
+  "node_preflights": {
+    "A6000": {
+      "ranks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "checkpoint": "trained seed100 replica",
+      "nccl_version": 23007,
+      "status": "passed"
+    },
+    "3090": {
+      "ranks": [
+        4,
+        5
+      ],
+      "first_attempt": "failed because the launcher's default released GenImage checkpoint was absent",
+      "first_attempt_batches": 0,
+      "retry_checkpoint": "trained seed100 replica",
+      "retry_nccl_version": 23007,
+      "retry_status": "passed"
+    },
+    "4090-2": {
+      "ranks": [
+        6,
+        7
+      ],
+      "checkpoint": "trained seed100 source",
+      "nccl_version": 23007,
+      "nvidia_compat_lib_dir": "/home/yabin/ctta4aid_assets/driver_compat/nvidia-580.159.03/rootfs/usr/lib/x86_64-linux-gnu",
+      "status": "passed"
+    }
+  },
+  "test_arrow_source": {
+    "host": "4090-2",
+    "path": "/home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+    "bytes_on_disk": 25467557463,
+    "image_payload_bytes": 25451020754,
+    "files": 31,
+    "ordered_file_sha256_tree": "904464e62f1525f1deecfe85a5c64064ff7b0914a557275af0d7226c3b799b9f",
+    "rows": 100000,
+    "full_decode_invalid_rows": 0
+  },
+  "replication_targets": {
+    "A6000": {
+      "available_bytes_before_copy": 562317123584,
+      "files": 31,
+      "file_bytes": 25467557463,
+      "ordered_file_sha256_tree": "904464e62f1525f1deecfe85a5c64064ff7b0914a557275af0d7226c3b799b9f",
+      "status": "replicated_and_byte_verified"
+    },
+    "3090": {
+      "available_bytes_before_copy": 54290731008,
+      "files": 31,
+      "file_bytes": 25467557463,
+      "ordered_file_sha256_tree": "904464e62f1525f1deecfe85a5c64064ff7b0914a557275af0d7226c3b799b9f",
+      "status": "replicated_and_byte_verified"
+    },
+    "4090-2": {
+      "files": 31,
+      "file_bytes": 25467557463,
+      "ordered_file_sha256_tree": "904464e62f1525f1deecfe85a5c64064ff7b0914a557275af0d7226c3b799b9f",
+      "status": "source_verified"
+    }
+  },
+  "preserved_transfer_attempts": [
+    {
+      "attempt": 1,
+      "status": "failed_before_transfer",
+      "failure": "The macOS rsync 2.6.9 client does not support --append-verify and printed usage.",
+      "bytes_transferred": 0,
+      "log": "/private/tmp/genimage_p3_tta/logs/pull_4090_2.log"
+    },
+    {
+      "attempt": 2,
+      "status": "failed_before_transfer",
+      "failure": "A detached nohup child did not survive the managed command session and produced an empty log.",
+      "bytes_transferred": 0,
+      "log": "/private/tmp/genimage_p3_tta/logs/pull_4090_2_retry1.log"
+    },
+    {
+      "attempt": 4,
+      "status": "interrupted_for_route_optimization",
+      "failure": "The first 3090 copy used its Tailscale address and was stopped with rsync exit code 20 after an observed 2,701,236,095 bytes because the direct 192.168.10.52 LAN route was substantially faster.",
+      "partial_data_preserved": true
+    }
+  ],
+  "local_staging": {
+    "attempt": 3,
+    "method": "tracked rsync --partial session",
+    "source": "4090-2",
+    "destination": "/private/tmp/genimage_p3_tta/GenImage_test",
+    "files": 31,
+    "file_bytes": 25467557463,
+    "ordered_file_sha256_tree": "904464e62f1525f1deecfe85a5c64064ff7b0914a557275af0d7226c3b799b9f",
+    "status": "completed_and_byte_verified"
+  },
+  "deployment_transfers": {
+    "A6000": {
+      "route": "192.168.10.2 LAN",
+      "rsync_total_sent_bytes": 25470669253,
+      "status": "completed"
+    },
+    "3090": {
+      "route": "192.168.10.52 LAN retry after preserving Tailscale partial data",
+      "rsync_retry_sent_bytes": 22322693826,
+      "rsync_retry_matched_bytes": 264127488,
+      "status": "completed"
+    }
+  },
+  "remaining_preflight": "No GenImage input replication remains. Repeat the normal resource and CUDA check immediately before launch after both pending UFD runs finish.",
+  "order_guard": "This prepares later GenImage runs only. Do not launch GenImage before UFD seeds 101 and 102 complete and pass their audits."
+}

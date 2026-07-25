@@ -19,6 +19,9 @@
     "4090-2_nvidia_compat_lib_dir": "/home/yabin/ctta4aid_assets/driver_compat/nvidia-580.159.03/rootfs/usr/lib/x86_64-linux-gnu",
     "4090-2_nvidia_compat_policy": "Set IAPL_NVIDIA_COMPAT_LIB_DIR only while the loaded kernel driver is 580.159.03; repeat CUDA preflight after any reboot or driver change.",
     "eval_batch_size": 32,
+    "genimage_dataset_path": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+    "genimage_num_workers": 0,
+    "genimage_data_note": "Upstream testtime_main builds only split=tta datasets, so the verified test Arrow root is sufficient and the SD1.4 training payload is not copied to evaluation nodes.",
     "learning_rate": 0.005,
     "tta_steps": 2,
     "selection_p": 0.2,
@@ -79,7 +82,7 @@
       "sha256": "aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096",
       "master_port": 29643,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed100",
-      "status": "pending"
+      "status": "ready_waiting_for_ufd_seed101_and_seed102"
     },
     {
       "order": 5,
@@ -91,7 +94,7 @@
       "sha256": "4cbaec6c15a9a0219d68cb5ef947585b5362ed4a5befe3e359b3152e84eaf2d9",
       "master_port": 29644,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed101",
-      "status": "pending"
+      "status": "ready_waiting_behind_genimage_seed100"
     },
     {
       "order": 6,
@@ -103,7 +106,7 @@
       "sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
       "master_port": 29645,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed102",
-      "status": "pending"
+      "status": "ready_waiting_behind_genimage_seed101"
     }
   ],
   "domain_order": {
@@ -139,10 +142,29 @@
       "wukong"
     ]
   },
+  "genimage_preflight": {
+    "observed_at": "2026-07-26T01:54:00+08:00",
+    "artifact": "genimage/tta_arrow_preflight_20260726_0154/manifest.json",
+    "launcher_sha256": "894f0bfb21d77ffdab11208e64eb35300e186d2637917449fe64c797f10fa137",
+    "launcher_replicas_verified": ["A6000", "3090", "4090-1", "4090-2"],
+    "single_test_root_preflight": "passed on 4090-2 with NCCL 23007 and num_workers=0",
+    "remote_tests": "14 passed",
+    "source_test_arrow_bytes": 25467557463,
+    "source_test_arrow_files": 31,
+    "test_arrow_sha256_tree": "904464e62f1525f1deecfe85a5c64064ff7b0914a557275af0d7226c3b799b9f",
+    "test_arrow_replicas_verified_on": ["A6000", "3090", "4090-2"],
+    "seed100_checkpoint_sha256": "aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096",
+    "seed100_checkpoint_replicas_verified_on": ["A6000", "3090", "4090-2"],
+    "seed100_node_preflights": "all three planned rank groups passed with the test-only Arrow root and NCCL 23007",
+    "seed101_checkpoint_sha256": "4cbaec6c15a9a0219d68cb5ef947585b5362ed4a5befe3e359b3152e84eaf2d9",
+    "seed102_checkpoint_sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
+    "all_checkpoint_replicas_verified_on": ["A6000", "3090", "4090-2"],
+    "conclusion": "The launcher, framework path, test Arrow replicas, and all three trained checkpoint replicas are ready. GenImage remains behind both pending UFD TTA runs."
+  },
   "resource_audit": {
-    "observed_at": "2026-07-25T21:23:00+08:00",
+    "observed_at": "2026-07-26T02:54:10+08:00",
     "artifact": "ufd/seed101/preflight_20260725_2123/manifest.json",
-    "A6000": "seed100 ranks exited normally; an unrelated active CAIDBench process owns 6703/49140 MiB and is still writing training progress at 21:47 with a reported ETA of 9:54:38",
+    "A6000": "seed100 ranks exited normally; unrelated CAIDBench PID 16500 owns 6680/49140 MiB and was still writing training progress at 02:54:10 with a reported ETA of 4:13:52",
     "4090-1": "recovered; seed101 source checkpoint verified, but unrelated CAIDBench work uses 8406/24564 MiB at 100% utilization",
     "4090-2": "seed100 ranks exited normally; isolated 580.159.03 compatibility libraries active; idle at 252/24564 MiB",
     "3090": "seed100 ranks exited normally; idle at 106/24576 MiB",

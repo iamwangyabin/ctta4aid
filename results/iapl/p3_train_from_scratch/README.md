@@ -246,3 +246,44 @@ seed101 checkpoint to be copied and SHA256-verified on A6000, 3090, and
 4090-2. Seed101 is next in the fixed execution order. It has not been started
 because an unrelated active CAIDBench process owns 6,703 MiB on A6000; that
 allocation is not interrupted, and seed102 is not allowed to overtake it.
+At 02:03 on 2026-07-26 the same PID was still writing samples, owned 6,680 MiB,
+and reported 5:01:25 remaining. The wait is therefore active rather than a
+stale launcher state. At 02:54 it still owned 6,680 MiB and reported 4:13:52
+remaining.
+
+While seed101 waits, the GenImage multi-rank launcher was audited against the
+Arrow-only training path. It had still required the old extracted ImageFolder
+layout even though the pinned IAPL checkout already supports Arrow. The
+launcher now gives `IAPL_DATASET_PATH` priority, validates one or two
+`hf_arrow://` roots, defaults Arrow to `num_workers=0`, and retains the old
+ImageFolder checks and `num_workers=8` fallback. The one-root form is
+intentional: upstream `testtime_main` builds only the `tta` split and never
+accesses `train_selected_subsets`, so only the verified 100,000-row test Arrow
+is needed on evaluation nodes.
+
+The final launcher SHA256 is
+`894f0bfb21d77ffdab11208e64eb35300e186d2637917449fe64c797f10fa137`
+on A6000, 3090, 4090-1, and 4090-2. A two-rank preflight on 4090-2 selected
+NCCL 23007, the test-only Arrow URI, and `num_workers=0`; all 14 remote tests
+passed. Two zero-byte transfer attempts are retained: macOS rsync
+rejected unsupported `--append-verify`, and a detached managed-session child
+did not persist. The tracked `--partial` retry completed local staging, then
+the dataset was copied to A6000 and 3090. All three nodes contain 31 files and
+25,467,557,463 bytes with the same ordered per-file SHA256 tree
+`904464e62f1525f1deecfe85a5c64064ff7b0914a557275af0d7226c3b799b9f`.
+The initial 3090 Tailscale transfer was explicitly interrupted at an observed
+2,701,236,095 bytes and resumed over its faster `192.168.10.52` LAN route;
+the partial bytes were retained. The UFD order guard remains unchanged. The
+first 3090 launcher
+preflight also failed before launch because its default released checkpoint
+was absent; this was not hidden or bypassed. The trained seed100 checkpoint
+was then copied to A6000 and 3090. Its 1,693,607,629 bytes and SHA256
+`aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096`
+now match the 4090-2 source. A6000 ranks 0-3, 3090 ranks 4-5, and 4090-2
+ranks 6-7 all pass their exact Arrow/NCCL launcher preflight with that trained
+weight. Seed101 and seed102 were then copied too; their SHA256 values
+`4cbaec6c15a9a0219d68cb5ef947585b5362ed4a5befe3e359b3152e84eaf2d9`
+and `5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f`
+match on A6000, 3090, and 4090-2. All GenImage TTA inputs are therefore ready,
+but they remain behind UFD seeds 101 and 102. Full evidence is in
+`genimage/tta_arrow_preflight_20260726_0154`.

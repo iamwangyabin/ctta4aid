@@ -299,12 +299,33 @@
         "protocol": "training-time evaluation without official TTA"
       }
     },
+    "tta_arrow_preflight": {
+      "status": "all_genimage_tta_inputs_ready_waiting_for_ufd",
+      "artifact": "genimage/tta_arrow_preflight_20260726_0154/manifest.json",
+      "dataset_uri": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+      "runtime_finding": "The upstream TTA branch builds only split=tta, so the SD1.4 training Arrow root is not accessed during evaluation.",
+      "launcher_sha256": "894f0bfb21d77ffdab11208e64eb35300e186d2637917449fe64c797f10fa137",
+      "launcher_sha256_verified_on": ["A6000", "3090", "4090-1", "4090-2"],
+      "preflight_host": "4090-2",
+      "preflight_status": "passed",
+      "remote_tests": "14 passed",
+      "test_arrow_sha256_tree": "904464e62f1525f1deecfe85a5c64064ff7b0914a557275af0d7226c3b799b9f",
+      "test_arrow_replicas_verified_on": ["A6000", "3090", "4090-2"],
+      "seed100_checkpoint_sha256": "aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096",
+      "seed100_checkpoint_replicas_verified_on": ["A6000", "3090", "4090-2"],
+      "seed100_node_preflights": "A6000 ranks 0-3, 3090 ranks 4-5, and 4090-2 ranks 6-7 passed",
+      "seed101_checkpoint_sha256": "4cbaec6c15a9a0219d68cb5ef947585b5362ed4a5befe3e359b3152e84eaf2d9",
+      "seed102_checkpoint_sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
+      "all_checkpoint_replicas_verified_on": ["A6000", "3090", "4090-2"],
+      "order_guard": "Preparation only; UFD seeds 101 and 102 remain ahead of every GenImage TTA run."
+    },
     "policy": "Keep the immutable 324,000-row conversion for audit, but train only from the 323,997-row filtered metadata view after its full decode passes. Preserve the failed 324,000-row attempt."
   },
   "artifact_sha256": {
     "scripts/run_iapl_ufd_train_single.sh": "ed27fbf0c14983e5f86fb80ed5a6dc593e1dcf568c66da3ca816a7635d8a4948",
     "scripts/import_genimage_to_hf_arrow.py": "782e4912fc6acf89358325c722a23e5dfcd84bd8b066ab00611112708f1ed29c",
-    "scripts/run_iapl_genimage_train_single.sh": "76ef1b37bf20c20bc682adde4241d8cd1a952fc27795777dec73d04c31d2c133"
+    "scripts/run_iapl_genimage_train_single.sh": "76ef1b37bf20c20bc682adde4241d8cd1a952fc27795777dec73d04c31d2c133",
+    "scripts/run_iapl_genimage_manual_ranks.sh": "894f0bfb21d77ffdab11208e64eb35300e186d2637917449fe64c797f10fa137"
   },
   "trained_checkpoint_tta": {
     "status": "completed_1_of_6_waiting_for_a6000",
@@ -313,7 +334,8 @@
     "execution_plan": "tta_execution_plan.json",
     "required_rank_layout": "A6000 4 ranks; 3090 2 ranks; 4090-2 2 ranks",
     "latest_resource_audit": "ufd/seed101/preflight_20260725_2123/manifest.json",
-    "latest_resource_conclusion": "UFD seed100 completed and seed101 is byte-verified on all three target nodes. An unrelated active CAIDBench process owns 6703 MiB on A6000 and reports roughly 9h55m remaining, so the four-rank launch is deferred without skipping seed101.",
+    "latest_resource_observed_at": "2026-07-26T02:54:10+08:00",
+    "latest_resource_conclusion": "UFD seed100 completed and seed101 is byte-verified on all three target nodes. The unrelated CAIDBench process remains active at PID 16500 with 6680 MiB on A6000 and reports 4:13:52 remaining, so the four-rank launch is deferred without skipping seed101.",
     "preserved_partial_launch": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
     "preserved_3070_preflight": "ufd/seed100/tta_preflight_3070x2"
   }

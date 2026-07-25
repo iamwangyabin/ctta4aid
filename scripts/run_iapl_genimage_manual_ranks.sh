@@ -21,7 +21,7 @@ world_size=${WORLD_SIZE:?WORLD_SIZE is required}
 project_root=${PROJECT_ROOT:-/home/yabin/ctta4aid-arrow}
 iapl_repo=${IAPL_REPO_PATH:-/home/yabin/ctta4aid_assets/external/IAPL}
 python=${IAPL_PYTHON:-/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python}
-dataset_path=${IAPL_GENIMAGE_ROOT:-/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage}
+dataset_path=${IAPL_DATASET_PATH:-${IAPL_GENIMAGE_ROOT:-/home/yabin/ctta4aid_assets/data/genimage_official_20260718/GenImage}}
 pretrained_model=${IAPL_GENIMAGE_CHECKPOINT:-/home/yabin/ctta4aid_assets/weights/iapl/checkpoint_best_acc_sd14.pth}
 clip_path=${CLIP_VIT_L14_CHECKPOINT:-/home/yabin/.cache/clip/ViT-L-14.pt}
 output_dir=${IAPL_OUTPUT_DIR:-$project_root/outputs/iapl_official/genimage_manual_ranks}
@@ -32,6 +32,7 @@ nccl_lib_dir=${IAPL_NCCL_LIB_DIR:-}
 nvidia_compat_lib_dir=${IAPL_NVIDIA_COMPAT_LIB_DIR:-}
 distributed_timeout_seconds=${IAPL_DISTRIBUTED_TIMEOUT_SECONDS:-7200}
 seed=${IAPL_SEED:-100}
+num_workers=${IAPL_NUM_WORKERS:-}
 
 if [[ ! -x $python ]]; then
   echo "IAPL Python is not executable: $python" >&2
@@ -41,13 +42,32 @@ if [[ ! -d $iapl_repo ]]; then
   echo "IAPL repository is missing: $iapl_repo" >&2
   exit 1
 fi
-if [[ ! -d $dataset_path/test ]]; then
-  echo "Official GenImage test root is missing: $dataset_path/test" >&2
-  exit 1
-fi
-if [[ ! -f $dataset_path/extract_manifest.json ]]; then
-  echo "Official GenImage extraction manifest is missing: $dataset_path/extract_manifest.json" >&2
-  exit 1
+if [[ $dataset_path == hf_arrow://* ]]; then
+  arrow_roots=${dataset_path#hf_arrow://}
+  IFS='|' read -r -a arrow_root_list <<<"$arrow_roots"
+  if (( ${#arrow_root_list[@]} < 1 || ${#arrow_root_list[@]} > 2 )); then
+    echo "IAPL_DATASET_PATH must contain one or two Arrow roots" >&2
+    exit 1
+  fi
+  for arrow_root in "${arrow_root_list[@]}"; do
+    if [[ ! -f $arrow_root/state.json ]]; then
+      echo "GenImage Arrow state is missing: $arrow_root/state.json" >&2
+      exit 1
+    fi
+  done
+  dataset_format=hf_arrow
+  num_workers=${num_workers:-0}
+else
+  if [[ ! -d $dataset_path/test ]]; then
+    echo "Official GenImage test root is missing: $dataset_path/test" >&2
+    exit 1
+  fi
+  if [[ ! -f $dataset_path/extract_manifest.json ]]; then
+    echo "Official GenImage extraction manifest is missing: $dataset_path/extract_manifest.json" >&2
+    exit 1
+  fi
+  dataset_format=imagefolder
+  num_workers=${num_workers:-8}
 fi
 if [[ ! -f $pretrained_model ]]; then
   echo "IAPL checkpoint is missing: $pretrained_model" >&2
@@ -100,9 +120,10 @@ print(version.value)
 fi
 
 if [[ ${IAPL_PREFLIGHT_ONLY:-0} == 1 ]]; then
-  printf 'python=%s\ndataset_path=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\nnvidia_compat_lib_dir=%s\ndistributed_timeout_seconds=%s\nseed=%s\n' \
-    "$python" "$dataset_path" "$iapl_repo" "$pretrained_model" "$clip_path" \
-    "$nvidia_compat_lib_dir" "$distributed_timeout_seconds" "$seed"
+  printf 'python=%s\ndataset_path=%s\ndataset_format=%s\nnum_workers=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\nnvidia_compat_lib_dir=%s\ndistributed_timeout_seconds=%s\nseed=%s\n' \
+    "$python" "$dataset_path" "$dataset_format" "$num_workers" "$iapl_repo" \
+    "$pretrained_model" "$clip_path" "$nvidia_compat_lib_dir" \
+    "$distributed_timeout_seconds" "$seed"
   exit 0
 fi
 
@@ -163,7 +184,7 @@ for rank in "${ranks[@]}"; do
       --selection_p 0.2 \
       --ois True \
       --smooth True \
-      --num_workers 8 \
+      --num_workers "$num_workers" \
       --seed "$seed" \
       --output_dir "$output_dir" \
       --eval \
