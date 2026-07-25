@@ -1,0 +1,68 @@
+{
+  "experiment": "P3 UFD seed100 full official TTA",
+  "snapshot_at": "2026-07-25T15:16:37+08:00",
+  "status": "running",
+  "domains_completed": 5,
+  "next_domain": "gaugan",
+  "completed_domains": {
+    "crn": {
+      "accuracy": 0.5917919799498746,
+      "average_precision": 0.5608084358523726,
+      "dataset_size": 12764,
+      "samples_after_distributed_padding": 12768,
+      "duplicate_sampler_indices": 4
+    },
+    "cyclegan": {
+      "accuracy": 0.9679003021148036,
+      "average_precision": 0.9402135231316726,
+      "dataset_size": 2642,
+      "samples_after_distributed_padding": 2648,
+      "duplicate_sampler_indices": 6
+    },
+    "dalle": {
+      "accuracy": 0.9905,
+      "average_precision": 0.9850335110630027,
+      "dataset_size": 2000,
+      "samples_after_distributed_padding": 2000,
+      "duplicate_sampler_indices": 0
+    },
+    "biggan": {
+      "accuracy": 0.95825,
+      "average_precision": 0.9276023787392732,
+      "dataset_size": 4000,
+      "samples_after_distributed_padding": 4000,
+      "duplicate_sampler_indices": 0
+    },
+    "deepfake": {
+      "accuracy": 0.9528476331360947,
+      "average_precision": 0.9615104775763589,
+      "dataset_size": 5405,
+      "samples_after_distributed_padding": 5408,
+      "duplicate_sampler_indices": 3
+    }
+  },
+  "partial_macro_average": {
+    "accuracy": 0.8922579830401546,
+    "average_precision": 0.8750336652725361,
+    "paper_same_domains_accuracy": 0.9690200000000001,
+    "paper_same_domains_average_precision": 0.9949,
+    "accuracy_delta": -0.07676201695984552,
+    "average_precision_delta": -0.11986633472746389
+  },
+  "independent_recalculation": {
+    "script": "scripts/compare_iapl_ufd_runs.py",
+    "environment": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python on A6000",
+    "matches_rank0_log": true
+  },
+  "files": {
+    "rank0.log": "0412833711212719ba60a58be004440f012800b1f74fa86627a19ecc4d62ade5",
+    "partial_metrics.json": "7faefa04f684629c568a07636ee4eb49a3a780c4bd704ef9137de111b664b714",
+    "predictions/biggan.json": "819c3824d8271a85f0af303990cecd792d534bb0147377842ee01a968fc7089f",
+    "predictions/crn.json": "d8de724e5c2ef179b015241c1f54c2b485892523cea490de3a890bbf663abe66",
+    "predictions/cyclegan.json": "701f97f9a0a367fbbdf9cb5ddec793d5099b8990f83afbefe124e55b040315ad",
+    "predictions/dalle.json": "dd8bc7b3e049908ede8477a6f7079fe08cfffd5e84e50105ca2d7026f5120091",
+    "predictions/deepfake.json": "d667b81e41c765213cf85f5ad432c34e6beeaa52595616c8aaebfee76cb402d8"
+  },
+  "errors_detected": 0,
+  "policy": "This is a partial audit snapshot. Preserve every domain result and continue the same process without selection or restart."
+}

@@ -156,6 +156,11 @@ Canonical Launchpad 下载匹配的 580.159.03 用户态包，仅解压到用户
 `crn` 的明显低值不做筛选或重启，保留到 19 域全部结束后统一分析；当前已进入
 `biggan`，P3 仍为运行中。
 
+截至 15:16，`biggan` 和 `deepfake` 也已完成，Acc/AP 分别为
+95.83%/92.76% 和 95.28%/96.15%。五域独立复算宏平均为
+89.23%/87.50%，相同域上较论文低 7.68/11.99 个百分点；预测、日志和
+DistributedSampler padding 审计已保存，当前运行 `gaugan`。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

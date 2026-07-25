@@ -95,17 +95,19 @@
     "metrics_reported": false
   },
   "latest_observation": {
-    "observed_at": "2026-07-25T14:16:09+08:00",
-    "domains_completed": 3,
+    "observed_at": "2026-07-25T15:16:37+08:00",
+    "domains_completed": 5,
     "completed_domains": [
       "crn",
       "cyclegan",
-      "dalle"
+      "dalle",
+      "biggan",
+      "deepfake"
     ],
-    "current_domain": "biggan",
-    "current_domain_progress": "0/500",
-    "partial_macro_accuracy": 0.8500640940215595,
-    "partial_macro_average_precision": 0.8286851566823493,
+    "current_domain": "gaugan",
+    "current_domain_progress": "150/1250",
+    "partial_macro_accuracy": 0.8922579830401546,
+    "partial_macro_average_precision": 0.8750336652725361,
     "all_three_launchers_alive": true,
     "host_gpu_utilization_percent": {
       "A6000": 100,
@@ -113,7 +115,7 @@
       "4090-2": 100
     },
     "tracebacks_or_cuda_errors": 0,
-    "snapshot": "snapshot_20260725_1416"
+    "snapshot": "snapshot_20260725_1516"
   },
   "policy": "Run all 19 domains from the beginning. Preserve this attempt if it fails; do not report a metric until all eight ranks complete a domain."
 }

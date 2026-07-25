@@ -210,3 +210,9 @@ recalculated with `scripts/compare_iapl_ufd_runs.py`; the three-domain macro
 average is 85.01% Acc / 82.87% AP. The unexpectedly weak `crn` result is kept
 as observed rather than filtered or restarted. The snapshot also records the
 4 and 6 padded DistributedSampler indices in `crn` and `cyclegan`.
+
+`biggan` and `deepfake` then completed at 95.83% / 92.76% and
+95.28% / 96.15% Acc / AP. The five-domain independently recalculated macro
+average is 89.23% / 87.50%, 7.68 and 11.99 points below the paper on the same
+domains. The job continues into `gaugan` without selecting away the weak
+domains.
