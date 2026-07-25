@@ -95,8 +95,8 @@
     "metrics_reported": false
   },
   "latest_observation": {
-    "observed_at": "2026-07-25T17:46:39+08:00",
-    "domains_completed": 10,
+    "observed_at": "2026-07-25T18:16:38+08:00",
+    "domains_completed": 12,
     "completed_domains": [
       "crn",
       "cyclegan",
@@ -107,12 +107,14 @@
       "glide_50_27",
       "glide_100_10",
       "glide_100_27",
-      "guided"
+      "guided",
+      "imle",
+      "ldm_100"
     ],
-    "current_domain": "imle",
-    "current_domain_progress": "1150/1596",
-    "partial_macro_accuracy": 0.9195489915200774,
-    "partial_macro_average_precision": 0.9186078778912539,
+    "current_domain": "ldm_200",
+    "current_domain_progress": "0/250",
+    "partial_macro_accuracy": 0.89824038767024,
+    "partial_macro_average_precision": 0.8942108866753927,
     "all_three_launchers_alive": true,
     "host_gpu_utilization_percent": {
       "A6000": 100,
@@ -120,7 +122,7 @@
       "4090-2": 100
     },
     "tracebacks_or_cuda_errors": 0,
-    "snapshot": "snapshot_20260725_1746"
+    "snapshot": "snapshot_20260725_1816"
   },
   "policy": "Run all 19 domains from the beginning. Preserve this attempt if it fails; do not report a metric until all eight ranks complete a domain."
 }

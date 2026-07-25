@@ -72,12 +72,12 @@
         "running_attempt": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090",
         "rank_layout": "A6000 ranks 0-3; 3090 ranks 4-5; 4090-2 ranks 6-7",
         "started_at": "2026-07-25T12:34:11+08:00",
-        "domains_completed": 10,
-        "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided"],
-        "current_domain": "imle",
-        "partial_macro_accuracy": 0.919549,
-        "partial_macro_average_precision": 0.918608,
-        "latest_snapshot": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090/snapshot_20260725_1746"
+        "domains_completed": 12,
+        "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle", "ldm_100"],
+        "current_domain": "ldm_200",
+        "partial_macro_accuracy": 0.898240,
+        "partial_macro_average_precision": 0.894211,
+        "latest_snapshot": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090/snapshot_20260725_1816"
       },
       "101": {
         "status": "pending"

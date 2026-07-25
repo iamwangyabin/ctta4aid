@@ -223,3 +223,11 @@ and `guided` reached 82.25% / 92.88%. The ten-domain macro average is
 91.95% Acc / 91.86% AP, 3.17 and 7.41 points below the paper on the same
 domains. All ten prediction files and the independent recalculation are
 retained while the unchanged run proceeds through `imle`.
+
+`imle` reproduced the same severe pattern as `crn`: 59.54% Acc, 56.17% AP,
+19.10% real accuracy, and 100.00% fake accuracy. It is retained unchanged.
+`ldm_100` then completed at 98.80% / 98.27% Acc / AP. Across the first twelve
+domains the macro result is 89.82% / 89.42%, 5.44 and 9.95 points below the
+paper on those domains. Two A6000 Tailscale probes timed out during this
+snapshot, but the LAN path, all ranks, and GPU utilization remained healthy;
+the experiment was unaffected and continued into `ldm_200`.

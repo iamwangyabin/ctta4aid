@@ -167,6 +167,13 @@ DistributedSampler padding 审计已保存，当前运行 `gaugan`。
 3.17/7.41 个百分点。十个预测文件和独立复算已保存，当前 `imle`
 运行到 1150/1596。
 
+截至 18:16，`imle` 又出现与 `crn` 相同的严重低值：Acc/AP
+59.54%/56.17%，real/fake accuracy 为 19.10%/100.00%；不做筛选或
+重启。`ldm_100` 为 98.80%/98.27%，十二域宏平均降至
+89.82%/89.42%，较论文同域低 5.44/9.95 个百分点。A6000 的 Tailscale
+监控连接连续两次超时，但局域网、GPU 和八 ranks 均正常，实验未受影响并已进入
+`ldm_200`。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
