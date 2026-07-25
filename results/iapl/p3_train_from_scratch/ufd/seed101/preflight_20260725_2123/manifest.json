@@ -1,7 +1,7 @@
 {
   "experiment": "P3 UFD seed101 official TTA preflight",
   "observed_at": "2026-07-25T21:23:00+08:00",
-  "status": "checkpoint_replicated_waiting_for_a6000",
+  "status": "completed_and_launched",
   "source": {
     "host": "4090-1",
     "path": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_ufd_train/universalfake_progan_seed101/checkpoint_best_acc.pth",
@@ -48,5 +48,16 @@
     "a6000_reported_eta": "9:54:38",
     "decision_changed": false
   },
-  "decision": "Do not overlap the four A6000 IAPL ranks with the unrelated allocation. Poll resources and launch seed101 from an empty output directory as soon as A6000 is fully available. Do not skip to seed102."
+  "launch_observation": {
+    "observed_at": "2026-07-26T06:47:00+08:00",
+    "previous_a6000_process_exited": true,
+    "exact_three_node_preflight_passed": true,
+    "output_directories_absent_before_launch": true,
+    "started_at": "2026-07-26T06:45:05+08:00",
+    "all_eight_ranks_crossed_barrier": true,
+    "first_domain": "crn",
+    "immediate_errors": 0,
+    "artifact": "../tta_attempt1_3node_4plus2plus2_3090/launch_manifest.json"
+  },
+  "decision": "The blocker exited and seed101 launched in the fixed 4+2+2 layout. Preserve the running result and do not start seed102 before seed101 completes and passes its audit."
 }

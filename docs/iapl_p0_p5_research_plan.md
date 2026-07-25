@@ -229,6 +229,15 @@ GenImage 权重在该机不存在，因此在 0 batch 处失败。随后复制�
 均在 A6000、3090、4090-2 一致。GenImage 三 seed 输入已全部就绪，但仍必须
 等待 UFD seed101、seed102。
 
+06:43 复查时 A6000 的无关 PID 16500 已退出，三台目标 GPU 均空闲，seed101
+输出目录均不存在。随后在三机重新核对 checkpoint、Arrow 根、NCCL 23007、
+seed、rank 分组和 4090-2 隔离驱动库，预检全部通过。06:45:05 按 A6000
+`4 ranks` + 3090 `2 ranks` + 4090-2 `2 ranks` 正式启动 UFD seed101。
+八 ranks 已全部通过分布式 barrier 并进入 `crn`，三机初始显存为
+36,903 / 18,652 / 19,154 MiB，利用率均为 100%。rank0 到达 0/1596，
+已观测峰值 8,437 MiB，未见 traceback、OOM、runtime 或 collective 错误。
+当前只记为运行中，seed102 继续等待，不能提前启动。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

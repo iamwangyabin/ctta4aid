@@ -287,3 +287,13 @@ and `5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f`
 match on A6000, 3090, and 4090-2. All GenImage TTA inputs are therefore ready,
 but they remain behind UFD seeds 101 and 102. Full evidence is in
 `genimage/tta_arrow_preflight_20260726_0154`.
+
+The unrelated A6000 PID exited by 06:43 on 2026-07-26. All three target GPUs
+were free, every seed101 output directory was absent, and the exact checkpoint,
+Arrow roots, NCCL 23007, seed, rank groups, and 4090-2 compatibility library
+passed a fresh preflight on all nodes. UFD seed101 official TTA started at
+06:45:05 in the same A6000 4 + 3090 2 + 4090-2 2 layout. All eight ranks
+crossed the distributed barrier and entered `crn`; initial allocations were
+36,903 / 18,652 / 19,154 MiB at 100% utilization. Rank0 reached 0/1596 with
+an observed 8,437 MiB peak and no traceback, OOM, runtime, or collective error.
+This is a running result, and seed102 remains blocked behind it.

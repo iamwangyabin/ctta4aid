@@ -1,6 +1,6 @@
 {
   "experiment": "P3 trained-checkpoint official TTA execution plan",
-  "status": "completed_1_of_6_waiting_for_a6000",
+  "status": "completed_1_of_6_ufd_seed101_running",
   "prepared_at": "2026-07-24T17:05:28+08:00",
   "source": {
     "iapl_upstream_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
@@ -56,8 +56,10 @@
       "sha256": "f81a0a9d69e57acea79ee8dbb3b00e39e4b5395a084884ec0f99999722f4bb14",
       "master_port": 29641,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed101",
-      "status": "checkpoint_replicated_waiting_for_a6000",
-      "preflight": "ufd/seed101/preflight_20260725_2123"
+      "status": "running",
+      "preflight": "ufd/seed101/preflight_20260725_2123",
+      "started_at": "2026-07-26T06:45:05+08:00",
+      "running_attempt": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090"
     },
     {
       "order": 3,
@@ -162,16 +164,16 @@
     "conclusion": "The launcher, framework path, test Arrow replicas, and all three trained checkpoint replicas are ready. GenImage remains behind both pending UFD TTA runs."
   },
   "resource_audit": {
-    "observed_at": "2026-07-26T02:54:10+08:00",
+    "observed_at": "2026-07-26T06:47:00+08:00",
     "artifact": "ufd/seed101/preflight_20260725_2123/manifest.json",
-    "A6000": "seed100 ranks exited normally; unrelated CAIDBench PID 16500 owns 6680/49140 MiB and was still writing training progress at 02:54:10 with a reported ETA of 4:13:52",
+    "A6000": "unrelated PID 16500 exited; exact preflight passed; seed101 ranks 0-3 are active at 36903 MiB and 100% utilization",
     "4090-1": "recovered; seed101 source checkpoint verified, but unrelated CAIDBench work uses 8406/24564 MiB at 100% utilization",
-    "4090-2": "seed100 ranks exited normally; isolated 580.159.03 compatibility libraries active; idle at 252/24564 MiB",
-    "3090": "seed100 ranks exited normally; idle at 106/24576 MiB",
+    "4090-2": "isolated 580.159.03 compatibility libraries active; seed101 ranks 6-7 are active at 19154 MiB and 100% utilization",
+    "3090": "seed101 ranks 4-5 are active at 18652 MiB and 100% utilization",
     "3070x2": "both GPUs recovered, but each 8 GiB GPU failed a single-rank official-batch preflight before the first batch at sampled peaks of 7857 and 7845 MiB",
     "rejected_fallback": "A6000 4 ranks; 3070x2 one rank per GPU; 4090-2 2 ranks",
     "preflight_artifact": "ufd/seed100/tta_preflight_3070x2",
     "partial_launch_artifact": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
-    "conclusion": "UFD seed100 is complete. The seed101 checkpoint is byte-verified on A6000, 3090, and 4090-2, but launching four ranks on A6000 while the unrelated allocation is active is deferred. Do not skip to seed102."
+    "conclusion": "UFD seed101 started at 06:45:05 in the fixed 4+2+2 layout after the A6000 blocker exited. All eight ranks crossed the barrier and entered crn. Seed102 remains behind this running job."
   }
 }
