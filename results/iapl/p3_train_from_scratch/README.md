@@ -231,3 +231,18 @@ domains the macro result is 89.82% / 89.42%, 5.44 and 9.95 points below the
 paper on those domains. Two A6000 Tailscale probes timed out during this
 snapshot, but the LAN path, all ranks, and GPU utilization remained healthy;
 the experiment was unaffected and continued into `ldm_200`.
+
+UFD seed100 official TTA completed all 19 domains at 21:01 after 8h26m49s.
+The official log reports 91.69% Acc / 90.82% AP; independent recalculation
+from all 19 prediction files gives 91.6895% / 90.8209%, 3.92 and 8.50 points
+below the paper. TTA raises Acc by 1.81 points over this checkpoint's static
+evaluation but lowers AP by 7.33 points. The AP deficit is dominated by
+`crn`, `imle`, `seeingdark`, and `stargan`. All eight ranks and all three
+launchers exited normally, 88,353 unique indices are covered, and the 23
+DistributedSampler padding records are explicitly retained.
+
+4090-1 recovered after seed100 completed, allowing the otherwise unique
+seed101 checkpoint to be copied and SHA256-verified on A6000, 3090, and
+4090-2. Seed101 is next in the fixed execution order. It has not been started
+because an unrelated active CAIDBench process owns 6,703 MiB on A6000; that
+allocation is not interrupted, and seed102 is not allowed to overtake it.

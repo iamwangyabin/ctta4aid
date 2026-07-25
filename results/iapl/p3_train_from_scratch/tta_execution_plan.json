@@ -1,6 +1,6 @@
 {
   "experiment": "P3 trained-checkpoint official TTA execution plan",
-  "status": "running_1_of_6",
+  "status": "completed_1_of_6_waiting_for_a6000",
   "prepared_at": "2026-07-24T17:05:28+08:00",
   "source": {
     "iapl_upstream_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
@@ -37,7 +37,11 @@
       "sha256": "1bde24f04bd63adb8f7ac3943e3c56b62180fa5752710c58a62d5080dbd92462",
       "master_port": 29640,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed100",
-      "status": "running_attempt3_4plus2plus2"
+      "status": "completed_and_audited",
+      "accuracy": 0.9168952184934378,
+      "average_precision": 0.908209318633184,
+      "completed_at": "2026-07-25T21:01:00+08:00",
+      "artifact": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090/final"
     },
     {
       "order": 2,
@@ -49,7 +53,8 @@
       "sha256": "f81a0a9d69e57acea79ee8dbb3b00e39e4b5395a084884ec0f99999722f4bb14",
       "master_port": 29641,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed101",
-      "status": "pending"
+      "status": "checkpoint_replicated_waiting_for_a6000",
+      "preflight": "ufd/seed101/preflight_20260725_2123"
     },
     {
       "order": 3,
@@ -134,16 +139,16 @@
     ]
   },
   "resource_audit": {
-    "observed_at": "2026-07-25T12:36:31+08:00",
-    "artifact": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090/launch_manifest.json",
-    "A6000": "online through LAN; running ranks 0-3 at 36279/49140 MiB and 100% utilization",
-    "4090-1": "Tailscale SSH timeout; LAN SSH reports host down",
-    "4090-2": "isolated 580.159.03 compatibility libraries active; running ranks 6-7 at 18710/24564 MiB and 100% utilization",
-    "3090": "recovered, provisioned, and running ranks 4-5 at 18208/24576 MiB and 100% utilization",
+    "observed_at": "2026-07-25T21:23:00+08:00",
+    "artifact": "ufd/seed101/preflight_20260725_2123/manifest.json",
+    "A6000": "seed100 ranks exited normally; an unrelated active CAIDBench process now owns 6703/49140 MiB",
+    "4090-1": "recovered; seed101 source checkpoint verified, but unrelated CAIDBench work uses 8406/24564 MiB at 100% utilization",
+    "4090-2": "seed100 ranks exited normally; isolated 580.159.03 compatibility libraries active; idle at 252/24564 MiB",
+    "3090": "seed100 ranks exited normally; idle at 106/24576 MiB",
     "3070x2": "both GPUs recovered, but each 8 GiB GPU failed a single-rank official-batch preflight before the first batch at sampled peaks of 7857 and 7845 MiB",
     "rejected_fallback": "A6000 4 ranks; 3070x2 one rank per GPU; 4090-2 2 ranks",
     "preflight_artifact": "ufd/seed100/tta_preflight_3070x2",
     "partial_launch_artifact": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
-    "conclusion": "The protocol-faithful A6000 4 + 3090 2 + 4090-2 2 layout is running UFD seed100. All eight ranks completed the distributed barrier and entered crn without a traceback or CUDA error."
+    "conclusion": "UFD seed100 is complete. The seed101 checkpoint is byte-verified on A6000, 3090, and 4090-2, but launching four ranks on A6000 while the unrelated allocation is active is deferred. Do not skip to seed102."
   }
 }

@@ -5,7 +5,7 @@
   "source_commit": "6b3b595aca3d363ab6391a92ae50edd730a98298",
   "seeds": [100, 101, 102],
   "ufd": {
-    "status": "training_complete_tta_pending",
+    "status": "training_complete_tta_1_of_3_completed",
     "source": "IAPL run_universalfake.sh at a173e7783bbafaa00d60e6e31774a0bc14411a23",
     "train_subsets": ["car", "cat", "chair", "horse"],
     "train_images_per_subset": 36006,
@@ -65,22 +65,29 @@
     },
     "tta_progress": {
       "100": {
-        "status": "running_attempt3_4plus2plus2",
+        "status": "completed_and_audited",
         "failed_attempt": "ufd/seed100/tta_attempt1_2node_5plus3",
         "failed_rank_layout": "A6000 ranks 0-4; 4090-2 ranks 5-7",
         "failure": "Three IAPL ranks exceeded the 24 GiB capacity of 4090-2 before the first domain completed.",
         "running_attempt": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090",
         "rank_layout": "A6000 ranks 0-3; 3090 ranks 4-5; 4090-2 ranks 6-7",
         "started_at": "2026-07-25T12:34:11+08:00",
-        "domains_completed": 12,
-        "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle", "ldm_100"],
-        "current_domain": "ldm_200",
-        "partial_macro_accuracy": 0.898240,
-        "partial_macro_average_precision": 0.894211,
-        "latest_snapshot": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090/snapshot_20260725_1816"
+        "completed_at": "2026-07-25T21:01:00+08:00",
+        "elapsed": "8:26:49",
+        "domains_completed": 19,
+        "accuracy": 0.916895,
+        "average_precision": 0.908209,
+        "real_accuracy": 0.864786,
+        "fake_accuracy": 0.969044,
+        "accuracy_delta_to_paper": -0.039200,
+        "average_precision_delta_to_paper": -0.084964,
+        "artifact": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090/final"
       },
       "101": {
-        "status": "pending"
+        "status": "checkpoint_replicated_waiting_for_a6000",
+        "checkpoint_replicated_to": ["A6000", "3090", "4090-2"],
+        "checkpoint_sha256": "f81a0a9d69e57acea79ee8dbb3b00e39e4b5395a084884ec0f99999722f4bb14",
+        "preflight": "ufd/seed101/preflight_20260725_2123"
       },
       "102": {
         "status": "pending"
@@ -297,13 +304,13 @@
     "scripts/run_iapl_genimage_train_single.sh": "76ef1b37bf20c20bc682adde4241d8cd1a952fc27795777dec73d04c31d2c133"
   },
   "trained_checkpoint_tta": {
-    "status": "running_1_of_6",
+    "status": "completed_1_of_6_waiting_for_a6000",
     "runs_total": 6,
-    "runs_completed": 0,
+    "runs_completed": 1,
     "execution_plan": "tta_execution_plan.json",
     "required_rank_layout": "A6000 4 ranks; 3090 2 ranks; 4090-2 2 ranks",
-    "latest_resource_audit": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090/launch_manifest.json",
-    "latest_resource_conclusion": "3090 recovered and its existing UFD Arrow tree exactly matches the source. The protocol-faithful 4+2+2 layout is running seed100 with all eight ranks past the distributed barrier.",
+    "latest_resource_audit": "ufd/seed101/preflight_20260725_2123/manifest.json",
+    "latest_resource_conclusion": "UFD seed100 completed and seed101 is byte-verified on all three target nodes. An unrelated active CAIDBench process owns 6703 MiB on A6000, so the four-rank launch is deferred without skipping seed101.",
     "preserved_partial_launch": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
     "preserved_3070_preflight": "ufd/seed100/tta_preflight_3070x2"
   }

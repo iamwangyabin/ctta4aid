@@ -174,6 +174,19 @@ DistributedSampler padding 审计已保存，当前运行 `gaugan`。
 监控连接连续两次超时，但局域网、GPU 和八 ranks 均正常，实验未受影响并已进入
 `ldm_200`。
 
+UFD seed100 官方 TTA 于 21:01 完成全部 19 域，耗时 8:26:49。官方日志
+Acc/AP 为 91.69%/90.82%，19 个预测文件独立复算为
+91.6895%/90.8209%，较论文低 3.92/8.50 个百分点。相对同一权重的静态
+评测，TTA 令 Acc 提升 1.81 点但 AP 降低 7.33 点，主要由 `crn`、
+`imle`、`seeingdark`、`stargan` 拉低。八 ranks 和三 launcher 均正常
+退出，88,353 个唯一索引完整覆盖，23 个分布式 padding 样本保留在正式指标中。
+
+4090-1 随后恢复，seed101 的 1,693,616,351 字节权重已复制到 A6000、
+3090 和 4090-2，三机 SHA256 均为
+`f81a0a9d69e57acea79ee8dbb3b00e39e4b5395a084884ec0f99999722f4bb14`。
+当前 A6000 有无关 CAIDBench 进程占用 6,703 MiB，暂不冒险叠加 4 个
+IAPL ranks；按顺序等待 seed101，不能跳到 seed102。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

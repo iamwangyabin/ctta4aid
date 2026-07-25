@@ -1,0 +1,93 @@
+{
+  "experiment": "P3 UFD seed100 full official TTA",
+  "status": "completed_and_audited",
+  "started_at": "2026-07-25T12:34:11+08:00",
+  "completed_at": "2026-07-25T21:01:00+08:00",
+  "elapsed": "8:26:49",
+  "world_size": 8,
+  "rank_layout": {
+    "A6000": [0, 1, 2, 3],
+    "3090": [4, 5],
+    "4090-2": [6, 7]
+  },
+  "protocol": {
+    "eval_batch_size": 32,
+    "learning_rate": 0.005,
+    "tta_steps": 2,
+    "selection_p": 0.2,
+    "ois": true,
+    "seed": 100,
+    "domains": 19
+  },
+  "checkpoint": {
+    "sha256": "1bde24f04bd63adb8f7ac3943e3c56b62180fa5752710c58a62d5080dbd92462",
+    "training_static_accuracy": 0.8988,
+    "training_static_average_precision": 0.9815
+  },
+  "official_log_summary": {
+    "accuracy": 0.9169,
+    "average_precision": 0.9082,
+    "real_accuracy": 0.8648,
+    "fake_accuracy": 0.9690
+  },
+  "independent_prediction_recalculation": {
+    "accuracy": 0.9168952184934378,
+    "average_precision": 0.908209318633184,
+    "real_accuracy": 0.8647864030953585,
+    "fake_accuracy": 0.9690437012418867,
+    "paper_accuracy": 0.9560947368421053,
+    "paper_average_precision": 0.9931736842105263,
+    "accuracy_delta_to_paper": -0.03919951834866753,
+    "average_precision_delta_to_paper": -0.08496436557734233,
+    "matches_official_log_rounding": true
+  },
+  "delta_from_training_static_evaluation": {
+    "accuracy": 0.01809521849343776,
+    "average_precision": -0.073290681366816
+  },
+  "largest_accuracy_deficits": {
+    "crn": -0.3329080200501253,
+    "imle": -0.3318052631578947,
+    "seeingdark": -0.08330000000000004,
+    "stargan": -0.03974999999999995,
+    "biggan": -0.028249999999999997
+  },
+  "largest_average_precision_deficits": {
+    "crn": -0.4388915641476274,
+    "imle": -0.43825367485256583,
+    "seeingdark": -0.20998813559322038,
+    "stargan": -0.12478108581436076,
+    "biggan": -0.07189762126072685
+  },
+  "prediction_audit": {
+    "files": 19,
+    "dataset_size_sum": 88353,
+    "samples_after_distributed_padding": 88376,
+    "unique_index_sum": 88353,
+    "duplicate_sampler_indices": 23,
+    "coverage_failures": 0,
+    "array_length_failures": 0,
+    "world_sizes": [8]
+  },
+  "process_audit": {
+    "all_launchers_exited": true,
+    "all_eight_ranks_exited": true,
+    "tracebacks": 0,
+    "cuda_out_of_memory_errors": 0,
+    "runtime_errors": 0,
+    "nccl_warnings": 0,
+    "3090_gpu_released": true,
+    "4090-2_gpu_released": true,
+    "a6000_note": "The IAPL ranks released the GPU; a separate CAIDBench process subsequently owns 6703 MiB."
+  },
+  "artifacts": {
+    "prediction_files": 19,
+    "rank_logs": 8,
+    "launcher_logs": 3,
+    "independent_metrics": "final_metrics.json",
+    "artifact_files_excluding_manifest": 31,
+    "artifact_bytes_kib_excluding_manifest": 1852,
+    "ordered_sha256_list_sha256_excluding_manifest": "2abee9d25ed23c762c2bd24b9fb9cfdfa400ced048c75ec717e986308673ce05"
+  },
+  "conclusion": "The training-to-official-TTA chain completed, but seed100 is not within one point of the paper. TTA improves thresholded accuracy over the static evaluation while sharply reducing AP, dominated by crn, imle, seeingdark, and stargan. Preserve this result and continue to seed101 without selection."
+}

@@ -1,7 +1,9 @@
 {
   "experiment": "P3 UFD seed100 full official TTA",
-  "status": "running",
+  "status": "completed_and_audited",
   "started_at": "2026-07-25T12:34:11+08:00",
+  "completed_at": "2026-07-25T21:01:00+08:00",
+  "elapsed": "8:26:49",
   "world_size": 8,
   "master_addr": "192.168.10.2",
   "master_port": 29640,
@@ -95,8 +97,8 @@
     "metrics_reported": false
   },
   "latest_observation": {
-    "observed_at": "2026-07-25T18:16:38+08:00",
-    "domains_completed": 12,
+    "observed_at": "2026-07-25T21:16:40+08:00",
+    "domains_completed": 19,
     "completed_domains": [
       "crn",
       "cyclegan",
@@ -109,20 +111,23 @@
       "glide_100_27",
       "guided",
       "imle",
-      "ldm_100"
+      "ldm_100",
+      "ldm_200",
+      "ldm_200_cfg",
+      "progan",
+      "san",
+      "seeingdark",
+      "stargan",
+      "stylegan"
     ],
-    "current_domain": "ldm_200",
-    "current_domain_progress": "0/250",
-    "partial_macro_accuracy": 0.89824038767024,
-    "partial_macro_average_precision": 0.8942108866753927,
-    "all_three_launchers_alive": true,
-    "host_gpu_utilization_percent": {
-      "A6000": 100,
-      "3090": 100,
-      "4090-2": 100
-    },
+    "final_accuracy": 0.9168952184934378,
+    "final_average_precision": 0.908209318633184,
+    "accuracy_delta_to_paper": -0.03919951834866753,
+    "average_precision_delta_to_paper": -0.08496436557734233,
+    "all_three_launchers_exited": true,
+    "all_eight_ranks_exited": true,
     "tracebacks_or_cuda_errors": 0,
-    "snapshot": "snapshot_20260725_1816"
+    "final_artifact": "final"
   },
   "policy": "Run all 19 domains from the beginning. Preserve this attempt if it fails; do not report a metric until all eight ranks complete a domain."
 }
