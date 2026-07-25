@@ -1,0 +1,110 @@
+{
+  "experiment": "P3 UFD seed100 full official TTA",
+  "status": "running",
+  "started_at": "2026-07-25T12:34:11+08:00",
+  "world_size": 8,
+  "master_addr": "192.168.10.2",
+  "master_port": 29640,
+  "rank_layout": {
+    "A6000": [0, 1, 2, 3],
+    "3090": [4, 5],
+    "4090-2": [6, 7]
+  },
+  "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed100",
+  "checkpoint": {
+    "kind": "checkpoint_best_acc.pth",
+    "sha256": "1bde24f04bd63adb8f7ac3943e3c56b62180fa5752710c58a62d5080dbd92462",
+    "validated_on_all_three_hosts": true
+  },
+  "runtime": {
+    "iapl_upstream_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
+    "python": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python",
+    "torch": "2.2.2+cu121",
+    "datasets": "2.18.0",
+    "nccl_version": 23007,
+    "launcher_sha256": "30bee65d01b99043d8517747bf9df4b487349120a611aabaa029576fa17a43a7",
+    "launcher_hash_matches_on_all_three_hosts": true,
+    "4090-2_nvidia_compat_lib_dir": "/home/yabin/ctta4aid_assets/driver_compat/nvidia-580.159.03/rootfs/usr/lib/x86_64-linux-gnu"
+  },
+  "data": {
+    "A6000": "/home/yabin/ctta4aid_assets/data/df_arrow_20260717",
+    "3090": "/data/DF-arrow-data",
+    "4090-2": "/home/yabin/ctta4aid_assets/data/df_arrow_20260716",
+    "dataset_directories": [
+      "ForenSynths",
+      "Ojha"
+    ],
+    "files": 205,
+    "file_name_and_size_manifest_sha256": "7a079a2fd0517caa99633feb77da8510a0794c65a2aa0306114e5f4b08a19e6e",
+    "ordered_per_file_content_tree_sha256": "735262849f09c586f9f12beb778aec6a0e78f89b42b7961d02824c13f7deacc0",
+    "source_and_3090_match": true,
+    "rows": {
+      "ForenSynths": 818448,
+      "Ojha": 16000
+    }
+  },
+  "protocol": {
+    "eval_batch_size": 32,
+    "learning_rate": 0.005,
+    "tta_steps": 2,
+    "selection_p": 0.2,
+    "ois": true,
+    "seed": 100,
+    "distributed_timeout_seconds": 7200,
+    "domains": [
+      "crn",
+      "cyclegan",
+      "dalle",
+      "biggan",
+      "deepfake",
+      "gaugan",
+      "glide_50_27",
+      "glide_100_10",
+      "glide_100_27",
+      "guided",
+      "imle",
+      "ldm_100",
+      "ldm_200",
+      "ldm_200_cfg",
+      "progan",
+      "san",
+      "seeingdark",
+      "stargan",
+      "stylegan"
+    ]
+  },
+  "initial_observation": {
+    "observed_at": "2026-07-25T12:36:31+08:00",
+    "all_eight_ranks_completed_distributed_barrier": true,
+    "first_domain": "crn",
+    "rank0_progress": "0/1596",
+    "rank0_eta": "2:24:07",
+    "reported_rank0_max_memory_mib": 8432,
+    "host_memory_mib": {
+      "A6000": 36279,
+      "3090": 18208,
+      "4090-2": 18710
+    },
+    "host_gpu_utilization_percent": {
+      "A6000": 100,
+      "3090": 100,
+      "4090-2": 100
+    },
+    "tracebacks_or_cuda_errors": 0,
+    "domains_completed": 0,
+    "metrics_reported": false
+  },
+  "latest_observation": {
+    "observed_at": "2026-07-25T12:42:33+08:00",
+    "rank0_progress": "100/1596",
+    "first_domain_eta": "1:09:33",
+    "all_three_launchers_alive": true,
+    "host_gpu_utilization_percent": {
+      "A6000": 100,
+      "3090": 100,
+      "4090-2": 100
+    },
+    "tracebacks_or_cuda_errors": 0
+  },
+  "policy": "Run all 19 domains from the beginning. Preserve this attempt if it fails; do not report a metric until all eight ranks complete a domain."
+}

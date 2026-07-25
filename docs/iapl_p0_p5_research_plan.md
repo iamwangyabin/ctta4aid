@@ -141,6 +141,15 @@ Canonical Launchpad 下载匹配的 580.159.03 用户态包，仅解压到用户
 张量测试。两个评测启动器新增 `IAPL_NVIDIA_COMPAT_LIB_DIR`，并以一致哈希
 同步至三台现有节点。4090-2 已无系统侵入地恢复，但第三个大显存节点仍缺失。
 
+12:04 复查时 3090 恢复且 24 GiB GPU 空闲。其现有 UFD Arrow 的 205 个数据
+文件与 4090-2 在文件名、大小和逐文件内容上完全一致，内容树 SHA256 为
+`735262849f09c586f9f12beb778aec6a0e78f89b42b7961d02824c13f7deacc0`。
+同步并核验兼容环境、代码和权重后，12:34 已按 A6000 `4 ranks` + 3090
+`2 ranks` + 4090-2 `2 ranks` 启动 UFD seed100 官方 TTA。8 个 ranks
+全部通过分布式 barrier 并进入 `crn`，三台主机初始显存为
+36,279 / 18,208 / 18,710 MiB，尚无 traceback。当前只记录“运行中”，不把
+首 batch 当成完成结果。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

@@ -189,3 +189,16 @@ library directory, `nvidia-smi`, `cl` torch 2.12.0, and the official
 now accept `IAPL_NVIDIA_COMPAT_LIB_DIR`; identical script hashes were deployed
 to A6000, 4090-2, and 3070x2. This repairs 4090-2 without hiding the host
 failure, but does not remove the missing-third-node blocker.
+
+At 12:04 +08:00, 3090 recovered with an idle 24 GiB GPU. Its existing
+`/data/DF-arrow-data/{ForenSynths,Ojha}` tree was checked against 4090-2:
+all 205 dataset files have identical names, sizes, and ordered per-file
+content tree SHA256
+`735262849f09c586f9f12beb778aec6a0e78f89b42b7961d02824c13f7deacc0`.
+The exact compatibility environment and runtime assets were installed, then
+CUDA, NCCL 23007, dataset row counts, launcher hashes, checkpoint, and CLIP
+hashes all passed preflight. UFD seed100 official TTA started at 12:34 in the
+protocol-faithful A6000 4 + 3090 2 + 4090-2 2 layout. All eight ranks passed
+the distributed barrier and entered `crn`; the initial host allocations were
+36,279 / 18,208 / 18,710 MiB with no traceback. This is a running result, not
+a completed metric.

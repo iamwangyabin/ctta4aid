@@ -1,6 +1,6 @@
 {
   "experiment": "P3 trained-checkpoint official TTA execution plan",
-  "status": "waiting_for_third_24_gib_gpu_or_approved_6plus2_preflight",
+  "status": "running_1_of_6",
   "prepared_at": "2026-07-24T17:05:28+08:00",
   "source": {
     "iapl_upstream_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
@@ -11,7 +11,7 @@
     "world_size": 8,
     "rank_mapping": {
       "A6000": [0, 1, 2, 3],
-      "4090-1": [4, 5],
+      "3090": [4, 5],
       "4090-2": [6, 7]
     },
     "python": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python",
@@ -37,7 +37,7 @@
       "sha256": "1bde24f04bd63adb8f7ac3943e3c56b62180fa5752710c58a62d5080dbd92462",
       "master_port": 29640,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed100",
-      "status": "retry_pending_after_failed_5plus3_layout"
+      "status": "running_attempt3_4plus2plus2"
     },
     {
       "order": 2,
@@ -134,17 +134,16 @@
     ]
   },
   "resource_audit": {
-    "observed_at": "2026-07-25T06:14:34+08:00",
-    "artifact": "driver_compat_recovery_20260725.json",
-    "A6000": "online through LAN and idle at 0% utilization with 17/49140 MiB allocated",
+    "observed_at": "2026-07-25T12:36:31+08:00",
+    "artifact": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090/launch_manifest.json",
+    "A6000": "online through LAN; running ranks 0-3 at 36279/49140 MiB and 100% utilization",
     "4090-1": "Tailscale SSH timeout; LAN SSH reports host down",
-    "4090-2": "system NVIDIA 580.173.02 user libraries mismatch the loaded 580.159.03 kernel module; isolated matching libraries restore nvidia-smi and CUDA in both required PyTorch environments without reboot",
-    "3090": "Tailscale SSH timeout",
+    "4090-2": "isolated 580.159.03 compatibility libraries active; running ranks 6-7 at 18710/24564 MiB and 100% utilization",
+    "3090": "recovered, provisioned, and running ranks 4-5 at 18208/24576 MiB and 100% utilization",
     "3070x2": "both GPUs recovered, but each 8 GiB GPU failed a single-rank official-batch preflight before the first batch at sampled peaks of 7857 and 7845 MiB",
     "rejected_fallback": "A6000 4 ranks; 3070x2 one rank per GPU; 4090-2 2 ranks",
     "preflight_artifact": "ufd/seed100/tta_preflight_3070x2",
-    "candidate": "A monitored 6+2 preflight is technically possible because A6000 is fully idle, but six concurrent ranks on 48 GiB are unvalidated and require explicit approval.",
     "partial_launch_artifact": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
-    "conclusion": "4090-2 is recovered for experiments through the isolated compatibility path, but the validated 4+2+2 layout remains unavailable because 4090-1 is offline. The 4+1+1+2 fallback is disproved; keep all six runs pending until 4090-1 returns or the 6+2 preflight is explicitly approved."
+    "conclusion": "The protocol-faithful A6000 4 + 3090 2 + 4090-2 2 layout is running UFD seed100. All eight ranks completed the distributed barrier and entered crn without a traceback or CUDA error."
   }
 }
