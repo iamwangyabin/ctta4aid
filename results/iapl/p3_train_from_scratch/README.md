@@ -368,3 +368,11 @@ at 83.35% Accuracy but 95.84% AP; its 98.80% real versus 67.90% fake accuracy
 shows a threshold bias opposite to `crn`. The three GLIDE variants reach
 91.05%--94.85% Accuracy and 95.02%--97.45% AP. These weak and opposing domain
 behaviors are preserved, and the distributed run remains healthy.
+
+At 05:43, seed102 completed seventeen domains and entered `stargan` at 50/500.
+The independently recalculated macro result fell to 87.68% Accuracy / 90.30%
+AP with 82.47% / 92.88% real/fake accuracy. `imle` is only 51.60% / 59.58%
+Acc/AP with 3.23% real accuracy, closely matching this seed's `crn` failure;
+`seeingdark` reaches 61.39% / 57.69% with 22.78% real and 100% fake accuracy.
+In contrast, `progan` reaches 99.89% / 100.00%. Every weak and strong result is
+retained. Only `stargan` and `stylegan` remain, with all ranks healthy.

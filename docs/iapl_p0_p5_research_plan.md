@@ -341,6 +341,13 @@ Acc/AP 均超过 94%，说明当前宏平均的主要下拉仍是已保留的 `c
 accuracy 表明阈值偏向真实类；三个 GLIDE 域 Acc 为 91.05%--94.85%、AP 为
 95.02%--97.45%。这些域与 `crn` 的相反类别偏置全部保留，运行仍无故障。
 
+05:43，seed102 已完成十七域并进入 `stargan` 50/500。十七域宏平均降至
+87.68% Acc / 90.30% AP，real/fake accuracy 为 82.47%/92.88%。新出现的
+`imle` 只有 51.60%/59.58% Acc/AP，real accuracy 3.23%，与该 seed 的 `crn`
+几乎同型；`seeingdark` 为 61.39%/57.69%，real/fake accuracy 22.78%/100%。
+相反，`progan` 达 99.89%/100.00%。这些极端弱域与强域均原样保留，仅剩
+`stargan`、`stylegan`，八 ranks 无故障。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
