@@ -281,6 +281,14 @@ seed100 的 59.54%/56.17% 形成反向极端差异，进一步确认训练 seed 
 （-0.01 点），AP 高 6.06 点。十三个预测文件和完整复算已保存，当前进入
 `ldm_200_cfg`，三机八 ranks 未见运行错误。
 
+截至 13:46，seed101 已完成 17/19 域。`ldm_200_cfg` 为 89.90%/94.52%，
+`progan` 为 99.86%/99.99%；`san` 和 `seeingdark` 则只有
+70.45%/90.03% 与 75.83%/82.85% Acc/AP，fake accuracy 分别为
+41.10%/52.22%。十七域宏平均为 88.98%/95.15%，较论文同域低
+6.60/4.10 个百分点；相对 seed100 同域，Acc 低 2.34 点、AP 高 4.66 点。
+SAN 的两个 sampler padding 重复样本和全部弱结果均原样保留。当前进入
+`stargan`，之后只剩 `stylegan`，三机八 ranks 未见运行错误。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

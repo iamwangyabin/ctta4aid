@@ -104,16 +104,16 @@
     "metrics_reported": false
   },
   "latest_observation": {
-    "observed_at": "2026-07-26T12:44:37+08:00",
-    "domains_completed": 13,
-    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle", "ldm_100", "ldm_200"],
-    "partial_accuracy": 0.9051430563733782,
-    "partial_average_precision": 0.9617099336937625,
-    "next_domain": "ldm_200_cfg",
-    "next_domain_progress": "0/250",
+    "observed_at": "2026-07-26T13:46:54+08:00",
+    "domains_completed": 17,
+    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle", "ldm_100", "ldm_200", "ldm_200_cfg", "progan", "san", "seeingdark"],
+    "partial_accuracy": 0.8898449129842768,
+    "partial_average_precision": 0.951539617419714,
+    "next_domain": "stargan",
+    "next_domain_progress": "0/500",
     "monitoring_warning": "All three hosts were reachable over LAN, all eight GPU processes remained resident, and no rank error was detected.",
-    "seed_sensitivity_preserved": "imle: 99.78%/99.58% versus seed100 59.54%/56.17% Acc/AP",
-    "snapshot": "snapshot_20260726_1244"
+    "weak_domains_preserved": "ldm_200_cfg: 89.90%/94.52%; san: 70.45%/90.03%; seeingdark: 75.83%/82.85% Acc/AP",
+    "snapshot": "snapshot_20260726_1346"
   },
   "policy": "Run all 19 domains from the beginning. Preserve every failure or weak domain; do not report a final metric until all eight ranks complete all domains."
 }
