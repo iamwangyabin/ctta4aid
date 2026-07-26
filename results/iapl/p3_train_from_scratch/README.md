@@ -360,3 +360,11 @@ the five prediction files gives 88.27% macro Accuracy / 90.52% macro AP and
 78.92% / 97.62% real/fake accuracy. The other four domains exceed 94% on both
 metrics, so the retained `crn` bias remains the main cause of the lower macro
 result rather than an execution failure. All eight ranks remain healthy.
+
+At 03:14, seed102 completed ten domains and entered `imle` at 200/1596. The
+independently recalculated ten-domain macro result is 90.01% Accuracy / 93.24%
+AP with 88.10% / 91.92% real/fake accuracy. `guided` is the weakest new domain
+at 83.35% Accuracy but 95.84% AP; its 98.80% real versus 67.90% fake accuracy
+shows a threshold bias opposite to `crn`. The three GLIDE variants reach
+91.05%--94.85% Accuracy and 95.02%--97.45% AP. These weak and opposing domain
+behaviors are preserved, and the distributed run remains healthy.

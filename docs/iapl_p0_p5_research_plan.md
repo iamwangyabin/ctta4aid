@@ -335,6 +335,12 @@ rank0 到达 0/1596、峰值 8,437 MiB，未见 traceback、OOM、runtime 或 co
 Acc/AP 均超过 94%，说明当前宏平均的主要下拉仍是已保留的 `crn` 极端偏置，
 而不是运行故障；八 ranks 未见异常。
 
+03:14，seed102 完成十域并进入 `imle` 200/1596。十个预测文件独立复算宏平均
+为 90.01% Acc / 93.24% AP，real/fake accuracy 为 88.10%/91.92%。新增五域中
+`guided` 只有 83.35% Acc，但 AP 仍为 95.84%，其 98.80% real / 67.90% fake
+accuracy 表明阈值偏向真实类；三个 GLIDE 域 Acc 为 91.05%--94.85%、AP 为
+95.02%--97.45%。这些域与 `crn` 的相反类别偏置全部保留，运行仍无故障。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

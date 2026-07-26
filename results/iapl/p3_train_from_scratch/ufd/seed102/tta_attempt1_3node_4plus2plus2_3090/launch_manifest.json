@@ -63,18 +63,18 @@
     "metrics_reported": false
   },
   "latest_observation": {
-    "observed_at": "2026-07-27T01:43:12+08:00",
-    "domains_completed": 5,
-    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake"],
-    "macro_accuracy": 0.8826876080375952,
-    "macro_average_precision": 0.9052221867036142,
-    "macro_real_accuracy": 0.7892010950050479,
-    "macro_fake_accuracy": 0.9762160118606374,
-    "next_domain": "gaugan",
-    "next_domain_rank0_progress": "500/1250",
+    "observed_at": "2026-07-27T03:14:01+08:00",
+    "domains_completed": 10,
+    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided"],
+    "macro_accuracy": 0.9001138040187977,
+    "macro_average_precision": 0.9324455944479049,
+    "macro_real_accuracy": 0.881040547502524,
+    "macro_fake_accuracy": 0.9192080059303187,
+    "next_domain": "imle",
+    "next_domain_rank0_progress": "200/1596",
     "all_eight_ranks_alive": true,
     "tracebacks_cuda_oom_runtime_or_collective_errors": 0,
-    "artifact": "running_snapshot_20260727_0143/metrics.json"
+    "artifact": "running_snapshot_20260727_0314/metrics.json"
   },
   "preflight": "../preflight_20260726_2245/manifest.json",
   "policy": "Run all 19 domains from the beginning. Preserve every failure or weak domain; do not report final metrics until all eight ranks complete all domains."
