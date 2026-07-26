@@ -1,6 +1,6 @@
 {
   "experiment": "P3 trained-checkpoint official TTA execution plan",
-  "status": "completed_2_of_6_ufd_seed102_next",
+  "status": "completed_2_of_6_waiting_to_launch_ufd_seed102",
   "prepared_at": "2026-07-24T17:05:28+08:00",
   "source": {
     "iapl_upstream_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
@@ -76,8 +76,9 @@
       "sha256": "d324bac298ddd827ee17b688e932da03cf864d0e0933320c269a2d343811313d",
       "master_port": 29642,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed102",
-      "status": "ready_for_fresh_preflight_and_launch",
-      "preflight": "ufd/seed102/preflight_20260726_0123"
+      "status": "waiting_for_a6000_after_2_of_3_fresh_preflights_passed",
+      "preflight": "ufd/seed102/preflight_20260726_1530",
+      "blocker": "Unrelated A6000 PID 32143 owns 5036 MiB for codaprompt CAIDBench; do not interrupt it or launch a partial distributed world."
     },
     {
       "order": 4,
@@ -169,16 +170,16 @@
     "conclusion": "The launcher, framework path, test Arrow replicas, and all three trained checkpoint replicas are ready. GenImage remains behind both pending UFD TTA runs."
   },
   "resource_audit": {
-    "observed_at": "2026-07-26T15:24:19+08:00",
-    "artifact": "ufd/seed101/preflight_20260725_2123/manifest.json",
-    "A6000": "seed101 ranks 0-3 and launcher exited; GPU released",
+    "observed_at": "2026-07-26T15:30:25+08:00",
+    "artifact": "ufd/seed102/preflight_20260726_1530/manifest.json",
+    "A6000": "seed101 released the GPU, but unrelated codaprompt PID 32143 subsequently acquired 5036 MiB; seed102 preflight failed the idle-GPU requirement",
     "4090-1": "recovered; seed101 source checkpoint verified, but unrelated CAIDBench work uses 8406/24564 MiB at 100% utilization",
-    "4090-2": "seed101 ranks 6-7 and launcher exited; GPU released; isolated 580.159.03 compatibility libraries remain required until the driver changes",
-    "3090": "seed101 ranks 4-5 and launcher exited; GPU released",
+    "4090-2": "idle; fresh seed102 exact preflight passed with NCCL 23007 and isolated 580.159.03 compatibility libraries",
+    "3090": "idle; fresh seed102 exact preflight passed with NCCL 23007",
     "3070x2": "both GPUs recovered, but each 8 GiB GPU failed a single-rank official-batch preflight before the first batch at sampled peaks of 7857 and 7845 MiB",
     "rejected_fallback": "A6000 4 ranks; 3070x2 one rank per GPU; 4090-2 2 ranks",
     "preflight_artifact": "ufd/seed100/tta_preflight_3070x2",
     "partial_launch_artifact": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
-    "conclusion": "UFD seed101 completed all 19 domains and passed its final audit. Seed102 is now next in the fixed execution order and must pass a fresh exact preflight before launch."
+    "conclusion": "UFD seed101 completed and passed its final audit. Seed102 remains next, but its fresh A6000 preflight is blocked by an unrelated active process. Do not interrupt that work or launch a partial world; rerun every preflight after release."
   }
 }

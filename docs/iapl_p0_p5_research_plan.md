@@ -301,6 +301,13 @@ Acc/AP 为 89.54%/95.48%，19 个预测文件独立复算为 89.5358%/95.4825%�
 本机成功复算；失败和重试均归档。seed102 现在按顺序成为下一项，启动前仍需
 重新执行三机精确预检。
 
+15:30 的 seed102 新鲜预检中，3090 与 4090-2 均通过 checkpoint、启动器、
+Arrow、NCCL 23007、seed102 和空输出目录检查；但 seed101 释放 A6000 后，另一项
+CoDA-Prompt CAIDBench 作业已启动，PID 32143 占用 5,036 MiB，且日志仍在完成
+stage 1 协议评测。因此 A6000 的“GPU 必须空闲”检查明确失败，seed102 没有启动，
+也没有只启动部分 ranks。该作业不被中断；失败预检已保存，待其退出后必须重新
+执行三台节点的完整预检，而不是复用这次两台通过结果。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

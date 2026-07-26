@@ -320,3 +320,10 @@ metrics. The first final-summary attempt failed before reading predictions
 because the summarizer was not deployed on A6000; the tracked local script
 then completed the audit. Both attempts are recorded. Seed102 is now next and
 must pass a fresh three-host preflight before it starts.
+
+The 15:30 fresh seed102 preflight passed on 3090 and 4090-2, but failed the
+idle-GPU requirement on A6000 after an unrelated CoDA-Prompt CAIDBench process
+acquired 5,036 MiB. Its PID remained active after stage-1 protocol evaluation.
+No partial distributed world was launched and the unrelated process was not
+interrupted. The failed preflight is retained; all three node preflights must
+be repeated after A6000 is released.
