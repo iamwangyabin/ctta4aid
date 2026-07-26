@@ -376,3 +376,15 @@ Acc/AP with 3.23% real accuracy, closely matching this seed's `crn` failure;
 `seeingdark` reaches 61.39% / 57.69% with 22.78% real and 100% fake accuracy.
 In contrast, `progan` reaches 99.89% / 100.00%. Every weak and strong result is
 retained. Only `stargan` and `stylegan` remain, with all ranks healthy.
+
+UFD seed102 completed all 19 domains at 07:12:52 after 8h26m39s. The official
+log reports 88.51% Acc / 91.16% AP; independent recalculation gives 88.5146% /
+91.1639%, 7.09 / 8.15 points below the paper. TTA raises Accuracy by 2.07
+points but lowers AP by 5.97 points versus this checkpoint's static evaluation.
+All 88,353 unique indices are covered, 23 padding records are retained, all
+ranks and launchers exited, and every target GPU was released. The first local
+cross-seed comparison failed at import because system Python lacked numpy; the
+same tracked script then passed in A6000's `cl` environment. UFD three-seed
+official TTA now averages 89.91% +/- 1.62 Accuracy and 92.49% +/- 2.60 AP.
+`crn` and `imle` each span more than 48 Accuracy points across seeds, so the
+domain behavior is not stable. GenImage seed100 is the next P3 run.

@@ -1,7 +1,9 @@
 {
   "experiment": "P3 UFD seed102 full official TTA",
-  "status": "running",
+  "status": "completed_and_audited",
   "started_at": "2026-07-26T22:46:13+08:00",
+  "completed_at": "2026-07-27T07:12:52+08:00",
+  "elapsed": "8:26:39",
   "world_size": 8,
   "master_addr": "192.168.10.2",
   "master_port": 29642,
@@ -63,18 +65,18 @@
     "metrics_reported": false
   },
   "latest_observation": {
-    "observed_at": "2026-07-27T05:43:14+08:00",
-    "domains_completed": 17,
-    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle", "ldm_100", "ldm_200", "ldm_200_cfg", "progan", "san", "seeingdark"],
-    "macro_accuracy": 0.8767763267355334,
-    "macro_average_precision": 0.9029540874886369,
-    "macro_real_accuracy": 0.8247230585913046,
-    "macro_fake_accuracy": 0.9288242769238243,
-    "next_domain": "stargan",
-    "next_domain_rank0_progress": "50/500",
-    "all_eight_ranks_alive": true,
+    "observed_at": "2026-07-27T07:16:47+08:00",
+    "completed_at": "2026-07-27T07:12:52+08:00",
+    "domains_completed": 19,
+    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle", "ldm_100", "ldm_200", "ldm_200_cfg", "progan", "san", "seeingdark", "stargan", "stylegan"],
+    "macro_accuracy": 0.8851456305476458,
+    "macro_average_precision": 0.9116394569853377,
+    "macro_real_accuracy": 0.8415950168829702,
+    "macro_fake_accuracy": 0.9286909850025981,
+    "all_eight_ranks_exited": true,
+    "all_three_launchers_exited": true,
     "tracebacks_cuda_oom_runtime_or_collective_errors": 0,
-    "artifact": "running_snapshot_20260727_0543/metrics.json"
+    "artifact": "final/manifest.json"
   },
   "preflight": "../preflight_20260726_2245/manifest.json",
   "policy": "Run all 19 domains from the beginning. Preserve every failure or weak domain; do not report final metrics until all eight ranks complete all domains."

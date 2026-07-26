@@ -1,6 +1,6 @@
 {
   "experiment": "P3 trained-checkpoint official TTA execution plan",
-  "status": "completed_2_of_6_running_ufd_seed102",
+  "status": "completed_3_of_6_ready_for_genimage_seed100_preflight",
   "prepared_at": "2026-07-24T17:05:28+08:00",
   "source": {
     "iapl_upstream_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
@@ -76,12 +76,17 @@
       "sha256": "d324bac298ddd827ee17b688e932da03cf864d0e0933320c269a2d343811313d",
       "master_port": 29642,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed102",
-      "status": "running",
+      "status": "completed_and_audited",
       "preflight": "ufd/seed102/preflight_20260726_2245",
       "resource_follow_up": "ufd/seed102/resource_monitor_20260726_2113",
       "started_at": "2026-07-26T22:46:13+08:00",
       "running_attempt": "ufd/seed102/tta_attempt1_3node_4plus2plus2_3090",
-      "initial_state": "All eight ranks crossed the distributed barrier and entered crn with no immediate error."
+      "initial_state": "All eight ranks crossed the distributed barrier and entered crn with no immediate error.",
+      "completed_at": "2026-07-27T07:12:52+08:00",
+      "domains_completed": 19,
+      "accuracy": 0.8851456305476458,
+      "average_precision": 0.9116394569853377,
+      "artifact": "ufd/seed102/tta_attempt1_3node_4plus2plus2_3090/final"
     },
     {
       "order": 4,
@@ -93,7 +98,7 @@
       "sha256": "aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096",
       "master_port": 29643,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed100",
-      "status": "ready_waiting_for_ufd_seed101_and_seed102"
+      "status": "next_pending_fresh_preflight"
     },
     {
       "order": 5,
@@ -173,16 +178,16 @@
     "conclusion": "The launcher, framework path, test Arrow replicas, and all three trained checkpoint replicas are ready. GenImage remains behind both pending UFD TTA runs."
   },
   "resource_audit": {
-    "observed_at": "2026-07-26T22:47:41+08:00",
-    "artifact": "ufd/seed102/preflight_20260726_2245/manifest.json",
-    "A6000": "sprompt PID 50094 completed; fresh seed102 preflight passed and ranks 0-3 are running",
+    "observed_at": "2026-07-27T07:16:47+08:00",
+    "artifact": "ufd/seed102/tta_attempt1_3node_4plus2plus2_3090/final/manifest.json",
+    "A6000": "seed102 ranks 0-3 and launcher exited; GPU released at 17/49140 MiB",
     "4090-1": "recovered; seed101 source checkpoint verified, but unrelated CAIDBench work uses 8406/24564 MiB at 100% utilization",
-    "4090-2": "fresh seed102 exact preflight passed with NCCL 23007 and isolated 580.159.03 compatibility libraries; ranks 6-7 are running",
-    "3090": "fresh seed102 exact preflight passed with NCCL 23007; ranks 4-5 are running",
+    "4090-2": "seed102 ranks 6-7 and launcher exited; GPU released at 252/24564 MiB through isolated compatibility libraries",
+    "3090": "seed102 ranks 4-5 and launcher exited; GPU released at 106/24576 MiB",
     "3070x2": "both GPUs recovered, but each 8 GiB GPU failed a single-rank official-batch preflight before the first batch at sampled peaks of 7857 and 7845 MiB",
     "rejected_fallback": "A6000 4 ranks; 3070x2 one rank per GPU; 4090-2 2 ranks",
     "preflight_artifact": "ufd/seed100/tta_preflight_3070x2",
     "partial_launch_artifact": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
-    "conclusion": "UFD seed101 completed and passed its final audit. After both A6000 blockers exited, every seed102 preflight was rerun and passed. Seed102 is now running in the fixed 4+2+2 layout; keep all GenImage runs queued until it completes and is audited."
+    "conclusion": "All three UFD runs completed and passed final artifact, coverage, process, and GPU-release audits. GenImage seed100 is now next and must receive a fresh three-host preflight before launch."
   }
 }

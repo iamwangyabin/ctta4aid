@@ -348,6 +348,16 @@ accuracy 表明阈值偏向真实类；三个 GLIDE 域 Acc 为 91.05%--94.85%�
 相反，`progan` 达 99.89%/100.00%。这些极端弱域与强域均原样保留，仅剩
 `stargan`、`stylegan`，八 ranks 无故障。
 
+07:12:52，seed102 完成全部 19 域，耗时 8:26:39。官方日志为 88.51% Acc /
+91.16% AP，独立复算精确值为 88.5146%/91.1639%，较论文低 7.09/8.15 点。
+相对静态评测，TTA 令 Acc 提高 2.07 点、AP 降低 5.97 点。19 个预测文件覆盖
+88,353 个唯一索引，23 个 padding 样本保留；八 ranks、三 launcher 全部退出，
+三机 GPU 均释放且无运行错误。本机首次跨 seed 比较因系统 Python 缺少 numpy
+在导入阶段失败，随后在 A6000 `cl` 环境用同一跟踪脚本成功重试，失败与重试均
+归档。UFD 三 seed 官方 TTA 至此完成，汇总为 89.91% +/- 1.62 Acc、
+92.49% +/- 2.60 AP；`crn`、`imle` 的跨 seed Acc 范围均超过 48 点，不能视为
+域级稳定。P3 尚未完成，下一项严格为 GenImage seed100 官方 TTA。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
