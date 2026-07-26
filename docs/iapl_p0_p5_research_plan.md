@@ -358,6 +358,23 @@ accuracy 表明阈值偏向真实类；三个 GLIDE 域 Acc 为 91.05%--94.85%�
 92.49% +/- 2.60 AP；`crn`、`imle` 的跨 seed Acc 范围均超过 48 点，不能视为
 域级稳定。P3 尚未完成，下一项严格为 GenImage seed100 官方 TTA。
 
+07:22:55 启动 GenImage seed100 后，第一次尝试在首 batch 前失败。A6000 的
+`Dataset_Creator_GenImage` 缺少 Arrow 分支，ranks 0--3 将 `hf_arrow://` URI
+误当成 ImageFolder 路径并在 `test/ADM` 抛出 `FileNotFoundError`；其余四个
+ranks 随后因对端退出产生次生 NCCL 错误。此前预检只检查 Arrow `state.json`
+和参数，没有真正实例化 GenImage creator，因此未发现 A6000 运行时漂移。零预测、
+十一份日志和三机退出/GPU 释放状态均已归档，没有把失败隐藏成模型结果。
+
+A6000 旧文件已备份，并替换为与 3090、4090-2 相同的
+`25f0904428...` 实现。GenImage launcher 也增加了真实的首域 Arrow 构建 smoke，
+该检查在 `IAPL_PREFLIGHT_ONLY=1` 退出前执行。P3 顺序不变：重新部署后，seed100
+必须在三机通过增强预检，再从空输出目录完整重跑；seed101/102 继续等待。
+
+07:36，三机增强预检全部通过：实际 pinned `Dataset_Creator_GenImage` 均成功将
+`ADM` 构造成 12,000 行非空 Arrow dataset；同时复核了 launcher/checkpoint
+哈希、NCCL 23007、GPU 空闲与正式输出目录不存在。A6000 的 `cl` 环境还通过
+12 项聚焦协议测试。seed100 已具备从 rank 0 干净重启条件，仍不提前启动后续 seed。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

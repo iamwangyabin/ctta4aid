@@ -113,6 +113,10 @@ class IAPLOfficialRunnerTests(unittest.TestCase):
             "dataset_format=hf_arrow",
             "num_workers=${num_workers:-0}",
             "num_workers=${num_workers:-8}",
+            "Dataset_Creator_GenImage",
+            'creator.build_dataset(',
+            '"tta", selected_subsets=[domain]',
+            "GenImage Arrow runtime smoke passed",
             'seed=${IAPL_SEED:-100}',
             '--seed "$seed"',
         ):

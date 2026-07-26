@@ -388,3 +388,26 @@ same tracked script then passed in A6000's `cl` environment. UFD three-seed
 official TTA now averages 89.91% +/- 1.62 Accuracy and 92.49% +/- 2.60 AP.
 `crn` and `imle` each span more than 48 Accuracy points across seeds, so the
 domain behavior is not stable. GenImage seed100 is the next P3 run.
+
+GenImage seed100 attempt 1 started on the same three hosts at 07:22:55, but
+failed before the first batch. A6000 ranks 0--3 treated the literal
+`hf_arrow://` URI as an ImageFolder path and raised `FileNotFoundError` for
+`test/ADM`; ranks 4--7 then exited with secondary NCCL errors after their peers
+disappeared. The earlier Arrow preflight had checked state files and arguments,
+not the actual `Dataset_Creator_GenImage` construction path, so it produced a
+false positive after the A6000 runtime drifted behind the other two hosts. All
+eleven logs and the zero-prediction outcome are preserved under
+`genimage/seed100/tta_attempt1_missing_a6000_genimage_arrow`.
+
+The stale A6000 runtime was backed up and replaced with the byte-identical
+3090/4090-2 implementation (`25f09044...`). The tracked launcher now performs
+a real first-domain GenImage Arrow dataset construction before a preflight can
+pass. Seed100 remains next; it must pass this stronger check on all three hosts
+and restart from an empty official output directory.
+
+At 07:36, all three hosts passed that strengthened preflight. Each imported the
+actual pinned GenImage creator and constructed `ADM` as a non-empty 12,000-row
+Arrow dataset; launcher/checkpoint hashes, NCCL 23007, idle GPUs, and absent
+official output directories were also rechecked. The A6000 `cl` environment
+passed all 12 focused protocol tests. The clean seed100 retry is now cleared to
+launch, while seed101/102 remain blocked by execution order.

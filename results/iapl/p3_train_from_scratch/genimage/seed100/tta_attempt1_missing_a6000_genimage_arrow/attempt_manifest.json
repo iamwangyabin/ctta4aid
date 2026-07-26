@@ -1,0 +1,58 @@
+{
+  "experiment": "P3 GenImage seed100 trained-checkpoint official TTA",
+  "status": "failed_before_first_batch_preserved",
+  "attempt": 1,
+  "started_at": "2026-07-27T07:22:55+08:00",
+  "last_log_write_at": "2026-07-27T07:24:06+08:00",
+  "protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "master_port": 29643,
+    "seed": 100,
+    "dataset_uri": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+    "checkpoint_sha256": "aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096",
+    "launcher_sha256": "894f0bfb21d77ffdab11208e64eb35300e186d2637917449fe64c797f10fa137"
+  },
+  "failure": {
+    "primary_host": "A6000",
+    "primary_ranks": [0, 1, 2, 3],
+    "primary_error": "FileNotFoundError for the literal hf_arrow://.../GenImage_test/test/ADM path",
+    "root_cause": "A6000's pinned IAPL runtime had Arrow support in Dataset_Creator but not Dataset_Creator_GenImage.",
+    "secondary_hosts": ["3090", "4090-2"],
+    "secondary_ranks": [4, 5, 6, 7],
+    "secondary_error": "RuntimeError: Unconvertible NCCL type after the A6000 peers exited",
+    "domains_completed": 0,
+    "batches_completed": 0,
+    "predictions_written": 0
+  },
+  "preflight_audit": {
+    "prior_artifact": "../../tta_arrow_preflight_20260726_0154/manifest.json",
+    "finding": "The prior preflight checked Arrow state files and launcher arguments, but did not instantiate Dataset_Creator_GenImage. It therefore passed despite later A6000 runtime drift.",
+    "A6000_runtime_sha256_before_fix": "07769f6ef2c16b6b7cce3cef0e25fc6924e9195991bd69e6ae2355055711d39c",
+    "3090_and_4090_2_runtime_sha256": "25f090442824464c5d09b58a6d7a1be3c2746a2fda1a24926cba92abf11a9d1b"
+  },
+  "recovery": {
+    "A6000_backup": "/home/yabin/ctta4aid_assets/external/IAPL/utils/dataset.py.before_genimage_arrow_20260727",
+    "A6000_runtime_sha256_after_fix": "25f090442824464c5d09b58a6d7a1be3c2746a2fda1a24926cba92abf11a9d1b",
+    "remote_archive_name": "genimage_seed100_attempt1_missing_a6000_genimage_arrow",
+    "launcher_fix": "Arrow preflight now imports Dataset_Creator_GenImage and builds the first requested TTA domain before reporting success.",
+    "launcher_sha256_after_fix": "8f0f1696c638bd3fc7a83d690d3ebab7be1423fbbd556d28c50727562f0587c2",
+    "retry_policy": "Deploy the strengthened launcher, pass the runtime smoke on every host, and restart from an empty official output directory. Do not reuse adaptation state."
+  },
+  "post_failure_audit": {
+    "all_ranks_and_launchers_exited": true,
+    "gpu_memory_mib": {
+      "A6000": 17,
+      "3090": 106,
+      "4090-2": 252
+    },
+    "local_log_files": 11,
+    "local_log_bytes": 30100,
+    "ordered_log_sha256_list_sha256": "c8c9443c327a802d3866bd9f3a5edbd0ea3236911296870f85f2a62e0cb6cac0"
+  },
+  "conclusion": "This was an execution failure, not a model result. It is retained in full and seed100 remains the next strict-order run."
+}

@@ -131,7 +131,7 @@
     }
   },
   "genimage": {
-    "status": "training_complete_tta_pending",
+    "status": "training_complete_seed100_tta_retry_ready",
     "source_host": "3090",
     "source_root": "/data/DF-arrow-data/GenImage",
     "expected_arrow_shards": 1214,
@@ -350,7 +350,24 @@
       "seed101_checkpoint_sha256": "4cbaec6c15a9a0219d68cb5ef947585b5362ed4a5befe3e359b3152e84eaf2d9",
       "seed102_checkpoint_sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
       "all_checkpoint_replicas_verified_on": ["A6000", "3090", "4090-2"],
+      "historical_limitation": "The state-file and argument checks did not instantiate Dataset_Creator_GenImage, so they missed later A6000 runtime drift.",
       "order_guard": "Preparation only; UFD seeds 101 and 102 remain ahead of every GenImage TTA run."
+    },
+    "tta_progress": {
+      "100": {
+        "status": "attempt1_failed_before_first_batch_retry_preflight_passed",
+        "failed_attempt": "genimage/seed100/tta_attempt1_missing_a6000_genimage_arrow",
+        "started_at": "2026-07-27T07:22:55+08:00",
+        "failure": "A6000 Dataset_Creator_GenImage lacked the Arrow path; ranks 4-7 then reported secondary NCCL errors.",
+        "predictions_written": 0,
+        "all_processes_exited_and_gpus_released": true,
+        "A6000_runtime_sha256_after_fix": "25f090442824464c5d09b58a6d7a1be3c2746a2fda1a24926cba92abf11a9d1b",
+        "strengthened_launcher_sha256": "8f0f1696c638bd3fc7a83d690d3ebab7be1423fbbd556d28c50727562f0587c2",
+        "retry_preflight": "genimage/seed100/preflight_20260727_0736/manifest.json",
+        "next_action": "Restart all eight ranks from empty official output directories; the real GenImage Arrow construction smoke passed on all three hosts."
+      },
+      "101": {"status": "ready_waiting_behind_seed100"},
+      "102": {"status": "ready_waiting_behind_seed101"}
     },
     "policy": "Keep the immutable 324,000-row conversion for audit, but train only from the 323,997-row filtered metadata view after its full decode passes. Preserve the failed 324,000-row attempt."
   },
@@ -358,20 +375,20 @@
     "scripts/run_iapl_ufd_train_single.sh": "ed27fbf0c14983e5f86fb80ed5a6dc593e1dcf568c66da3ca816a7635d8a4948",
     "scripts/import_genimage_to_hf_arrow.py": "782e4912fc6acf89358325c722a23e5dfcd84bd8b066ab00611112708f1ed29c",
     "scripts/run_iapl_genimage_train_single.sh": "76ef1b37bf20c20bc682adde4241d8cd1a952fc27795777dec73d04c31d2c133",
-    "scripts/run_iapl_genimage_manual_ranks.sh": "894f0bfb21d77ffdab11208e64eb35300e186d2637917449fe64c797f10fa137"
+    "scripts/run_iapl_genimage_manual_ranks.sh": "8f0f1696c638bd3fc7a83d690d3ebab7be1423fbbd556d28c50727562f0587c2"
   },
   "trained_checkpoint_tta": {
-    "status": "completed_3_of_6_ready_for_genimage_seed100_preflight",
+    "status": "completed_3_of_6_genimage_seed100_retry_ready",
     "runs_total": 6,
     "runs_completed": 3,
     "execution_plan": "tta_execution_plan.json",
     "required_rank_layout": "A6000 4 ranks; 3090 2 ranks; 4090-2 2 ranks",
-    "latest_resource_audit": "ufd/seed102/preflight_20260726_2245/manifest.json",
-    "latest_resource_observed_at": "2026-07-26T22:47:41+08:00",
-    "latest_resource_conclusion": "S-Prompt PID 50094 completed and released A6000. Fresh exact preflights passed on all three hosts, and UFD seed102 launched with all eight ranks across the barrier and no immediate error.",
-    "running_attempt": "ufd/seed102/tta_attempt1_3node_4plus2plus2_3090",
-    "latest_progress": "ufd/seed102/tta_attempt1_3node_4plus2plus2_3090/final/manifest.json",
-    "latest_progress_conclusion": "All three UFD trained checkpoints completed official TTA. Seed102 reached 88.51% Accuracy and 91.16% AP; the three-seed mean is 89.91 +/- 1.62 and 92.49 +/- 2.60 points. GenImage seed100 is next.",
+    "latest_resource_audit": "genimage/seed100/preflight_20260727_0736/manifest.json",
+    "latest_resource_observed_at": "2026-07-27T07:36:23+08:00",
+    "latest_resource_conclusion": "Attempt 1 is preserved; after patching A6000, all three idle hosts passed real 12,000-row ADM Arrow construction with matching launcher and checkpoint hashes.",
+    "running_attempt": null,
+    "latest_progress": "genimage/seed100/preflight_20260727_0736/manifest.json",
+    "latest_progress_conclusion": "The failed zero-prediction attempt is preserved, and the strengthened retry preflight passed on A6000, 3090, and 4090-2. Seed100 is ready for a clean restart.",
     "preserved_partial_launch": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
     "preserved_3070_preflight": "ufd/seed100/tta_preflight_3070x2"
   }

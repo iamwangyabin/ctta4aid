@@ -119,6 +119,30 @@ print(version.value)
   echo "Using NCCL $nccl_version from $nccl_lib_dir"
 fi
 
+if [[ $dataset_format == hf_arrow ]]; then
+  (
+    cd "$iapl_repo"
+    PYTHONPATH="$project_root/src${PYTHONPATH:+:$PYTHONPATH}" \
+      "$python" - "$dataset_path" "${domains[0]}" <<'PY'
+import sys
+
+from utils.dataset import Dataset_Creator_GenImage
+
+dataset_path, domain = sys.argv[1:]
+creator = Dataset_Creator_GenImage(dataset_path, batch_size=32, num_workers=0)
+datasets, selected_subsets = creator.build_dataset(
+    "tta", selected_subsets=[domain]
+)
+if selected_subsets != [domain] or len(datasets) != 1 or len(datasets[0]) == 0:
+    raise RuntimeError(
+        f"GenImage Arrow runtime smoke failed for {domain}: "
+        f"selected={selected_subsets!r}, datasets={len(datasets)}"
+    )
+print(f"GenImage Arrow runtime smoke passed: {domain} ({len(datasets[0])} rows)")
+PY
+  )
+fi
+
 if [[ ${IAPL_PREFLIGHT_ONLY:-0} == 1 ]]; then
   printf 'python=%s\ndataset_path=%s\ndataset_format=%s\nnum_workers=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\nnvidia_compat_lib_dir=%s\ndistributed_timeout_seconds=%s\nseed=%s\n' \
     "$python" "$dataset_path" "$dataset_format" "$num_workers" "$iapl_repo" \

@@ -1,0 +1,60 @@
+{
+  "experiment": "P3 GenImage seed100 official TTA retry preflight",
+  "status": "passed",
+  "observed_at": "2026-07-27T07:36:23+08:00",
+  "reason": "Attempt 1 exposed stale A6000 Dataset_Creator_GenImage code that the historical state-file-only preflight did not exercise.",
+  "protocol": {
+    "world_size": 8,
+    "master_addr": "192.168.10.2",
+    "master_port": 29643,
+    "seed": 100,
+    "num_workers": 0,
+    "domains": [
+      "ADM",
+      "BigGAN",
+      "glide",
+      "Midjourney",
+      "stable_diffusion_v_1_4",
+      "stable_diffusion_v_1_5",
+      "VQDM",
+      "wukong"
+    ],
+    "dataset_uri": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+    "checkpoint_sha256": "aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096",
+    "launcher_sha256": "8f0f1696c638bd3fc7a83d690d3ebab7be1423fbbd556d28c50727562f0587c2",
+    "runtime_dataset_sha256": "25f090442824464c5d09b58a6d7a1be3c2746a2fda1a24926cba92abf11a9d1b",
+    "nccl_version": 23007
+  },
+  "host_checks": {
+    "A6000": {
+      "ranks": [0, 1, 2, 3],
+      "gpu_utilization_percent": 0,
+      "official_output_absent": true,
+      "checkpoint_hash_passed": true,
+      "launcher_hash_passed": true,
+      "runtime_hash_passed": true,
+      "genimage_arrow_runtime_smoke": "ADM: 12000 rows",
+      "protocol_tests": "12 passed in cl"
+    },
+    "3090": {
+      "ranks": [4, 5],
+      "gpu_utilization_percent": 0,
+      "official_output_absent": true,
+      "checkpoint_hash_passed": true,
+      "launcher_hash_passed": true,
+      "genimage_arrow_runtime_smoke": "ADM: 12000 rows"
+    },
+    "4090-2": {
+      "ranks": [6, 7],
+      "gpu_utilization_percent": 0,
+      "official_output_absent": true,
+      "checkpoint_hash_passed": true,
+      "launcher_hash_passed": true,
+      "genimage_arrow_runtime_smoke": "ADM: 12000 rows",
+      "nvidia_compat_lib_dir": "/home/yabin/ctta4aid_assets/driver_compat/nvidia-580.159.03/rootfs/usr/lib/x86_64-linux-gnu"
+    }
+  },
+  "launcher_smoke_semantics": "Before IAPL_PREFLIGHT_ONLY can exit successfully, the pinned runtime imports Dataset_Creator_GenImage, constructs the first requested TTA domain, and verifies one non-empty dataset.",
+  "failed_attempt": "../tta_attempt1_missing_a6000_genimage_arrow/attempt_manifest.json",
+  "conclusion": "All three planned rank groups passed the strengthened runtime preflight from absent official output directories. Seed100 may restart from rank 0; seed101 and seed102 remain blocked by strict order."
+}
