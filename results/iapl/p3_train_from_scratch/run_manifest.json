@@ -91,11 +91,11 @@
         "running_attempt": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090",
         "rank_layout": "A6000 ranks 0-3; 3090 ranks 4-5; 4090-2 ranks 6-7",
         "started_at": "2026-07-26T06:45:05+08:00",
-        "domains_completed": 10,
-        "partial_accuracy": 0.881505,
-        "partial_average_precision": 0.953046,
-        "weak_domains_preserved": "deepfake: 0.661243/0.872204; three GLIDE domains: 0.835000-0.861500/0.923156-0.946073; guided: 0.644500/0.883839 accuracy/average precision",
-        "latest_snapshot": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260726_1113"
+        "domains_completed": 13,
+        "partial_accuracy": 0.905143,
+        "partial_average_precision": 0.961710,
+        "seed_sensitivity_preserved": "imle: 0.997807/0.995787 versus seed100 0.5954/0.5617 accuracy/average precision",
+        "latest_snapshot": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260726_1244"
       },
       "102": {
         "status": "checkpoint_replicated_waiting_behind_seed101",
@@ -342,8 +342,8 @@
     "execution_plan": "tta_execution_plan.json",
     "required_rank_layout": "A6000 4 ranks; 3090 2 ranks; 4090-2 2 ranks",
     "latest_resource_audit": "ufd/seed101/preflight_20260725_2123/manifest.json",
-    "latest_resource_observed_at": "2026-07-26T11:13:15+08:00",
-    "latest_resource_conclusion": "UFD seed101 completed 10 of 19 domains in the required 4+2+2 layout. Deepfake, all three GLIDE domains, and guided are preserved. All eight ranks continued into imle without a detected rank error.",
+    "latest_resource_observed_at": "2026-07-26T12:44:37+08:00",
+    "latest_resource_conclusion": "UFD seed101 completed 13 of 19 domains in the required 4+2+2 layout. The strong imle reversal relative to seed100 and all weak domains are preserved. All eight ranks continued into ldm_200_cfg without a detected rank error.",
     "preserved_partial_launch": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
     "preserved_3070_preflight": "ufd/seed100/tta_preflight_3070x2"
   }

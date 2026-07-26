@@ -273,6 +273,14 @@ seed100 同域，Acc 低 3.80 点但 AP 高 3.44 点。该组合继续说明排�
 阈值分类性能明显脱钩。十个预测文件、sampler padding 和三机八 rank 状态均已
 审计，未发现 traceback、OOM、NCCL 或 collective 错误，当前运行 `imle`。
 
+截至 12:44，seed101 已完成 13/19 域。`imle` 达到 99.78%/99.58%，与
+seed100 的 59.54%/56.17% 形成反向极端差异，进一步确认训练 seed 对域级
+适应轨迹有决定性影响；不因该高分选择 seed。`ldm_100` 和 `ldm_200` 均为
+97.70% Acc，AP 分别为 98.82%/98.77%。十三域宏平均为 90.51%/96.17%，
+较论文同域低 5.07/3.24 个百分点；相对 seed100 同域，Acc 几乎相同
+（-0.01 点），AP 高 6.06 点。十三个预测文件和完整复算已保存，当前进入
+`ldm_200_cfg`，三机八 ranks 未见运行错误。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

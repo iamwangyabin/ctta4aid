@@ -60,11 +60,11 @@
       "preflight": "ufd/seed101/preflight_20260725_2123",
       "started_at": "2026-07-26T06:45:05+08:00",
       "running_attempt": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090",
-      "domains_completed": 10,
-      "partial_accuracy": 0.8815052715310058,
-      "partial_average_precision": 0.9530462937297937,
-      "weak_domains_preserved": "deepfake: 0.6612426035502958/0.8722042408177313; GLIDE: 0.835-0.8615/0.9231557677803226-0.9460731347651858; guided: 0.6445/0.8838390164185589 accuracy/average precision",
-      "latest_snapshot": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260726_1113"
+      "domains_completed": 13,
+      "partial_accuracy": 0.9051430563733782,
+      "partial_average_precision": 0.9617099336937625,
+      "seed_sensitivity_preserved": "imle: 0.9978070175438597/0.99578717428616 versus seed100 0.5954/0.5617 accuracy/average precision",
+      "latest_snapshot": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260726_1244"
     },
     {
       "order": 3,
@@ -169,7 +169,7 @@
     "conclusion": "The launcher, framework path, test Arrow replicas, and all three trained checkpoint replicas are ready. GenImage remains behind both pending UFD TTA runs."
   },
   "resource_audit": {
-    "observed_at": "2026-07-26T11:13:15+08:00",
+    "observed_at": "2026-07-26T12:44:37+08:00",
     "artifact": "ufd/seed101/preflight_20260725_2123/manifest.json",
     "A6000": "seed101 ranks 0-3 are active at 37167 MiB and 100% utilization",
     "4090-1": "recovered; seed101 source checkpoint verified, but unrelated CAIDBench work uses 8406/24564 MiB at 100% utilization",
@@ -179,6 +179,6 @@
     "rejected_fallback": "A6000 4 ranks; 3070x2 one rank per GPU; 4090-2 2 ranks",
     "preflight_artifact": "ufd/seed100/tta_preflight_3070x2",
     "partial_launch_artifact": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
-    "conclusion": "UFD seed101 completed 10 of 19 domains in the fixed 4+2+2 layout and entered imle. Deepfake, all three GLIDE domains, and guided are preserved without restart, calibration, or selection. Seed102 remains behind this running job."
+    "conclusion": "UFD seed101 completed 13 of 19 domains in the fixed 4+2+2 layout and entered ldm_200_cfg. The strong imle reversal relative to seed100 and every weak domain are preserved without restart, calibration, or selection. Seed102 remains behind this running job."
   }
 }

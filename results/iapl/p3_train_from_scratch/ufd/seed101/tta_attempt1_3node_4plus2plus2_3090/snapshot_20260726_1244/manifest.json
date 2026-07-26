@@ -1,0 +1,102 @@
+{
+  "experiment": "P3 UFD seed101 full official TTA",
+  "snapshot_at": "2026-07-26T12:44:37+08:00",
+  "status": "running",
+  "domains_completed": 13,
+  "completed_domains": [
+    "crn",
+    "cyclegan",
+    "dalle",
+    "biggan",
+    "deepfake",
+    "gaugan",
+    "glide_50_27",
+    "glide_100_10",
+    "glide_100_27",
+    "guided",
+    "imle",
+    "ldm_100",
+    "ldm_200"
+  ],
+  "next_domain": "ldm_200_cfg",
+  "next_domain_progress": "0/250",
+  "newly_completed_domains": {
+    "imle": {
+      "accuracy": 0.9978070175438597,
+      "average_precision": 0.99578717428616,
+      "real_accuracy": 0.9956154087065455,
+      "fake_accuracy": 1.0,
+      "samples_after_distributed_padding": 12768,
+      "duplicate_sampler_indices": 4
+    },
+    "ldm_100": {
+      "accuracy": 0.977,
+      "average_precision": 0.9882479796499138,
+      "real_accuracy": 0.998,
+      "fake_accuracy": 0.956,
+      "samples_after_distributed_padding": 2000,
+      "duplicate_sampler_indices": 0
+    },
+    "ldm_200": {
+      "accuracy": 0.977,
+      "average_precision": 0.9877310467849003,
+      "real_accuracy": 0.999,
+      "fake_accuracy": 0.955,
+      "samples_after_distributed_padding": 2000,
+      "duplicate_sampler_indices": 0
+    }
+  },
+  "partial_macro_average": {
+    "accuracy": 0.9051430563733782,
+    "average_precision": 0.9617099336937625,
+    "real_accuracy": 0.9963207230314747,
+    "fake_accuracy": 0.8138521925072705,
+    "paper_same_domains_accuracy": 0.9558615384615385,
+    "paper_same_domains_average_precision": 0.9940692307692307,
+    "accuracy_delta": -0.05071848208816032,
+    "average_precision_delta": -0.03235929707546825,
+    "seed100_same_domains_accuracy": 0.9052603578494522,
+    "seed100_same_domains_average_precision": 0.9010857891930905,
+    "accuracy_delta_to_seed100": -0.00011730147607402763,
+    "average_precision_delta_to_seed100": 0.060624144500671995
+  },
+  "independent_recalculation": {
+    "script": "scripts/compare_iapl_ufd_runs.py",
+    "environment": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python on A6000",
+    "matches_rank0_log": true,
+    "all_domain_metrics": "partial_metrics.json"
+  },
+  "runtime_observation": {
+    "all_eight_ranks_alive": true,
+    "host_memory_mib": {
+      "A6000": 37167,
+      "3090": 18652,
+      "4090-2": 19154
+    },
+    "host_gpu_utilization_percent": {
+      "A6000": 100,
+      "3090": 100,
+      "4090-2": 100
+    },
+    "monitoring_note": "All three hosts were reachable over LAN, all eight GPU processes remained resident, and the run crossed into ldm_200_cfg."
+  },
+  "files": {
+    "rank0.log": "238b314d5e2717548d69710f60769dc291f29ee6b7106d267e439652953d6305",
+    "crn.json": "74ec0fb3fe28d63cf374f6be59b951c09f04dfb8c3427f5fa0a2dd89abdd0cc6",
+    "cyclegan.json": "2168af188c87c864c1746aec34e75c4e313fb43280072fed4fc8cbc28ee5e850",
+    "dalle.json": "9a71e8c6edff4307c186c843aac2c9230e492c92a47c97fceb8fc92df000d43d",
+    "biggan.json": "c87cac3fda3d502d78620e30a4852fc4ad2594d81fa71f808378b4e6b4a5f913",
+    "deepfake.json": "5c79c564164c54b7322628fb2937e690e64b7533ce2cfe3c593c63a483318aed",
+    "gaugan.json": "1454f4b298beed5d763399d4d1184f3e6e0e76e571539c1b21e5e0e5f0f34f91",
+    "glide_50_27.json": "8cd5b2376b3ef06ba8e401a9cfe9363332808cc45cf8f6b34ad2fef14aceeed4",
+    "glide_100_10.json": "e88b700f3fc1559ebb516e5f33ff860378be5733e92c55197fe0fcb6893b5c75",
+    "glide_100_27.json": "a8b1f7a9b63ba4af8e553c2e0111dda273f20b1035336c05ad08bfbddb061a21",
+    "guided.json": "26de7da011a146d77f2dc20b61e17a325cb48f9cc3d16d8460030f3aa5d41188",
+    "imle.json": "d385a326bee39d234493a19b763a034968496bf22b849d56760d1d13d807f6ed",
+    "ldm_100.json": "3fb445970a528a2357c969040df2eadbce745305f5c00102432b832d99d8c6ed",
+    "ldm_200.json": "76d6fad957fa681e7d474639ec5079912d15c72f478ddee128d9736151d52383",
+    "partial_metrics.json": "ddeba1de7232c1c05ee5fc00e867b5e866f2389aa6974ca30f20ab1b9eca9145"
+  },
+  "errors_detected_in_rank_logs": 0,
+  "policy": "This is a partial audit snapshot. Preserve both the strong imle reversal and every weak domain without restart, calibration, or seed selection, and wait for all 19 domains before reporting a final seed101 result."
+}
