@@ -1,0 +1,73 @@
+{
+  "experiment": "P3 UFD seed102 official TTA running snapshot",
+  "observed_at": "2026-07-27T01:43:12+08:00",
+  "status": "running_after_5_of_19_domains",
+  "by_domain": {
+    "crn": {
+      "dataset_size": 12764,
+      "samples_with_distributed_padding": 12768,
+      "unique_sampler_indices": 12764,
+      "duplicate_sampler_indices": 4,
+      "accuracy": 0.5162124060150376,
+      "average_precision": 0.5927370669638711,
+      "real_accuracy": 0.03272784215471344,
+      "fake_accuracy": 1.0
+    },
+    "cyclegan": {
+      "dataset_size": 2642,
+      "samples_with_distributed_padding": 2648,
+      "unique_sampler_indices": 2642,
+      "duplicate_sampler_indices": 6,
+      "accuracy": 0.9875377643504532,
+      "average_precision": 0.9865571321882002,
+      "real_accuracy": 0.9751318764129616,
+      "fake_accuracy": 1.0
+    },
+    "dalle": {
+      "dataset_size": 2000,
+      "samples_with_distributed_padding": 2000,
+      "unique_sampler_indices": 2000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9845,
+      "average_precision": 0.9957385406279556,
+      "real_accuracy": 0.992,
+      "fake_accuracy": 0.977
+    },
+    "biggan": {
+      "dataset_size": 4000,
+      "samples_with_distributed_padding": 4000,
+      "unique_sampler_indices": 4000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.98325,
+      "average_precision": 0.9823674423678521,
+      "real_accuracy": 0.9705,
+      "fake_accuracy": 0.996
+    },
+    "deepfake": {
+      "dataset_size": 5405,
+      "samples_with_distributed_padding": 5408,
+      "unique_sampler_indices": 5405,
+      "duplicate_sampler_indices": 3,
+      "accuracy": 0.9419378698224852,
+      "average_precision": 0.9687107513701924,
+      "real_accuracy": 0.9756457564575646,
+      "fake_accuracy": 0.9080800593031876
+    }
+  },
+  "mean": {
+    "accuracy": 0.8826876080375952,
+    "average_precision": 0.9052221867036142,
+    "real_accuracy": 0.7892010950050479,
+    "fake_accuracy": 0.9762160118606374
+  },
+  "next_domain": {
+    "domain": "gaugan",
+    "rank0_progress": "500/1250"
+  },
+  "health": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "tracebacks_cuda_oom_runtime_or_collective_errors": 0
+  },
+  "calculation": "Downloaded all five completed A6000 prediction JSON files and independently recalculated metrics with the tracked scripts/summarize_iapl_predictions.py."
+}

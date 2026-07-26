@@ -329,6 +329,12 @@ rank0 到达 0/1596、峰值 8,437 MiB，未见 traceback、OOM、runtime 或 co
 相对 seed101 则低 48.17/40.34 点，进一步确认训练 seed 会造成方向相反的巨大
 域级波动。弱结果不剔除、不重跑挑 seed；八 ranks 与三 launcher 仍正常。
 
+01:43，seed102 已完成 `crn`、`cyclegan`、`dalle`、`biggan`、`deepfake`
+五域并进入 `gaugan` 500/1250。五个预测文件独立复算宏平均为 88.27% Acc /
+90.52% AP，real/fake accuracy 为 78.92%/97.62%。除 `crn` 外，其余四域
+Acc/AP 均超过 94%，说明当前宏平均的主要下拉仍是已保留的 `crn` 极端偏置，
+而不是运行故障；八 ranks 未见异常。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

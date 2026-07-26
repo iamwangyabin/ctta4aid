@@ -353,3 +353,10 @@ This is 7.56 points lower in Accuracy and 3.19 points higher in AP than seed100,
 but 48.17 / 40.34 points below seed101 on the same domain. The large weak
 result is preserved without rerunning or selecting a seed. All ranks and
 launchers remain healthy.
+
+At 01:43, seed102 had completed `crn`, `cyclegan`, `dalle`, `biggan`, and
+`deepfake`, then reached 500/1250 on `gaugan`. Independent recalculation across
+the five prediction files gives 88.27% macro Accuracy / 90.52% macro AP and
+78.92% / 97.62% real/fake accuracy. The other four domains exceed 94% on both
+metrics, so the retained `crn` bias remains the main cause of the lower macro
+result rather than an execution failure. All eight ranks remain healthy.
