@@ -327,3 +327,11 @@ acquired 5,036 MiB. Its PID remained active after stage-1 protocol evaluation.
 No partial distributed world was launched and the unrelated process was not
 interrupted. The failed preflight is retained; all three node preflights must
 be repeated after A6000 is released.
+
+PID 32143 completed stage 20, saved its protocol metrics at 20:51, and exited.
+Before the three-host seed102 preflight could be repeated, a separate S-Prompt
+CAIDBench representative10 run acquired the A6000. The new PID 50094 started
+at 21:02:32 and owned 5,120 MiB when observed at 21:13. Seed102 still has not
+launched, no partial world exists, and the two previously passing node checks
+remain non-reusable. This blocker transition is preserved in
+`ufd/seed102/resource_monitor_20260726_2113`.

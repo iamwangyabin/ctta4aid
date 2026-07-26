@@ -76,9 +76,10 @@
       "sha256": "d324bac298ddd827ee17b688e932da03cf864d0e0933320c269a2d343811313d",
       "master_port": 29642,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed102",
-      "status": "waiting_for_a6000_after_2_of_3_fresh_preflights_passed",
+      "status": "waiting_for_a6000_after_blocker_transition",
       "preflight": "ufd/seed102/preflight_20260726_1530",
-      "blocker": "Unrelated A6000 PID 32143 owns 5036 MiB for codaprompt CAIDBench; do not interrupt it or launch a partial distributed world."
+      "resource_follow_up": "ufd/seed102/resource_monitor_20260726_2113",
+      "blocker": "CoDA-Prompt PID 32143 completed, but unrelated S-Prompt PID 50094 acquired 5120 MiB on A6000; do not interrupt it, reuse old preflights, or launch a partial world."
     },
     {
       "order": 4,
@@ -170,9 +171,9 @@
     "conclusion": "The launcher, framework path, test Arrow replicas, and all three trained checkpoint replicas are ready. GenImage remains behind both pending UFD TTA runs."
   },
   "resource_audit": {
-    "observed_at": "2026-07-26T15:30:25+08:00",
-    "artifact": "ufd/seed102/preflight_20260726_1530/manifest.json",
-    "A6000": "seed101 released the GPU, but unrelated codaprompt PID 32143 subsequently acquired 5036 MiB; seed102 preflight failed the idle-GPU requirement",
+    "observed_at": "2026-07-26T21:13:26+08:00",
+    "artifact": "ufd/seed102/resource_monitor_20260726_2113/manifest.json",
+    "A6000": "codaprompt PID 32143 completed and exited, but unrelated sprompt PID 50094 subsequently acquired 5120 MiB; seed102 remains unlaunched",
     "4090-1": "recovered; seed101 source checkpoint verified, but unrelated CAIDBench work uses 8406/24564 MiB at 100% utilization",
     "4090-2": "idle; fresh seed102 exact preflight passed with NCCL 23007 and isolated 580.159.03 compatibility libraries",
     "3090": "idle; fresh seed102 exact preflight passed with NCCL 23007",
@@ -180,6 +181,6 @@
     "rejected_fallback": "A6000 4 ranks; 3070x2 one rank per GPU; 4090-2 2 ranks",
     "preflight_artifact": "ufd/seed100/tta_preflight_3070x2",
     "partial_launch_artifact": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
-    "conclusion": "UFD seed101 completed and passed its final audit. Seed102 remains next, but its fresh A6000 preflight is blocked by an unrelated active process. Do not interrupt that work or launch a partial world; rerun every preflight after release."
+    "conclusion": "UFD seed101 completed and passed its final audit. Seed102 remains next, but a second unrelated A6000 process replaced the original blocker before a three-host retry. Do not interrupt that work, reuse stale preflights, or launch a partial world; rerun every preflight after actual release."
   }
 }
