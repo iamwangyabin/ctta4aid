@@ -375,6 +375,12 @@ A6000 旧文件已备份，并替换为与 3090、4090-2 相同的
 哈希、NCCL 23007、GPU 空闲与正式输出目录不存在。A6000 的 `cl` 环境还通过
 12 项聚焦协议测试。seed100 已具备从 rank 0 干净重启条件，仍不提前启动后续 seed。
 
+07:39:27，seed100 第二次尝试按 A6000 `4 ranks` + 3090 `2 ranks` +
+4090-2 `2 ranks` 在端口 29643 干净启动。三个 launcher 均再次通过 12,000 行
+`ADM` runtime smoke，八 ranks 全部越过分布式 barrier；rank0 已进入 `ADM`
+0/1500，峰值 8,437 MiB，三机 GPU 均在计算，未见 traceback、runtime、OOM 或
+collective 错误。当前只记录为运行中，seed101 继续等待本次完成并审计。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

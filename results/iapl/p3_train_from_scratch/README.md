@@ -411,3 +411,10 @@ Arrow dataset; launcher/checkpoint hashes, NCCL 23007, idle GPUs, and absent
 official output directories were also rechecked. The A6000 `cl` environment
 passed all 12 focused protocol tests. The clean seed100 retry is now cleared to
 launch, while seed101/102 remain blocked by execution order.
+
+The clean seed100 retry launched at 07:39:27. A6000 runs ranks 0--3, 3090
+runs 4--5, and 4090-2 runs 6--7 on port 29643. Every launcher repeated the
+12,000-row ADM runtime smoke, all eight ranks crossed the distributed barrier,
+and rank0 entered `ADM` at 0/1500 with an 8,437 MiB peak. The three GPUs are
+active and no traceback, runtime, OOM, or collective error is present. This
+attempt is running; seed101 remains queued.
