@@ -1,0 +1,67 @@
+{
+  "experiment": "P3 UFD seed102 full official TTA",
+  "status": "running",
+  "started_at": "2026-07-26T22:46:13+08:00",
+  "world_size": 8,
+  "master_addr": "192.168.10.2",
+  "master_port": 29642,
+  "rank_layout": {
+    "A6000": [0, 1, 2, 3],
+    "3090": [4, 5],
+    "4090-2": [6, 7]
+  },
+  "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/ufd_seed102",
+  "checkpoint": {
+    "kind": "checkpoint_best_acc.pth",
+    "bytes": 1693616351,
+    "sha256": "d324bac298ddd827ee17b688e932da03cf864d0e0933320c269a2d343811313d",
+    "validated_on_all_three_hosts": true
+  },
+  "runtime": {
+    "iapl_upstream_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
+    "python": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python",
+    "nccl_version": 23007,
+    "launcher_sha256": "30bee65d01b99043d8517747bf9df4b487349120a611aabaa029576fa17a43a7",
+    "4090-2_nvidia_compat_lib_dir": "/home/yabin/ctta4aid_assets/driver_compat/nvidia-580.159.03/rootfs/usr/lib/x86_64-linux-gnu"
+  },
+  "protocol": {
+    "eval_batch_size": 32,
+    "learning_rate": 0.005,
+    "tta_steps": 2,
+    "selection_p": 0.2,
+    "ois": true,
+    "seed": 102,
+    "distributed_timeout_seconds": 7200,
+    "domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle", "ldm_100", "ldm_200", "ldm_200_cfg", "progan", "san", "seeingdark", "stargan", "stylegan"]
+  },
+  "launchers": {
+    "A6000": 56437,
+    "3090": 16922,
+    "4090-2": 3200696
+  },
+  "initial_observation": {
+    "observed_at": "2026-07-26T22:47:41+08:00",
+    "all_eight_ranks_alive": true,
+    "all_eight_ranks_completed_distributed_barrier": true,
+    "first_domain": "crn",
+    "rank0_progress": "0/1596",
+    "rank0_eta": "3:33:18",
+    "rank0_iteration_seconds": 8.0191,
+    "reported_rank0_max_memory_mib": 8437,
+    "host_memory_mib": {
+      "A6000": 37167,
+      "3090": 18656,
+      "4090-2": 19154
+    },
+    "host_gpu_utilization_percent": {
+      "A6000": 100,
+      "3090": 100,
+      "4090-2": 100
+    },
+    "tracebacks_cuda_oom_runtime_or_collective_errors": 0,
+    "domains_completed": 0,
+    "metrics_reported": false
+  },
+  "preflight": "../preflight_20260726_2245/manifest.json",
+  "policy": "Run all 19 domains from the beginning. Preserve every failure or weak domain; do not report final metrics until all eight ranks complete all domains."
+}

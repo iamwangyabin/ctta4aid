@@ -314,6 +314,15 @@ A6000 又由同一服务器上的另一项 S-Prompt CAIDBench representative10 �
 seed102 依旧没有启动，之前两台通过的预检仍不得复用。PID 切换、旧作业正常结束
 以及新阻塞均单独归档；继续等待 A6000 真正空闲后重做三机完整预检。
 
+22:31，PID 50094 完成 stage 10、保存协议指标并退出；22:43 已确认 A6000
+真正空闲。22:44:59--22:45:18 重新执行而非复用三台精确预检，三机均通过
+空闲 GPU、空输出目录、checkpoint/launcher SHA256、Arrow、NCCL 23007、
+seed102、端口 29642 和 rank 分组检查。22:46:13 起按 A6000 `4 ranks` +
+3090 `2 ranks` + 4090-2 `2 ranks` 启动 UFD seed102。八 ranks 均已跨过
+distributed barrier 并进入 `crn`；三机显存为 37,167/18,656/19,154 MiB，
+rank0 到达 0/1596、峰值 8,437 MiB，未见 traceback、OOM、runtime 或 collective
+错误。当前只记为运行中，不提前启动 GenImage。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

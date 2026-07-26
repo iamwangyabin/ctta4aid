@@ -335,3 +335,13 @@ at 21:02:32 and owned 5,120 MiB when observed at 21:13. Seed102 still has not
 launched, no partial world exists, and the two previously passing node checks
 remain non-reusable. This blocker transition is preserved in
 `ufd/seed102/resource_monitor_20260726_2113`.
+
+PID 50094 finished stage 10, saved its metrics at 22:31, and exited. A6000 was
+actually idle at 22:43. Fresh, non-reused preflights then passed on all three
+hosts between 22:44:59 and 22:45:18, covering idle GPUs, absent output
+directories, checkpoint and launcher hashes, Arrow state, NCCL 23007, seed102,
+port 29642, rank groups, and the isolated 4090-2 compatibility libraries. UFD
+seed102 launched at 22:46:13 in the fixed 4+2+2 layout. All eight ranks crossed
+the distributed barrier and entered `crn`; rank0 reached 0/1596 with an 8,437
+MiB peak, and no traceback, OOM, runtime, or collective error was found. The
+run remains in progress and all GenImage TTA runs remain queued behind it.

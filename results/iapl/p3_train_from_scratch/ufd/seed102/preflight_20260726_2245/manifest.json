@@ -1,0 +1,46 @@
+{
+  "experiment": "P3 UFD seed102 official TTA post-release preflight",
+  "observed_at": "2026-07-26T22:45:18+08:00",
+  "status": "passed_and_launched",
+  "resource_release": {
+    "previous_blocker_pid": 50094,
+    "previous_blocker_method": "sprompt",
+    "previous_blocker_last_log_at": "2026-07-26T22:31:41+08:00",
+    "previous_blocker_last_log_state": "saved protocol metrics after stage 10",
+    "a6000_gpu_idle_at": "2026-07-26T22:43:10+08:00"
+  },
+  "checkpoint": {
+    "bytes": 1693616351,
+    "sha256": "d324bac298ddd827ee17b688e932da03cf864d0e0933320c269a2d343811313d",
+    "verified_on": ["A6000", "3090", "4090-2"]
+  },
+  "launcher": {
+    "sha256": "30bee65d01b99043d8517747bf9df4b487349120a611aabaa029576fa17a43a7",
+    "verified_on": ["A6000", "3090", "4090-2"]
+  },
+  "protocol": {
+    "world_size": 8,
+    "master_addr": "192.168.10.2",
+    "master_port": 29642,
+    "seed": 102,
+    "distributed_timeout_seconds": 7200,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    }
+  },
+  "checks": {
+    "all_three_gpus_idle": true,
+    "all_three_output_directories_absent": true,
+    "master_port_29642_not_listening": true,
+    "arrow_state_files_present": true,
+    "nccl_version": 23007,
+    "seed": 102,
+    "4090_2_isolated_compatibility_libraries_verified": true,
+    "all_three_exact_launcher_preflights_passed": true
+  },
+  "prior_failed_preflight": "../preflight_20260726_1530/manifest.json",
+  "prior_resource_follow_up": "../resource_monitor_20260726_2113/manifest.json",
+  "launch": "../tta_attempt1_3node_4plus2plus2_3090/launch_manifest.json"
+}
