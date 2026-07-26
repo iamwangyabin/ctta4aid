@@ -265,6 +265,14 @@ Acc 低 0.72 点而 AP 高 5.56 点。全部弱结果原样保留，当前进入
 `glide_100_27`。4090-2 的 Tailscale 别名再次超时，但局域网连接立即确认
 两个 ranks 均在、GPU 利用率 100%，因此记为监控链路故障而非实验失败。
 
+截至 11:13，seed101 已完成 10/19 域。第三个 GLIDE 域
+`glide_100_27` 为 83.50%/92.32%，`guided` 进一步降至
+64.45%/88.38%，后者 real/fake accuracy 为 99.80%/29.10%。十域宏平均
+为 88.15% Acc / 95.30% AP，较论文同域低 6.97/3.96 个百分点；相对
+seed100 同域，Acc 低 3.80 点但 AP 高 3.44 点。该组合继续说明排序性能与固定
+阈值分类性能明显脱钩。十个预测文件、sampler padding 和三机八 rank 状态均已
+审计，未发现 traceback、OOM、NCCL 或 collective 错误，当前运行 `imle`。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
