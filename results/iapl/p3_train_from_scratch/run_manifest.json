@@ -351,6 +351,8 @@
     "latest_resource_observed_at": "2026-07-26T22:47:41+08:00",
     "latest_resource_conclusion": "S-Prompt PID 50094 completed and released A6000. Fresh exact preflights passed on all three hosts, and UFD seed102 launched with all eight ranks across the barrier and no immediate error.",
     "running_attempt": "ufd/seed102/tta_attempt1_3node_4plus2plus2_3090",
+    "latest_progress": "ufd/seed102/tta_attempt1_3node_4plus2plus2_3090/running_snapshot_20260727_0013/metrics.json",
+    "latest_progress_conclusion": "Seed102 completed crn at 51.62% Accuracy and 59.27% AP, a large weak result that is preserved; all eight ranks continued into cyclegan.",
     "preserved_partial_launch": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
     "preserved_3070_preflight": "ufd/seed100/tta_preflight_3070x2"
   }

@@ -323,6 +323,12 @@ distributed barrier 并进入 `crn`；三机显存为 37,167/18,656/19,154 MiB�
 rank0 到达 0/1596、峰值 8,437 MiB，未见 traceback、OOM、runtime 或 collective
 错误。当前只记为运行中，不提前启动 GenImage。
 
+00:13，seed102 完成首域 `crn` 并进入 `cyclegan` 250/331。预测文件独立复算为
+51.62% Acc / 59.27% AP，real/fake accuracy 为 3.27%/100%；4 个 sampler padding
+重复样本保留。该结果相对 seed100 的同域 Acc 低 7.56 点、AP 高 3.19 点，
+相对 seed101 则低 48.17/40.34 点，进一步确认训练 seed 会造成方向相反的巨大
+域级波动。弱结果不剔除、不重跑挑 seed；八 ranks 与三 launcher 仍正常。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

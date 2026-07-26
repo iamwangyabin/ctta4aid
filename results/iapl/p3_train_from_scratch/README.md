@@ -345,3 +345,11 @@ seed102 launched at 22:46:13 in the fixed 4+2+2 layout. All eight ranks crossed
 the distributed barrier and entered `crn`; rank0 reached 0/1596 with an 8,437
 MiB peak, and no traceback, OOM, runtime, or collective error was found. The
 run remains in progress and all GenImage TTA runs remain queued behind it.
+
+At 00:13, seed102 completed `crn` and entered `cyclegan` at 250/331. Independent
+recalculation from the completed prediction file gives 51.62% Acc / 59.27% AP
+and 3.27% / 100% real/fake accuracy, retaining four sampler-padding records.
+This is 7.56 points lower in Accuracy and 3.19 points higher in AP than seed100,
+but 48.17 / 40.34 points below seed101 on the same domain. The large weak
+result is preserved without rerunning or selecting a seed. All ranks and
+launchers remain healthy.

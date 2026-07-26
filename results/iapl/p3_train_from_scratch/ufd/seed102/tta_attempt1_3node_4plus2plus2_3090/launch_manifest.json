@@ -62,6 +62,20 @@
     "domains_completed": 0,
     "metrics_reported": false
   },
+  "latest_observation": {
+    "observed_at": "2026-07-27T00:13:16+08:00",
+    "domains_completed": 1,
+    "completed_domains": ["crn"],
+    "crn_accuracy": 0.5162124060150376,
+    "crn_average_precision": 0.5927370669638711,
+    "crn_real_accuracy": 0.03272784215471344,
+    "crn_fake_accuracy": 1.0,
+    "next_domain": "cyclegan",
+    "next_domain_rank0_progress": "250/331",
+    "all_eight_ranks_alive": true,
+    "tracebacks_cuda_oom_runtime_or_collective_errors": 0,
+    "artifact": "running_snapshot_20260727_0013/metrics.json"
+  },
   "preflight": "../preflight_20260726_2245/manifest.json",
   "policy": "Run all 19 domains from the beginning. Preserve every failure or weak domain; do not report final metrics until all eight ranks complete all domains."
 }

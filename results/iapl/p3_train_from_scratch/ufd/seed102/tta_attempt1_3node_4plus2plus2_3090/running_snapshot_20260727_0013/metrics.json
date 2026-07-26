@@ -1,0 +1,39 @@
+{
+  "experiment": "P3 UFD seed102 official TTA running snapshot",
+  "observed_at": "2026-07-27T00:13:16+08:00",
+  "status": "running_after_1_of_19_domains",
+  "completed_domain": {
+    "domain": "crn",
+    "dataset_size": 12764,
+    "samples_with_distributed_padding": 12768,
+    "unique_sampler_indices": 12764,
+    "duplicate_sampler_indices": 4,
+    "accuracy": 0.5162124060150376,
+    "average_precision": 0.5927370669638711,
+    "real_accuracy": 0.03272784215471344,
+    "fake_accuracy": 1.0,
+    "world_size": 8,
+    "prediction_bytes": 194219,
+    "prediction_sha256": "1877642d36d7f1016001c63954870a4affde0b00d48adf7da274f5e5ee182685"
+  },
+  "comparison": {
+    "seed100_crn_accuracy": 0.5917919799498746,
+    "seed100_crn_average_precision": 0.5608084358523726,
+    "accuracy_delta_to_seed100": -0.075579573934837,
+    "average_precision_delta_to_seed100": 0.0319286311114985,
+    "seed101_crn_accuracy": 0.9978853383458647,
+    "seed101_crn_average_precision": 0.9960980177930389,
+    "accuracy_delta_to_seed101": -0.4816729323308271,
+    "average_precision_delta_to_seed101": -0.4033609508291678
+  },
+  "next_domain": {
+    "domain": "cyclegan",
+    "rank0_progress": "250/331"
+  },
+  "health": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "tracebacks_cuda_oom_runtime_or_collective_errors": 0
+  },
+  "calculation": "Downloaded the completed A6000 prediction JSON and independently recalculated metrics with the tracked scripts/summarize_iapl_predictions.py."
+}
