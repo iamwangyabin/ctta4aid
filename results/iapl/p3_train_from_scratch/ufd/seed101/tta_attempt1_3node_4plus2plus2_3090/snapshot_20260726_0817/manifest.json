@@ -1,0 +1,51 @@
+{
+  "experiment": "P3 UFD seed101 full official TTA",
+  "snapshot_at": "2026-07-26T08:17:05+08:00",
+  "status": "running",
+  "domains_completed": 2,
+  "next_domain": "dalle",
+  "next_domain_progress": "0/250",
+  "completed_domains": {
+    "crn": {
+      "accuracy": 0.9978853383458647,
+      "average_precision": 0.9960980177930389,
+      "real_accuracy": 0.9957720012527403,
+      "fake_accuracy": 1.0,
+      "samples_after_distributed_padding": 12768,
+      "duplicate_sampler_indices": 4
+    },
+    "cyclegan": {
+      "accuracy": 0.9928247734138973,
+      "average_precision": 0.9872944693572496,
+      "real_accuracy": 0.9856819894498869,
+      "fake_accuracy": 1.0,
+      "samples_after_distributed_padding": 2648,
+      "duplicate_sampler_indices": 6
+    }
+  },
+  "partial_macro_average": {
+    "accuracy": 0.9953550558798809,
+    "average_precision": 0.9916962435751442,
+    "paper_same_domains_accuracy": 0.9553499999999999,
+    "paper_same_domains_average_precision": 0.9998,
+    "accuracy_delta": 0.04000505587988101,
+    "average_precision_delta": -0.008103756424855835,
+    "seed100_same_domains_accuracy": 0.7798461410323391,
+    "seed100_same_domains_average_precision": 0.7505109794920226,
+    "accuracy_delta_to_seed100": 0.21550891484754175,
+    "average_precision_delta_to_seed100": 0.24118526408312158
+  },
+  "independent_recalculation": {
+    "script": "scripts/compare_iapl_ufd_runs.py",
+    "environment": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python on A6000",
+    "matches_rank0_log": true
+  },
+  "files": {
+    "rank0.log": "232ca9265a4b2dd7a828771bd4bc7e328505d1c9b5efc92b38194d78926961af",
+    "crn.json": "74ec0fb3fe28d63cf374f6be59b951c09f04dfb8c3427f5fa0a2dd89abdd0cc6",
+    "cyclegan.json": "2168af188c87c864c1746aec34e75c4e313fb43280072fed4fc8cbc28ee5e850",
+    "partial_metrics.json": "b82e7f865188d886d499ed3aad87640ed9fb5e239e1d03d06e8d2adb7843e6be"
+  },
+  "errors_detected_in_rank_logs": 0,
+  "policy": "This is a partial audit snapshot. Preserve all observed seed variation and wait for all 19 domains before reporting a final seed101 result."
+}

@@ -1,0 +1,45 @@
+{
+  "experiment": "P3 UFD seed101 full official TTA",
+  "snapshot_at": "2026-07-26T08:13:07+08:00",
+  "status": "running",
+  "domains_completed": 1,
+  "next_domain": "cyclegan",
+  "next_domain_progress": "250/331",
+  "completed_domains": {
+    "crn": {
+      "accuracy": 0.9978853383458647,
+      "average_precision": 0.9960980177930389,
+      "real_accuracy": 0.9957720012527403,
+      "fake_accuracy": 1.0,
+      "dataset_size": 12764,
+      "samples_after_distributed_padding": 12768,
+      "duplicate_sampler_indices": 4,
+      "accuracy_delta_to_seed100": 0.4060933583959901,
+      "average_precision_delta_to_seed100": 0.4352895819406663
+    }
+  },
+  "partial_macro_average": {
+    "accuracy": 0.9978853383458647,
+    "average_precision": 0.9960980177930389,
+    "paper_same_domains_accuracy": 0.9247,
+    "paper_same_domains_average_precision": 0.9997,
+    "accuracy_delta": 0.07318533834586471,
+    "average_precision_delta": -0.003601982206961174
+  },
+  "independent_recalculation": {
+    "script": "scripts/compare_iapl_ufd_runs.py",
+    "environment": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python on A6000",
+    "matches_rank0_log": true
+  },
+  "monitoring_warning": {
+    "4090-2_tailscale_ssh_timeouts": 2,
+    "distributed_job_evidence": "Rank0 continued from cyclegan 250/331 to 300/331 and then completed the domain, so the monitoring transport failure did not stop the established distributed job."
+  },
+  "files": {
+    "rank0.log": "741993a827c116deb2d40f65878b4cf63f5f60c73f87e757254d5e0156f1236a",
+    "crn.json": "74ec0fb3fe28d63cf374f6be59b951c09f04dfb8c3427f5fa0a2dd89abdd0cc6",
+    "partial_metrics.json": "c4f1696c7e7d83bb02aae425f897c3db98749cc198523636f954f20249d69fa0"
+  },
+  "errors_detected_in_rank_logs": 0,
+  "policy": "This is a partial audit snapshot. Preserve the large crn difference from seed100 and do not treat the one-domain metric as the final result."
+}

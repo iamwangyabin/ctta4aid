@@ -297,3 +297,14 @@ crossed the distributed barrier and entered `crn`; initial allocations were
 36,903 / 18,652 / 19,154 MiB at 100% utilization. Rank0 reached 0/1596 with
 an observed 8,437 MiB peak and no traceback, OOM, runtime, or collective error.
 This is a running result, and seed102 remains blocked behind it.
+
+The first completed seed101 domain is a material seed-sensitivity result:
+`crn` reached 99.79% Acc / 99.61% AP, versus seed100's 59.18% / 56.08% on
+the identical protocol. `cyclegan` then completed at 99.28% / 98.73%. The
+two-domain independently recalculated macro result is 99.54% Acc / 99.17% AP,
+4.00 / -0.81 points relative to the paper on the same domains and
+21.55 / 24.12 points above seed100. Four and six sampler-padding duplicates
+are retained for `crn` and `cyclegan`. Two 4090-2 Tailscale SSH monitoring
+probes timed out, but rank0 continued across the `cyclegan` boundary into
+`dalle`, proving that the established distributed job was not interrupted.
+Both the monitoring failure and the successful continuation are preserved.

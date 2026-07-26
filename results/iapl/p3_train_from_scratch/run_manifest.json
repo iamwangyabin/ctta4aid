@@ -91,7 +91,10 @@
         "running_attempt": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090",
         "rank_layout": "A6000 ranks 0-3; 3090 ranks 4-5; 4090-2 ranks 6-7",
         "started_at": "2026-07-26T06:45:05+08:00",
-        "domains_completed": 0
+        "domains_completed": 2,
+        "partial_accuracy": 0.995355,
+        "partial_average_precision": 0.991696,
+        "latest_snapshot": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260726_0817"
       },
       "102": {
         "status": "checkpoint_replicated_waiting_behind_seed101",

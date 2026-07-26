@@ -238,6 +238,15 @@ seed、rank 分组和 4090-2 隔离驱动库，预检全部通过。06:45:05 按
 已观测峰值 8,437 MiB，未见 traceback、OOM、runtime 或 collective 错误。
 当前只记为运行中，seed102 继续等待，不能提前启动。
 
+seed101 首个完成域 `crn` 得到 99.79% Acc / 99.61% AP，而相同协议的
+seed100 为 59.18% / 56.08%，显示出非常大的训练 seed 敏感性；不因高分或
+低分筛选权重。`cyclegan` 随后得到 99.28% / 98.73%。两域独立复算宏平均
+为 99.54% Acc / 99.17% AP，相对论文同域为 +4.00 / -0.81 个百分点，
+相对 seed100 同域为 +21.55 / +24.12 个百分点。`crn`、`cyclegan` 的 4、6
+个 sampler padding 重复样本均保留。期间 4090-2 的 Tailscale SSH 监控连续
+两次超时，但 rank0 持续越过 `cyclegan` 边界进入 `dalle`，说明已有分布式
+作业未中断；监控失败与成功续跑证据同时保存。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

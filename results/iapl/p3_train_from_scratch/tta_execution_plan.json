@@ -59,7 +59,11 @@
       "status": "running",
       "preflight": "ufd/seed101/preflight_20260725_2123",
       "started_at": "2026-07-26T06:45:05+08:00",
-      "running_attempt": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090"
+      "running_attempt": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090",
+      "domains_completed": 2,
+      "partial_accuracy": 0.9953550558798809,
+      "partial_average_precision": 0.9916962435751442,
+      "latest_snapshot": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260726_0817"
     },
     {
       "order": 3,
