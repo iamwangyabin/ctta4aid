@@ -60,11 +60,11 @@
       "preflight": "ufd/seed101/preflight_20260725_2123",
       "started_at": "2026-07-26T06:45:05+08:00",
       "running_attempt": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090",
-      "domains_completed": 5,
-      "partial_accuracy": 0.9236905430620116,
-      "partial_average_precision": 0.9680230355212585,
-      "weak_domain_preserved": "deepfake: 0.6612426035502958 accuracy / 0.8722042408177313 average precision",
-      "latest_snapshot": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260726_0943"
+      "domains_completed": 8,
+      "partial_accuracy": 0.9169440894137573,
+      "partial_average_precision": 0.9654335191373818,
+      "weak_domains_preserved": "deepfake: 0.6612426035502958/0.8722042408177313; glide_50_27: 0.8615/0.9460731347651858; glide_100_10: 0.8575/0.9406838849878931 accuracy/average precision",
+      "latest_snapshot": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260726_1044"
     },
     {
       "order": 3,
@@ -169,16 +169,16 @@
     "conclusion": "The launcher, framework path, test Arrow replicas, and all three trained checkpoint replicas are ready. GenImage remains behind both pending UFD TTA runs."
   },
   "resource_audit": {
-    "observed_at": "2026-07-26T09:43:11+08:00",
+    "observed_at": "2026-07-26T10:44:33+08:00",
     "artifact": "ufd/seed101/preflight_20260725_2123/manifest.json",
     "A6000": "seed101 ranks 0-3 are active at 37167 MiB and 100% utilization",
     "4090-1": "recovered; seed101 source checkpoint verified, but unrelated CAIDBench work uses 8406/24564 MiB at 100% utilization",
-    "4090-2": "isolated 580.159.03 compatibility libraries active; seed101 ranks 6-7 are active at 19154 MiB and 100% utilization; SSH recovered after intermittent monitoring timeouts",
+    "4090-2": "isolated 580.159.03 compatibility libraries active; seed101 ranks 6-7 are active at 19154 MiB and 100% utilization over LAN; the Tailscale alias timed out again",
     "3090": "seed101 ranks 4-5 are active at 18652 MiB and 100% utilization",
     "3070x2": "both GPUs recovered, but each 8 GiB GPU failed a single-rank official-batch preflight before the first batch at sampled peaks of 7857 and 7845 MiB",
     "rejected_fallback": "A6000 4 ranks; 3070x2 one rank per GPU; 4090-2 2 ranks",
     "preflight_artifact": "ufd/seed100/tta_preflight_3070x2",
     "partial_launch_artifact": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
-    "conclusion": "UFD seed101 completed 5 of 19 domains in the fixed 4+2+2 layout and entered gaugan. The low deepfake result is preserved without restart or selection. Seed102 remains behind this running job."
+    "conclusion": "UFD seed101 completed 8 of 19 domains in the fixed 4+2+2 layout and entered glide_100_27. Deepfake and both weak GLIDE results are preserved without restart, calibration, or selection. Seed102 remains behind this running job."
   }
 }

@@ -104,16 +104,16 @@
     "metrics_reported": false
   },
   "latest_observation": {
-    "observed_at": "2026-07-26T09:43:11+08:00",
-    "domains_completed": 5,
-    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake"],
-    "partial_accuracy": 0.9236905430620116,
-    "partial_average_precision": 0.9680230355212585,
-    "next_domain": "gaugan",
-    "next_domain_progress": "400/1250",
-    "monitoring_warning": "4090-2 had intermittent Tailscale SSH timeouts earlier; the probe recovered and all eight ranks were observed alive with all three GPUs at 100% utilization.",
-    "weak_domain_preserved": "deepfake: 66.12% Acc / 87.22% AP; real/fake accuracy 100.00% / 32.10%",
-    "snapshot": "snapshot_20260726_0943"
+    "observed_at": "2026-07-26T10:44:33+08:00",
+    "domains_completed": 8,
+    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10"],
+    "partial_accuracy": 0.9169440894137573,
+    "partial_average_precision": 0.9654335191373818,
+    "next_domain": "glide_100_27",
+    "next_domain_progress": "0/250",
+    "monitoring_warning": "The 4090-2 Tailscale alias timed out again, while its LAN address immediately showed both ranks alive at 100% GPU utilization. All eight ranks continued into the next domain.",
+    "weak_domains_preserved": "deepfake: 66.12%/87.22%; glide_50_27: 86.15%/94.61%; glide_100_10: 85.75%/94.07% Acc/AP",
+    "snapshot": "snapshot_20260726_1044"
   },
   "policy": "Run all 19 domains from the beginning. Preserve every failure or weak domain; do not report a final metric until all eight ranks complete all domains."
 }
