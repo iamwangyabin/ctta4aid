@@ -1,0 +1,468 @@
+{
+  "paper": {
+    "progan": {
+      "acc": 1.0,
+      "ap": 1.0
+    },
+    "cyclegan": {
+      "acc": 0.986,
+      "ap": 0.9999
+    },
+    "biggan": {
+      "acc": 0.9865,
+      "ap": 0.9995
+    },
+    "stylegan": {
+      "acc": 0.9489,
+      "ap": 0.9975
+    },
+    "gaugan": {
+      "acc": 0.9939,
+      "ap": 1.0
+    },
+    "stargan": {
+      "acc": 0.967,
+      "ap": 1.0
+    },
+    "deepfake": {
+      "acc": 0.9589,
+      "ap": 0.9759
+    },
+    "seeingdark": {
+      "acc": 0.9083,
+      "ap": 0.9727
+    },
+    "san": {
+      "acc": 0.9384,
+      "ap": 0.9812
+    },
+    "crn": {
+      "acc": 0.9247,
+      "ap": 0.9997
+    },
+    "imle": {
+      "acc": 0.9272,
+      "ap": 1.0
+    },
+    "guided": {
+      "acc": 0.7275,
+      "ap": 0.9625
+    },
+    "ldm_200": {
+      "acc": 0.995,
+      "ap": 0.9986
+    },
+    "ldm_200_cfg": {
+      "acc": 0.977,
+      "ap": 0.996
+    },
+    "ldm_100": {
+      "acc": 0.9915,
+      "ap": 0.9974
+    },
+    "glide_100_27": {
+      "acc": 0.9795,
+      "ap": 0.994
+    },
+    "glide_50_27": {
+      "acc": 0.983,
+      "ap": 0.9973
+    },
+    "glide_100_10": {
+      "acc": 0.9835,
+      "ap": 0.9986
+    },
+    "dalle": {
+      "acc": 0.989,
+      "ap": 0.9995
+    }
+  },
+  "runs": {
+    "seed100": {
+      "biggan": {
+        "acc": 0.95825,
+        "ap": 0.9276023787392732,
+        "racc": 0.918,
+        "facc": 0.9985,
+        "samples": 4000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "crn": {
+        "acc": 0.5917919799498746,
+        "ap": 0.5608084358523726,
+        "racc": 0.18383964923269652,
+        "facc": 1.0,
+        "samples": 12768,
+        "duplicate_sampler_indices": 4,
+        "world_size": 8
+      },
+      "cyclegan": {
+        "acc": 0.9679003021148036,
+        "ap": 0.9402135231316726,
+        "racc": 0.9359457422758101,
+        "facc": 1.0,
+        "samples": 2648,
+        "duplicate_sampler_indices": 6,
+        "world_size": 8
+      },
+      "dalle": {
+        "acc": 0.9905,
+        "ap": 0.9850335110630027,
+        "racc": 0.985,
+        "facc": 0.996,
+        "samples": 2000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "deepfake": {
+        "acc": 0.9528476331360947,
+        "ap": 0.9615104775763589,
+        "racc": 0.9811808118081181,
+        "facc": 0.9243884358784284,
+        "samples": 5408,
+        "duplicate_sampler_indices": 3,
+        "world_size": 8
+      },
+      "gaugan": {
+        "acc": 0.9682,
+        "ap": 0.9423183566878258,
+        "racc": 0.9364,
+        "facc": 1.0,
+        "samples": 10000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "glide_100_10": {
+        "acc": 0.983,
+        "ap": 0.9820411116101903,
+        "racc": 0.983,
+        "facc": 0.983,
+        "samples": 2000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "glide_100_27": {
+        "acc": 0.9795,
+        "ap": 0.9788564069676374,
+        "racc": 0.984,
+        "facc": 0.975,
+        "samples": 2000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "glide_50_27": {
+        "acc": 0.981,
+        "ap": 0.9789276274693839,
+        "racc": 0.98,
+        "facc": 0.982,
+        "samples": 2000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "guided": {
+        "acc": 0.8225,
+        "ap": 0.928766949814821,
+        "racc": 0.966,
+        "facc": 0.679,
+        "samples": 2000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "imle": {
+        "acc": 0.5953947368421053,
+        "ap": 0.5617463251474342,
+        "racc": 0.1910429063576574,
+        "facc": 1.0,
+        "samples": 12768,
+        "duplicate_sampler_indices": 4,
+        "world_size": 8
+      },
+      "ldm_100": {
+        "acc": 0.988,
+        "ap": 0.9827055360447382,
+        "racc": 0.984,
+        "facc": 0.992,
+        "samples": 2000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "ldm_200": {
+        "acc": 0.9895,
+        "ap": 0.9835846194054658,
+        "racc": 0.985,
+        "facc": 0.994,
+        "samples": 2000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "ldm_200_cfg": {
+        "acc": 0.983,
+        "ap": 0.9782393737406841,
+        "racc": 0.981,
+        "facc": 0.985,
+        "samples": 2000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "progan": {
+        "acc": 0.999,
+        "ap": 0.9999008069710632,
+        "racc": 1.0,
+        "facc": 0.998,
+        "samples": 8000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "san": {
+        "acc": 0.95,
+        "ap": 0.9289646770569642,
+        "racc": 0.9321266968325792,
+        "facc": 0.9680365296803652,
+        "samples": 440,
+        "duplicate_sampler_indices": 2,
+        "world_size": 8
+      },
+      "seeingdark": {
+        "acc": 0.825,
+        "ap": 0.7627118644067796,
+        "racc": 0.65,
+        "facc": 1.0,
+        "samples": 360,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "stargan": {
+        "acc": 0.92725,
+        "ap": 0.8752189141856392,
+        "racc": 0.8545727136431784,
+        "facc": 1.0,
+        "samples": 4000,
+        "duplicate_sampler_indices": 2,
+        "world_size": 8
+      },
+      "stylegan": {
+        "acc": 0.9683744993324432,
+        "ap": 0.9968261581591873,
+        "racc": 0.999833138661772,
+        "facc": 0.9369053580370555,
+        "samples": 11984,
+        "duplicate_sampler_indices": 2,
+        "world_size": 8
+      }
+    },
+    "seed101_partial": {
+      "biggan": {
+        "acc": 0.9945,
+        "ap": 0.995946160545959,
+        "racc": 0.9965,
+        "facc": 0.9925,
+        "samples": 4000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "crn": {
+        "acc": 0.9978853383458647,
+        "ap": 0.9960980177930389,
+        "racc": 0.9957720012527403,
+        "facc": 1.0,
+        "samples": 12768,
+        "duplicate_sampler_indices": 4,
+        "world_size": 8
+      },
+      "cyclegan": {
+        "acc": 0.9928247734138973,
+        "ap": 0.9872944693572496,
+        "racc": 0.9856819894498869,
+        "facc": 1.0,
+        "samples": 2648,
+        "duplicate_sampler_indices": 6,
+        "world_size": 8
+      },
+      "dalle": {
+        "acc": 0.972,
+        "ap": 0.9885722890923133,
+        "racc": 0.997,
+        "facc": 0.947,
+        "samples": 2000,
+        "duplicate_sampler_indices": 0,
+        "world_size": 8
+      },
+      "deepfake": {
+        "acc": 0.6612426035502958,
+        "ap": 0.8722042408177313,
+        "racc": 1.0,
+        "facc": 0.32097850259451444,
+        "samples": 5408,
+        "duplicate_sampler_indices": 3,
+        "world_size": 8
+      }
+    }
+  },
+  "aggregates": {
+    "seed100": {
+      "domains": [
+        "progan",
+        "cyclegan",
+        "biggan",
+        "stylegan",
+        "gaugan",
+        "stargan",
+        "deepfake",
+        "seeingdark",
+        "san",
+        "crn",
+        "imle",
+        "guided",
+        "ldm_200",
+        "ldm_200_cfg",
+        "ldm_100",
+        "glide_100_27",
+        "glide_50_27",
+        "glide_100_10",
+        "dalle"
+      ],
+      "domain_count": 19,
+      "metrics": {
+        "acc": 0.9168952184934378,
+        "ap": 0.908209318633184,
+        "racc": 0.8647864030953585,
+        "facc": 0.9690437012418867
+      },
+      "paper_same_domains": {
+        "acc": 0.9560947368421053,
+        "ap": 0.9931736842105263
+      },
+      "delta_to_paper": {
+        "acc": -0.03919951834866753,
+        "ap": -0.08496436557734233
+      }
+    },
+    "seed101_partial": {
+      "domains": [
+        "cyclegan",
+        "biggan",
+        "deepfake",
+        "crn",
+        "dalle"
+      ],
+      "domain_count": 5,
+      "metrics": {
+        "acc": 0.9236905430620116,
+        "ap": 0.9680230355212585,
+        "racc": 0.9949907981405255,
+        "facc": 0.8520957005189029
+      },
+      "paper_same_domains": {
+        "acc": 0.9690200000000001,
+        "ap": 0.9949
+      },
+      "delta_to_paper": {
+        "acc": -0.04532945693798851,
+        "ap": -0.02687696447874155
+      }
+    }
+  },
+  "deltas": {
+    "seed100": {
+      "progan": {
+        "acc": -0.0010000000000000009,
+        "ap": -9.919302893679482e-05
+      },
+      "cyclegan": {
+        "acc": -0.018099697885196386,
+        "ap": -0.0596864768683274
+      },
+      "biggan": {
+        "acc": -0.028249999999999997,
+        "ap": -0.07189762126072685
+      },
+      "stylegan": {
+        "acc": 0.019474499332443274,
+        "ap": -0.0006738418408127611
+      },
+      "gaugan": {
+        "acc": -0.025700000000000056,
+        "ap": -0.05768164331217418
+      },
+      "stargan": {
+        "acc": -0.03974999999999995,
+        "ap": -0.12478108581436076
+      },
+      "deepfake": {
+        "acc": -0.006052366863905312,
+        "ap": -0.01438952242364111
+      },
+      "seeingdark": {
+        "acc": -0.08330000000000004,
+        "ap": -0.20998813559322038
+      },
+      "san": {
+        "acc": 0.011599999999999944,
+        "ap": -0.05223532294303579
+      },
+      "crn": {
+        "acc": -0.3329080200501253,
+        "ap": -0.4388915641476274
+      },
+      "imle": {
+        "acc": -0.3318052631578947,
+        "ap": -0.43825367485256583
+      },
+      "guided": {
+        "acc": 0.09499999999999997,
+        "ap": -0.033733050185179025
+      },
+      "ldm_200": {
+        "acc": -0.005499999999999949,
+        "ap": -0.015015380594534222
+      },
+      "ldm_200_cfg": {
+        "acc": 0.006000000000000005,
+        "ap": -0.017760626259315848
+      },
+      "ldm_100": {
+        "acc": -0.0035000000000000586,
+        "ap": -0.01469446395526175
+      },
+      "glide_100_27": {
+        "acc": 0.0,
+        "ap": -0.015143593032362568
+      },
+      "glide_50_27": {
+        "acc": -0.0020000000000000018,
+        "ap": -0.018372372530616077
+      },
+      "glide_100_10": {
+        "acc": -0.000500000000000056,
+        "ap": -0.01655888838980979
+      },
+      "dalle": {
+        "acc": 0.0015000000000000568,
+        "ap": -0.014466488936997313
+      }
+    },
+    "seed101_partial": {
+      "cyclegan": {
+        "acc": 0.0068247734138973115,
+        "ap": -0.012605530642750384
+      },
+      "biggan": {
+        "acc": 0.008000000000000007,
+        "ap": -0.0035538394540410856
+      },
+      "deepfake": {
+        "acc": -0.2976573964497041,
+        "ap": -0.1036957591822687
+      },
+      "crn": {
+        "acc": 0.07318533834586471,
+        "ap": -0.003601982206961174
+      },
+      "dalle": {
+        "acc": -0.017000000000000015,
+        "ap": -0.010927710907686738
+      }
+    }
+  }
+}

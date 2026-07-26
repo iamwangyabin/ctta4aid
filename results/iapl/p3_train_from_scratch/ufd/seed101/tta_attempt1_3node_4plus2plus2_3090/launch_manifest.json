@@ -104,15 +104,16 @@
     "metrics_reported": false
   },
   "latest_observation": {
-    "observed_at": "2026-07-26T08:17:05+08:00",
-    "domains_completed": 2,
-    "completed_domains": ["crn", "cyclegan"],
-    "partial_accuracy": 0.9953550558798809,
-    "partial_average_precision": 0.9916962435751442,
-    "next_domain": "dalle",
-    "next_domain_progress": "0/250",
-    "monitoring_warning": "Two 4090-2 Tailscale SSH probes timed out, but the distributed job continued across domain boundaries without a rank error.",
-    "snapshot": "snapshot_20260726_0817"
+    "observed_at": "2026-07-26T09:43:11+08:00",
+    "domains_completed": 5,
+    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake"],
+    "partial_accuracy": 0.9236905430620116,
+    "partial_average_precision": 0.9680230355212585,
+    "next_domain": "gaugan",
+    "next_domain_progress": "400/1250",
+    "monitoring_warning": "4090-2 had intermittent Tailscale SSH timeouts earlier; the probe recovered and all eight ranks were observed alive with all three GPUs at 100% utilization.",
+    "weak_domain_preserved": "deepfake: 66.12% Acc / 87.22% AP; real/fake accuracy 100.00% / 32.10%",
+    "snapshot": "snapshot_20260726_0943"
   },
   "policy": "Run all 19 domains from the beginning. Preserve every failure or weak domain; do not report a final metric until all eight ranks complete all domains."
 }
