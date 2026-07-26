@@ -289,6 +289,18 @@ seed100 的 59.54%/56.17% 形成反向极端差异，进一步确认训练 seed 
 SAN 的两个 sampler padding 重复样本和全部弱结果均原样保留。当前进入
 `stargan`，之后只剩 `stylegan`，三机八 ranks 未见运行错误。
 
+UFD seed101 官方 TTA 于 15:18 完成全部 19 域，耗时 8:32:55。官方日志
+Acc/AP 为 89.54%/95.48%，19 个预测文件独立复算为 89.5358%/95.4825%，
+较论文低 6.07/3.83 个百分点。相对同一权重的静态评测，TTA 令 Acc 降低
+0.16 点、AP 降低 1.30 点；相对 seed100，Acc 低 2.15 点而 AP 高 4.66 点。
+`deepfake`、`san`、`seeingdark`、`guided` 和三个 GLIDE 域构成主要低值，
+而 `crn`、`imle` 又相对 seed100 出现反向高分，全部保留且不挑 seed。八 ranks
+和三 launcher 均正常退出，88,353 个唯一索引完整覆盖，23 个 padding 样本
+进入正式指标。首次最终汇总尝试因 A6000 runtime 未部署
+`summarize_iapl_predictions.py` 在读取预测前失败，随后使用仓库内同一脚本在
+本机成功复算；失败和重试均归档。seed102 现在按顺序成为下一项，启动前仍需
+重新执行三机精确预检。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

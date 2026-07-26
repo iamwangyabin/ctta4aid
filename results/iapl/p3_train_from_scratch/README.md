@@ -308,3 +308,15 @@ are retained for `crn` and `cyclegan`. Two 4090-2 Tailscale SSH monitoring
 probes timed out, but rank0 continued across the `cyclegan` boundary into
 `dalle`, proving that the established distributed job was not interrupted.
 Both the monitoring failure and the successful continuation are preserved.
+
+UFD seed101 official TTA completed all 19 domains at 15:18 on 2026-07-26
+after 8h32m55s. The official log reports 89.54% Acc / 95.48% AP; independent
+recalculation gives 89.5358% / 95.4825%, 6.07 / 3.83 points below the paper.
+Compared with seed100, seed101 is 2.15 points lower in Accuracy but 4.66
+points higher in AP, with extreme opposite outcomes on `crn` and `imle`.
+All eight ranks and three launchers exited normally, all 88,353 unique indices
+are covered, and 23 DistributedSampler padding records remain in the official
+metrics. The first final-summary attempt failed before reading predictions
+because the summarizer was not deployed on A6000; the tracked local script
+then completed the audit. Both attempts are recorded. Seed102 is now next and
+must pass a fresh three-host preflight before it starts.

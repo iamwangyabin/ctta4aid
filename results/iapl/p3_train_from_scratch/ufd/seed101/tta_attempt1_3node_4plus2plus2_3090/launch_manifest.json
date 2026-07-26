@@ -1,6 +1,6 @@
 {
   "experiment": "P3 UFD seed101 full official TTA",
-  "status": "running",
+  "status": "completed_and_audited",
   "started_at": "2026-07-26T06:45:05+08:00",
   "world_size": 8,
   "master_addr": "192.168.10.2",
@@ -104,16 +104,19 @@
     "metrics_reported": false
   },
   "latest_observation": {
-    "observed_at": "2026-07-26T13:46:54+08:00",
-    "domains_completed": 17,
-    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle", "ldm_100", "ldm_200", "ldm_200_cfg", "progan", "san", "seeingdark"],
-    "partial_accuracy": 0.8898449129842768,
-    "partial_average_precision": 0.951539617419714,
-    "next_domain": "stargan",
-    "next_domain_progress": "0/500",
-    "monitoring_warning": "All three hosts were reachable over LAN, all eight GPU processes remained resident, and no rank error was detected.",
-    "weak_domains_preserved": "ldm_200_cfg: 89.90%/94.52%; san: 70.45%/90.03%; seeingdark: 75.83%/82.85% Acc/AP",
-    "snapshot": "snapshot_20260726_1346"
+    "observed_at": "2026-07-26T15:24:19+08:00",
+    "completed_at": "2026-07-26T15:18:00+08:00",
+    "elapsed": "8:32:55",
+    "domains_completed": 19,
+    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle", "ldm_100", "ldm_200", "ldm_200_cfg", "progan", "san", "seeingdark", "stargan", "stylegan"],
+    "final_accuracy": 0.8953575312366521,
+    "final_average_precision": 0.9548248405573074,
+    "accuracy_delta_to_paper": -0.06073720560545326,
+    "average_precision_delta_to_paper": -0.03834884365321867,
+    "all_three_launchers_exited": true,
+    "all_eight_ranks_exited": true,
+    "tracebacks_or_cuda_errors": 0,
+    "final_artifact": "final"
   },
   "policy": "Run all 19 domains from the beginning. Preserve every failure or weak domain; do not report a final metric until all eight ranks complete all domains."
 }

@@ -5,7 +5,7 @@
   "source_commit": "6b3b595aca3d363ab6391a92ae50edd730a98298",
   "seeds": [100, 101, 102],
   "ufd": {
-    "status": "training_complete_tta_1_of_3_completed_1_running",
+    "status": "training_complete_tta_2_of_3_completed",
     "source": "IAPL run_universalfake.sh at a173e7783bbafaa00d60e6e31774a0bc14411a23",
     "train_subsets": ["car", "cat", "chair", "horse"],
     "train_images_per_subset": 36006,
@@ -84,21 +84,26 @@
         "artifact": "ufd/seed100/tta_attempt3_3node_4plus2plus2_3090/final"
       },
       "101": {
-        "status": "running_official_tta",
+        "status": "completed_and_audited",
         "checkpoint_replicated_to": ["A6000", "3090", "4090-2"],
         "checkpoint_sha256": "f81a0a9d69e57acea79ee8dbb3b00e39e4b5395a084884ec0f99999722f4bb14",
         "preflight": "ufd/seed101/preflight_20260725_2123",
         "running_attempt": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090",
         "rank_layout": "A6000 ranks 0-3; 3090 ranks 4-5; 4090-2 ranks 6-7",
         "started_at": "2026-07-26T06:45:05+08:00",
-        "domains_completed": 17,
-        "partial_accuracy": 0.889845,
-        "partial_average_precision": 0.951540,
-        "weak_domains_preserved": "ldm_200_cfg: 0.899000/0.945249; san: 0.704545/0.900313; seeingdark: 0.758333/0.828458 accuracy/average precision",
-        "latest_snapshot": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260726_1346"
+        "completed_at": "2026-07-26T15:18:00+08:00",
+        "elapsed": "8:32:55",
+        "domains_completed": 19,
+        "accuracy": 0.8953575312366521,
+        "average_precision": 0.9548248405573074,
+        "real_accuracy": 0.9968204845710974,
+        "fake_accuracy": 0.7936752777139183,
+        "accuracy_delta_to_paper": -0.06073720560545326,
+        "average_precision_delta_to_paper": -0.03834884365321867,
+        "artifact": "ufd/seed101/tta_attempt1_3node_4plus2plus2_3090/final"
       },
       "102": {
-        "status": "checkpoint_replicated_waiting_behind_seed101",
+        "status": "ready_for_fresh_preflight_and_launch",
         "checkpoint_replicated_to": ["A6000", "3090", "4090-2"],
         "checkpoint_sha256": "d324bac298ddd827ee17b688e932da03cf864d0e0933320c269a2d343811313d",
         "preflight": "ufd/seed102/preflight_20260726_0123"
@@ -336,14 +341,14 @@
     "scripts/run_iapl_genimage_manual_ranks.sh": "894f0bfb21d77ffdab11208e64eb35300e186d2637917449fe64c797f10fa137"
   },
   "trained_checkpoint_tta": {
-    "status": "completed_1_of_6_ufd_seed101_running",
+    "status": "completed_2_of_6_ufd_seed102_next",
     "runs_total": 6,
-    "runs_completed": 1,
+    "runs_completed": 2,
     "execution_plan": "tta_execution_plan.json",
     "required_rank_layout": "A6000 4 ranks; 3090 2 ranks; 4090-2 2 ranks",
     "latest_resource_audit": "ufd/seed101/preflight_20260725_2123/manifest.json",
-    "latest_resource_observed_at": "2026-07-26T13:46:54+08:00",
-    "latest_resource_conclusion": "UFD seed101 completed 17 of 19 domains in the required 4+2+2 layout. SAN, SeeingDark, and every prior weak domain are preserved. All eight ranks continued into stargan without a detected rank error.",
+    "latest_resource_observed_at": "2026-07-26T15:24:19+08:00",
+    "latest_resource_conclusion": "UFD seed101 completed and passed the artifact, prediction-coverage, process-exit, and error-log audit. All three GPUs are released. UFD seed102 is next and requires a fresh exact preflight before launch.",
     "preserved_partial_launch": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
     "preserved_3070_preflight": "ufd/seed100/tta_preflight_3070x2"
   }
