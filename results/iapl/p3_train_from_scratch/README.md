@@ -486,3 +486,11 @@ with ADM, Midjourney, BigGAN, and glide driving the deficit. All 100,000 unique
 indices are covered without padding, every rank and launcher exited, all GPUs
 were released, and no execution error was found. Seed101 is next after a fresh
 three-host preflight; no weak result is discarded.
+
+Fresh seed101 preflights passed on all three hosts between 17:22 and 17:23.
+The GPUs were idle, port 29644 was free, all official output directories were
+absent, and the checkpoint (`4cbaec6...`), launcher, and runtime hashes matched.
+Every host also constructed the actual 12,000-row ADM Arrow dataset. Seed101
+then launched at 17:24:02 in the fixed A6000 4 + 3090 2 + 4090-2 2 layout.
+All eight ranks crossed the barrier, rank0 entered ADM at 0/1500 with an 8,437
+MiB peak, and no startup error was found. Seed102 remains queued.

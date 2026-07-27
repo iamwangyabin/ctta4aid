@@ -122,7 +122,13 @@
       "sha256": "4cbaec6c15a9a0219d68cb5ef947585b5362ed4a5befe3e359b3152e84eaf2d9",
       "master_port": 29644,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed101",
-      "status": "ready_next_requires_fresh_preflight"
+      "status": "running",
+      "preflight": "genimage/seed101/preflight_20260727_1723/manifest.json",
+      "started_at": "2026-07-27T17:24:02+08:00",
+      "running_attempt": "genimage/seed101/tta_attempt1_3node_4plus2plus2_3090",
+      "initial_state": "All eight ranks crossed the barrier and rank0 entered ADM 0/1500 without an error.",
+      "domains_completed": 0,
+      "active_domain": "ADM"
     },
     {
       "order": 6,

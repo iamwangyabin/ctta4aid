@@ -436,6 +436,13 @@ Midjourney、BigGAN 和 glide。100,000 个唯一索引全部覆盖且无 paddin
 八 ranks、三 launcher 全部退出，三 GPU 释放，无执行错误。弱结果完整保留；
 P3 下一项严格为 GenImage seed101，启动前必须重新通过三机预检。
 
+17:22--17:23，seed101 在三机完成全新、未复用的预检：GPU 空闲、端口 29644
+未占用、正式输出目录不存在，checkpoint `4cbaec6...`、launcher 与 runtime
+哈希一致，并且每台机器都用实际代码成功构造 12,000 行 ADM Arrow dataset。
+17:24:02 按 A6000 4 + 3090 2 + 4090-2 2 ranks 启动；八 ranks 全部通过
+barrier，rank0 进入 ADM 0/1500，峰值 8,437 MiB，无启动错误。seed102 继续
+按顺序等待。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
