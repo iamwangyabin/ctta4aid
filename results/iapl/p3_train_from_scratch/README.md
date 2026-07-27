@@ -534,3 +534,11 @@ absolute result, TTA is 0.26 / 0.37 points below this checkpoint's static
 Acc/AP and slightly below both P2 and trained seed100. The five-domain mean is
 95.81% Acc / 98.04% AP. At 23:19, SD1.5 reached 250/2000 and all ranks remained
 healthy; the small regression is retained.
+
+`stable_diffusion_v_1_5` completed at 00:37 after 1h31m06s. Its 16,000 unique
+predictions give 99.5125% Acc / 99.3998% AP and 99.1375% / 99.8875%
+real/fake accuracy without padding. TTA is 0.32 / 0.54 points below static
+Acc/AP, 0.23 / 0.47 points below P2, and 0.40 / 0.51 points below trained
+seed100. The six-domain mean is 96.42% Acc / 98.27% AP. At 00:49, `VQDM`
+reached 200/1500 with all ranks healthy; the repeated diffusion-domain
+regression remains in the record.
