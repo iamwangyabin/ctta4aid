@@ -563,3 +563,15 @@ confirming substantial seed sensitivity rather than an execution fault. All
 launchers exited, all GPUs were released, and no traceback, OOM, runtime, or
 collective error was found. Seed102 is now next and requires a fresh three-host
 preflight before launch.
+
+The fresh seed102 preflight passed at 03:26. A6000 and 3090 were idle at 17 /
+106 MiB, port 29645 was free, output directories were absent, hashes matched,
+and the actual ADM Arrow creator returned 12,000 rows. The first bare 4090-2
+NVML probe failed because the system 580.173 user-space library does not match
+the loaded driver; the failure is retained, and the entire host check passed
+only after applying the already-pinned isolated 580.159.03 compatibility path.
+Seed102 launched at 03:27:12 in the fixed 4+2+2 layout. All eight ranks crossed
+the barrier, rank0 entered ADM 0/1500 with an 8,437 MiB peak, the GPUs reached
+37,179 / 18,656 / 19,162 MiB, and no startup execution error was found. This
+final P3 TTA run is active; P4 remains blocked until completion and cross-seed
+audit.

@@ -1,0 +1,67 @@
+{
+  "experiment": "P3 GenImage seed102 official TTA preflight",
+  "status": "passed_after_known_4090_2_nvml_compat_retry",
+  "observed_at": "2026-07-28T03:26:28+08:00",
+  "order_guard": "GenImage seed101 completed, was independently audited, committed as 073ba31, and pushed before this preflight began.",
+  "protocol": {
+    "world_size": 8,
+    "master_addr": "192.168.10.2",
+    "master_port": 29645,
+    "seed": 102,
+    "num_workers": 0,
+    "domains": [
+      "ADM",
+      "BigGAN",
+      "glide",
+      "Midjourney",
+      "stable_diffusion_v_1_4",
+      "stable_diffusion_v_1_5",
+      "VQDM",
+      "wukong"
+    ],
+    "dataset_uri": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+    "checkpoint_sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
+    "launcher_sha256": "8f0f1696c638bd3fc7a83d690d3ebab7be1423fbbd556d28c50727562f0587c2",
+    "runtime_dataset_sha256": "25f090442824464c5d09b58a6d7a1be3c2746a2fda1a24926cba92abf11a9d1b",
+    "nccl_version": 23007
+  },
+  "host_checks": {
+    "A6000": {
+      "ranks": [0, 1, 2, 3],
+      "gpu_memory_mib": 17,
+      "gpu_utilization_percent": 0,
+      "official_output_absent": true,
+      "checkpoint_hash_passed": true,
+      "launcher_hash_passed": true,
+      "runtime_hash_passed": true,
+      "master_port_free": true,
+      "genimage_arrow_runtime_smoke": "ADM: 12000 rows"
+    },
+    "3090": {
+      "ranks": [4, 5],
+      "gpu_memory_mib": 106,
+      "gpu_utilization_percent": 0,
+      "official_output_absent": true,
+      "checkpoint_hash_passed": true,
+      "launcher_hash_passed": true,
+      "runtime_hash_passed": true,
+      "master_port_free": true,
+      "genimage_arrow_runtime_smoke": "ADM: 12000 rows"
+    },
+    "4090-2": {
+      "ranks": [6, 7],
+      "gpu_memory_mib": 252,
+      "gpu_utilization_percent": 0,
+      "official_output_absent": true,
+      "checkpoint_hash_passed": true,
+      "launcher_hash_passed": true,
+      "runtime_hash_passed": true,
+      "master_port_free": true,
+      "genimage_arrow_runtime_smoke": "ADM: 12000 rows",
+      "initial_bare_nvml_probe": "failed: system user-space library 580.173 did not match the loaded driver",
+      "recovery": "Repeated the entire host check with the pinned 580.159.03 compatibility directory; GPU and runtime checks passed.",
+      "nvidia_compat_lib_dir": "/home/yabin/ctta4aid_assets/driver_compat/nvidia-580.159.03/rootfs/usr/lib/x86_64-linux-gnu"
+    }
+  },
+  "conclusion": "All three rank groups passed a fresh non-reused preflight from idle GPUs and absent output directories. Each host constructed the actual 12,000-row ADM Arrow dataset with the seed102 checkpoint and pinned runtime. The first bare 4090-2 NVML probe failure is preserved and was resolved only by the already-required isolated compatibility library. Seed102 is cleared to launch."
+}

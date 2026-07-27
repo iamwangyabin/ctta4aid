@@ -501,6 +501,15 @@ AP。22:19 SD1.4 到 400/1500，八 ranks 健康。
 未发现 traceback、OOM、runtime 或 collective 错误。P3 下一项严格为
 GenImage seed102，必须先重新通过三机预检。
 
+03:26，seed102 全新三机预检通过。A6000/3090 空闲显存占用为 17/106 MiB，
+端口 29645 空闲、输出目录不存在、checkpoint/launcher/runtime 哈希一致，实际
+ADM Arrow creator 均返回 12,000 行。4090-2 首次裸 NVML 探测因系统 580.173
+用户态库与已加载驱动不匹配而失败；该失败保留，随后仅使用既定隔离 580.159.03
+兼容库重新执行整套节点检查并通过。03:27:12 按 4+2+2 ranks 启动 seed102；
+八 ranks 均通过 barrier，rank0 进入 ADM 0/1500，峰值 8,437 MiB，三机显存
+占用 37,179/18,656/19,162 MiB，未发现启动执行错误。这是 P3 最后一个 TTA
+run；完成及跨 seed 审计前不得进入 P4。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

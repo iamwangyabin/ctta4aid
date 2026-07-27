@@ -1,0 +1,56 @@
+{
+  "experiment": "P3 GenImage seed102 trained-checkpoint official TTA",
+  "status": "running",
+  "attempt": 1,
+  "started_at": "2026-07-28T03:27:12+08:00",
+  "protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "master_addr": "192.168.10.2",
+    "master_port": 29645,
+    "seed": 102,
+    "dataset_uri": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+    "domains": [
+      "ADM",
+      "BigGAN",
+      "glide",
+      "Midjourney",
+      "stable_diffusion_v_1_4",
+      "stable_diffusion_v_1_5",
+      "VQDM",
+      "wukong"
+    ],
+    "checkpoint_sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
+    "launcher_sha256": "8f0f1696c638bd3fc7a83d690d3ebab7be1423fbbd556d28c50727562f0587c2",
+    "eval_batch_size": 32,
+    "views": 32,
+    "tta_steps": 2,
+    "selection_p": 0.2,
+    "ois": true,
+    "smooth": true,
+    "num_workers": 0,
+    "distributed_timeout_seconds": 7200,
+    "nccl_version": 23007
+  },
+  "launchers": {
+    "A6000": {"pid": 76265, "started_at": "2026-07-28T03:27:12+08:00"},
+    "3090": {"pid": 29701, "started_at": "2026-07-28T03:27:46+08:00"},
+    "4090-2": {"pid": 3523159, "started_at": "2026-07-28T03:27:33+08:00"}
+  },
+  "initial_audit": {
+    "observed_at": "2026-07-28T03:29:31+08:00",
+    "all_eight_ranks_alive": true,
+    "all_eight_ranks_crossed_distributed_barrier": true,
+    "launcher_runtime_smoke": "ADM: 12000 rows on all three hosts",
+    "rank0_progress": "ADM 0/1500",
+    "rank0_peak_memory_mib": 8437,
+    "gpu_memory_mib": {"A6000": 37179, "3090": 18656, "4090-2": 19162},
+    "traceback_or_runtime_error_found": false
+  },
+  "preflight": "../preflight_20260728_0326/manifest.json",
+  "order_guard": "Do not start P4 until this run completes, is independently audited, and the GenImage three-seed TTA summary is committed and pushed."
+}
