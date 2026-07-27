@@ -1,0 +1,63 @@
+{
+  "experiment": "P3 GenImage seed101 official TTA running snapshot",
+  "status": "running_4_of_8_domains_complete",
+  "observed_at": "2026-07-27T22:19:09+08:00",
+  "completed_domains": ["ADM", "BigGAN", "glide", "Midjourney"],
+  "active_domain": "stable_diffusion_v_1_4",
+  "active_progress": "400/1500",
+  "independent_four_domain_mean": {
+    "accuracy": 0.948375,
+    "average_precision": 0.9764586123397115,
+    "real_accuracy": 0.9938333333333333,
+    "fake_accuracy": 0.9029166666666667
+  },
+  "independent_Midjourney": {
+    "dataset_size": 12000,
+    "samples_with_distributed_padding": 12000,
+    "unique_sampler_indices": 12000,
+    "duplicate_sampler_indices": 0,
+    "accuracy": 0.97875,
+    "average_precision": 0.9850335620330345,
+    "real_accuracy": 0.9943333333333333,
+    "fake_accuracy": 0.9631666666666666,
+    "world_size": 8
+  },
+  "comparison": {
+    "training_static_Midjourney": {
+      "accuracy": 0.9715,
+      "average_precision": 0.9979,
+      "accuracy_delta": 0.00725,
+      "average_precision_delta": -0.0128664379669655
+    },
+    "released_checkpoint_P2_Midjourney": {
+      "accuracy": 0.9574166666666667,
+      "average_precision": 0.9911810121022196,
+      "accuracy_delta": 0.0213333333333333,
+      "average_precision_delta": -0.0061474500691851
+    },
+    "trained_seed100_TTA_Midjourney": {
+      "accuracy": 0.7553333333333333,
+      "average_precision": 0.9221070798285622,
+      "accuracy_delta": 0.2234166666666667,
+      "average_precision_delta": 0.0629264822044723
+    }
+  },
+  "prediction_artifacts": {
+    "ADM.json": "6fa745ae1273f06ce9c98b73c9c7821ffa5559db1a1b15612499b5667319a9f0",
+    "BigGAN.json": "ae58da8f48a0e1bc7400908e4b64017ff6e97a196042aac765075792278a82c2",
+    "glide.json": "7f29761a64430563790f639cb9d37797b20a2c5d65bcad0d4421dda8b6765bf0",
+    "Midjourney.json": "e8d7e5ce818132f41263442b201c053c887d8647aa21811fdac88fe69f6403c3"
+  },
+  "health": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "all_three_gpus_active": true,
+    "gpu_memory_mib": {
+      "A6000": 37179,
+      "3090": 18652,
+      "4090-2": 19162
+    },
+    "traceback_or_runtime_error_found": false
+  },
+  "interpretation": "Seed101 Midjourney TTA raises Accuracy by 0.73 points but lowers AP by 1.29 points versus static evaluation. It exceeds P2 by 2.13 Accuracy points while trailing by 0.61 AP points, and exceeds trained seed100 by 22.34 Accuracy and 6.29 AP points. The four-domain mean is 94.84% Accuracy and 97.65% AP; preserve the seed difference and AP regression."
+}

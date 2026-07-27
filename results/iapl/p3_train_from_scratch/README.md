@@ -518,3 +518,11 @@ points but lowers AP by 1.09 points. It is 1.53 Accuracy points above P2 and
 14.39 points above trained seed100, while AP is 0.83 / 0.29 points lower. The
 three-domain mean is 93.83% Acc / 97.36% AP. At 21:18, `Midjourney` reached
 600/1500 and all ranks remained healthy.
+
+`Midjourney` completed at 21:58 after 1h08m17s. Its 12,000 unique predictions
+give 97.8750% Acc / 98.5034% AP and 99.4333% / 96.3167% real/fake accuracy
+without padding. TTA raises static Accuracy by 0.73 points but lowers AP by
+1.29 points. It is 2.13 Accuracy points above P2 and 22.34 points above trained
+seed100, while AP is 0.61 points below P2 and 6.29 points above seed100. The
+four-domain mean is 94.84% Acc / 97.65% AP. At 22:19, SD1.4 reached 400/1500
+and all ranks remained healthy.

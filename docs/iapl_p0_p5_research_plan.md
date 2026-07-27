@@ -464,6 +464,13 @@ P2 高 1.53 点、比训练 seed100 高 14.39 点，AP 则低 0.83/0.29 点。�
 宏平均为 93.83% Acc / 97.36% AP。21:18 `Midjourney` 到 600/1500，八
 ranks 健康，AP 退化原样保留。
 
+21:58，seed101 `Midjourney` 用 1:08:17 完成。12,000 个唯一预测独立复算
+为 97.8750% Acc / 98.5034% AP，real/fake accuracy 为
+99.4333%/96.3167%，无 padding。TTA 相对静态提高 0.73 Acc 点、降低
+1.29 AP 点；Acc 比 P2 高 2.13 点、比训练 seed100 高 22.34 点，AP 比 P2
+低 0.61 点但比 seed100 高 6.29 点。前四域宏平均为 94.84% Acc / 97.65%
+AP。22:19 SD1.4 到 400/1500，八 ranks 健康。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
