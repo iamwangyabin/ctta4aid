@@ -427,3 +427,12 @@ Compared with this checkpoint's static ADM result, TTA raises Accuracy by 0.71
 points but lowers AP by 2.79 points. It is also 23.48 / 6.04 points below the
 released-checkpoint P2 ADM Acc/AP. This weak, strongly real-biased result is
 preserved without changing the seed; all ranks remain healthy.
+
+`BigGAN` completed at 10:00 after 1h09m39s. Independent recalculation gives
+83.91% Acc / 99.24% AP and 99.98% / 67.83% real/fake accuracy over 12,000
+unique indices with no padding. Unlike ADM, TTA improves this checkpoint's
+static BigGAN result by 23.64 Accuracy points and 1.45 AP points, although
+Accuracy remains 14.78 points below the released-checkpoint P2 result. The
+two completed domains average 72.98% Acc / 95.75% AP. `glide` reached 300/1500
+at 10:15, with all ranks healthy; the opposing ADM and BigGAN responses are
+both retained.

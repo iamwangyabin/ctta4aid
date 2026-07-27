@@ -388,6 +388,12 @@ real/fake accuracy 为 99.9833%/24.1333%，无 sampler padding，与官方四舍
 下降 2.79 点；相对 P2 官方权重 ADM 又低 23.48/6.04 点。该强烈偏真实类的弱结果
 原样保留，不换 seed；八 ranks 仍健康。
 
+10:00，`BigGAN` 用 1:09:39 完成；12,000 个唯一索引独立复算为 83.9083%
+Acc / 99.2389% AP，real/fake accuracy 为 99.9833%/67.8333%，无 padding。
+与 ADM 相反，TTA 相对该权重静态 BigGAN 提高 23.64 Acc 点和 1.45 AP 点，
+但 Acc 仍比 P2 官方权重低 14.78 点。前两域宏平均为 72.98% Acc / 95.75%
+AP。10:15 已进入 `glide` 300/1500，八 ranks 健康；两种相反响应都保留。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

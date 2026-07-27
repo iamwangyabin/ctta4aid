@@ -1,0 +1,57 @@
+{
+  "experiment": "P3 GenImage seed100 official TTA running snapshot",
+  "status": "running_2_of_8_domains_complete",
+  "observed_at": "2026-07-27T10:15:13+08:00",
+  "completed_domains": ["ADM", "BigGAN"],
+  "active_domain": "glide",
+  "active_progress": "300/1500",
+  "independent_two_domain_mean": {
+    "accuracy": 0.7298333333333333,
+    "average_precision": 0.9574822002494434,
+    "real_accuracy": 0.9998333333333334,
+    "fake_accuracy": 0.4598333333333333
+  },
+  "independent_BigGAN": {
+    "dataset_size": 12000,
+    "samples_with_distributed_padding": 12000,
+    "unique_sampler_indices": 12000,
+    "duplicate_sampler_indices": 0,
+    "accuracy": 0.8390833333333333,
+    "average_precision": 0.9923886990640869,
+    "real_accuracy": 0.9998333333333334,
+    "fake_accuracy": 0.6783333333333333,
+    "world_size": 8
+  },
+  "comparison": {
+    "training_static_BigGAN": {
+      "accuracy": 0.6027,
+      "average_precision": 0.9779,
+      "accuracy_delta": 0.2363833333333333,
+      "average_precision_delta": 0.0144886990640869
+    },
+    "released_checkpoint_P2_BigGAN": {
+      "accuracy": 0.9869166666666667,
+      "average_precision": 0.996542884200156,
+      "accuracy_delta": -0.1478333333333334,
+      "average_precision_delta": -0.0041541851360691
+    }
+  },
+  "prediction_artifacts": {
+    "ADM.json": {
+      "bytes": 284402,
+      "sha256": "e9bcfd7663aa347ac58d5d8ddc1e2086841f9e5000cf6721315449c091404d2d"
+    },
+    "BigGAN.json": {
+      "bytes": 274246,
+      "sha256": "1b0f85b18f11c157ed7faea5b38e7d56a75663c503011d81e5ea93b296b32617"
+    }
+  },
+  "health": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "all_three_gpus_active": true,
+    "A6000_memory_mib": 37175,
+    "traceback_or_runtime_error_found": false
+  },
+  "interpretation": "BigGAN TTA improves this trained checkpoint's thresholded Accuracy by 23.64 points and AP by 1.45 points over static evaluation, but remains 14.78 points below the released-checkpoint P2 Accuracy. Together with ADM, the two-domain mean is 72.98% Accuracy and 95.75% AP. Preserve both opposing domain responses and continue."
+}
