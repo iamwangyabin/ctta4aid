@@ -367,11 +367,11 @@
         "running_attempt": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090",
         "retry_started_at": "2026-07-27T07:39:27+08:00",
         "initial_state": "All eight ranks crossed the barrier and rank0 entered ADM 0/1500 without an error.",
-        "domains_completed": 3,
-        "active_domain": "Midjourney",
-        "latest_snapshot": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090/snapshot_20260727_1115/manifest.json",
-        "latest_accuracy": 0.7635277777777777,
-        "latest_average_precision": 0.9680456032113716,
+        "domains_completed": 4,
+        "active_domain": "stable_diffusion_v_1_4",
+        "latest_snapshot": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090/snapshot_20260727_1246/manifest.json",
+        "latest_accuracy": 0.7614791666666667,
+        "latest_average_precision": 0.9565609723656693,
         "next_action": "Monitor attempt 2 through all eight domains, then archive predictions and independently audit metrics and coverage before seed101."
       },
       "101": {"status": "ready_waiting_behind_seed100"},
@@ -395,8 +395,8 @@
     "latest_resource_observed_at": "2026-07-27T07:36:23+08:00",
     "latest_resource_conclusion": "Attempt 2 is using all three GPUs; all eight ranks crossed the barrier with no initial execution error.",
     "running_attempt": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090",
-    "latest_progress": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090/snapshot_20260727_1115/manifest.json",
-    "latest_progress_conclusion": "ADM, BigGAN, and glide average 76.35% Accuracy and 96.80% AP. Mean real accuracy remains 99.98% versus 52.72% fake accuracy; Midjourney is running.",
+    "latest_progress": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090/snapshot_20260727_1246/manifest.json",
+    "latest_progress_conclusion": "Four domains average 76.15% Accuracy and 95.66% AP. Midjourney loses 6.78 AP points versus static evaluation; SD1.4 is running.",
     "preserved_partial_launch": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
     "preserved_3070_preflight": "ufd/seed100/tta_preflight_3070x2"
   }

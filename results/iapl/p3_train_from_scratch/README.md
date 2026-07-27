@@ -444,3 +444,11 @@ lowers AP by 0.25 points; it remains 12.86 Accuracy points below P2's released
 checkpoint. The three-domain mean is now 76.35% Acc / 96.80% AP, with 99.98%
 mean real versus 52.72% fake accuracy. `Midjourney` reached 100/1500 at 11:15,
 and all ranks remain healthy.
+
+`Midjourney` completed at 12:18 after 1h08m51s. Independent metrics are 75.53%
+Acc / 92.21% AP and 99.97% / 51.10% real/fake accuracy over all 12,000 unique
+indices. TTA raises Accuracy only 0.73 points while reducing AP by 6.78 points
+versus this checkpoint's static result, and remains 20.21 / 6.91 points below
+P2 Acc/AP. The four-domain mean is 76.15% Acc / 95.66% AP, with the real/fake
+mean still split at 99.98% / 52.32%. `stable_diffusion_v_1_4` reached 600/1500
+at 12:46; no execution error is present.

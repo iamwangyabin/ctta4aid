@@ -401,6 +401,13 @@ Acc / 98.9172% AP，real/fake accuracy 为 99.9833%/66.20%，无 padding。
 accuracy 为 99.98%/52.72%，阈值偏置仍明显。11:15 `Midjourney` 已到
 100/1500，八 ranks 健康。
 
+12:18，`Midjourney` 用 1:08:51 完成；12,000 个唯一索引独立复算为
+75.5333% Acc / 92.2107% AP，real/fake accuracy 为 99.9667%/51.10%。
+TTA 相对该权重静态结果仅提高 0.73 Acc 点，却降低 6.78 AP 点；相对 P2
+Acc/AP 仍低 20.21/6.91 点。前四域宏平均为 76.15% Acc / 95.66% AP，
+平均 real/fake accuracy 为 99.98%/52.32%。该 AP 退化原样保留；12:46
+`stable_diffusion_v_1_4` 已到 600/1500，运行无故障。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

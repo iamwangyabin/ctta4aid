@@ -1,0 +1,53 @@
+{
+  "experiment": "P3 GenImage seed100 official TTA running snapshot",
+  "status": "running_4_of_8_domains_complete",
+  "observed_at": "2026-07-27T12:46:12+08:00",
+  "completed_domains": ["ADM", "BigGAN", "glide", "Midjourney"],
+  "active_domain": "stable_diffusion_v_1_4",
+  "active_progress": "600/1500",
+  "independent_four_domain_mean": {
+    "accuracy": 0.7614791666666667,
+    "average_precision": 0.9565609723656693,
+    "real_accuracy": 0.9997916666666666,
+    "fake_accuracy": 0.5231666666666667
+  },
+  "independent_Midjourney": {
+    "dataset_size": 12000,
+    "samples_with_distributed_padding": 12000,
+    "unique_sampler_indices": 12000,
+    "duplicate_sampler_indices": 0,
+    "accuracy": 0.7553333333333333,
+    "average_precision": 0.9221070798285622,
+    "real_accuracy": 0.9996666666666667,
+    "fake_accuracy": 0.511,
+    "world_size": 8
+  },
+  "comparison": {
+    "training_static_Midjourney": {
+      "accuracy": 0.748,
+      "average_precision": 0.9899,
+      "accuracy_delta": 0.0073333333333333,
+      "average_precision_delta": -0.0677929201714378
+    },
+    "released_checkpoint_P2_Midjourney": {
+      "accuracy": 0.9574166666666667,
+      "average_precision": 0.9911810121022196,
+      "accuracy_delta": -0.2020833333333334,
+      "average_precision_delta": -0.0690739322736574
+    }
+  },
+  "prediction_artifacts": {
+    "ADM.json": "e9bcfd7663aa347ac58d5d8ddc1e2086841f9e5000cf6721315449c091404d2d",
+    "BigGAN.json": "1b0f85b18f11c157ed7faea5b38e7d56a75663c503011d81e5ea93b296b32617",
+    "glide.json": "55fa634783b6c462e631f73471efebcc6182630c9afd192d065830bd4335436a",
+    "Midjourney.json": "95b83bc03cf7e26ee5b2a19dc8ccf698b9f8ef04a9c2b2c716e27aebf2cbc85d"
+  },
+  "health": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "all_three_gpus_active": true,
+    "A6000_memory_mib": 37175,
+    "traceback_or_runtime_error_found": false
+  },
+  "interpretation": "Midjourney TTA raises thresholded Accuracy only 0.73 points while lowering AP by 6.78 points versus static evaluation. It remains strongly real-biased and more than 20 Accuracy points below P2. The four-domain mean is 76.15% Accuracy and 95.66% AP. Preserve the weak ranking regression and continue."
+}
