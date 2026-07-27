@@ -105,7 +105,12 @@
       "retry_policy": "Strengthened runtime smoke passed on all three hosts; restart from rank 0 and empty output directories.",
       "running_attempt": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090",
       "started_at": "2026-07-27T07:39:27+08:00",
-      "initial_state": "All eight ranks crossed the barrier and rank0 entered ADM 0/1500 without an error."
+      "initial_state": "All eight ranks crossed the barrier and rank0 entered ADM 0/1500 without an error.",
+      "domains_completed": 1,
+      "active_domain": "BigGAN",
+      "latest_snapshot": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090/snapshot_20260727_0915/manifest.json",
+      "latest_accuracy": 0.6205833333333334,
+      "latest_average_precision": 0.9225757014347999
     },
     {
       "order": 5,

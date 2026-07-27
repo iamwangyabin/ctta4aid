@@ -1,0 +1,22 @@
+{
+  "by_domain": {
+    "ADM": {
+      "domain": "ADM",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.6205833333333334,
+      "average_precision": 0.9225757014347999,
+      "real_accuracy": 0.9998333333333334,
+      "fake_accuracy": 0.24133333333333334,
+      "world_size": 8
+    }
+  },
+  "mean": {
+    "accuracy": 0.6205833333333334,
+    "average_precision": 0.9225757014347999,
+    "real_accuracy": 0.9998333333333334,
+    "fake_accuracy": 0.24133333333333334
+  }
+}

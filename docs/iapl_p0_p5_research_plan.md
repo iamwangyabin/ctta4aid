@@ -381,6 +381,13 @@ A6000 旧文件已备份，并替换为与 3090、4090-2 相同的
 0/1500，峰值 8,437 MiB，三机 GPU 均在计算，未见 traceback、runtime、OOM 或
 collective 错误。当前只记录为运行中，seed101 继续等待本次完成并审计。
 
+08:50，seed100 用 1:09:32 完成 `ADM` 并进入 `BigGAN`，09:15 已到
+500/1500。对 12,000 个唯一索引独立复算得到 62.0583% Acc / 92.2576% AP，
+real/fake accuracy 为 99.9833%/24.1333%，无 sampler padding，与官方四舍五入
+日志 62.06%/92.26% 一致。相对该权重静态 ADM，TTA 的 Acc 提高 0.71 点但 AP
+下降 2.79 点；相对 P2 官方权重 ADM 又低 23.48/6.04 点。该强烈偏真实类的弱结果
+原样保留，不换 seed；八 ranks 仍健康。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

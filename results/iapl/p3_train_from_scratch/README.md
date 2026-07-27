@@ -418,3 +418,12 @@ runs 4--5, and 4090-2 runs 6--7 on port 29643. Every launcher repeated the
 and rank0 entered `ADM` at 0/1500 with an 8,437 MiB peak. The three GPUs are
 active and no traceback, runtime, OOM, or collective error is present. This
 attempt is running; seed101 remains queued.
+
+At 08:50, seed100 completed `ADM` in 1h09m32s and entered `BigGAN`; by 09:15
+it had reached 500/1500. Independent recalculation over all 12,000 unique ADM
+indices exactly matches the rounded official result: 62.06% Acc / 92.26% AP,
+99.98% real accuracy, and only 24.13% fake accuracy, with no sampler padding.
+Compared with this checkpoint's static ADM result, TTA raises Accuracy by 0.71
+points but lowers AP by 2.79 points. It is also 23.48 / 6.04 points below the
+released-checkpoint P2 ADM Acc/AP. This weak, strongly real-biased result is
+preserved without changing the seed; all ranks remain healthy.

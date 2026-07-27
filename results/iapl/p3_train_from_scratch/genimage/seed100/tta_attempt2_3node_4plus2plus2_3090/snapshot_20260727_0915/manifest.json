@@ -1,0 +1,57 @@
+{
+  "experiment": "P3 GenImage seed100 official TTA running snapshot",
+  "status": "running_1_of_8_domains_complete",
+  "observed_at": "2026-07-27T09:15:13+08:00",
+  "completed_domains": ["ADM"],
+  "active_domain": "BigGAN",
+  "active_progress": "500/1500",
+  "official_log": {
+    "ADM": {
+      "elapsed": "1:09:32",
+      "accuracy": 0.6206,
+      "average_precision": 0.9226,
+      "real_accuracy": 0.9998,
+      "fake_accuracy": 0.2413
+    }
+  },
+  "independent_prediction_recalculation": {
+    "ADM": {
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.6205833333333334,
+      "average_precision": 0.9225757014347999,
+      "real_accuracy": 0.9998333333333334,
+      "fake_accuracy": 0.24133333333333334,
+      "world_size": 8
+    }
+  },
+  "comparison": {
+    "training_static_ADM": {
+      "accuracy": 0.6135,
+      "average_precision": 0.9505,
+      "accuracy_delta": 0.0070833333333334,
+      "average_precision_delta": -0.0279242985652001
+    },
+    "released_checkpoint_P2_ADM": {
+      "accuracy": 0.8553333333333333,
+      "average_precision": 0.9829280126259667,
+      "accuracy_delta": -0.23475,
+      "average_precision_delta": -0.0603523111911668
+    }
+  },
+  "prediction_artifact": {
+    "path": "predictions/ADM.json",
+    "bytes": 284402,
+    "sha256": "e9bcfd7663aa347ac58d5d8ddc1e2086841f9e5000cf6721315449c091404d2d"
+  },
+  "health": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "all_three_gpus_active": true,
+    "A6000_memory_mib": 37175,
+    "traceback_or_runtime_error_found": false
+  },
+  "interpretation": "The trained seed100 checkpoint retains strong ranking on ADM but its fixed threshold predicts almost every real sample correctly and only 24.13% of fake samples correctly. TTA improves Accuracy by 0.71 points but lowers AP by 2.79 points versus static evaluation. Preserve the weak result and continue without selecting another seed."
+}
