@@ -517,6 +517,13 @@ run；完成及跨 seed 审计前不得进入 P4。
 点，相对 seed100 则高 5.10/3.43 点。这个明显受阈值和 seed 影响的弱结果
 完整保留。04:48，BigGAN 到 200/1500，八 ranks 健康且无执行错误。
 
+05:46，seed102 `BigGAN` 用 1:09:17 完成。12,000 个唯一预测独立复算为
+79.2250% Acc / 99.9018% AP，real/fake accuracy 为 99.9833%/58.4667%，
+无 padding。TTA 相对该权重静态 Acc/AP 提高 27.42/3.21 点，但 Acc 仍比
+P2、训练 seed100、训练 seed101 分别低 19.47、4.68、20.38 点；AP 则分别
+高 0.25、0.66、0.62 点。前两域宏平均为 73.19% Acc / 97.79% AP，再次
+表明排序很强而固定阈值不稳定。`glide` 随后进入 0/1500，八 ranks 健康。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

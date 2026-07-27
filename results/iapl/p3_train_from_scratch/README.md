@@ -585,3 +585,12 @@ Seed102 completed `ADM` at 04:37 after 1h08m51s. Independent recalculation over
 Acc/AP points. This weak, strongly threshold-biased outcome is retained. At
 04:48, BigGAN reached 200/1500 with all eight ranks healthy and no execution
 error.
+
+`BigGAN` completed at 05:46 after 1h09m17s. Its 12,000 unique predictions give
+79.2250% Acc / 99.9018% AP and 99.9833% / 58.4667% real/fake accuracy without
+padding. TTA improves this checkpoint's static Acc/AP by 27.42 / 3.21 points,
+but Accuracy still trails P2 by 19.47 points, trained seed100 by 4.68 points,
+and trained seed101 by 20.38 points. AP is 0.25 / 0.66 / 0.62 points higher,
+respectively. The first two-domain mean is 73.19% Acc / 97.79% AP, again
+showing that ranking is strong while the fixed threshold is unstable. `glide`
+then entered 0/1500 with all ranks healthy.
