@@ -450,6 +450,13 @@ P2 官方权重低 1.14/4.12 点，但相对相同协议的训练 seed100 高 22
 再次显示明显 seed 敏感性。两者均保留。18:49 BigGAN 到 300/1500，八 ranks
 健康。
 
+19:41，seed101 `BigGAN` 用 1:08:19 完成。12,000 个唯一预测独立复算为
+99.60% Acc / 99.2773% AP，real/fake accuracy 为 99.25%/99.95%，无
+padding。TTA 相对该权重静态评测提高 11.83 Acc 点、降低 0.35 AP 点；Acc
+比 P2 高 0.91 点、比训练 seed100 高 15.69 点，AP 比 P2 低 0.38 点但与
+seed100 基本持平。前两域宏平均为 92.00% Acc / 96.73% AP。19:49 `glide`
+到 100/1500，八 ranks 健康。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

@@ -502,3 +502,11 @@ static Accuracy by 2.12 points but lowers AP by 3.75 points. It is 1.14 / 4.12
 points below P2 Acc/AP, yet 22.33 / 1.92 points above trained seed100 under the
 identical protocol. Both seed outcomes are retained. At 18:49, BigGAN reached
 300/1500 and all ranks remained healthy.
+
+`BigGAN` completed at 19:41 after 1h08m19s. Its 12,000 unique predictions give
+99.60% Acc / 99.2773% AP and 99.25% / 99.95% real/fake accuracy with no
+padding. TTA raises this checkpoint's static Accuracy by 11.83 points while
+lowering AP by 0.35 points. Accuracy is 0.91 points above P2 and 15.69 points
+above trained seed100; AP is 0.38 points below P2 but effectively tied with
+seed100. The two-domain mean is 92.00% Acc / 96.73% AP. At 19:49, `glide`
+reached 100/1500 and all ranks remained healthy.
