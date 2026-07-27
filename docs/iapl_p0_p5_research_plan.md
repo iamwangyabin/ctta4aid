@@ -443,6 +443,13 @@ P3 下一项严格为 GenImage seed101，启动前必须重新通过三机预检
 barrier，rank0 进入 ADM 0/1500，峰值 8,437 MiB，无启动错误。seed102 继续
 按顺序等待。
 
+18:33，seed101 用 1:08:23 完成 `ADM`。12,000 个唯一预测独立复算为
+84.3917% Acc / 94.1741% AP，real/fake accuracy 为 99.4167%/69.3667%，
+无 padding。TTA 相对该权重静态结果提高 2.12 Acc 点、降低 3.75 AP 点；相对
+P2 官方权重低 1.14/4.12 点，但相对相同协议的训练 seed100 高 22.33/1.92 点，
+再次显示明显 seed 敏感性。两者均保留。18:49 BigGAN 到 300/1500，八 ranks
+健康。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

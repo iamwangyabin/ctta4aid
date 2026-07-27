@@ -1,0 +1,60 @@
+{
+  "experiment": "P3 GenImage seed101 official TTA running snapshot",
+  "status": "running_1_of_8_domains_complete",
+  "observed_at": "2026-07-27T18:49:10+08:00",
+  "completed_domains": ["ADM"],
+  "active_domain": "BigGAN",
+  "active_progress": "300/1500",
+  "independent_one_domain_mean": {
+    "accuracy": 0.8439166666666666,
+    "average_precision": 0.9417407003579243,
+    "real_accuracy": 0.9941666666666666,
+    "fake_accuracy": 0.6936666666666667
+  },
+  "independent_ADM": {
+    "dataset_size": 12000,
+    "samples_with_distributed_padding": 12000,
+    "unique_sampler_indices": 12000,
+    "duplicate_sampler_indices": 0,
+    "accuracy": 0.8439166666666666,
+    "average_precision": 0.9417407003579243,
+    "real_accuracy": 0.9941666666666666,
+    "fake_accuracy": 0.6936666666666667,
+    "world_size": 8
+  },
+  "comparison": {
+    "training_static_ADM": {
+      "accuracy": 0.8227,
+      "average_precision": 0.9792,
+      "accuracy_delta": 0.0212166666666666,
+      "average_precision_delta": -0.0374592996420757
+    },
+    "released_checkpoint_P2_ADM": {
+      "accuracy": 0.8553333333333333,
+      "average_precision": 0.9829280126259667,
+      "accuracy_delta": -0.0114166666666667,
+      "average_precision_delta": -0.0411873122680424
+    },
+    "trained_seed100_TTA_ADM": {
+      "accuracy": 0.6205833333333334,
+      "average_precision": 0.9225757014347999,
+      "accuracy_delta": 0.2233333333333332,
+      "average_precision_delta": 0.0191649989231244
+    }
+  },
+  "prediction_artifacts": {
+    "ADM.json": "6fa745ae1273f06ce9c98b73c9c7821ffa5559db1a1b15612499b5667319a9f0"
+  },
+  "health": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "all_three_gpus_active": true,
+    "gpu_memory_mib": {
+      "A6000": 37179,
+      "3090": 18652,
+      "4090-2": 19162
+    },
+    "traceback_or_runtime_error_found": false
+  },
+  "interpretation": "Seed101 ADM TTA improves thresholded Accuracy by 2.12 points but lowers AP by 3.75 points versus its static evaluation. It is only 1.14 Accuracy points below P2 but remains 4.12 AP points lower. Relative to trained seed100 under the identical protocol, seed101 is 22.33 Accuracy and 1.92 AP points higher, confirming material seed sensitivity while retaining both outcomes."
+}

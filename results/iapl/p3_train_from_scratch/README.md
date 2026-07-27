@@ -494,3 +494,11 @@ Every host also constructed the actual 12,000-row ADM Arrow dataset. Seed101
 then launched at 17:24:02 in the fixed A6000 4 + 3090 2 + 4090-2 2 layout.
 All eight ranks crossed the barrier, rank0 entered ADM at 0/1500 with an 8,437
 MiB peak, and no startup error was found. Seed102 remains queued.
+
+Seed101 completed `ADM` at 18:33 after 1h08m23s. Independent recalculation over
+12,000 unique predictions gives 84.3917% Acc / 94.1741% AP and 99.4167% /
+69.3667% real/fake accuracy without padding. TTA raises this checkpoint's
+static Accuracy by 2.12 points but lowers AP by 3.75 points. It is 1.14 / 4.12
+points below P2 Acc/AP, yet 22.33 / 1.92 points above trained seed100 under the
+identical protocol. Both seed outcomes are retained. At 18:49, BigGAN reached
+300/1500 and all ranks remained healthy.
