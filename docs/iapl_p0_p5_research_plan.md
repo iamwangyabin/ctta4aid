@@ -408,6 +408,12 @@ Acc/AP 仍低 20.21/6.91 点。前四域宏平均为 76.15% Acc / 95.66% AP，
 平均 real/fake accuracy 为 99.98%/52.32%。该 AP 退化原样保留；12:46
 `stable_diffusion_v_1_4` 已到 600/1500，运行无故障。
 
+13:27，`stable_diffusion_v_1_4` 用 1:08:40 完成，独立复算为 99.9917%
+Acc / 99.9942% AP，real/fake accuracy 为 100%/99.9833%，覆盖 12,000 个
+唯一样本。相对静态 100% 的变化不足 0.01 点，且两指标略高于 P2。前五域宏平均
+升至 80.92% Acc / 96.52% AP，但此前跨生成器域令平均 fake accuracy 仍只有
+61.85%。13:48 SD1.5 已到 450/2000，八 ranks 健康。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

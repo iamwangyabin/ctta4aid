@@ -106,11 +106,11 @@
       "running_attempt": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090",
       "started_at": "2026-07-27T07:39:27+08:00",
       "initial_state": "All eight ranks crossed the barrier and rank0 entered ADM 0/1500 without an error.",
-      "domains_completed": 4,
-      "active_domain": "stable_diffusion_v_1_4",
-      "latest_snapshot": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090/snapshot_20260727_1246/manifest.json",
-      "latest_accuracy": 0.7614791666666667,
-      "latest_average_precision": 0.9565609723656693
+      "domains_completed": 5,
+      "active_domain": "stable_diffusion_v_1_5",
+      "latest_snapshot": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090/snapshot_20260727_1348/manifest.json",
+      "latest_accuracy": 0.8091666666666667,
+      "latest_average_precision": 0.9652372524318441
     },
     {
       "order": 5,

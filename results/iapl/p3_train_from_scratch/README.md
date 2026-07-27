@@ -452,3 +452,11 @@ versus this checkpoint's static result, and remains 20.21 / 6.91 points below
 P2 Acc/AP. The four-domain mean is 76.15% Acc / 95.66% AP, with the real/fake
 mean still split at 99.98% / 52.32%. `stable_diffusion_v_1_4` reached 600/1500
 at 12:46; no execution error is present.
+
+`stable_diffusion_v_1_4` completed at 13:27 after 1h08m40s. It is effectively
+perfect: 99.99% Acc / 99.99% AP, 100.00% real, and 99.98% fake accuracy over
+12,000 unique samples. The changes from this checkpoint's 100% static result
+are below 0.01 points, and it is slightly above P2 on both metrics. The five
+completed domains average 80.92% Acc / 96.52% AP, while mean fake accuracy is
+still only 61.85% because of the earlier cross-generator domains. SD1.5 reached
+450/2000 at 13:48 with all ranks healthy.
