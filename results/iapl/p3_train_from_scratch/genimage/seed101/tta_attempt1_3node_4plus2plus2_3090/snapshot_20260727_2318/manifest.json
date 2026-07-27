@@ -1,0 +1,70 @@
+{
+  "experiment": "P3 GenImage seed101 official TTA running snapshot",
+  "status": "running_5_of_8_domains_complete",
+  "observed_at": "2026-07-27T23:19:25+08:00",
+  "completed_domains": [
+    "ADM",
+    "BigGAN",
+    "glide",
+    "Midjourney",
+    "stable_diffusion_v_1_4"
+  ],
+  "active_domain": "stable_diffusion_v_1_5",
+  "active_progress": "250/2000",
+  "independent_five_domain_mean": {
+    "accuracy": 0.9580500000000001,
+    "average_precision": 0.9804344961810907,
+    "real_accuracy": 0.9937666666666667,
+    "fake_accuracy": 0.9223333333333332
+  },
+  "independent_stable_diffusion_v_1_4": {
+    "dataset_size": 12000,
+    "samples_with_distributed_padding": 12000,
+    "unique_sampler_indices": 12000,
+    "duplicate_sampler_indices": 0,
+    "accuracy": 0.99675,
+    "average_precision": 0.996338031546607,
+    "real_accuracy": 0.9935,
+    "fake_accuracy": 1.0,
+    "world_size": 8
+  },
+  "comparison": {
+    "training_static_SD1_4": {
+      "accuracy": 0.9993,
+      "average_precision": 1.0,
+      "accuracy_delta": -0.00255,
+      "average_precision_delta": -0.003661968453393
+    },
+    "released_checkpoint_P2_SD1_4": {
+      "accuracy": 0.9990833333333333,
+      "average_precision": 0.9994035853554378,
+      "accuracy_delta": -0.0023333333333333,
+      "average_precision_delta": -0.0030655538088308
+    },
+    "trained_seed100_TTA_SD1_4": {
+      "accuracy": 0.9999166666666667,
+      "average_precision": 0.9999423726965435,
+      "accuracy_delta": -0.0031666666666667,
+      "average_precision_delta": -0.0036043411499365
+    }
+  },
+  "prediction_artifacts": {
+    "ADM.json": "6fa745ae1273f06ce9c98b73c9c7821ffa5559db1a1b15612499b5667319a9f0",
+    "BigGAN.json": "ae58da8f48a0e1bc7400908e4b64017ff6e97a196042aac765075792278a82c2",
+    "glide.json": "7f29761a64430563790f639cb9d37797b20a2c5d65bcad0d4421dda8b6765bf0",
+    "Midjourney.json": "e8d7e5ce818132f41263442b201c053c887d8647aa21811fdac88fe69f6403c3",
+    "stable_diffusion_v_1_4.json": "30f49de08b2e64bf4bc685d78941f419bcd254432db5182c11bc4f6b904917b6"
+  },
+  "health": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "all_three_gpus_active": true,
+    "gpu_memory_mib": {
+      "A6000": 37179,
+      "3090": 18652,
+      "4090-2": 19162
+    },
+    "traceback_or_runtime_error_found": false
+  },
+  "interpretation": "Seed101 SD1.4 remains strong at 99.68% Accuracy and 99.63% AP, but TTA is 0.26 and 0.37 points below static evaluation and slightly below both P2 and trained seed100. The five-domain mean reaches 95.81% Accuracy and 98.04% AP. Preserve the small but consistent regression and continue."
+}

@@ -526,3 +526,11 @@ without padding. TTA raises static Accuracy by 0.73 points but lowers AP by
 seed100, while AP is 0.61 points below P2 and 6.29 points above seed100. The
 four-domain mean is 94.84% Acc / 97.65% AP. At 22:19, SD1.4 reached 400/1500
 and all ranks remained healthy.
+
+`stable_diffusion_v_1_4` completed at 23:06 after 1h08m12s. Independent
+recalculation gives 99.6750% Acc / 99.6338% AP and 99.35% / 100% real/fake
+accuracy over 12,000 unique samples without padding. Despite the strong
+absolute result, TTA is 0.26 / 0.37 points below this checkpoint's static
+Acc/AP and slightly below both P2 and trained seed100. The five-domain mean is
+95.81% Acc / 98.04% AP. At 23:19, SD1.5 reached 250/2000 and all ranks remained
+healthy; the small regression is retained.

@@ -471,6 +471,12 @@ ranks 健康，AP 退化原样保留。
 低 0.61 点但比 seed100 高 6.29 点。前四域宏平均为 94.84% Acc / 97.65%
 AP。22:19 SD1.4 到 400/1500，八 ranks 健康。
 
+23:06，seed101 `stable_diffusion_v_1_4` 用 1:08:12 完成。12,000 个唯一
+预测独立复算为 99.6750% Acc / 99.6338% AP，real/fake accuracy 为
+99.35%/100%，无 padding。绝对结果仍强，但 TTA 相对该权重静态 Acc/AP 低
+0.26/0.37 点，也略低于 P2 和训练 seed100。前五域宏平均为 95.81% Acc /
+98.04% AP。23:19 SD1.5 到 250/2000，八 ranks 健康，小幅退化原样保留。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
