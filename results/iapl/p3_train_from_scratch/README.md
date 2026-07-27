@@ -475,3 +475,14 @@ padding. TTA raises this checkpoint's static Accuracy by 0.57 points but lowers
 AP by 0.24 points; it remains 3.13 Accuracy points below P2 while AP is tied to
 within 0.01 points. The seven-domain mean is 85.74% Acc / 97.46% AP. At 16:19,
 `wukong` reached 200/1500; all three launchers and GPUs remained active.
+
+GenImage seed100 completed all eight domains at 17:15:11 after 9h35m44s.
+`wukong` reached 99.8583% Acc / 99.9775% AP. The independently recalculated
+macro result is 87.5026% Acc / 97.7740% AP, 9.20 / 1.73 points below the paper
+and 9.27 / 1.72 points below P2's released checkpoint. Relative to this trained
+checkpoint's static evaluation, TTA raises Accuracy by 3.47 points but lowers
+AP by 1.09 points. Mean real/fake accuracy remains split at 99.9792% / 75.0260%,
+with ADM, Midjourney, BigGAN, and glide driving the deficit. All 100,000 unique
+indices are covered without padding, every rank and launcher exited, all GPUs
+were released, and no execution error was found. Seed101 is next after a fresh
+three-host preflight; no weak result is discarded.

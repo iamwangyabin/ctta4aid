@@ -1,0 +1,53 @@
+/home/yabin/miniconda3/envs/caid-gemini-compat/lib/python3.11/site-packages/pytorch_wavelets/dtcwt/coeffs.py:7: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream
+world size: 8, rank: 5, local rank: 0
+{
+  "SHELL": "/bin/bash",
+  "IAPL_DISTRIBUTED_TIMEOUT_SECONDS": "7200",
+  "PYTHONUNBUFFERED": "1",
+  "MASTER_PORT": "29643",
+  "IAPL_GENIMAGE_CHECKPOINT": "/home/yabin/ctta4aid_assets/weights/iapl/p3/genimage_seed100.pth",
+  "NCCL_NVLS_ENABLE": "0",
+  "NCCL_MAX_CTAS": "2",
+  "PWD": "/home/yabin/ctta4aid_assets/external/IAPL",
+  "LOGNAME": "yabin",
+  "XDG_SESSION_TYPE": "tty",
+  "IAPL_DATASET_PATH": "hf_arrow:///home/yabin/ctta4aid_assets/data/genimage_official_arrow_20260722/GenImage_test",
+  "IAPL_OUTPUT_DIR": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed100",
+  "WORLD_SIZE": "8",
+  "HOME": "/home/yabin",
+  "LANG": "zh_CN.UTF-8",
+  "SSH_CONNECTION": "192.168.10.254 52366 192.168.10.52 22",
+  "MASTER_ADDR": "192.168.10.2",
+  "CUDA_VISIBLE_DEVICES": "0",
+  "XDG_SESSION_CLASS": "user",
+  "NCCL_MULTI_RANK_GPU_ENABLE": "1",
+  "PYTHONPATH": "/home/yabin/ctta4aid-arrow/src",
+  "USER": "yabin",
+  "SHLVL": "0",
+  "XDG_SESSION_ID": "497",
+  "IAPL_SEED": "100",
+  "IAPL_PYTHON": "/home/yabin/miniconda3/envs/caid-gemini-compat/bin/python",
+  "LD_LIBRARY_PATH": "/home/yabin/miniconda3/envs/caid-gemini-compat/lib/python3.11/site-packages/cv2/../../lib64:/home/yabin/miniconda3/envs/caid-gemini-compat/lib/python3.11/site-packages/nvidia/nccl/lib",
+  "LC_CTYPE": "C.UTF-8",
+  "XDG_RUNTIME_DIR": "/run/user/1000",
+  "SSH_CLIENT": "192.168.10.254 52366 22",
+  "IAPL_NUM_WORKERS": "0",
+  "IAPL_REPO_PATH": "/home/yabin/ctta4aid_assets/external/IAPL",
+  "LC_ALL": "C.UTF-8",
+  "IAPL_PREDICTION_DIR": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed100/predictions",
+  "PROJECT_ROOT": "/home/yabin/ctta4aid-arrow",
+  "PATH": "/home/yabin/.nvm/versions/node/v24.15.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+  "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus",
+  "OLDPWD": "/home/yabin",
+  "_": "/usr/bin/env",
+  "RANK": "5",
+  "LOCAL_RANK": "0",
+  "KMP_DUPLICATE_LIB_OK": "True",
+  "KMP_INIT_AT_FORK": "FALSE"
+}
+world_size:8 rank:5 local_rank:0
+| distributed init (rank 5): env://
+distributed collective timeout: 7200 seconds
+Before torch.distributed.barrier()
+End torch.distributed.barrier()

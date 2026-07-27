@@ -427,6 +427,15 @@ padding。TTA 相对该权重静态结果提高 0.57 Acc 点、降低 0.24 AP �
 P2 官方权重低 3.13 Acc 点，AP 差不足 0.01 点。前七域宏平均为 85.74% Acc /
 97.46% AP。16:19 `wukong` 已到 200/1500，三 launcher 与三 GPU 均健康。
 
+17:15:11，GenImage seed100 完成全部八域，总耗时 9:35:44；`wukong` 为
+99.8583% Acc / 99.9775% AP。独立复算最终宏平均为 87.5026% Acc /
+97.7740% AP，较论文低 9.20/1.73 点，较 P2 官方权重低 9.27/1.72 点。
+相对该训练权重静态评测，TTA 提高 3.47 Acc 点、降低 1.09 AP 点。平均
+real/fake accuracy 仍分裂为 99.9792%/75.0260%，主要差距来自 ADM、
+Midjourney、BigGAN 和 glide。100,000 个唯一索引全部覆盖且无 padding，
+八 ranks、三 launcher 全部退出，三 GPU 释放，无执行错误。弱结果完整保留；
+P3 下一项严格为 GenImage seed101，启动前必须重新通过三机预检。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

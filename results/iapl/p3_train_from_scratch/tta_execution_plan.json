@@ -98,7 +98,7 @@
       "sha256": "aa0d8ab805f5c4fc846154e7da25ffae8cea32cbab9a8eb5ab3203ea27387096",
       "master_port": 29643,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed100",
-      "status": "attempt2_running",
+      "status": "completed_and_audited",
       "failed_attempt": "genimage/seed100/tta_attempt1_missing_a6000_genimage_arrow",
       "failure": "A6000 Dataset_Creator_GenImage lacked the Arrow branch; the other ranks then exited with secondary NCCL errors.",
       "retry_preflight": "genimage/seed100/preflight_20260727_0736/manifest.json",
@@ -106,11 +106,11 @@
       "running_attempt": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090",
       "started_at": "2026-07-27T07:39:27+08:00",
       "initial_state": "All eight ranks crossed the barrier and rank0 entered ADM 0/1500 without an error.",
-      "domains_completed": 7,
-      "active_domain": "wukong",
-      "latest_snapshot": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090/snapshot_20260727_1618/manifest.json",
-      "latest_accuracy": 0.857375,
-      "latest_average_precision": 0.9745922503205827
+      "completed_at": "2026-07-27T17:15:11+08:00",
+      "domains_completed": 8,
+      "accuracy": 0.8750260416666666,
+      "average_precision": 0.9777401563448919,
+      "artifact": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090/final"
     },
     {
       "order": 5,
@@ -122,7 +122,7 @@
       "sha256": "4cbaec6c15a9a0219d68cb5ef947585b5362ed4a5befe3e359b3152e84eaf2d9",
       "master_port": 29644,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed101",
-      "status": "ready_waiting_behind_genimage_seed100"
+      "status": "ready_next_requires_fresh_preflight"
     },
     {
       "order": 6,

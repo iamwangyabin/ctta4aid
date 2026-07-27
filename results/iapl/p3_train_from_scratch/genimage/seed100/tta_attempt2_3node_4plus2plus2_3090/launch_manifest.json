@@ -1,6 +1,6 @@
 {
   "experiment": "P3 GenImage seed100 trained-checkpoint official TTA",
-  "status": "running",
+  "status": "completed_and_audited",
   "attempt": 2,
   "started_at": "2026-07-27T07:39:27+08:00",
   "protocol": {
@@ -51,6 +51,9 @@
     "gpu_memory_mib": {"A6000": 30037, "3090": 18652, "4090-2": 19162},
     "traceback_or_runtime_error_found": false
   },
+  "completed_at": "2026-07-27T17:15:11+08:00",
+  "elapsed": "9:35:44",
+  "final_artifact": "final/manifest.json",
   "preflight": "../preflight_20260727_0736/manifest.json",
   "failed_prior_attempt": "../tta_attempt1_missing_a6000_genimage_arrow/attempt_manifest.json",
   "order_guard": "Do not start GenImage seed101 until this attempt completes and is independently audited."
