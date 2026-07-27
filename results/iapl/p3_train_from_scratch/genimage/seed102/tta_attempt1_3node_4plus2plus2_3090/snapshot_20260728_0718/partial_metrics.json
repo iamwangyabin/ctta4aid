@@ -1,0 +1,46 @@
+{
+  "by_domain": {
+    "ADM": {
+      "domain": "ADM",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.6715833333333333,
+      "average_precision": 0.956877072260834,
+      "real_accuracy": 0.9996666666666667,
+      "fake_accuracy": 0.3435,
+      "world_size": 8
+    },
+    "BigGAN": {
+      "domain": "BigGAN",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.79225,
+      "average_precision": 0.9990176386420024,
+      "real_accuracy": 0.9998333333333334,
+      "fake_accuracy": 0.5846666666666667,
+      "world_size": 8
+    },
+    "glide": {
+      "domain": "glide",
+      "dataset_size": 12000,
+      "samples_with_distributed_padding": 12000,
+      "unique_sampler_indices": 12000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.6954166666666667,
+      "average_precision": 0.9956736127243654,
+      "real_accuracy": 1.0,
+      "fake_accuracy": 0.3908333333333333,
+      "world_size": 8
+    }
+  },
+  "mean": {
+    "accuracy": 0.71975,
+    "average_precision": 0.983856107875734,
+    "real_accuracy": 0.9998333333333335,
+    "fake_accuracy": 0.43966666666666665
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "experiment": "P3 GenImage seed102 official TTA running snapshot",
+  "status": "running_three_of_eight_domains_complete",
+  "observed_at": "2026-07-28T07:18:18+08:00",
+  "started_at": "2026-07-28T03:27:12+08:00",
+  "checkpoint_sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
+  "world_size": 8,
+  "domains_completed": ["ADM", "BigGAN", "glide"],
+  "active_domain": "Midjourney",
+  "active_domain_progress": "450/1500",
+  "partial_metrics": {
+    "accuracy": 0.71975,
+    "average_precision": 0.983856107875734,
+    "real_accuracy": 0.9998333333333335,
+    "fake_accuracy": 0.43966666666666665
+  },
+  "glide": {
+    "dataset_size": 12000,
+    "samples_after_distributed_padding": 12000,
+    "unique_sampler_indices": 12000,
+    "duplicate_sampler_indices": 0,
+    "accuracy": 0.6954166666666667,
+    "average_precision": 0.9956736127243654,
+    "real_accuracy": 1.0,
+    "fake_accuracy": 0.3908333333333333,
+    "delta_from_training_static": {
+      "accuracy": 0.0200166666666667,
+      "average_precision": -0.0000263872756346,
+      "real_accuracy": 0.0007,
+      "fake_accuracy": 0.0393333333333333
+    },
+    "delta_to_released_checkpoint_P2": {
+      "accuracy": -0.2640833333333333,
+      "average_precision": 0.0011294744908617,
+      "real_accuracy": 0.0031666666666667,
+      "fake_accuracy": -0.5313333333333334
+    },
+    "delta_to_trained_seed100_tta": {
+      "accuracy": -0.1355,
+      "average_precision": 0.0065012035891374,
+      "real_accuracy": 0.0001666666666666,
+      "fake_accuracy": -0.2711666666666667
+    },
+    "delta_to_trained_seed101_tta": {
+      "accuracy": -0.2794166666666666,
+      "average_precision": 0.0093862099552095,
+      "real_accuracy": 0.0056666666666667,
+      "fake_accuracy": -0.5645
+    }
+  },
+  "prediction_audit": {
+    "files": 3,
+    "dataset_size_sum": 36000,
+    "samples_after_distributed_padding": 36000,
+    "unique_index_sum": 36000,
+    "duplicate_sampler_indices": 0,
+    "prediction_sha256": {
+      "ADM.json": "aac6f633f2139c4d5b893056860894d794af7aa2a99b62574f737b6a28dc7994",
+      "BigGAN.json": "42d72a4b2fa8e2c600f4c11f21c6e8420170366af19e1fc82233469ba4242a17",
+      "glide.json": "c93b3dfc9b6ad095c8b4fa46b46d3af539ae600905dfa25664ef2a1a9b46f1a0"
+    }
+  },
+  "process_audit": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "traceback_or_runtime_error_found": false,
+    "gpu_memory_mib": {"A6000": 37179, "3090": 18656, "4090-2": 19162}
+  },
+  "conclusion": "Seed102 glide reaches 69.54% Accuracy and 99.57% AP with perfect real but only 39.08% fake accuracy. AP matches or exceeds the static, P2, seed100, and seed101 references while Accuracy trails P2 by 26.41 points and seed101 by 27.94 points. The first three domains average 71.98% Accuracy and 98.39% AP, strengthening the evidence that a seed-sensitive fixed threshold, not ranking quality or execution, dominates the deficit."
+}

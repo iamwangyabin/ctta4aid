@@ -594,3 +594,12 @@ and trained seed101 by 20.38 points. AP is 0.25 / 0.66 / 0.62 points higher,
 respectively. The first two-domain mean is 73.19% Acc / 97.79% AP, again
 showing that ranking is strong while the fixed threshold is unstable. `glide`
 then entered 0/1500 with all ranks healthy.
+
+`glide` completed at 06:56 after 1h09m35s. Independent metrics over all 12,000
+unique predictions are 69.5417% Acc / 99.5674% AP and 100% / 39.0833%
+real/fake accuracy without padding. TTA changes static Acc/AP by +2.00 / -0.00
+points. AP exceeds P2, trained seed100, and trained seed101 by 0.11 / 0.65 /
+0.94 points, while Accuracy trails them by 26.41 / 13.55 / 27.94 points. The
+first three domains average 71.98% Acc / 98.39% AP, strengthening the fixed
+threshold diagnosis. At 07:18, `Midjourney` reached 450/1500 with all ranks
+healthy and no execution error.

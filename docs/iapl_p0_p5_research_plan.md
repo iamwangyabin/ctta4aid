@@ -524,6 +524,13 @@ P2、训练 seed100、训练 seed101 分别低 19.47、4.68、20.38 点；AP 则
 高 0.25、0.66、0.62 点。前两域宏平均为 73.19% Acc / 97.79% AP，再次
 表明排序很强而固定阈值不稳定。`glide` 随后进入 0/1500，八 ranks 健康。
 
+06:56，seed102 `glide` 用 1:09:35 完成。12,000 个唯一预测独立复算为
+69.5417% Acc / 99.5674% AP，real/fake accuracy 为 100%/39.0833%，无
+padding。TTA 相对静态 Acc/AP 为 +2.00/-0.00 点；AP 比 P2、训练 seed100、
+训练 seed101 分别高 0.11、0.65、0.94 点，Acc 却分别低 26.41、13.55、
+27.94 点。前三域宏平均为 71.98% Acc / 98.39% AP，进一步支持固定阈值
+诊断。07:18，`Midjourney` 到 450/1500，八 ranks 健康且无执行错误。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
