@@ -1,6 +1,6 @@
 {
   "experiment": "P3 GenImage seed101 trained-checkpoint official TTA",
-  "status": "running",
+  "status": "completed_and_audited",
   "attempt": 1,
   "started_at": "2026-07-27T17:24:02+08:00",
   "protocol": {
@@ -52,5 +52,9 @@
     "traceback_or_runtime_error_found": false
   },
   "preflight": "../preflight_20260727_1723/manifest.json",
-  "order_guard": "Do not start GenImage seed102 until this run completes and is independently audited."
+  "completed_at": "2026-07-28T02:54:32+08:00",
+  "elapsed": "9:30:30",
+  "domains_completed": 8,
+  "final_artifact": "final/manifest.json",
+  "order_guard": "GenImage seed102 may start only after this final audit is committed and pushed, and after a fresh three-host preflight passes."
 }

@@ -491,6 +491,16 @@ AP。22:19 SD1.4 到 400/1500，八 ranks 健康。
 为 96.84% Acc / 98.42% AP。`wukong` 随后进入 0/1500，八 ranks 健康，
 排序退化继续原样保留。
 
+02:54:32，GenImage seed101 完成全部八域，总耗时 9:30:30；`wukong` 为
+99.6000% Acc / 99.6095% AP。独立复算最终宏平均为 97.1870% Acc /
+98.5710% AP，real/fake accuracy 为 99.3047%/95.0693%。相对论文，Acc
+高 0.49 点、AP 低 0.93 点；相对 P2 为 +0.42/-0.92 点。相对该权重静态
+评测，TTA 提高 1.75 Acc 点、降低 1.05 AP 点；相对训练 seed100 则提高
+9.68/0.80 Acc/AP 点，证明明显 seed 敏感性而非执行故障。100,000 个唯一
+索引全部覆盖且无 padding，八 ranks、三 launcher 全部退出，三 GPU 释放，
+未发现 traceback、OOM、runtime 或 collective 错误。P3 下一项严格为
+GenImage seed102，必须先重新通过三机预检。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

@@ -550,3 +550,16 @@ unchanged but lowers AP by 0.65 points. It is 0.57 Accuracy points above P2 and
 3.69 points above trained seed100, while AP is 0.35 / 0.34 points lower. The
 seven-domain mean is 96.84% Acc / 98.42% AP. `wukong` then entered 0/1500 with
 all ranks healthy; the ranking regression is retained.
+
+GenImage seed101 completed all eight domains at 02:54:32 after 9h30m30s.
+`wukong` reached 99.6000% Acc / 99.6095% AP. Independent recalculation gives
+97.1870% macro Accuracy / 98.5710% macro AP and 99.3047% / 95.0693%
+real/fake accuracy. This is 0.49 points above the paper in Accuracy but 0.93
+points below it in AP; versus P2 it is +0.42 / -0.92 points. TTA raises this
+checkpoint's static Accuracy by 1.75 points while lowering AP by 1.05 points.
+Compared with trained seed100 it gains 9.68 Accuracy points and 0.80 AP points,
+confirming substantial seed sensitivity rather than an execution fault. All
+100,000 unique indices are covered without padding, all eight ranks and three
+launchers exited, all GPUs were released, and no traceback, OOM, runtime, or
+collective error was found. Seed102 is now next and requires a fresh three-host
+preflight before launch.
