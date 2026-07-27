@@ -1,0 +1,68 @@
+{
+  "experiment": "P3 GenImage seed100 official TTA running snapshot",
+  "status": "running_7_of_8_domains_complete",
+  "observed_at": "2026-07-27T16:19:06+08:00",
+  "completed_domains": [
+    "ADM",
+    "BigGAN",
+    "glide",
+    "Midjourney",
+    "stable_diffusion_v_1_4",
+    "stable_diffusion_v_1_5",
+    "VQDM"
+  ],
+  "active_domain": "wukong",
+  "active_progress": "200/1500",
+  "independent_seven_domain_mean": {
+    "accuracy": 0.857375,
+    "average_precision": 0.9745922503205827,
+    "real_accuracy": 0.9997619047619047,
+    "fake_accuracy": 0.7149880952380953
+  },
+  "independent_VQDM": {
+    "dataset_size": 12000,
+    "samples_with_distributed_padding": 12000,
+    "unique_sampler_indices": 12000,
+    "duplicate_sampler_indices": 0,
+    "accuracy": 0.9566666666666667,
+    "average_precision": 0.9968312531074353,
+    "real_accuracy": 0.9996666666666667,
+    "fake_accuracy": 0.9136666666666666,
+    "world_size": 8
+  },
+  "comparison": {
+    "training_static_VQDM": {
+      "accuracy": 0.951,
+      "average_precision": 0.9992,
+      "accuracy_delta": 0.0056666666666667,
+      "average_precision_delta": -0.0023687468925647
+    },
+    "released_checkpoint_P2_VQDM": {
+      "accuracy": 0.9879166666666667,
+      "average_precision": 0.9968941216303054,
+      "accuracy_delta": -0.03125,
+      "average_precision_delta": -0.0000628685228701
+    }
+  },
+  "prediction_artifacts": {
+    "ADM.json": "e9bcfd7663aa347ac58d5d8ddc1e2086841f9e5000cf6721315449c091404d2d",
+    "BigGAN.json": "1b0f85b18f11c157ed7faea5b38e7d56a75663c503011d81e5ea93b296b32617",
+    "glide.json": "55fa634783b6c462e631f73471efebcc6182630c9afd192d065830bd4335436a",
+    "Midjourney.json": "95b83bc03cf7e26ee5b2a19dc8ccf698b9f8ef04a9c2b2c716e27aebf2cbc85d",
+    "stable_diffusion_v_1_4.json": "9d83da7ce27068bc28d2f6cacb5096cc7e1d20a3f9e35c14d4c019f78629a133",
+    "stable_diffusion_v_1_5.json": "d44b9d0a5004bf8fe4d4ca94bed90b2fa9930b8bbdbe137bb06d80d8efe915f2",
+    "VQDM.json": "2a221368aab4fb9eb0fda48f3d5745d0ddaf9104e32a658c440c9434dc7ad9b4"
+  },
+  "health": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "all_three_gpus_active": true,
+    "gpu_memory_mib": {
+      "A6000": 37175,
+      "3090": 18652,
+      "4090-2": 19162
+    },
+    "traceback_or_runtime_error_found": false
+  },
+  "interpretation": "VQDM TTA raises this checkpoint's thresholded Accuracy by 0.57 points but lowers AP by 0.24 points. Accuracy remains 3.13 points below the released checkpoint P2 result while AP is effectively tied. The seven-domain mean reaches 85.74% Accuracy and 97.46% AP. Preserve the result and finish wukong before the final seed100 audit."
+}

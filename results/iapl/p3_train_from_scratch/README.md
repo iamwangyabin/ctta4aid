@@ -468,3 +468,10 @@ AP and 99.95% / 99.875% real/fake accuracy without padding. This is within
 above P2 Acc/AP. The six-domain mean is now 84.08% Acc / 97.09% AP, but mean
 fake accuracy remains 68.19% because the weak cross-generator domains are
 retained. At 15:20, `VQDM` reached 450/1500 and all ranks remained healthy.
+
+`VQDM` completed at 16:06 after 1h08m28s. All 12,000 unique predictions give
+95.6667% Acc / 99.6831% AP and 99.9667% / 91.3667% real/fake accuracy without
+padding. TTA raises this checkpoint's static Accuracy by 0.57 points but lowers
+AP by 0.24 points; it remains 3.13 Accuracy points below P2 while AP is tied to
+within 0.01 points. The seven-domain mean is 85.74% Acc / 97.46% AP. At 16:19,
+`wukong` reached 200/1500; all three launchers and GPUs remained active.

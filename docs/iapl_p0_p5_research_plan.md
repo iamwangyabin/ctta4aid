@@ -421,6 +421,12 @@ Acc / 99.9942% AP，real/fake accuracy 为 100%/99.9833%，覆盖 12,000 个
 97.09% AP，但前面弱域令平均 fake accuracy 仍只有 68.19%。15:20 `VQDM`
 已到 450/1500，八 ranks 健康，失败和弱结果继续原样保留。
 
+16:06，`VQDM` 用 1:08:28 完成。12,000 个唯一预测独立复算为 95.6667%
+Acc / 99.6831% AP，real/fake accuracy 为 99.9667%/91.3667%，无
+padding。TTA 相对该权重静态结果提高 0.57 Acc 点、降低 0.24 AP 点；相对
+P2 官方权重低 3.13 Acc 点，AP 差不足 0.01 点。前七域宏平均为 85.74% Acc /
+97.46% AP。16:19 `wukong` 已到 200/1500，三 launcher 与三 GPU 均健康。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
