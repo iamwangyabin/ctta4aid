@@ -1,0 +1,62 @@
+{
+  "experiment": "P3 GenImage seed101 official TTA running snapshot",
+  "status": "running_3_of_8_domains_complete",
+  "observed_at": "2026-07-27T21:18:56+08:00",
+  "completed_domains": ["ADM", "BigGAN", "glide"],
+  "active_domain": "Midjourney",
+  "active_progress": "600/1500",
+  "independent_three_domain_mean": {
+    "accuracy": 0.93825,
+    "average_precision": 0.9736002957752706,
+    "real_accuracy": 0.9936666666666666,
+    "fake_accuracy": 0.8828333333333335
+  },
+  "independent_glide": {
+    "dataset_size": 12000,
+    "samples_with_distributed_padding": 12000,
+    "unique_sampler_indices": 12000,
+    "duplicate_sampler_indices": 0,
+    "accuracy": 0.9748333333333333,
+    "average_precision": 0.9862874027691559,
+    "real_accuracy": 0.9943333333333333,
+    "fake_accuracy": 0.9553333333333334,
+    "world_size": 8
+  },
+  "comparison": {
+    "training_static_glide": {
+      "accuracy": 0.9732,
+      "average_precision": 0.9972,
+      "accuracy_delta": 0.0016333333333333,
+      "average_precision_delta": -0.0109125972308441
+    },
+    "released_checkpoint_P2_glide": {
+      "accuracy": 0.9595,
+      "average_precision": 0.9945441382335037,
+      "accuracy_delta": 0.0153333333333333,
+      "average_precision_delta": -0.0082567354643478
+    },
+    "trained_seed100_TTA_glide": {
+      "accuracy": 0.8309166666666666,
+      "average_precision": 0.989172409135228,
+      "accuracy_delta": 0.1439166666666667,
+      "average_precision_delta": -0.0028850063660721
+    }
+  },
+  "prediction_artifacts": {
+    "ADM.json": "6fa745ae1273f06ce9c98b73c9c7821ffa5559db1a1b15612499b5667319a9f0",
+    "BigGAN.json": "ae58da8f48a0e1bc7400908e4b64017ff6e97a196042aac765075792278a82c2",
+    "glide.json": "7f29761a64430563790f639cb9d37797b20a2c5d65bcad0d4421dda8b6765bf0"
+  },
+  "health": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "all_three_gpus_active": true,
+    "gpu_memory_mib": {
+      "A6000": 37179,
+      "3090": 18652,
+      "4090-2": 19162
+    },
+    "traceback_or_runtime_error_found": false
+  },
+  "interpretation": "Seed101 glide TTA changes Accuracy only slightly but lowers AP by 1.09 points versus static evaluation. It exceeds P2 by 1.53 Accuracy points while trailing by 0.83 AP points, and exceeds trained seed100 by 14.39 Accuracy points. The three-domain mean is 93.83% Accuracy and 97.36% AP; retain the AP regression and continue."
+}

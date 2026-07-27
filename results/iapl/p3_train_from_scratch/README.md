@@ -510,3 +510,11 @@ lowering AP by 0.35 points. Accuracy is 0.91 points above P2 and 15.69 points
 above trained seed100; AP is 0.38 points below P2 but effectively tied with
 seed100. The two-domain mean is 92.00% Acc / 96.73% AP. At 19:49, `glide`
 reached 100/1500 and all ranks remained healthy.
+
+`glide` completed at 20:50 after 1h08m14s. Independent metrics are 97.4833%
+Acc / 98.6287% AP and 99.4333% / 95.5333% real/fake accuracy over 12,000
+unique indices without padding. TTA changes static Accuracy by only +0.16
+points but lowers AP by 1.09 points. It is 1.53 Accuracy points above P2 and
+14.39 points above trained seed100, while AP is 0.83 / 0.29 points lower. The
+three-domain mean is 93.83% Acc / 97.36% AP. At 21:18, `Midjourney` reached
+600/1500 and all ranks remained healthy.

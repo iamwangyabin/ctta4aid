@@ -457,6 +457,13 @@ padding。TTA 相对该权重静态评测提高 11.83 Acc 点、降低 0.35 AP �
 seed100 基本持平。前两域宏平均为 92.00% Acc / 96.73% AP。19:49 `glide`
 到 100/1500，八 ranks 健康。
 
+20:50，seed101 `glide` 用 1:08:14 完成。12,000 个唯一预测独立复算为
+97.4833% Acc / 98.6287% AP，real/fake accuracy 为 99.4333%/95.5333%，
+无 padding。TTA 相对静态 Acc 仅提高 0.16 点，却降低 1.09 AP 点；Acc 比
+P2 高 1.53 点、比训练 seed100 高 14.39 点，AP 则低 0.83/0.29 点。前三域
+宏平均为 93.83% Acc / 97.36% AP。21:18 `Midjourney` 到 600/1500，八
+ranks 健康，AP 退化原样保留。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

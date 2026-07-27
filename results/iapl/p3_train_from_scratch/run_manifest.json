@@ -387,11 +387,11 @@
         "rank_layout": "A6000 ranks 0-3; 3090 ranks 4-5; 4090-2 ranks 6-7",
         "started_at": "2026-07-27T17:24:02+08:00",
         "initial_state": "All eight ranks crossed the barrier and rank0 entered ADM 0/1500 without an error.",
-        "domains_completed": 2,
-        "active_domain": "glide",
-        "latest_snapshot": "genimage/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260727_1948/manifest.json",
-        "latest_accuracy": 0.9199583333333333,
-        "latest_average_precision": 0.9672567422783278,
+        "domains_completed": 3,
+        "active_domain": "Midjourney",
+        "latest_snapshot": "genimage/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260727_2118/manifest.json",
+        "latest_accuracy": 0.93825,
+        "latest_average_precision": 0.9736002957752706,
         "next_action": "Monitor all eight domains, preserve every result, then independently audit metrics, coverage, logs, and GPU release before seed102."
       },
       "102": {"status": "ready_waiting_behind_seed101"}
@@ -411,12 +411,12 @@
     "execution_plan": "tta_execution_plan.json",
     "required_rank_layout": "A6000 4 ranks; 3090 2 ranks; 4090-2 2 ranks",
     "latest_resource_audit": "genimage/seed101/preflight_20260727_1723/manifest.json",
-    "latest_resource_observed_at": "2026-07-27T19:49:07+08:00",
-    "latest_resource_conclusion": "GenImage seed101 completed BigGAN and all eight ranks remain healthy in glide.",
+    "latest_resource_observed_at": "2026-07-27T21:18:56+08:00",
+    "latest_resource_conclusion": "GenImage seed101 completed glide and all eight ranks remain healthy in Midjourney.",
     "running_attempt": "genimage/seed101/tta_attempt1_3node_4plus2plus2_3090",
     "latest_completed_run": "genimage/seed100/tta_attempt2_3node_4plus2plus2_3090/final/manifest.json",
-    "latest_progress": "genimage/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260727_1948/manifest.json",
-    "latest_progress_conclusion": "Seed101 BigGAN reaches 99.60% Accuracy and 99.28% AP. The first two domains average 92.00% Accuracy and 96.73% AP; glide is running.",
+    "latest_progress": "genimage/seed101/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260727_2118/manifest.json",
+    "latest_progress_conclusion": "Seed101 glide reaches 97.48% Accuracy and 98.63% AP. The first three domains average 93.83% Accuracy and 97.36% AP; Midjourney is running.",
     "preserved_partial_launch": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
     "preserved_3070_preflight": "ufd/seed100/tta_preflight_3070x2"
   }
