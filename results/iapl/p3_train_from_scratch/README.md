@@ -542,3 +542,11 @@ Acc/AP, 0.23 / 0.47 points below P2, and 0.40 / 0.51 points below trained
 seed100. The six-domain mean is 96.42% Acc / 98.27% AP. At 00:49, `VQDM`
 reached 200/1500 with all ranks healthy; the repeated diffusion-domain
 regression remains in the record.
+
+`VQDM` completed at 01:46 after 1h08m16s. Independent recalculation over
+12,000 unique predictions gives 99.3583% Acc / 99.3414% AP and 99.2167% /
+99.50% real/fake accuracy without padding. TTA leaves static Accuracy nearly
+unchanged but lowers AP by 0.65 points. It is 0.57 Accuracy points above P2 and
+3.69 points above trained seed100, while AP is 0.35 / 0.34 points lower. The
+seven-domain mean is 96.84% Acc / 98.42% AP. `wukong` then entered 0/1500 with
+all ranks healthy; the ranking regression is retained.

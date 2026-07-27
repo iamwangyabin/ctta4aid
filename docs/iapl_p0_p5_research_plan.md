@@ -484,6 +484,13 @@ AP。22:19 SD1.4 到 400/1500，八 ranks 健康。
 为 96.42% Acc / 98.27% AP。00:49 `VQDM` 到 200/1500，八 ranks 健康；
 两个 diffusion 域连续出现的小幅退化均保留。
 
+01:46，seed101 `VQDM` 用 1:08:16 完成。12,000 个唯一预测独立复算为
+99.3583% Acc / 99.3414% AP，real/fake accuracy 为 99.2167%/99.50%，
+无 padding。TTA 相对静态 Acc 几乎不变但 AP 低 0.65 点；Acc 比 P2 高
+0.57 点、比训练 seed100 高 3.69 点，AP 则低 0.35/0.34 点。前七域宏平均
+为 96.84% Acc / 98.42% AP。`wukong` 随后进入 0/1500，八 ranks 健康，
+排序退化继续原样保留。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
