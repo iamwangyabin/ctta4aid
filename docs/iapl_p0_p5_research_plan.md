@@ -510,6 +510,13 @@ ADM Arrow creator 均返回 12,000 行。4090-2 首次裸 NVML 探测因系统 5
 占用 37,179/18,656/19,162 MiB，未发现启动执行错误。这是 P3 最后一个 TTA
 run；完成及跨 seed 审计前不得进入 P4。
 
+04:37，seed102 完成 `ADM`，耗时 1:08:51。12,000 个唯一预测独立复算为
+67.1583% Acc / 95.6877% AP，real/fake accuracy 为 99.9667%/34.3500%，
+无 padding。TTA 相对静态仅提高 0.69 Acc 点，却降低 2.16 AP 点；相对 P2
+低 18.38/2.61 Acc/AP 点，相对训练 seed101 Acc 低 17.23 点而 AP 高 1.51
+点，相对 seed100 则高 5.10/3.43 点。这个明显受阈值和 seed 影响的弱结果
+完整保留。04:48，BigGAN 到 200/1500，八 ranks 健康且无执行错误。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

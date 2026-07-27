@@ -1,0 +1,68 @@
+{
+  "experiment": "P3 GenImage seed102 official TTA running snapshot",
+  "status": "running_one_of_eight_domains_complete",
+  "observed_at": "2026-07-28T04:48:20+08:00",
+  "started_at": "2026-07-28T03:27:12+08:00",
+  "checkpoint_sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
+  "world_size": 8,
+  "domains_completed": ["ADM"],
+  "active_domain": "BigGAN",
+  "active_domain_progress": "200/1500",
+  "partial_metrics": {
+    "accuracy": 0.6715833333333333,
+    "average_precision": 0.956877072260834,
+    "real_accuracy": 0.9996666666666667,
+    "fake_accuracy": 0.3435
+  },
+  "adm": {
+    "dataset_size": 12000,
+    "samples_after_distributed_padding": 12000,
+    "unique_sampler_indices": 12000,
+    "duplicate_sampler_indices": 0,
+    "accuracy": 0.6715833333333333,
+    "average_precision": 0.956877072260834,
+    "real_accuracy": 0.9996666666666667,
+    "fake_accuracy": 0.3435,
+    "delta_from_training_static": {
+      "accuracy": 0.0068833333333333,
+      "average_precision": -0.021622927739166,
+      "real_accuracy": -0.0000333333333333,
+      "fake_accuracy": 0.0138
+    },
+    "delta_to_released_checkpoint_P2": {
+      "accuracy": -0.18375,
+      "average_precision": -0.0260509403651327,
+      "real_accuracy": 0.002,
+      "fake_accuracy": -0.3695
+    },
+    "delta_to_trained_seed100_tta": {
+      "accuracy": 0.051,
+      "average_precision": 0.0343013708260341,
+      "real_accuracy": -0.0001666666666667,
+      "fake_accuracy": 0.1021666666666667
+    },
+    "delta_to_trained_seed101_tta": {
+      "accuracy": -0.1723333333333333,
+      "average_precision": 0.0151363719029097,
+      "real_accuracy": 0.0055,
+      "fake_accuracy": -0.3501666666666667
+    }
+  },
+  "prediction_audit": {
+    "files": 1,
+    "dataset_size_sum": 12000,
+    "samples_after_distributed_padding": 12000,
+    "unique_index_sum": 12000,
+    "duplicate_sampler_indices": 0,
+    "prediction_sha256": {
+      "ADM.json": "aac6f633f2139c4d5b893056860894d794af7aa2a99b62574f737b6a28dc7994"
+    }
+  },
+  "process_audit": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "traceback_or_runtime_error_found": false,
+    "gpu_memory_mib": {"A6000": 37179, "3090": 18656, "4090-2": 19162}
+  },
+  "conclusion": "Seed102 ADM is a retained weak result: 67.16% Accuracy with 99.97% real but only 34.35% fake accuracy, despite 95.69% AP. TTA raises Accuracy by only 0.69 points and lowers AP by 2.16 points versus static evaluation. It trails P2 by 18.38 Accuracy points and trained seed101 by 17.23 points, confirming strong threshold and seed sensitivity rather than an execution failure."
+}

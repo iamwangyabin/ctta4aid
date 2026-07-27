@@ -575,3 +575,13 @@ the barrier, rank0 entered ADM 0/1500 with an 8,437 MiB peak, the GPUs reached
 37,179 / 18,656 / 19,162 MiB, and no startup execution error was found. This
 final P3 TTA run is active; P4 remains blocked until completion and cross-seed
 audit.
+
+Seed102 completed `ADM` at 04:37 after 1h08m51s. Independent recalculation over
+12,000 unique predictions gives 67.1583% Acc / 95.6877% AP and 99.9667% /
+34.3500% real/fake accuracy without padding. TTA raises static Accuracy by only
+0.69 points while lowering AP by 2.16 points. The result trails P2 by 18.38 /
+2.61 Acc/AP points and trained seed101 by 17.23 Accuracy points, although AP is
+1.51 points higher than seed101. It exceeds trained seed100 by 5.10 / 3.43
+Acc/AP points. This weak, strongly threshold-biased outcome is retained. At
+04:48, BigGAN reached 200/1500 with all eight ranks healthy and no execution
+error.
