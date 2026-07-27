@@ -460,3 +460,11 @@ are below 0.01 points, and it is slightly above P2 on both metrics. The five
 completed domains average 80.92% Acc / 96.52% AP, while mean fake accuracy is
 still only 61.85% because of the earlier cross-generator domains. SD1.5 reached
 450/2000 at 13:48 with all ranks healthy.
+
+`stable_diffusion_v_1_5` completed at 14:58 after 1h31m16s. Independent
+recalculation over all 16,000 unique predictions gives 99.9125% Acc / 99.9128%
+AP and 99.95% / 99.875% real/fake accuracy without padding. This is within
+0.03 points of the trained checkpoint's static result and 0.18 / 0.04 points
+above P2 Acc/AP. The six-domain mean is now 84.08% Acc / 97.09% AP, but mean
+fake accuracy remains 68.19% because the weak cross-generator domains are
+retained. At 15:20, `VQDM` reached 450/1500 and all ranks remained healthy.

@@ -1,0 +1,62 @@
+{
+  "experiment": "P3 GenImage seed100 official TTA running snapshot",
+  "status": "running_6_of_8_domains_complete",
+  "observed_at": "2026-07-27T15:20:17+08:00",
+  "completed_domains": [
+    "ADM",
+    "BigGAN",
+    "glide",
+    "Midjourney",
+    "stable_diffusion_v_1_4",
+    "stable_diffusion_v_1_5"
+  ],
+  "active_domain": "VQDM",
+  "active_progress": "450/1500",
+  "independent_six_domain_mean": {
+    "accuracy": 0.8408263888888889,
+    "average_precision": 0.9708857498561073,
+    "real_accuracy": 0.9997777777777778,
+    "fake_accuracy": 0.6818750000000001
+  },
+  "independent_stable_diffusion_v_1_5": {
+    "dataset_size": 16000,
+    "samples_with_distributed_padding": 16000,
+    "unique_sampler_indices": 16000,
+    "duplicate_sampler_indices": 0,
+    "accuracy": 0.999125,
+    "average_precision": 0.9991282369774233,
+    "real_accuracy": 0.9995,
+    "fake_accuracy": 0.99875,
+    "world_size": 8
+  },
+  "comparison": {
+    "training_static_SD1_5": {
+      "accuracy": 0.9992,
+      "average_precision": 0.9994,
+      "accuracy_delta": -0.000075,
+      "average_precision_delta": -0.0002717630225767
+    },
+    "released_checkpoint_P2_SD1_5": {
+      "accuracy": 0.997375,
+      "average_precision": 0.998698830114109,
+      "accuracy_delta": 0.00175,
+      "average_precision_delta": 0.0004294068633143
+    }
+  },
+  "prediction_artifacts": {
+    "ADM.json": "e9bcfd7663aa347ac58d5d8ddc1e2086841f9e5000cf6721315449c091404d2d",
+    "BigGAN.json": "1b0f85b18f11c157ed7faea5b38e7d56a75663c503011d81e5ea93b296b32617",
+    "glide.json": "55fa634783b6c462e631f73471efebcc6182630c9afd192d065830bd4335436a",
+    "Midjourney.json": "95b83bc03cf7e26ee5b2a19dc8ccf698b9f8ef04a9c2b2c716e27aebf2cbc85d",
+    "stable_diffusion_v_1_4.json": "9d83da7ce27068bc28d2f6cacb5096cc7e1d20a3f9e35c14d4c019f78629a133",
+    "stable_diffusion_v_1_5.json": "d44b9d0a5004bf8fe4d4ca94bed90b2fa9930b8bbdbe137bb06d80d8efe915f2"
+  },
+  "health": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "all_three_gpus_active": true,
+    "A6000_memory_mib": 37175,
+    "traceback_or_runtime_error_found": false
+  },
+  "interpretation": "SD1.5 is effectively perfect and changes by less than 0.03 points from this checkpoint's static result. It is 0.18 Accuracy points and 0.04 AP points above the released checkpoint P2 result. The six-domain mean reaches 84.08% Accuracy and 97.09% AP, but the 68.19% mean fake accuracy still exposes the retained cross-generator threshold bias."
+}

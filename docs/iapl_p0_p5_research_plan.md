@@ -414,6 +414,13 @@ Acc / 99.9942% AP，real/fake accuracy 为 100%/99.9833%，覆盖 12,000 个
 升至 80.92% Acc / 96.52% AP，但此前跨生成器域令平均 fake accuracy 仍只有
 61.85%。13:48 SD1.5 已到 450/2000，八 ranks 健康。
 
+14:58，`stable_diffusion_v_1_5` 用 1:31:16 完成。16,000 个唯一预测独立
+复算为 99.9125% Acc / 99.9128% AP，real/fake accuracy 为
+99.95%/99.875%，无 padding。相对该权重静态结果的 Acc/AP 变化均不足
+0.03 点，并比 P2 官方权重高 0.18/0.04 点。前六域宏平均升至 84.08% Acc /
+97.09% AP，但前面弱域令平均 fake accuracy 仍只有 68.19%。15:20 `VQDM`
+已到 450/1500，八 ranks 健康，失败和弱结果继续原样保留。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
