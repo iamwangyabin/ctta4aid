@@ -394,6 +394,13 @@ Acc / 99.2389% AP，real/fake accuracy 为 99.9833%/67.8333%，无 padding。
 但 Acc 仍比 P2 官方权重低 14.78 点。前两域宏平均为 72.98% Acc / 95.75%
 AP。10:15 已进入 `glide` 300/1500，八 ranks 健康；两种相反响应都保留。
 
+11:09，`glide` 用 1:09:18 完成；12,000 个唯一预测独立复算为 83.0917%
+Acc / 98.9172% AP，real/fake accuracy 为 99.9833%/66.20%，无 padding。
+相对静态评测，TTA 令 Acc 提高 2.06 点、AP 降低 0.25 点；Acc 仍比 P2 官方
+权重低 12.86 点。前三域宏平均为 76.35% Acc / 96.80% AP，平均 real/fake
+accuracy 为 99.98%/52.72%，阈值偏置仍明显。11:15 `Midjourney` 已到
+100/1500，八 ranks 健康。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

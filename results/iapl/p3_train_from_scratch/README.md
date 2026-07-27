@@ -436,3 +436,11 @@ Accuracy remains 14.78 points below the released-checkpoint P2 result. The
 two completed domains average 72.98% Acc / 95.75% AP. `glide` reached 300/1500
 at 10:15, with all ranks healthy; the opposing ADM and BigGAN responses are
 both retained.
+
+`glide` completed at 11:09 after 1h09m18s. Its 12,000 unique predictions give
+83.09% Acc / 98.92% AP and 99.98% / 66.20% real/fake accuracy without padding.
+TTA improves the trained checkpoint's static glide Accuracy by 2.06 points but
+lowers AP by 0.25 points; it remains 12.86 Accuracy points below P2's released
+checkpoint. The three-domain mean is now 76.35% Acc / 96.80% AP, with 99.98%
+mean real versus 52.72% fake accuracy. `Midjourney` reached 100/1500 at 11:15,
+and all ranks remain healthy.
