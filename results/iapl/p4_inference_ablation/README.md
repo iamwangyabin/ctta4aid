@@ -51,3 +51,10 @@ peak is 3,534 MiB allocated. Physical-GPU peaks observed so far are 17,399 MiB
 on A6000, 8,768 MiB on 3090, and 9,270 MiB on 4090-2. The A6000 carries four
 ranks, so its approximately 0.89 s rank-local latency is the cluster bottleneck;
 these latency figures must be compared only under the same 4+2+2 layout.
+
+The 16:45 snapshot extends the audit to ten completed domains while `imle`
+continues. The ten-domain macro Acc/AP are 95.0350%/98.2757%. The weak
+`guided` result is preserved without restart or selection: 70.9500% Acc and
+95.1482% AP, caused by 43.0000% fake accuracy despite 98.9000% real accuracy.
+Throughput, rank-local memory, physical-GPU peaks, and the error-free eight-rank
+state remain consistent with the first snapshot.
