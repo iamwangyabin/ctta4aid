@@ -42,3 +42,12 @@ are preserved in `preflight_20260728.json`; the final checks use the pinned
 conda interpreter, the project source path, an early 4090 compatibility-library
 export, and static parser-option checks before constructing a real Arrow
 dataset view.
+
+The 15:45 snapshot preserves the first three completed domains while `biggan`
+continues. Their macro Acc/AP are 97.2408%/98.0795%; `crn`, `cyclegan`, and
+`dalle` Acc are 94.1808%, 98.7915%, and 98.7500%. The measured cluster
+throughput is stable at about 8.96-8.98 images/s and the rank-local PyTorch
+peak is 3,534 MiB allocated. Physical-GPU peaks observed so far are 17,399 MiB
+on A6000, 8,768 MiB on 3090, and 9,270 MiB on 4090-2. The A6000 carries four
+ranks, so its approximately 0.89 s rank-local latency is the cluster bottleneck;
+these latency figures must be compared only under the same 4+2+2 layout.

@@ -1,0 +1,39 @@
+{
+  "experiment": "P4 views8 full UFD ablation",
+  "snapshot_at": "2026-07-28T15:45:25+08:00",
+  "status": "running",
+  "domains_completed": 3,
+  "completed_domains": ["crn", "cyclegan", "dalle"],
+  "next_domain": "biggan",
+  "next_domain_progress": "100/500",
+  "partial_macro_average": {
+    "accuracy": 0.9724076839884201,
+    "average_precision": 0.9807950489599127,
+    "real_accuracy": 0.951512398030954,
+    "fake_accuracy": 0.9933333333333333
+  },
+  "profile": {
+    "cluster_images_per_second_range": [8.958716877724818, 8.975972149623434],
+    "max_rank_mean_image_latency_ms_range": [889.9215781690871, 892.7052661102632],
+    "max_rank_peak_allocated_mib": 3533.837890625,
+    "max_rank_peak_reserved_mib": 3836.0,
+    "host_peak_memory_mib_so_far": {
+      "A6000": 17399,
+      "3090": 8768,
+      "4090-2": 9270
+    }
+  },
+  "audit": {
+    "prediction_sample_counts_match_distributed_padding": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "policy": "This is an immutable partial snapshot. Preserve every domain result and continue views8 without selection or restart. Do not enter the next P4 variant until all 19 domains finish and pass audit."
+  },
+  "sha256": {
+    "partial_metrics.json": "890c422938d4bffb61789ca7923ef7a85e22ac0b2df2a6a77c1df7144d1a3896",
+    "profile.json": "6d0ee3bdff8d08fe74cd32736c228693e53f641e2e68ea0b72aaff2602f45ee4",
+    "predictions/crn.json": "f43b7c5bbb99df8dea65e2125ef0611cbb99337727664dd54c4d6e76efaf3246",
+    "predictions/cyclegan.json": "3ebf8af2a3464dc27489a45f42d226db08772daef8ee058db73dce2f967933ee",
+    "predictions/dalle.json": "24458376dc09ae250572db182ef410f3be43e64ef85dad1e0e9a47d6bd068b19"
+  }
+}

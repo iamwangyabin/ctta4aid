@@ -80,6 +80,7 @@
     "base_launcher": "scripts/run_iapl_manual_ranks.sh",
     "variant_launcher": "scripts/run_iapl_p4_ufd_ablation_node.sh",
     "preflight_audit": "results/iapl/p4_inference_ablation/preflight_20260728.json",
+    "partial_snapshots": ["results/iapl/p4_inference_ablation/views8/snapshot_20260728_1545"],
     "remote_output_root": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation"
   },
   "completion": "All eleven runs are preserved, including failures. Produce performance, latency, throughput, per-rank peak allocation, and host peak VRAM curves against the profiled baseline."
