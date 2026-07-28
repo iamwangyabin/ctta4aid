@@ -638,6 +638,13 @@ Accuracy 继续作为弱结果保留。吞吐、显存和八 rank 错误审计�
 83.8866%/100%。预测覆盖、吞吐、显存和八 rank 日志审计继续通过，后续变体
 仍未提前启动。
 
+随后 `progan` 以 100% Acc/AP 完成，attempt2 的有效域达到十五个，部分宏平均
+为 95.9767% Acc / 98.4234% AP。但在 `san` 阶段 4090-1 同时从 LAN 和
+Tailscale 失联；A6000 与 4090-2 均观测到 ARP 邻居不完整及 no route to host。
+rank0 虽完成本地循环，八 rank gather 未完成且没有 `san` 预测文件，因此该域
+不计入结果。当前保留进程等待 7,200 秒 collective timeout 或链路恢复；若最终
+失败，将完整归档 attempt2 并从头启动 attempt3，不拼接新的 RNG 流。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

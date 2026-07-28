@@ -67,7 +67,7 @@
       "selection_count": 6,
       "entropy": "averaged",
       "ois": true,
-      "status": "running",
+      "status": "stalled",
       "active_attempt": 2,
       "attempts": [
         {
@@ -82,10 +82,14 @@
         },
         {
           "attempt": 2,
-          "status": "running",
+          "status": "stalled",
           "started_at": "2026-07-29T02:29:04+08:00",
           "rank_layout": {"A6000": [0, 1, 2, 3], "4090-1": [4, 5], "4090-2": [6, 7]},
-          "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/steps1_attempt2"
+          "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/steps1_attempt2",
+          "stalled_at": "2026-07-29T06:46:49+08:00",
+          "completed_domains": 15,
+          "stall_cause": "4090-1 unreachable over LAN and Tailscale; incomplete ARP neighbor from both surviving peers",
+          "incident": "results/iapl/p4_inference_ablation/steps1/attempt2/stall_20260729_0648_4090_1_unreachable"
         }
       ]
     },
@@ -121,7 +125,8 @@
       "results/iapl/p4_inference_ablation/steps1/attempt2/snapshot_20260729_0546"
     ],
     "failure_snapshots": [
-      "results/iapl/p4_inference_ablation/steps1/failure_20260729_0126_nvme"
+      "results/iapl/p4_inference_ablation/steps1/failure_20260729_0126_nvme",
+      "results/iapl/p4_inference_ablation/steps1/attempt2/stall_20260729_0648_4090_1_unreachable"
     ],
     "launch_audits": [
       "results/iapl/p4_inference_ablation/steps1/attempt2_launch_20260729.json"

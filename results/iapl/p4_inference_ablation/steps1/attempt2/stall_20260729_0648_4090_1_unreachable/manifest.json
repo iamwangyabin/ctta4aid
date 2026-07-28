@@ -1,0 +1,45 @@
+{
+  "experiment": "P4 steps1 full UFD ablation",
+  "attempt": 2,
+  "detected_at": "2026-07-29T06:46:49+08:00",
+  "status": "stalled",
+  "suspected_cause": "4090-1 became unreachable over both LAN and Tailscale; A6000 and 4090-2 independently report an incomplete ARP neighbor and no route to the host",
+  "domains_completed": 15,
+  "last_complete_domain": "progan",
+  "partial_macro_average": {
+    "accuracy": 0.9597674563754949,
+    "average_precision": 0.9842335565544762,
+    "real_accuracy": 0.972152632875959,
+    "fake_accuracy": 0.9473832073140598
+  },
+  "delta_to_p1_two_steps_same_domains": {
+    "accuracy": 0.0001315217983522965,
+    "average_precision": 0.005100664104483288,
+    "real_accuracy": -0.0004864558563606458,
+    "fake_accuracy": 0.0007494193229553581
+  },
+  "incomplete_domain": {
+    "domain": "san",
+    "rank0_local_loop_completed": true,
+    "distributed_gather_completed": false,
+    "prediction_json_present": false,
+    "accepted": false
+  },
+  "process_state": {
+    "A6000": "ranks 0-3 alive; GPU reports 100% utilization",
+    "4090-1": "unreachable; current rank and GPU state cannot be collected",
+    "4090-2": "ranks 6-7 alive; no runtime error logged"
+  },
+  "collection": {
+    "current_rank_logs_collected": [0, 1, 2, 3, 6, 7],
+    "unavailable_current_rank_logs": [4, 5],
+    "last_available_4090_1_snapshot": "results/iapl/p4_inference_ablation/steps1/attempt2/snapshot_20260729_0546",
+    "accepted_prediction_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle", "ldm_100", "ldm_200", "ldm_200_cfg", "progan"]
+  },
+  "policy": "Do not accept san and do not splice a continuation run. Leave processes intact through the configured collective timeout or an earlier peer recovery. If attempt 2 fails, archive the final timeout state and restart all 19 domains as attempt 3 on a healthy three-node layout.",
+  "sha256": {
+    "partial_metrics.json": "ae21139a8bac602c9a8604245d50aff23ab59e59ead46d57f2847a2e095a01be",
+    "profile.json": "dce7e189edb59db6ce75460bb68a7dd173dcd84e4bf94f8e61413e04ed4c8d09",
+    "ordered_prediction_checksum_list": "0a4c7dda64a46730cb3d64859e2bcf9aef046a657110235d7926daf1ebcbb359"
+  }
+}

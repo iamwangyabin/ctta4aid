@@ -195,3 +195,18 @@ The extended run remains stable at 5.44-5.51 images/s and 1.45-1.47 s
 bottleneck-rank latency per image. Rank-local and physical-GPU memory peaks are
 unchanged, all fourteen prediction files cover their complete unique sample
 sets, and no execution error appears in any of the eight rank logs.
+
+Attempt 2 then completed `progan` at 100% Acc/AP, bringing its accepted total
+to fifteen domains and its partial macro Acc/AP to 95.9767%/98.4234%. During
+the following `san` domain, 4090-1 became unreachable over both its LAN and
+Tailscale addresses. A6000 and 4090-2 independently reported an incomplete ARP
+neighbor and no route to 4090-1. Existing NCCL sockets remained stale.
+
+Rank 0 completed its local `san` loop, but the eight-rank gather did not finish
+and no `san` prediction JSON exists, so `san` is explicitly rejected. The six
+reachable ranks remained alive without a logged runtime error at 06:48; their
+100% GPU readings are not treated as progress because NCCL wait kernels can
+remain active. The processes are left intact through the configured 7,200 s
+collective timeout in case the link recovers. If it does not, the final timeout
+state will be archived and all nineteen domains will be restarted rather than
+splicing predictions from a new RNG stream.
