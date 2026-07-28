@@ -82,7 +82,8 @@
     "preflight_audit": "results/iapl/p4_inference_ablation/preflight_20260728.json",
     "partial_snapshots": [
       "results/iapl/p4_inference_ablation/views8/snapshot_20260728_1545",
-      "results/iapl/p4_inference_ablation/views8/snapshot_20260728_1645"
+      "results/iapl/p4_inference_ablation/views8/snapshot_20260728_1645",
+      "results/iapl/p4_inference_ablation/views16/snapshot_20260728_1915"
     ],
     "completed_results": ["results/iapl/p4_inference_ablation/views8/final"],
     "remote_output_root": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation"

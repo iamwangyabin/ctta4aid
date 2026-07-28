@@ -78,3 +78,11 @@ preflight on all three hosts and started at 18:00:55 CST. All eight ranks
 crossed the barrier and rank0 entered `crn`; the initial A6000 reading is
 24,095 MiB at 100% utilization with a 5,168 MiB per-rank PyTorch peak. No P4
 variant was skipped or overlapped.
+
+The 19:15 snapshot preserves the first four completed `views16` domains while
+`deepfake` continues. Macro Acc/AP are 97.4545%/97.6009%, respectively 0.1824
+and 0.5667 percentage points below `views8` on the same four domains. Throughput
+falls to 5.23-5.26 images/s, about 58.5% of the corresponding `views8` rate.
+Per-rank PyTorch allocation rises to 5,168.46 MiB and host peaks rise to
+24,095/12,116/12,618 MiB. This is the expected compute/memory penalty and is
+preserved before the remaining domains determine the final accuracy tradeoff.
