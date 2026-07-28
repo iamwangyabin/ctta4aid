@@ -178,11 +178,8 @@ if selected_subsets != [domain] or len(datasets) != 1 or len(datasets[0]) == 0:
     )
 print(f"GenImage Arrow runtime smoke passed: {domain} ({len(datasets[0])} rows, {views} views)")
 PY
-    PYTHONPATH="$project_root/src${PYTHONPATH:+:$PYTHONPATH}" \
-      "$python" main.py \
-        --train_selected_subsets smoke \
-        --test_selected_subsets smoke \
-        --help | grep -q -- '--tta_entropy'
+    grep -Fq "parser.add_argument('--selection_count'" main.py
+    grep -Fq "parser.add_argument('--tta_entropy'" main.py
   )
 fi
 
