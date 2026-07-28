@@ -58,3 +58,17 @@ continues. The ten-domain macro Acc/AP are 95.0350%/98.2757%. The weak
 95.1482% AP, caused by 43.0000% fake accuracy despite 98.9000% real accuracy.
 Throughput, rank-local memory, physical-GPU peaks, and the error-free eight-rank
 state remain consistent with the first snapshot.
+
+`views8` completed all 19 domains at 17:55:55 CST with 88,353 unique samples.
+Final macro Acc/AP are 95.6007%/98.1885%, real/fake accuracy are
+97.2529%/93.9446%, and no rank log contains a runtime error. Relative to the
+unprofiled 32-view P1 reference, Acc improves by 0.1084 percentage points and
+AP by 0.9711 points, while fake accuracy drops by 0.7636 points. This is a
+valid ablation outcome rather than a claim that eight views universally
+outperform the baseline, because the random augmentation stream also changes.
+
+The 19 profiled domains contain 88,376 samples after distributed padding and
+9,850.67 seconds of summed critical-path domain time, giving 8.9692 unique
+images/s overall. Weighted bottleneck-rank latency is 891.36 ms/image. Peak
+PyTorch allocation/reservation is 3,533.84/3,836 MiB per rank; final host peaks
+remain 17,399/8,768/9,270 MiB for A6000/3090/4090-2.

@@ -1,0 +1,54 @@
+{
+  "experiment": "P4 views8 full UFD ablation",
+  "status": "completed_and_audited",
+  "started_at": "2026-07-28T15:09:56+08:00",
+  "completed_at": "2026-07-28T17:55:55+08:00",
+  "protocol": {
+    "views": 8,
+    "tta_steps": 2,
+    "selection_count": 6,
+    "entropy": "averaged",
+    "ois": true,
+    "world_size": 8,
+    "rank_layout": {"A6000": [0, 1, 2, 3], "3090": [4, 5], "4090-2": [6, 7]}
+  },
+  "coverage": {
+    "domains": 19,
+    "dataset_size": 88353,
+    "samples_after_distributed_padding": 88376,
+    "prediction_files": 19
+  },
+  "metrics": {
+    "accuracy": 0.9560065710654141,
+    "average_precision": 0.9818846477566895,
+    "real_accuracy": 0.9725291660012402,
+    "fake_accuracy": 0.9394464375696654
+  },
+  "delta_to_p1_32view_reference": {
+    "accuracy": 0.0010835478656378,
+    "average_precision": 0.0097106765977265,
+    "real_accuracy": 0.0097791207706317,
+    "fake_accuracy": -0.0076356745580197
+  },
+  "profile": {
+    "summed_domain_wall_seconds": 9850.66829907219,
+    "overall_unique_images_per_second": 8.96923917419103,
+    "weighted_bottleneck_rank_latency_ms_per_image": 891.3624168665626,
+    "max_rank_peak_allocated_mib": 3533.837890625,
+    "max_rank_peak_reserved_mib": 3836.0,
+    "host_peak_memory_mib": {"A6000": 17399, "3090": 8768, "4090-2": 9270}
+  },
+  "audit": {
+    "all_launchers_exited": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "prediction_sample_counts_match_distributed_padding": true,
+    "all_three_gpu_monitors_preserved": true,
+    "weak_results_preserved": ["guided", "san"]
+  },
+  "sha256": {
+    "metrics.json": "6c75d928b58cfce5ea59763d09c42925d7473bacce89821bae37d98e10918b07",
+    "profile.json": "d341821b0905b221beb22936b0e4e862899f6a2b08251a8a9fe5890652928d7b",
+    "ordered_prediction_checksum_list": "e2155f98a67f57cda20c9046eca1fc579423d2a26e6c694246ce209532063f60"
+  },
+  "decision": "views8 is complete and accepted without rerun or result selection. Proceed strictly to views16."
+}

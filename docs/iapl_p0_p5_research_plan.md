@@ -597,7 +597,9 @@ launcher 另以 1 秒间隔采样每台物理 GPU 的总显存与利用率。运
 代价排序，所有失败和弱结果保留。三机真实 Arrow creator、loss 和静态参数预检已经
 通过；第一项 `views8` 已于 2026-07-28 15:09 CST 按 8-rank 布局启动。八个 rank
 均越过 distributed barrier，rank0 已进入首域 `crn`，三台 GPU 均达到 100% 利用率，
-启动审计未发现 traceback、NCCL/CUDA 或 OOM 错误。不得提前启动 P5。
+启动审计未发现 traceback、NCCL/CUDA 或 OOM 错误。`views8` 已于 17:55 CST
+完成 19 域：95.6007% mAcc、98.1885% mAP、8.9692 images/s，最终产物和三机资源
+曲线均已同步。下一项严格为 `views16`；不得提前启动 P5。
 
 ## P5: controlled CTTA table
 
