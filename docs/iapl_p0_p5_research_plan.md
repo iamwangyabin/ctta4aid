@@ -594,8 +594,10 @@ steps `1/2/3`、选择数 `2/4/6/8/12`、pointwise entropy、关闭 OIS；完整
 新增 runtime patch 只开放精确选择数和 averaged/pointwise loss，并记录各域八
 ranks 最大 wall time、rank 内单图均值延迟、PyTorch allocated/reserved 峰值；
 launcher 另以 1 秒间隔采样每台物理 GPU 的总显存与利用率。运行按预计 view-forward
-代价排序，所有失败和弱结果保留。当前为部署与 smoke 阶段，第一项严格为
-`views8`，不得提前启动 P5。
+代价排序，所有失败和弱结果保留。三机真实 Arrow creator、loss 和静态参数预检已经
+通过；第一项 `views8` 已于 2026-07-28 15:09 CST 按 8-rank 布局启动。八个 rank
+均越过 distributed barrier，rank0 已进入首域 `crn`，三台 GPU 均达到 100% 利用率，
+启动审计未发现 traceback、NCCL/CUDA 或 OOM 错误。不得提前启动 P5。
 
 ## P5: controlled CTTA table
 

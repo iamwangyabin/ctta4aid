@@ -25,3 +25,20 @@ The paper reports averaged versus pointwise entropy in Table 8 and tuning steps
 two steps, and learning rate 0.005. P4 reproduces those controllable inference
 choices and extends them with view-count, selected-count, OIS, latency, and
 VRAM curves. No weak or failed run will be removed.
+
+## Execution status
+
+The first ordered variant, `views8`, started at 2026-07-28 15:09 CST on the
+planned eight-rank A6000/3090/4090-2 layout. All ranks passed the distributed
+barrier, rank 0 entered the 12,764-row `crn` domain, all three GPUs reached
+100% utilization, and the launch audit found no traceback, NCCL warning, CUDA
+error, or out-of-memory event. Outputs are being written under
+`outputs/iapl_official/p4_ufd_ablation/views8` on each host.
+
+The preflight did expose three reproducible setup failures before launch: the
+server shell has no bare `python`, the runtime source requires the project
+`PYTHONPATH`, and upstream IAPL disables argparse's built-in `--help`. These
+are preserved in `preflight_20260728.json`; the final checks use the pinned
+conda interpreter, the project source path, an early 4090 compatibility-library
+export, and static parser-option checks before constructing a real Arrow
+dataset view.

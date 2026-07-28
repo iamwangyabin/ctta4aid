@@ -1,6 +1,6 @@
 {
   "experiment": "P4 IAPL inference ablations",
-  "status": "prepared",
+  "status": "running",
   "prepared_at": "2026-07-28T13:20:00+08:00",
   "dataset": "UniversalFakeDetect public 19-domain release",
   "checkpoint": "released ProGAN checkpoint",
@@ -57,7 +57,7 @@
     "p1_average_precision_reference": 0.972173971158963
   },
   "execution_order": [
-    {"order": 1, "variant": "views8", "views": 8, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "pending"},
+    {"order": 1, "variant": "views8", "views": 8, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "running", "started_at": "2026-07-28T15:09:56+08:00"},
     {"order": 2, "variant": "views16", "views": 16, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "pending"},
     {"order": 3, "variant": "steps1", "views": 32, "tta_steps": 1, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "pending"},
     {"order": 4, "variant": "ois_off", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": false, "status": "pending"},
@@ -79,6 +79,7 @@
     "runtime_patch": "patches/iapl-a173e77-p4-inference-ablation.patch",
     "base_launcher": "scripts/run_iapl_manual_ranks.sh",
     "variant_launcher": "scripts/run_iapl_p4_ufd_ablation_node.sh",
+    "preflight_audit": "results/iapl/p4_inference_ablation/preflight_20260728.json",
     "remote_output_root": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation"
   },
   "completion": "All eleven runs are preserved, including failures. Produce performance, latency, throughput, per-rank peak allocation, and host peak VRAM curves against the profiled baseline."
