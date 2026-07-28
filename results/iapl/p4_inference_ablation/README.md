@@ -93,3 +93,16 @@ domains, `views16` is 0.0901 percentage points higher than `views8` in Acc but
 accuracy 0.4159 points higher. `guided` remains weak and is preserved at
 72.10% Acc / 95.32% AP. The compute and memory profile remains stable, so no
 restart or protocol change is justified before the final nine domains.
+
+`views16` completed all 19 domains at 22:42:40 CST. Final macro Acc is
+95.5999%, statistically unchanged from `views8` in this single fixed-seed
+comparison (-0.0008 percentage points), while AP falls by 0.4999 points.
+Real accuracy falls 0.4280 points and fake accuracy rises 0.4278 points. The
+larger view set therefore changes the threshold tradeoff but does not improve
+macro Acc.
+
+Its overall throughput is 5.2513 images/s, only 58.5% of `views8`, and weighted
+bottleneck-rank latency rises from 891.36 to 1,522.30 ms/image. Per-rank
+allocated memory rises 46.3% to 5,168.46 MiB; host peaks are
+24,095/12,116/12,618 MiB. On this protocol, 16 views are dominated by 8 views
+on AP, latency, throughput, and memory, with effectively tied Acc.

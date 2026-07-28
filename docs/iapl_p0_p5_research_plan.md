@@ -600,7 +600,9 @@ launcher 另以 1 秒间隔采样每台物理 GPU 的总显存与利用率。运
 启动审计未发现 traceback、NCCL/CUDA 或 OOM 错误。`views8` 已于 17:55 CST
 完成 19 域：95.6007% mAcc、98.1885% mAP、8.9692 images/s，最终产物和三机资源
 曲线均已同步。第二项 `views16` 通过三机 Arrow 预检后于 18:00:55 CST 启动，八个
-rank 均已越过 barrier 并进入 `crn`。不得提前启动后续变体或 P5。
+rank 均已越过 barrier，并于 22:42:40 CST 完成 19 域：95.5999% mAcc、97.6885%
+mAP、5.2513 images/s。其 Acc 与 views8 基本相同，但 AP 低 0.4999 个百分点，吞吐
+仅为 58.5%，显存更高。下一项严格为 `steps1`；不得提前启动后续变体或 P5。
 
 ## P5: controlled CTTA table
 
