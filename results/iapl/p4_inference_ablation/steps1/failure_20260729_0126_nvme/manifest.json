@@ -1,0 +1,61 @@
+{
+  "experiment": "P4 steps1 full UFD ablation",
+  "attempt": 1,
+  "status": "failed",
+  "started_at": "2026-07-28T22:50:27+08:00",
+  "failed_at": "2026-07-29T01:26:52+08:00",
+  "failure_detected_at": "2026-07-29T02:16:43+08:00",
+  "rank_layout": {
+    "A6000": [0, 1, 2, 3],
+    "3090": [4, 5],
+    "4090-2": [6, 7]
+  },
+  "last_valid_state": {
+    "domains_completed": 10,
+    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided"],
+    "artifact": "results/iapl/p4_inference_ablation/steps1/snapshot_20260729_0116",
+    "first_invalid_domain": "imle",
+    "reason_invalid": "Rank 0 finished its local imle loop, but ranks 4 and 5 exited before the distributed gather, so no imle prediction or profile record was committed."
+  },
+  "root_cause": {
+    "host": "3090",
+    "device": "/dev/nvme1n1p1 mounted at /data",
+    "classification": "physical storage I/O failure",
+    "primary_process_effect": "Ranks 4 and 5 both exited with SIGBUS while reading the memory-mapped Arrow dataset from /data.",
+    "distributed_effect": "Rank 7 then exited with ncclRemoteError after the 3090 peer closed its connection; the remaining ranks waited in the collective until they were terminated after evidence capture.",
+    "kernel_evidence": [
+      "2026-07-29 01:24:26 nvme1 READ commands timed out",
+      "2026-07-29 01:24:56 nvme1 controller reset requested",
+      "2026-07-29 01:26:08 nvme1 reported I/O errors for the outstanding reads",
+      "2026-07-29 01:26:52 nvme1 was disabled after reset failure",
+      "2026-07-29 01:26:52 EXT4 requested shutdown and aborted the nvme1n1p1 journal"
+    ],
+    "excluded_causes": {
+      "gpu_oom": "No CUDA OOM signature; the 3090 GPU dropped from the stable 18,652 MiB run peak to idle after the SIGBUS exits.",
+      "host_memory_pressure": "At diagnosis the host had 14 GiB available RAM and 7.1 GiB free swap.",
+      "filesystem_capacity": "The affected filesystem reported 117 GiB free and 1 percent inode use before subsequent reads confirmed device I/O errors."
+    }
+  },
+  "response": {
+    "evidence_captured": "All eight rank logs, all three node launcher logs, and all three GPU-monitor streams were copied before cleanup.",
+    "orphan_cleanup_at": "2026-07-29T02:20:59+08:00",
+    "resume_policy": "Do not splice a restarted imle suffix into attempt 1 because restarting would reset the augmentation RNG stream. Restart all 19 domains from seed 100 on a healthy eight-rank layout.",
+    "replacement": "Use 4090-1 for ranks 4 and 5 after an isolated NVIDIA 580.159.03 compatibility-library repair; retain A6000 ranks 0-3 and 4090-2 ranks 6-7."
+  },
+  "sha256": {
+    "gpu_monitor_ubuntu.csv": "352eca64aca342e7f87416ef862b2316926f72bedff029a258addc376b8a4978",
+    "gpu_monitor_yabin-B760M-POWER-DDR4.csv": "40efe3306a75f0e978fe3c200922e2ed4349851b6892c55fa91eec4855477210",
+    "gpu_monitor_yabin-local4090-yaohui.csv": "c44767a085a2d309e0f6b0da7e3111662316f8709f13ef08ca472087c6761471",
+    "node_3090_launcher.log": "1a293635175119bda74ab43c76742e5a39ee6794f971fbceb7a847350f4753a9",
+    "node_4090_2_launcher.log": "dc9fe3bef88f2c8b8b797bc300d75fd1856422b5d168591d9c23a6287637e32a",
+    "node_a6000_launcher.log": "dc9fe3bef88f2c8b8b797bc300d75fd1856422b5d168591d9c23a6287637e32a",
+    "rank0.log": "37230ac72e655e1ec55673884544fa3f080f9afd78eeda1a714565b2cf53eb9b",
+    "rank1.log": "7713fbf86993741987d7cb459ff1b296604d524e89c7be1efd9c62b96775a133",
+    "rank2.log": "70a8353cbbb807ea8d846163e5515858cc6fd345205b2a8723cff7ca4216342c",
+    "rank3.log": "9660a6636350354b2a009789e3526db6789837598e113f86a478b2015857b9ea",
+    "rank4.log": "5c716b1078e4133bf8c657de8df26b760c7160d5809b955dc518597cb8fd8aee",
+    "rank5.log": "b973de31921497adb588761ce9cae359ae786ce0e840735922db432acccf22f8",
+    "rank6.log": "d128ea8a2a8ac9395b2a7ab866083e837faee5d887377c1971a958a518fb764a",
+    "rank7.log": "c5d523f57c03ce93cdb5f065205d20282f184fd3246183011baf884ae14c63ba"
+  }
+}

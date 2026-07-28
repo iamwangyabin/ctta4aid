@@ -59,7 +59,36 @@
   "execution_order": [
     {"order": 1, "variant": "views8", "views": 8, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "completed", "started_at": "2026-07-28T15:09:56+08:00", "completed_at": "2026-07-28T17:55:55+08:00", "result": "results/iapl/p4_inference_ablation/views8/final"},
     {"order": 2, "variant": "views16", "views": 16, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "completed", "started_at": "2026-07-28T18:00:55+08:00", "completed_at": "2026-07-28T22:42:40+08:00", "result": "results/iapl/p4_inference_ablation/views16/final"},
-    {"order": 3, "variant": "steps1", "views": 32, "tta_steps": 1, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "running", "started_at": "2026-07-28T22:50:27+08:00"},
+    {
+      "order": 3,
+      "variant": "steps1",
+      "views": 32,
+      "tta_steps": 1,
+      "selection_count": 6,
+      "entropy": "averaged",
+      "ois": true,
+      "status": "running",
+      "active_attempt": 2,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "failed",
+          "started_at": "2026-07-28T22:50:27+08:00",
+          "failed_at": "2026-07-29T01:26:52+08:00",
+          "completed_domains": 10,
+          "rank_layout": {"A6000": [0, 1, 2, 3], "3090": [4, 5], "4090-2": [6, 7]},
+          "root_cause": "3090 /data NVMe read timeout, failed controller reset, device disable, EXT4 journal abort, and rank 4/5 SIGBUS",
+          "artifact": "results/iapl/p4_inference_ablation/steps1/failure_20260729_0126_nvme"
+        },
+        {
+          "attempt": 2,
+          "status": "running",
+          "started_at": "2026-07-29T02:29:04+08:00",
+          "rank_layout": {"A6000": [0, 1, 2, 3], "4090-1": [4, 5], "4090-2": [6, 7]},
+          "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/steps1_attempt2"
+        }
+      ]
+    },
     {"order": 4, "variant": "ois_off", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": false, "status": "pending"},
     {"order": 5, "variant": "select2", "views": 32, "tta_steps": 2, "selection_count": 2, "entropy": "averaged", "ois": true, "status": "pending"},
     {"order": 6, "variant": "select4", "views": 32, "tta_steps": 2, "selection_count": 4, "entropy": "averaged", "ois": true, "status": "pending"},
@@ -87,6 +116,12 @@
       "results/iapl/p4_inference_ablation/views16/snapshot_20260728_2045",
       "results/iapl/p4_inference_ablation/steps1/snapshot_20260728_2345",
       "results/iapl/p4_inference_ablation/steps1/snapshot_20260729_0116"
+    ],
+    "failure_snapshots": [
+      "results/iapl/p4_inference_ablation/steps1/failure_20260729_0126_nvme"
+    ],
+    "launch_audits": [
+      "results/iapl/p4_inference_ablation/steps1/attempt2_launch_20260729.json"
     ],
     "completed_results": [
       "results/iapl/p4_inference_ablation/views8/final",

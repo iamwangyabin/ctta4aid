@@ -603,7 +603,22 @@ launcher 另以 1 秒间隔采样每台物理 GPU 的总显存与利用率。运
 rank 均已越过 barrier，并于 22:42:40 CST 完成 19 域：95.5999% mAcc、97.6885%
 mAP、5.2513 images/s。其 Acc 与 views8 基本相同，但 AP 低 0.4999 个百分点，吞吐
 仅为 58.5%，显存更高。第三项 `steps1` 通过三机 32-view Arrow 预检后于
-22:50:27 CST 启动，八个 rank 已越过 barrier。不得提前启动后续变体或 P5。
+22:50:27 CST 启动，八个 rank 已越过 barrier。
+
+该次 `steps1` attempt1 在完成前十域后遭遇硬件故障。3090 的 `/data` 所在
+NVMe 于 01:24 开始 READ timeout，控制器 reset 失败后在 01:26:52 被内核禁用，
+EXT4 journal 随即中止；从该盘 mmap Arrow 的 ranks 4-5 同时 SIGBUS，rank7
+随后因远端 peer 消失报告 `ncclRemoteError`。当时主机仍有 14 GiB 可用内存、
+7.1 GiB swap 和 117 GiB 文件系统余量，且无 CUDA OOM，因此根因不是资源参数。
+十域预测仍有效；`imle` 虽在 rank0 完成本地循环，却未完成八 rank gather，不能
+计入结果。完整日志、三机显存曲线和内核证据均保留。
+
+为避免在域中途重启导致 augmentation RNG 流变化，attempt1 不拼接续跑。
+02:29:04 CST 从 seed100 重新运行全部 19 域：逻辑 8-rank 协议不变，4090-1
+替代故障 3090 承载 ranks 4-5，A6000 继续 ranks 0-3，4090-2 继续 ranks 6-7。
+4090-1 已用隔离的 580.159.03 用户态库修复驱动版本不匹配，三机真实 Arrow
+preflight 全部通过，八个 ranks 已越过 barrier 并进入 `crn`。不得提前启动
+后续变体或 P5。
 
 ## P5: controlled CTTA table
 

@@ -134,3 +134,25 @@ and 1.43-1.45 s bottleneck-rank latency per image. Per-rank allocation and
 reservation remain 8,437.55/8,776 MiB, and host peaks remain
 37,171/18,652/19,154 MiB. All eight rank logs are error-free, so the run
 continues unchanged through the remaining nine domains before `ois_off`.
+
+Attempt 1 did not survive the next domain. At 01:24:26 CST the 3090 host's
+`/data` NVMe began timing out on reads; its controller reset failed, the kernel
+disabled the device at 01:26:52, and EXT4 aborted the journal. The two ranks
+reading Arrow from that filesystem both exited with SIGBUS. Rank 7 then
+reported the expected downstream `ncclRemoteError`; the remaining ranks were
+stopped after the complete failure state was copied. This is a physical
+storage failure, not a CUDA OOM, host-memory shortage, or model error.
+
+Only the first ten domains remain valid. Although rank 0 finished its local
+`imle` loop, the failed peers never completed the distributed gather, so no
+`imle` result is accepted. The run is not resumed from that boundary because
+a new process would reset the augmentation RNG stream. All 19 domains are
+being restarted from seed 100 and the failed attempt remains archived.
+
+Attempt 2 started at 02:29:04 CST after all three replacement-node Arrow
+preflights passed. The eight-rank logical protocol is unchanged, but healthy
+4090-1 now carries ranks 4-5 in place of the failed 3090; A6000 retains ranks
+0-3 and 4090-2 retains ranks 6-7. The replacement node needed the same isolated
+580.159.03 NVIDIA compatibility libraries already validated on 4090-2. All
+eight ranks crossed the barrier and entered `crn`; no subsequent P4 variant
+was started.
