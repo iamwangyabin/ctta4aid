@@ -86,3 +86,10 @@ falls to 5.23-5.26 images/s, about 58.5% of the corresponding `views8` rate.
 Per-rank PyTorch allocation rises to 5,168.46 MiB and host peaks rise to
 24,095/12,116/12,618 MiB. This is the expected compute/memory penalty and is
 preserved before the remaining domains determine the final accuracy tradeoff.
+
+The 20:45 snapshot reaches ten domains while `imle` continues. On the same ten
+domains, `views16` is 0.0901 percentage points higher than `views8` in Acc but
+0.2437 points lower in AP; real accuracy is 0.2356 points lower and fake
+accuracy 0.4159 points higher. `guided` remains weak and is preserved at
+72.10% Acc / 95.32% AP. The compute and memory profile remains stable, so no
+restart or protocol change is justified before the final nine domains.
