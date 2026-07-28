@@ -117,6 +117,9 @@ if [[ -n $nvidia_compat_lib_dir ]] && {
   echo "NVIDIA compatibility libraries are incomplete: $nvidia_compat_lib_dir" >&2
   exit 1
 fi
+if [[ -n $nvidia_compat_lib_dir ]]; then
+  export LD_LIBRARY_PATH="$nvidia_compat_lib_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+fi
 
 if [[ -z $nccl_lib_dir ]]; then
   nccl_lib_dir=$("$python" -c '
@@ -176,7 +179,10 @@ if selected_subsets != [domain] or len(datasets) != 1 or len(datasets[0]) == 0:
 print(f"GenImage Arrow runtime smoke passed: {domain} ({len(datasets[0])} rows, {views} views)")
 PY
     PYTHONPATH="$project_root/src${PYTHONPATH:+:$PYTHONPATH}" \
-      "$python" main.py --help | grep -q -- '--tta_entropy'
+      "$python" main.py \
+        --train_selected_subsets smoke \
+        --test_selected_subsets smoke \
+        --help | grep -q -- '--tta_entropy'
   )
 fi
 
@@ -193,9 +199,6 @@ fi
 export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
 export PYTHONPATH="$project_root/src${PYTHONPATH:+:$PYTHONPATH}"
 export PYTHONUNBUFFERED=1
-if [[ -n $nvidia_compat_lib_dir ]]; then
-  export LD_LIBRARY_PATH="$nvidia_compat_lib_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-fi
 if [[ -n $nccl_lib_dir ]]; then
   export LD_LIBRARY_PATH="$nccl_lib_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 fi
