@@ -183,3 +183,15 @@ The weak `guided` result is preserved at 72.9000% Acc / 95.9346% AP, including
 46.9000% fake accuracy. Throughput remains 5.44-5.51 images/s, rank-local peak
 allocation remains 8,437.55 MiB, all three physical-memory peaks are unchanged,
 and all eight rank logs remain free of execution errors.
+
+The 05:48 snapshot reaches fourteen completed domains and continues into
+`progan`. Macro Acc/AP are 95.6894%/98.3107%. Against P1's two-step run on the
+same domains, one step changes Acc by only +0.0141 percentage points while AP
+is +0.5465 points; real/fake accuracy change by -0.0521/+0.0803 points. The
+newly completed `imle` result is retained at 91.9408% Acc / 94.9137% AP, with
+83.8866% real accuracy and 100% fake accuracy.
+
+The extended run remains stable at 5.44-5.51 images/s and 1.45-1.47 s
+bottleneck-rank latency per image. Rank-local and physical-GPU memory peaks are
+unchanged, all fourteen prediction files cover their complete unique sample
+sets, and no execution error appears in any of the eight rank logs.

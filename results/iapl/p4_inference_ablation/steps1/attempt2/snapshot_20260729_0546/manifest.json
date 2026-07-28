@@ -1,0 +1,58 @@
+{
+  "experiment": "P4 steps1 full UFD ablation",
+  "attempt": 2,
+  "snapshot_at": "2026-07-29T05:48:01+08:00",
+  "status": "running",
+  "domains_completed": 14,
+  "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle", "ldm_100", "ldm_200", "ldm_200_cfg"],
+  "next_domain": "progan",
+  "next_domain_progress": "150/1000",
+  "rank_layout": {"A6000": [0, 1, 2, 3], "4090-1": [4, 5], "4090-2": [6, 7]},
+  "partial_macro_average": {
+    "accuracy": 0.9568937032594588,
+    "average_precision": 0.983107382022653,
+    "real_accuracy": 0.9701635352242418,
+    "fake_accuracy": 0.9436248649793498
+  },
+  "delta_to_p1_two_steps_same_domains": {
+    "accuracy": 0.0001409162125203256,
+    "average_precision": 0.005464997254803428,
+    "real_accuracy": -0.0005212027032435174,
+    "fake_accuracy": 0.0008029492745950106
+  },
+  "weak_results_preserved": [
+    {
+      "domain": "guided",
+      "accuracy": 0.729,
+      "average_precision": 0.9593455073446849,
+      "real_accuracy": 0.989,
+      "fake_accuracy": 0.469
+    },
+    {
+      "domain": "imle",
+      "accuracy": 0.9194078947368421,
+      "average_precision": 0.9491374182034503,
+      "real_accuracy": 0.8388662699655497,
+      "fake_accuracy": 1.0
+    }
+  ],
+  "profile": {
+    "cluster_images_per_second_range": [5.443081204980882, 5.514072612155713],
+    "max_rank_mean_image_latency_ms_range": [1449.8692599093201, 1469.755768603878],
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "host_peak_memory_mib_so_far": {"A6000": 37179, "4090-1": 23731, "4090-2": 19162},
+    "host_memory_note": "The 4090-1 physical peak includes 5,277 MiB of persistent driver accounting present before launch; rank-local PyTorch memory is unaffected."
+  },
+  "audit": {
+    "prediction_sample_counts_match_distributed_padding": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "policy": "Preserve guided, imle, and both attempts without selection. Continue attempt 2 through all 19 domains before starting ois_off."
+  },
+  "sha256": {
+    "partial_metrics.json": "4474f5e03d5fd5bfc5313537e9add25212f393e1e9546baeed151fce5436e92b",
+    "profile.json": "a6cb9e524cfbfc9429f8ae594aae591cdb5ab6666f7c6e47a78d338d116c908e",
+    "ordered_prediction_checksum_list": "7429ae113827172eeab263086ed8e2f0d9d05d1e542cdbc24a300eda998e1bef"
+  }
+}

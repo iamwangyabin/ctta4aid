@@ -632,6 +632,12 @@ preflight 全部通过，八个 ranks 已越过 barrier 并进入 `crn`。不得
 运行与原运行实质一致；`guided` 的 72.90% Acc / 95.93% AP 及 46.90% fake
 Accuracy 继续作为弱结果保留。吞吐、显存和八 rank 错误审计均稳定。
 
+05:48 attempt2 已完成十四域并进入 `progan`，宏平均为 95.6894% Acc /
+98.3107% AP。相对 P1 相同十四域为 +0.0141/+0.5465 个百分点；新完成的
+`imle` 为 91.9408% Acc / 94.9137% AP，其中 real/fake Accuracy 为
+83.8866%/100%。预测覆盖、吞吐、显存和八 rank 日志审计继续通过，后续变体
+仍未提前启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
