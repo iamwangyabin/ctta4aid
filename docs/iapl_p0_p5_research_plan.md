@@ -599,7 +599,8 @@ launcher 另以 1 秒间隔采样每台物理 GPU 的总显存与利用率。运
 均越过 distributed barrier，rank0 已进入首域 `crn`，三台 GPU 均达到 100% 利用率，
 启动审计未发现 traceback、NCCL/CUDA 或 OOM 错误。`views8` 已于 17:55 CST
 完成 19 域：95.6007% mAcc、98.1885% mAP、8.9692 images/s，最终产物和三机资源
-曲线均已同步。下一项严格为 `views16`；不得提前启动 P5。
+曲线均已同步。第二项 `views16` 通过三机 Arrow 预检后于 18:00:55 CST 启动，八个
+rank 均已越过 barrier 并进入 `crn`。不得提前启动后续变体或 P5。
 
 ## P5: controlled CTTA table
 

@@ -72,3 +72,9 @@ The 19 profiled domains contain 88,376 samples after distributed padding and
 images/s overall. Weighted bottleneck-rank latency is 891.36 ms/image. Peak
 PyTorch allocation/reservation is 3,533.84/3,836 MiB per rank; final host peaks
 remain 17,399/8,768/9,270 MiB for A6000/3090/4090-2.
+
+After the views8 final audit and push, `views16` passed the real Arrow creator
+preflight on all three hosts and started at 18:00:55 CST. All eight ranks
+crossed the barrier and rank0 entered `crn`; the initial A6000 reading is
+24,095 MiB at 100% utilization with a 5,168 MiB per-rank PyTorch peak. No P4
+variant was skipped or overlapped.
