@@ -627,3 +627,11 @@ seed100, while exceeding P2 by 0.18 / 0.09 Acc/AP points and trained seed101 by
 0.40 / 0.56 points. The first six-domain mean is 83.59% Acc / 98.22% AP. Both
 diffusion domains are stable and strong; the earlier unseen-generator failures
 remain the macro bottleneck. `VQDM` then entered 0/1500 with all ranks healthy.
+
+`VQDM` completed at 11:55 after 1h08m35s. Independent metrics over 12,000
+unique samples are 97.5833% Acc / 99.8646% AP and 99.9667% / 95.20%
+real/fake accuracy without padding. TTA changes static Acc/AP by +0.66 / -0.11
+points. Accuracy is 1.21 points below P2 and 1.78 below trained seed101, but
+1.92 above trained seed100; AP exceeds all three trained/released references.
+The seven-domain mean is 85.59% Acc / 98.46% AP. At 12:18, the final `wukong`
+domain reached 500/1500 with all ranks healthy and no execution error.

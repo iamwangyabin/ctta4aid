@@ -552,6 +552,13 @@ P2、训练 seed100、训练 seed101 持平或略高。前五域宏平均升至 
 宏平均为 83.59% Acc / 98.22% AP；两个 diffusion 域稳定且强，此前未见
 生成器仍是宏平均瓶颈。`VQDM` 随后进入 0/1500，八 ranks 健康。
 
+11:55，seed102 `VQDM` 用 1:08:35 完成。12,000 个唯一样本独立复算为
+97.5833% Acc / 99.8646% AP，real/fake accuracy 为 99.9667%/95.20%，
+无 padding。TTA 相对静态 Acc/AP 为 +0.66/-0.11 点；Acc 比 P2、训练
+seed101 分别低 1.21、1.78 点，但比训练 seed100 高 1.92 点，AP 则高于
+三个发布/训练参考。前七域宏平均为 85.59% Acc / 98.46% AP。12:18，最后
+一个 `wukong` 到 500/1500，八 ranks 健康且无执行错误。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、
