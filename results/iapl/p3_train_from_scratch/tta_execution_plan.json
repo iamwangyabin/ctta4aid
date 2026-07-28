@@ -1,6 +1,6 @@
 {
   "experiment": "P3 trained-checkpoint official TTA execution plan",
-  "status": "completed_5_of_6_genimage_seed102_running",
+  "status": "completed_6_of_6",
   "prepared_at": "2026-07-24T17:05:28+08:00",
   "source": {
     "iapl_upstream_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
@@ -144,16 +144,17 @@
       "sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
       "master_port": 29645,
       "output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p3_tta/genimage_seed102",
-      "status": "running",
+      "status": "completed_and_audited",
       "preflight": "genimage/seed102/preflight_20260728_0326/manifest.json",
       "started_at": "2026-07-28T03:27:12+08:00",
       "running_attempt": "genimage/seed102/tta_attempt1_3node_4plus2plus2_3090",
       "initial_state": "All eight ranks crossed the barrier and rank0 entered ADM 0/1500 without an error.",
-      "domains_completed": 7,
-      "active_domain": "wukong",
-      "latest_snapshot": "genimage/seed102/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260728_1218/manifest.json",
-      "latest_accuracy": 0.8558869047619048,
-      "latest_average_precision": 0.9845645301228564
+      "completed_at": "2026-07-28T13:04:11+08:00",
+      "elapsed": "9:36:59",
+      "domains_completed": 8,
+      "accuracy": 0.873859375,
+      "average_precision": 0.9864828006600798,
+      "artifact": "genimage/seed102/tta_attempt1_3node_4plus2plus2_3090/final"
     }
   ],
   "domain_order": {

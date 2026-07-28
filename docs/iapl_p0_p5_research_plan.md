@@ -111,12 +111,11 @@ seed102 得到 82.78% mAcc / 99.14% mAP。三 seed 静态汇总为
 99.91 +/- 0.10% 和 74.92 +/- 14.06%。这证明主要不稳定性来自未见生成器上的
 固定阈值 fake 召回，而不是排序 AP；不挑选更优 seed，也不做协议外校准。
 
-UFD 与 GenImage 的三 seed 从头训练链路和静态全测试集评测均已完成。P3 尚未
-结束：六个训练检查点都还需要官方 8-rank TTA。已验证布局为
-A6000 `4 ranks` + 4090-1 `2 ranks` + 4090-2 `2 ranks`，但 4090-1
-截至 2026-07-24 17:18 仍离线，因此不使用失败过的 5+3 布局代替。3070x2
-也不能作为临时节点：GPU 1 虽可被 `nvidia-smi` 单独看到，但 `cl` 环境的
-PyTorch 在 `CUDA_VISIBLE_DEVICES=1` 下仍报告 CUDA 不可用且设备数为 0。
+UFD 与 GenImage 的三 seed 从头训练链路、静态全测试集评测和后续官方
+8-rank TTA 均已完成。执行阶段最终使用 A6000 `4 ranks` + 3090 `2 ranks` +
+4090-2 `2 ranks`；此前 4090-1 离线、5+3 OOM、3070x2 单 rank OOM、A6000
+Arrow runtime 漂移和 4090-2 驱动用户态不匹配均作为失败记录保留。P3 的完整
+结论见本节末尾，而不是用更优 seed 覆盖这些失败与弱结果。
 
 17:26 再检查时 A6000 已完全空闲，因此 6+2 rank 是不改变 8-rank 数据分片与
 TTA 超参数的候选布局；但 48 GiB 上并发 6 个 IAPL 进程尚无显存预检证据。
@@ -558,6 +557,25 @@ P2、训练 seed100、训练 seed101 持平或略高。前五域宏平均升至 
 seed101 分别低 1.21、1.78 点，但比训练 seed100 高 1.92 点，AP 则高于
 三个发布/训练参考。前七域宏平均为 85.59% Acc / 98.46% AP。12:18，最后
 一个 `wukong` 到 500/1500，八 ranks 健康且无执行错误。
+
+13:04:11，GenImage seed102 完成全部八域，总耗时 9:36:59；`wukong` 为
+99.9667% Acc / 99.9911% AP。独立复算最终宏平均为 87.3859% Acc /
+98.6483% AP，real/fake Accuracy 为 99.9755%/74.7964%，相对论文低
+9.31/0.85 点，相对 P2 低 9.39/0.84 点。相对该权重静态评测，TTA 提高
+4.61 Acc 点、降低 0.49 AP 点。100,000 个唯一索引全部覆盖且无 padding，
+八 ranks、三 launcher 全部退出，三 GPU 释放，未发现执行错误。
+
+跨 seed 样本审计第一次在本机因系统 Python 缺少 NumPy 而在读取预测前失败，
+第一次远端重试又因猜测的 `cl` 路径不存在而失败；随后使用 A6000 上实际的
+`/home/home/yabin/miniconda3/envs/cl/bin/python` 成功。三 seed 的索引和标签
+序列完全相同。ADM、BigGAN、glide、Midjourney 的阈值分歧最大，两个 diffusion
+域和 wukong 稳定。
+
+至此 P3 六个官方 TTA run 全部完成并审计。GenImage 三 seed 官方 TTA 为
+90.69 +/- 5.63% Acc、98.33 +/- 0.48% AP，real/fake Accuracy 为
+99.75 +/- 0.39%/81.63 +/- 11.64%；Accuracy 跨 seed 极差 9.80 点，fake
+Accuracy 极差 20.27 点。因此 P3 的训练和评测链路完成，但预设稳定性标准未
+达到，负结果不做事后 seed 筛选。严格顺序的下一阶段为 P4 推理消融。
 
 ## P4: inference ablations
 

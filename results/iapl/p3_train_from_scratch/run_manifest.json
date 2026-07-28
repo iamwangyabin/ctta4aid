@@ -1,6 +1,6 @@
 {
   "experiment": "P3 IAPL training from scratch",
-  "status": "running",
+  "status": "completed_with_stability_criterion_not_met",
   "prepared_at": "2026-07-20T04:54:41+08:00",
   "source_commit": "6b3b595aca3d363ab6391a92ae50edd730a98298",
   "seeds": [100, 101, 102],
@@ -131,7 +131,7 @@
     }
   },
   "genimage": {
-    "status": "training_complete_seed102_tta_running",
+    "status": "training_and_three_seed_official_tta_complete",
     "source_host": "3090",
     "source_root": "/data/DF-arrow-data/GenImage",
     "expected_arrow_shards": 1214,
@@ -399,7 +399,7 @@
         "artifact": "genimage/seed101/tta_attempt1_3node_4plus2plus2_3090/final"
       },
       "102": {
-        "status": "running",
+        "status": "completed_and_audited",
         "checkpoint_replicated_to": ["A6000", "3090", "4090-2"],
         "checkpoint_sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
         "preflight": "genimage/seed102/preflight_20260728_0326/manifest.json",
@@ -407,13 +407,30 @@
         "rank_layout": "A6000 ranks 0-3; 3090 ranks 4-5; 4090-2 ranks 6-7",
         "started_at": "2026-07-28T03:27:12+08:00",
         "initial_state": "All eight ranks crossed the barrier and rank0 entered ADM 0/1500 without an error.",
-        "domains_completed": 7,
-        "active_domain": "wukong",
-        "latest_snapshot": "genimage/seed102/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260728_1218/manifest.json",
-        "latest_accuracy": 0.8558869047619048,
-        "latest_average_precision": 0.9845645301228564,
-        "next_action": "Monitor all eight domains, preserve every result, then independently audit metrics, coverage, logs, GPU release, and the GenImage three-seed summary before P4."
+        "completed_at": "2026-07-28T13:04:11+08:00",
+        "elapsed": "9:36:59",
+        "domains_completed": 8,
+        "accuracy": 0.873859375,
+        "average_precision": 0.9864828006600798,
+        "real_accuracy": 0.9997552083333333,
+        "fake_accuracy": 0.7479635416666667,
+        "accuracy_delta_to_paper": -0.093140625,
+        "average_precision_delta_to_paper": -0.0085171993399202,
+        "artifact": "genimage/seed102/tta_attempt1_3node_4plus2plus2_3090/final"
       }
+    },
+    "official_tta_three_seed_summary": {
+      "accuracy_mean": 0.9069184027777778,
+      "accuracy_sample_std": 0.056252577422946023,
+      "average_precision_mean": 0.9833109392146119,
+      "average_precision_sample_std": 0.004839894152279985,
+      "real_accuracy_mean": 0.99753125,
+      "real_accuracy_sample_std": 0.0038836254528450617,
+      "fake_accuracy_mean": 0.8163055555555555,
+      "fake_accuracy_sample_std": 0.11638835436795102,
+      "stability_criterion_met": false,
+      "conclusion": "All three official TTA runs completed, but Accuracy spans 9.80 points and fake Accuracy spans 20.27 points. The failure is concentrated on ADM, BigGAN, glide, and Midjourney; AP and the diffusion/wukong domains are substantially more stable.",
+      "artifact": "genimage/seed102/tta_attempt1_3node_4plus2plus2_3090/final/three_seed_summary.json"
     },
     "policy": "Keep the immutable 324,000-row conversion for audit, but train only from the 323,997-row filtered metadata view after its full decode passes. Preserve the failed 324,000-row attempt."
   },
@@ -424,18 +441,18 @@
     "scripts/run_iapl_genimage_manual_ranks.sh": "8f0f1696c638bd3fc7a83d690d3ebab7be1423fbbd556d28c50727562f0587c2"
   },
   "trained_checkpoint_tta": {
-    "status": "completed_5_of_6_genimage_seed102_running",
+    "status": "completed_6_of_6",
     "runs_total": 6,
-    "runs_completed": 5,
+    "runs_completed": 6,
     "execution_plan": "tta_execution_plan.json",
     "required_rank_layout": "A6000 4 ranks; 3090 2 ranks; 4090-2 2 ranks",
-    "latest_resource_audit": "genimage/seed102/preflight_20260728_0326/manifest.json",
-    "latest_resource_observed_at": "2026-07-28T12:18:44+08:00",
-    "latest_resource_conclusion": "GenImage seed102 completed VQDM and all eight ranks remain healthy in wukong.",
-    "running_attempt": "genimage/seed102/tta_attempt1_3node_4plus2plus2_3090",
-    "latest_completed_run": "genimage/seed101/tta_attempt1_3node_4plus2plus2_3090/final/manifest.json",
-    "latest_progress": "genimage/seed102/tta_attempt1_3node_4plus2plus2_3090/snapshot_20260728_1218/manifest.json",
-    "latest_progress_conclusion": "Seed102 VQDM reaches 97.58% Accuracy and 99.86% AP. The first seven domains average 85.59% Accuracy and 98.46% AP; wukong is the final running domain and P4 remains blocked.",
+    "latest_resource_audit": "genimage/seed102/tta_attempt1_3node_4plus2plus2_3090/final/manifest.json",
+    "latest_resource_observed_at": "2026-07-28T13:04:11+08:00",
+    "latest_resource_conclusion": "All ranks and launchers exited normally, all three GPUs were released, and no execution error was found.",
+    "latest_completed_run": "genimage/seed102/tta_attempt1_3node_4plus2plus2_3090/final/manifest.json",
+    "three_seed_summary": "genimage/seed102/tta_attempt1_3node_4plus2plus2_3090/final/three_seed_summary.json",
+    "conclusion": "P3 execution is complete. The intended stability criterion is not met: GenImage official TTA is 90.69% +/- 5.63 Accuracy and 98.33% +/- 0.48 AP, with severe seed-sensitive fake-class threshold bias. The negative result is retained without post-hoc seed selection.",
+    "next_stage": "P4 IAPL inference ablations",
     "preserved_partial_launch": "ufd/seed100/tta_attempt2_partial_2node_6plus2_expandable",
     "preserved_3070_preflight": "ufd/seed100/tta_preflight_3070x2"
   }

@@ -1,0 +1,2 @@
+Using NCCL 23007 from /home/yabin/miniconda3/envs/caid-gemini-compat/lib/python3.11/site-packages/nvidia/nccl/lib
+GenImage Arrow runtime smoke passed: ADM (12000 rows)

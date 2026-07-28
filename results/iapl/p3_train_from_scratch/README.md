@@ -635,3 +635,28 @@ points. Accuracy is 1.21 points below P2 and 1.78 below trained seed101, but
 1.92 above trained seed100; AP exceeds all three trained/released references.
 The seven-domain mean is 85.59% Acc / 98.46% AP. At 12:18, the final `wukong`
 domain reached 500/1500 with all ranks healthy and no execution error.
+
+GenImage seed102 completed all eight domains at 13:04:11 after 9h36m59s.
+`wukong` reached 99.9667% Acc / 99.9911% AP. Independent recalculation over
+all 100,000 unique samples gives 87.3859% Acc / 98.6483% AP and 99.9755% /
+74.7964% real/fake accuracy, 9.31 / 0.85 points below the paper. Relative to
+the same checkpoint's static evaluation, TTA raises Accuracy by 4.61 points
+but lowers AP by 0.49 points. All eight ranks and all three launchers exited,
+the GPUs were released, and no traceback, OOM, runtime, NCCL, or collective
+error was found.
+
+The first local cross-seed comparison failed before reading predictions because
+the system Python lacked NumPy. A remote retry then failed because the guessed
+`cl` path did not exist; the comparison succeeded with the actual
+`/home/home/yabin/miniconda3/envs/cl/bin/python` on A6000. Both failures are
+retained. All three runs use identical index and label sequences. Threshold
+disagreements are largest on ADM, BigGAN, glide, and Midjourney and small on
+the two diffusion domains and wukong.
+
+P3 is now experimentally complete: all six trained checkpoints received the
+full official eight-rank TTA evaluation. GenImage's three-seed official TTA is
+90.69 +/- 5.63% Acc and 98.33 +/- 0.48% AP; real/fake Accuracy is 99.75 +/-
+0.39% / 81.63 +/- 11.64%. Thus the intended stability criterion is not met.
+The 9.80-point Accuracy range and 20.27-point fake-Accuracy range are retained
+as a negative result without post-hoc seed selection. P4 inference ablations
+are the next stage.

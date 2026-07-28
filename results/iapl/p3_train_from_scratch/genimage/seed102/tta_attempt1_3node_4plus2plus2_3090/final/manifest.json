@@ -1,0 +1,146 @@
+{
+  "experiment": "P3 GenImage seed102 full official TTA",
+  "status": "completed_and_audited",
+  "started_at": "2026-07-28T03:27:12+08:00",
+  "completed_at": "2026-07-28T13:04:11+08:00",
+  "elapsed": "9:36:59",
+  "world_size": 8,
+  "rank_layout": {
+    "A6000": [0, 1, 2, 3],
+    "3090": [4, 5],
+    "4090-2": [6, 7]
+  },
+  "protocol": {
+    "eval_batch_size": 32,
+    "views": 32,
+    "learning_rate": 0.005,
+    "tta_steps": 2,
+    "selection_p": 0.2,
+    "ois": true,
+    "smooth": true,
+    "seed": 102,
+    "domains": 8,
+    "num_workers": 0
+  },
+  "checkpoint": {
+    "sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
+    "training_static_accuracy": 0.8278,
+    "training_static_average_precision": 0.9914,
+    "training_static_real_accuracy": 0.9996,
+    "training_static_fake_accuracy": 0.6559
+  },
+  "official_log_summary": {
+    "accuracy": 0.8739,
+    "average_precision": 0.9865,
+    "real_accuracy": 0.9998,
+    "fake_accuracy": 0.748
+  },
+  "independent_prediction_recalculation": {
+    "accuracy": 0.873859375,
+    "average_precision": 0.9864828006600798,
+    "real_accuracy": 0.9997552083333333,
+    "fake_accuracy": 0.7479635416666667,
+    "paper_accuracy": 0.967,
+    "paper_average_precision": 0.995,
+    "accuracy_delta_to_paper": -0.093140625,
+    "average_precision_delta_to_paper": -0.0085171993399202,
+    "matches_official_log_rounding": true
+  },
+  "delta_from_training_static_evaluation": {
+    "accuracy": 0.046059375,
+    "average_precision": -0.0049171993399202,
+    "real_accuracy": 0.0001552083333333,
+    "fake_accuracy": 0.0920635416666667
+  },
+  "delta_to_released_checkpoint_P2": {
+    "accuracy": -0.0938541666666667,
+    "average_precision": -0.0084123598375018,
+    "real_accuracy": 0.0025416666666667,
+    "fake_accuracy": -0.19025
+  },
+  "delta_to_trained_seed100_tta": {
+    "accuracy": -0.0011666666666666,
+    "average_precision": 0.0087426443151879,
+    "real_accuracy": -0.0000364583333333,
+    "fake_accuracy": -0.002296875
+  },
+  "delta_to_trained_seed101_tta": {
+    "accuracy": -0.0980104166666666,
+    "average_precision": 0.0007729400212157,
+    "real_accuracy": 0.0067083333333333,
+    "fake_accuracy": -0.2027291666666666
+  },
+  "largest_accuracy_deficits_to_P2": {
+    "glide": -0.2640833333333333,
+    "BigGAN": -0.1946666666666667,
+    "ADM": -0.18375,
+    "Midjourney": -0.1004166666666667,
+    "VQDM": -0.0120833333333334
+  },
+  "largest_average_precision_deficits_to_P2": {
+    "Midjourney": -0.0490145417517316,
+    "ADM": -0.0260509403651327
+  },
+  "wukong": {
+    "accuracy": 0.9996666666666667,
+    "average_precision": 0.9999106944206442,
+    "real_accuracy": 0.9998333333333334,
+    "fake_accuracy": 0.9995,
+    "dataset_size": 12000,
+    "duplicate_sampler_indices": 0
+  },
+  "prediction_audit": {
+    "files": 8,
+    "dataset_size_sum": 100000,
+    "samples_after_distributed_padding": 100000,
+    "unique_index_sum": 100000,
+    "duplicate_sampler_indices": 0,
+    "coverage_failures": 0,
+    "array_length_failures": 0,
+    "world_sizes": [8]
+  },
+  "process_audit": {
+    "all_launchers_exited": true,
+    "all_eight_ranks_exited": true,
+    "tracebacks": 0,
+    "cuda_out_of_memory_errors": 0,
+    "runtime_errors": 0,
+    "nccl_or_collective_errors": 0,
+    "a6000_gpu_released": true,
+    "3090_gpu_released": true,
+    "4090-2_gpu_released": true,
+    "released_gpu_memory_mib": {
+      "A6000": 17,
+      "3090": 106,
+      "4090-2": 252
+    }
+  },
+  "prediction_sha256": {
+    "ADM.json": "aac6f633f2139c4d5b893056860894d794af7aa2a99b62574f737b6a28dc7994",
+    "BigGAN.json": "42d72a4b2fa8e2c600f4c11f21c6e8420170366af19e1fc82233469ba4242a17",
+    "glide.json": "c93b3dfc9b6ad095c8b4fa46b46d3af539ae600905dfa25664ef2a1a9b46f1a0",
+    "Midjourney.json": "b5b6583430870d5eef74772b321fb0c5c6dbf800f62075caa40c01936af48930",
+    "stable_diffusion_v_1_4.json": "5ae5e13783fab920d9324340da819ae3ceb56b896b926bfa03b28931646e36ae",
+    "stable_diffusion_v_1_5.json": "d7e6012898830d24dcb948e09e195ef0ff51cb05e4067a4d5cf0b0e56d995dab",
+    "VQDM.json": "c52a5c43070827f07d3a217e6a9902b1fd744f8b7b801b62463a38a335ae3046",
+    "wukong.json": "3d93755fe402a9c0f809579e2c9c819462a7b99378e17f3566837465df10f704"
+  },
+  "cross_seed_audit": {
+    "initial_local_attempt_failure": "System Python lacked numpy before any prediction was read or artifact written.",
+    "first_remote_retry_failure": "The guessed /home/yabin/miniconda3/envs/cl/bin/python path did not exist.",
+    "successful_retry": "Used the actual /home/home/yabin/miniconda3/envs/cl/bin/python environment on A6000.",
+    "seed100_vs_seed102_sha256": "260e8236958358cd25a2ba8d7cec78e16b7dcd5c3130d124405bb6b1700b7516",
+    "seed101_vs_seed102_sha256": "00e567c417c38d755ea22ad003c25dea0d929f1e0c1bdad905ca3bda67834ab1",
+    "three_seed_summary": "three_seed_summary.json"
+  },
+  "artifacts": {
+    "prediction_files": 8,
+    "rank_logs": 8,
+    "launcher_logs": 3,
+    "independent_metrics": "final_metrics.json",
+    "pairwise_prediction_reports": 2,
+    "core_artifact_files_excluding_manifests_and_three_seed_summary": 22,
+    "core_artifact_bytes_excluding_manifests_and_three_seed_summary": 2354325
+  },
+  "conclusion": "Seed102 completed without an execution failure. Official TTA reaches 87.39% Accuracy and 98.65% AP, 9.31 and 0.85 points below the paper. TTA improves Accuracy by 4.61 points but lowers AP by 0.49 points versus static evaluation. It nearly matches seed100 Accuracy while seed101 is 9.80 points higher, confirming severe seed-sensitive fake-class threshold bias on ADM, BigGAN, glide, and Midjourney. The result is preserved without seed selection or protocol-external calibration."
+}
