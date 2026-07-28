@@ -539,6 +539,12 @@ padding。TTA 相对静态 Acc/AP 为 +2.00/-0.00 点；AP 比 P2、训练 seed1
 97.34% AP，阈值和排序退化都完整保留。08:18，SD1.4 到 250/1500，八
 ranks 健康。
 
+09:15，seed102 `stable_diffusion_v_1_4` 用 1:09:23 完成，在 12,000 个
+唯一样本上 Acc/AP/real/fake 全部为 100%，无 padding。该结果与静态评测、
+P2、训练 seed100、训练 seed101 持平或略高。前五域宏平均升至 80.33% Acc /
+97.87% AP，但此前未见生成器的弱结果不被掩盖。SD1.5 随后进入 50/2000，
+八 ranks 健康且无执行错误。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

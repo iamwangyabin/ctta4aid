@@ -612,3 +612,10 @@ points below trained seed101, while exceeding trained seed100 by 10.17 / 2.01
 points. The first four domains average 75.41% Acc / 97.34% AP. Both the
 threshold and ranking regressions are retained. At 08:18, SD1.4 reached
 250/1500 with all ranks healthy.
+
+`stable_diffusion_v_1_4` completed at 09:15 after 1h09m23s with a perfect
+100% Acc / AP / real / fake result over 12,000 unique samples and no padding.
+It matches or slightly exceeds static evaluation, P2, trained seed100, and
+trained seed101. The first five-domain mean rises to 80.33% Acc / 97.87% AP,
+without concealing the earlier unseen-generator failures. SD1.5 then entered
+50/2000 with all ranks healthy and no execution error.
