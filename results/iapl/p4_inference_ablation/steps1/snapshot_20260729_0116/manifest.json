@@ -1,0 +1,46 @@
+{
+  "experiment": "P4 steps1 full UFD ablation",
+  "snapshot_at": "2026-07-29T01:16:26+08:00",
+  "status": "running",
+  "domains_completed": 10,
+  "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided"],
+  "next_domain": "imle",
+  "next_domain_progress": "450/1596",
+  "partial_macro_average": {
+    "accuracy": 0.9515197411618393,
+    "average_precision": 0.983133255867739,
+    "real_accuracy": 0.9757349593358615,
+    "fake_accuracy": 0.9273006819866568
+  },
+  "delta_to_p1_two_steps_same_domains": {
+    "accuracy": 0.0005217290204362346,
+    "average_precision": 0.0052568702781048415,
+    "real_accuracy": 0.00019289372876940547,
+    "fake_accuracy": 0.0008500000000000174
+  },
+  "weak_result_preserved": {
+    "domain": "guided",
+    "accuracy": 0.7285,
+    "average_precision": 0.9595675321931116,
+    "real_accuracy": 0.99,
+    "fake_accuracy": 0.467
+  },
+  "profile": {
+    "cluster_images_per_second_range": [5.511419228348815, 5.578426282766101],
+    "max_rank_mean_image_latency_ms_range": [1433.3006702766465, 1451.5317504520062],
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "host_peak_memory_mib_so_far": {"A6000": 37171, "3090": 18652, "4090-2": 19154}
+  },
+  "audit": {
+    "prediction_sample_counts_match_distributed_padding": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "policy": "Preserve the weak guided result without restart or selection. Continue steps1 through all 19 domains before starting ois_off."
+  },
+  "sha256": {
+    "partial_metrics.json": "faa06e815208a30a67f4303f0ad2c352bd1f883a42c34a6fb7aafaf5c449d3ac",
+    "profile.json": "f022d16e1b007743a6efb36232244f6e44ddf48a6d8501f4fa5830599f93c36d",
+    "ordered_prediction_checksum_list": "dec557ed0ca4180492412aca7212f0315182d4d809cdd350736320fa143e360f"
+  }
+}

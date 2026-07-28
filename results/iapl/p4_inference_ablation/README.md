@@ -120,3 +120,17 @@ kept without restart. Throughput is 5.54-5.57 images/s, weighted latency about
 1.44 s/image, and per-rank allocation is 8,437.55 MiB. Host peaks are
 37,171/18,652/19,154 MiB, making 32-view memory cost visible even with one
 tuning step.
+
+The 01:16 snapshot reaches ten completed domains while `imle` continues. On
+the same ten domains, `steps1` is 0.0522 percentage points higher than the P1
+two-step reference in Acc and 0.5257 points higher in AP; real and fake
+accuracy are respectively 0.0193 and 0.0850 points higher. This remains a
+provisional fixed-seed comparison rather than a final step-count conclusion.
+The weak `guided` result is retained at 72.8500% Acc / 95.9568% AP, including
+46.7000% fake accuracy.
+
+Compute remains stable across the ten completed domains at 5.51-5.58 images/s
+and 1.43-1.45 s bottleneck-rank latency per image. Per-rank allocation and
+reservation remain 8,437.55/8,776 MiB, and host peaks remain
+37,171/18,652/19,154 MiB. All eight rank logs are error-free, so the run
+continues unchanged through the remaining nine domains before `ois_off`.
