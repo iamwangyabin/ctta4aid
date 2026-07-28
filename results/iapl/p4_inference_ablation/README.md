@@ -106,3 +106,8 @@ bottleneck-rank latency rises from 891.36 to 1,522.30 ms/image. Per-rank
 allocated memory rises 46.3% to 5,168.46 MiB; host peaks are
 24,095/12,116/12,618 MiB. On this protocol, 16 views are dominated by 8 views
 on AP, latency, throughput, and memory, with effectively tied Acc.
+
+After the views16 final audit and push, `steps1` passed its three-host 32-view
+Arrow preflight and started at 22:50:27 CST. All eight ranks crossed the
+distributed barrier and entered model execution. This is the first direct
+tuning-step ablation and keeps every other baseline factor fixed.
