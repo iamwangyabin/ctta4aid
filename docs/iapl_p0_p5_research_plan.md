@@ -531,6 +531,14 @@ padding。TTA 相对静态 Acc/AP 为 +2.00/-0.00 点；AP 比 P2、训练 seed1
 27.94 点。前三域宏平均为 71.98% Acc / 98.39% AP，进一步支持固定阈值
 诊断。07:18，`Midjourney` 到 450/1500，八 ranks 健康且无执行错误。
 
+08:05，seed102 `Midjourney` 用 1:09:38 完成。12,000 个唯一预测独立复算
+为 85.7000% Acc / 94.2166% AP，real/fake accuracy 为
+99.9667%/71.4333%，无 padding。TTA 相对静态提高 6.03 Acc 点、降低
+4.85 AP 点；相对 P2 低 10.04/4.90 点，相对训练 seed101 低 12.18/4.29
+点，但相对训练 seed100 高 10.17/2.01 点。前四域宏平均为 75.41% Acc /
+97.34% AP，阈值和排序退化都完整保留。08:18，SD1.4 到 250/1500，八
+ranks 健康。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

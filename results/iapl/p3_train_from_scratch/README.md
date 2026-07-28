@@ -603,3 +603,12 @@ points. AP exceeds P2, trained seed100, and trained seed101 by 0.11 / 0.65 /
 first three domains average 71.98% Acc / 98.39% AP, strengthening the fixed
 threshold diagnosis. At 07:18, `Midjourney` reached 450/1500 with all ranks
 healthy and no execution error.
+
+`Midjourney` completed at 08:05 after 1h09m38s. Its 12,000 unique predictions
+give 85.7000% Acc / 94.2166% AP and 99.9667% / 71.4333% real/fake accuracy
+without padding. TTA improves static Accuracy by 6.03 points but lowers AP by
+4.85 points. The result is 10.04 / 4.90 Acc/AP points below P2 and 12.18 / 4.29
+points below trained seed101, while exceeding trained seed100 by 10.17 / 2.01
+points. The first four domains average 75.41% Acc / 97.34% AP. Both the
+threshold and ranking regressions are retained. At 08:18, SD1.4 reached
+250/1500 with all ranks healthy.
