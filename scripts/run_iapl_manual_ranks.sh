@@ -138,6 +138,30 @@ print(version.value)
   echo "Using NCCL $nccl_version from $nccl_lib_dir"
 fi
 
+(
+  cd "$iapl_repo"
+  PYTHONPATH="$project_root/src${PYTHONPATH:+:$PYTHONPATH}" \
+    "$python" - "$dataset_path" "${domains[0]}" "$views" <<'PY'
+import sys
+
+from utils.dataset import Dataset_Creator
+
+dataset_path, domain, views = sys.argv[1:]
+creator = Dataset_Creator(dataset_path, batch_size=int(views), num_workers=0)
+datasets, selected_subsets = creator.build_dataset(
+    "tta", selected_subsets=[domain]
+)
+if selected_subsets != [domain] or len(datasets) != 1 or len(datasets[0]) == 0:
+    raise RuntimeError(
+        f"UFD Arrow runtime smoke failed for {domain}: "
+        f"selected={selected_subsets!r}, datasets={len(datasets)}"
+    )
+print(f"UFD Arrow runtime smoke passed: {domain} ({len(datasets[0])} rows, {views} views)")
+PY
+  PYTHONPATH="$project_root/src${PYTHONPATH:+:$PYTHONPATH}" \
+    "$python" main.py --help | grep -q -- '--tta_entropy'
+)
+
 if [[ ${IAPL_PREFLIGHT_ONLY:-0} == 1 ]]; then
   printf 'python=%s\ndataset_path=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\nnvidia_compat_lib_dir=%s\ndistributed_timeout_seconds=%s\nseed=%s\nviews=%s\ntta_steps=%s\nselection_p=%s\nselection_count=%s\ntta_entropy=%s\nois=%s\nprofile_path=%s\ngpu_monitor_path=%s\n' \
     "$python" "$dataset_path" "$iapl_repo" "$pretrained_model" "$clip_path" \

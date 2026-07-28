@@ -156,13 +156,15 @@ if [[ $dataset_format == hf_arrow ]]; then
   (
     cd "$iapl_repo"
     PYTHONPATH="$project_root/src${PYTHONPATH:+:$PYTHONPATH}" \
-      "$python" - "$dataset_path" "${domains[0]}" <<'PY'
+      "$python" - "$dataset_path" "${domains[0]}" "$views" <<'PY'
 import sys
 
 from utils.dataset import Dataset_Creator_GenImage
 
-dataset_path, domain = sys.argv[1:]
-creator = Dataset_Creator_GenImage(dataset_path, batch_size=32, num_workers=0)
+dataset_path, domain, views = sys.argv[1:]
+creator = Dataset_Creator_GenImage(
+    dataset_path, batch_size=int(views), num_workers=0
+)
 datasets, selected_subsets = creator.build_dataset(
     "tta", selected_subsets=[domain]
 )
@@ -171,8 +173,10 @@ if selected_subsets != [domain] or len(datasets) != 1 or len(datasets[0]) == 0:
         f"GenImage Arrow runtime smoke failed for {domain}: "
         f"selected={selected_subsets!r}, datasets={len(datasets)}"
     )
-print(f"GenImage Arrow runtime smoke passed: {domain} ({len(datasets[0])} rows)")
+print(f"GenImage Arrow runtime smoke passed: {domain} ({len(datasets[0])} rows, {views} views)")
 PY
+    PYTHONPATH="$project_root/src${PYTHONPATH:+:$PYTHONPATH}" \
+      "$python" main.py --help | grep -q -- '--tta_entropy'
   )
 fi
 
