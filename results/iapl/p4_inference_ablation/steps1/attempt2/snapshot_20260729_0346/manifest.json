@@ -1,0 +1,49 @@
+{
+  "experiment": "P4 steps1 full UFD ablation",
+  "attempt": 2,
+  "snapshot_at": "2026-07-29T03:46:28+08:00",
+  "status": "running",
+  "domains_completed": 4,
+  "completed_domains": ["crn", "cyclegan", "dalle", "biggan"],
+  "next_domain": "deepfake",
+  "next_domain_progress": "450/676",
+  "rank_layout": {"A6000": [0, 1, 2, 3], "4090-1": [4, 5], "4090-2": [6, 7]},
+  "partial_macro_average": {
+    "accuracy": 0.9720574226351377,
+    "average_precision": 0.9794775837789292,
+    "real_accuracy": 0.9488888316237172,
+    "fake_accuracy": 0.99525
+  },
+  "delta_to_failed_attempt1_same_domains": {
+    "accuracy": -0.0001408208020049484,
+    "average_precision": -0.00007983427278512867,
+    "real_accuracy": -0.0002815925461948643,
+    "fake_accuracy": 0.0
+  },
+  "delta_to_p1_two_steps_same_domains": {
+    "accuracy": -0.0007614982509143164,
+    "average_precision": 0.00873422651194311,
+    "real_accuracy": -0.001149358224271202,
+    "fake_accuracy": -0.0003750000000000142
+  },
+  "profile": {
+    "cluster_images_per_second_range": [5.495455845870554, 5.514072612155713],
+    "max_rank_mean_image_latency_ms_range": [1449.8692599093201, 1455.7482080420014],
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "host_peak_memory_mib_so_far": {"A6000": 37179, "4090-1": 23731, "4090-2": 19162},
+    "host_memory_note": "The 4090-1 physical peak includes 5,277 MiB of persistent driver accounting present before launch; rank-local PyTorch memory is unaffected."
+  },
+  "audit": {
+    "prediction_sample_counts_match_distributed_padding": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "replacement_reproducibility": "Across the same first four domains, attempt 2 differs from failed attempt 1 by -0.0141 percentage points Acc and -0.0080 points AP. The small hardware-dependent numerical drift does not justify result selection or protocol changes.",
+    "policy": "Keep both attempts. Continue attempt 2 through all 19 domains before starting ois_off."
+  },
+  "sha256": {
+    "partial_metrics.json": "dd30c81efdca09e459ad5b2dcee8fae47b46e012db6992fc6b71abc185df458c",
+    "profile.json": "6a593fd6a5b2e284038e6ec8f7cbd229cf1e220f095caeaacfbf9c78d3e10058",
+    "ordered_prediction_checksum_list": "09889395d40ca08cfa24bf09f04b436633ecf9c401ecfe31206c3133a369d6de"
+  }
+}

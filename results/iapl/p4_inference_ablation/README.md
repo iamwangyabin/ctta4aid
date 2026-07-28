@@ -156,3 +156,17 @@ preflights passed. The eight-rank logical protocol is unchanged, but healthy
 580.159.03 NVIDIA compatibility libraries already validated on 4090-2. All
 eight ranks crossed the barrier and entered `crn`; no subsequent P4 variant
 was started.
+
+The 03:46 attempt-2 snapshot preserves four completed domains while
+`deepfake` continues. Macro Acc/AP are 97.2057%/97.9478%. Against failed
+attempt 1 on exactly those domains, the replacement run differs by only
+-0.0141/-0.0080 percentage points; the small hardware-dependent drift is kept
+without selecting either attempt. Relative to P1's two-step run on the same
+domains, one step is 0.0761 points lower in Acc and 0.8734 points higher in AP.
+
+Throughput is stable at 5.50-5.51 images/s, bottleneck-rank latency is
+1.45-1.46 s/image, and per-rank allocation/reservation remain
+8,437.55/8,776 MiB. Physical peaks are 37,179/23,731/19,162 MiB on
+A6000/4090-1/4090-2. The 4090-1 figure includes 5,277 MiB of stale driver
+accounting present before launch, so rank-local PyTorch memory is the valid
+cross-run comparison. Eight-rank logs remain free of runtime errors.

@@ -620,6 +620,13 @@ EXT4 journal 随即中止；从该盘 mmap Arrow 的 ranks 4-5 同时 SIGBUS，r
 preflight 全部通过，八个 ranks 已越过 barrier 并进入 `crn`。不得提前启动
 后续变体或 P5。
 
+03:46 attempt2 已完成 `crn`、`cyclegan`、`dalle`、`biggan` 四域并进入
+`deepfake`，宏平均为 97.2057% Acc / 97.9478% AP。与故障 attempt1 的相同
+四域相比仅差 -0.0141/-0.0080 个百分点，说明替换物理节点只产生很小数值漂移，
+不做事后选择。三机吞吐保持 5.50-5.51 images/s，八 rank 日志无执行错误；
+4090-1 的 23,731 MiB 物理读数含启动前已有的 5,277 MiB 驱动残留记账，跨 run
+显存比较以 rank-local PyTorch 峰值为准。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
