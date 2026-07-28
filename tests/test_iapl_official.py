@@ -90,6 +90,19 @@ class IAPLOfficialRunnerTests(unittest.TestCase):
             'export IAPL_DISTRIBUTED_TIMEOUT_SECONDS="$distributed_timeout_seconds"',
             launcher,
         )
+        for fragment in (
+            'views=${IAPL_VIEWS:-32}',
+            'tta_steps=${IAPL_TTA_STEPS:-2}',
+            'selection_count=${IAPL_SELECTION_COUNT:-}',
+            'tta_entropy=${IAPL_TTA_ENTROPY:-averaged}',
+            'ois=${IAPL_OIS:-true}',
+            'profile_path=${IAPL_PROFILE_PATH:-}',
+            'gpu_monitor_path=${IAPL_GPU_MONITOR_PATH:-}',
+            '--evalbatchsize "$views"',
+            '--tta_steps "$tta_steps"',
+            '--tta_entropy "$tta_entropy"',
+        ):
+            self.assertIn(fragment, launcher)
 
     def test_genimage_manual_launcher_preserves_official_protocol(self) -> None:
         root = Path(__file__).resolve().parents[1]
@@ -100,10 +113,11 @@ class IAPLOfficialRunnerTests(unittest.TestCase):
         for argument in (
             "--dataset GenImage",
             "--train_selected_subsets SDv14",
-            "--evalbatchsize 32",
-            "--tta_steps 2",
-            "--selection_p 0.2",
-            "--ois True",
+            '--evalbatchsize "$views"',
+            '--tta_steps "$tta_steps"',
+            'selection_args=(--selection_p "$selection_p")',
+            'ois_args=(--ois True)',
+            '--tta_entropy "$tta_entropy"',
             "--smooth True",
             '--num_workers "$num_workers"',
             "IAPL_DATASET_PATH",
@@ -119,10 +133,33 @@ class IAPLOfficialRunnerTests(unittest.TestCase):
             "GenImage Arrow runtime smoke passed",
             'seed=${IAPL_SEED:-100}',
             '--seed "$seed"',
+            'views=${IAPL_VIEWS:-32}',
+            'tta_steps=${IAPL_TTA_STEPS:-2}',
+            'selection_count=${IAPL_SELECTION_COUNT:-}',
+            'tta_entropy=${IAPL_TTA_ENTROPY:-averaged}',
+            'profile_path=${IAPL_PROFILE_PATH:-}',
+            'gpu_monitor_path=${IAPL_GPU_MONITOR_PATH:-}',
         ):
             self.assertIn(argument, launcher)
         self.assertIn("checkpoint_best_acc_sd14.pth", launcher)
         self.assertIn("extract_manifest.json", launcher)
+
+    def test_p4_ablation_patch_exposes_loss_selection_and_profiling(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        patch = (
+            root / "patches" / "iapl-a173e77-p4-inference-ablation.patch"
+        ).read_text(encoding="utf-8")
+
+        for fragment in (
+            "--selection_count",
+            "--tta_entropy",
+            'choices=[\'averaged\', \'pointwise\']',
+            'entropy_loss == "pointwise"',
+            'IAPL_PROFILE_PATH',
+            'max_rank_mean_image_latency_ms',
+            'max_rank_peak_allocated_mib',
+        ):
+            self.assertIn(fragment, patch)
 
     def test_false_boolean_flag_is_omitted_for_authors_argparse(self) -> None:
         config = dict(self.config, smooth=False)

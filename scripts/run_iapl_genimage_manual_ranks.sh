@@ -33,6 +33,15 @@ nvidia_compat_lib_dir=${IAPL_NVIDIA_COMPAT_LIB_DIR:-}
 distributed_timeout_seconds=${IAPL_DISTRIBUTED_TIMEOUT_SECONDS:-7200}
 seed=${IAPL_SEED:-100}
 num_workers=${IAPL_NUM_WORKERS:-}
+views=${IAPL_VIEWS:-32}
+tta_steps=${IAPL_TTA_STEPS:-2}
+selection_p=${IAPL_SELECTION_P:-0.2}
+selection_count=${IAPL_SELECTION_COUNT:-}
+tta_entropy=${IAPL_TTA_ENTROPY:-averaged}
+ois=${IAPL_OIS:-true}
+profile_path=${IAPL_PROFILE_PATH:-}
+gpu_monitor_path=${IAPL_GPU_MONITOR_PATH:-}
+gpu_monitor_interval=${IAPL_GPU_MONITOR_INTERVAL_SECONDS:-1}
 
 if [[ ! -x $python ]]; then
   echo "IAPL Python is not executable: $python" >&2
@@ -77,6 +86,30 @@ if [[ ! -f $clip_path ]]; then
   echo "CLIP checkpoint is missing: $clip_path" >&2
   exit 1
 fi
+if ! [[ $views =~ ^[0-9]+$ ]] || (( views < 2 )); then
+  echo "IAPL_VIEWS must be an integer of at least 2: $views" >&2
+  exit 1
+fi
+if ! [[ $tta_steps =~ ^[0-9]+$ ]] || (( tta_steps < 1 )); then
+  echo "IAPL_TTA_STEPS must be a positive integer: $tta_steps" >&2
+  exit 1
+fi
+if [[ -n $selection_count ]] && {
+  ! [[ $selection_count =~ ^[0-9]+$ ]] ||
+    (( selection_count < 1 || selection_count > views ));
+}; then
+  echo "IAPL_SELECTION_COUNT must be between 1 and IAPL_VIEWS: $selection_count" >&2
+  exit 1
+fi
+if [[ $tta_entropy != averaged && $tta_entropy != pointwise ]]; then
+  echo "IAPL_TTA_ENTROPY must be averaged or pointwise: $tta_entropy" >&2
+  exit 1
+fi
+case ${ois,,} in
+  true|1|yes) ois=true ;;
+  false|0|no) ois=false ;;
+  *) echo "IAPL_OIS must be true or false: $ois" >&2; exit 1 ;;
+esac
 if [[ -n $nvidia_compat_lib_dir ]] && {
   [[ ! -f $nvidia_compat_lib_dir/libcuda.so.1 ]] ||
     [[ ! -f $nvidia_compat_lib_dir/libnvidia-ml.so.1 ]]
@@ -144,10 +177,12 @@ PY
 fi
 
 if [[ ${IAPL_PREFLIGHT_ONLY:-0} == 1 ]]; then
-  printf 'python=%s\ndataset_path=%s\ndataset_format=%s\nnum_workers=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\nnvidia_compat_lib_dir=%s\ndistributed_timeout_seconds=%s\nseed=%s\n' \
+  printf 'python=%s\ndataset_path=%s\ndataset_format=%s\nnum_workers=%s\niapl_repo=%s\npretrained_model=%s\nclip_path=%s\nnvidia_compat_lib_dir=%s\ndistributed_timeout_seconds=%s\nseed=%s\nviews=%s\ntta_steps=%s\nselection_p=%s\nselection_count=%s\ntta_entropy=%s\nois=%s\nprofile_path=%s\ngpu_monitor_path=%s\n' \
     "$python" "$dataset_path" "$dataset_format" "$num_workers" "$iapl_repo" \
     "$pretrained_model" "$clip_path" "$nvidia_compat_lib_dir" \
-    "$distributed_timeout_seconds" "$seed"
+    "$distributed_timeout_seconds" "$seed" "$views" "$tta_steps" \
+    "$selection_p" "$selection_count" "$tta_entropy" "$ois" \
+    "$profile_path" "$gpu_monitor_path"
   exit 0
 fi
 
@@ -165,16 +200,47 @@ export NCCL_MAX_CTAS=${NCCL_MAX_CTAS:-2}
 export NCCL_NVLS_ENABLE=${NCCL_NVLS_ENABLE:-0}
 export IAPL_DISTRIBUTED_TIMEOUT_SECONDS="$distributed_timeout_seconds"
 export IAPL_PREDICTION_DIR="$prediction_dir"
+if [[ -n $profile_path ]]; then
+  export IAPL_PROFILE_PATH="$profile_path"
+fi
 mkdir -p "$output_dir" "$prediction_dir"
 cd "$iapl_repo"
 
 pids=()
+monitor_pid=
 terminate_children() {
   if (( ${#pids[@]} > 0 )); then
     kill "${pids[@]}" 2>/dev/null || true
   fi
+  if [[ -n $monitor_pid ]]; then
+    kill "$monitor_pid" 2>/dev/null || true
+    wait "$monitor_pid" 2>/dev/null || true
+  fi
 }
 trap terminate_children INT TERM EXIT
+
+if [[ -n $gpu_monitor_path ]]; then
+  mkdir -p "$(dirname "$gpu_monitor_path")"
+  (
+    while true; do
+      printf '%s,' "$(date -Is)"
+      nvidia-smi --query-gpu=memory.used,utilization.gpu \
+        --format=csv,noheader,nounits | tr '\n' ';'
+      printf '\n'
+      sleep "$gpu_monitor_interval"
+    done
+  ) >>"$gpu_monitor_path" 2>&1 &
+  monitor_pid=$!
+fi
+
+selection_args=(--selection_p "$selection_p")
+if [[ -n $selection_count ]]; then
+  selection_args+=(--selection_count "$selection_count")
+fi
+ois_args=()
+if [[ $ois == true ]]; then
+  ois_args=(--ois True)
+fi
 
 for rank in "${ranks[@]}"; do
   if ! [[ $rank =~ ^[0-9]+$ ]] || (( rank >= world_size )); then
@@ -190,7 +256,7 @@ for rank in "${ranks[@]}"; do
     MASTER_PORT="$master_port" \
     "$python" main.py \
       --batchsize 32 \
-      --evalbatchsize 32 \
+      --evalbatchsize "$views" \
       --dataset_path "$dataset_path" \
       --train_selected_subsets SDv14 \
       --test_selected_subsets "${domains[@]}" \
@@ -204,9 +270,10 @@ for rank in "${ranks[@]}"; do
       --pretrained_model "$pretrained_model" \
       --clip_path "$clip_path" \
       --tta True \
-      --tta_steps 2 \
-      --selection_p 0.2 \
-      --ois True \
+      --tta_steps "$tta_steps" \
+      "${selection_args[@]}" \
+      --tta_entropy "$tta_entropy" \
+      "${ois_args[@]}" \
       --smooth True \
       --num_workers "$num_workers" \
       --seed "$seed" \
@@ -223,5 +290,10 @@ for pid in "${pids[@]}"; do
     status=1
   fi
 done
+if [[ -n $monitor_pid ]]; then
+  kill "$monitor_pid" 2>/dev/null || true
+  wait "$monitor_pid" 2>/dev/null || true
+  monitor_pid=
+fi
 trap - INT TERM EXIT
 exit "$status"

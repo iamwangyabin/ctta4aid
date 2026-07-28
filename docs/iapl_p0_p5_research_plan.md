@@ -583,6 +583,20 @@ Accuracy 极差 20.27 点。因此 P3 的训练和评测链路完成，但预设
 OIS 开关。每项报告 mAcc、mAP、real/fake accuracy、单图延迟、峰值显存和相对完整
 IAPL 的变化。
 
+P4 固定使用发布的 ProGAN checkpoint、公开 UFD 19 域 88,353 张图、seed100 和
+官方 8-rank 的 A6000 `4` + 3090 `2` + 4090-2 `2` 布局，避免把 P3 的训练
+seed 不稳定性混入推理模块判断。基线为 32 views、2 steps、精确选择 6 views、
+averaged entropy 和 OIS。11 个 run 每次只改变一个因素：views `8/16/32`、
+steps `1/2/3`、选择数 `2/4/6/8/12`、pointwise entropy、关闭 OIS；完整基线
+会重跑以补齐计时和显存。论文 Table 8 的 averaged/pointwise 结果和 Table 9 的
+`T=1/2/3` 结果作为参考，但公开数据差异仍按 P1 口径说明。
+
+新增 runtime patch 只开放精确选择数和 averaged/pointwise loss，并记录各域八
+ranks 最大 wall time、rank 内单图均值延迟、PyTorch allocated/reserved 峰值；
+launcher 另以 1 秒间隔采样每台物理 GPU 的总显存与利用率。运行按预计 view-forward
+代价排序，所有失败和弱结果保留。当前为部署与 smoke 阶段，第一项严格为
+`views8`，不得提前启动 P5。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

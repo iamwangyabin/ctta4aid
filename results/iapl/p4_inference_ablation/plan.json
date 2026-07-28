@@ -1,0 +1,85 @@
+{
+  "experiment": "P4 IAPL inference ablations",
+  "status": "prepared",
+  "prepared_at": "2026-07-28T13:20:00+08:00",
+  "dataset": "UniversalFakeDetect public 19-domain release",
+  "checkpoint": "released ProGAN checkpoint",
+  "checkpoint_sha256": "1e04047b74d287ba2f3682cde84246688dfa486354a5677b5147e677bc2a3f81",
+  "seed": 100,
+  "protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "domain_order": [
+      "crn",
+      "cyclegan",
+      "dalle",
+      "biggan",
+      "deepfake",
+      "gaugan",
+      "glide_50_27",
+      "glide_100_10",
+      "glide_100_27",
+      "guided",
+      "imle",
+      "ldm_100",
+      "ldm_200",
+      "ldm_200_cfg",
+      "progan",
+      "san",
+      "seeingdark",
+      "stargan",
+      "stylegan"
+    ],
+    "dataset_size": 88353,
+    "learning_rate": 0.005,
+    "num_workers": 0,
+    "reset": "prompt parameters and optimizer per image; preserve released BatchNorm buffer behavior",
+    "comparison_rule": "One factor changes from the baseline at a time. Exact selected-view count is used instead of a floating-point fraction.",
+    "profiling": {
+      "domain_wall_time": "maximum elapsed time across ranks, excluding model construction and final metric aggregation",
+      "single_image_latency": "maximum rank-local elapsed time divided by that rank's samples",
+      "internal_peak_memory": "maximum torch CUDA allocated and reserved memory across ranks",
+      "host_peak_memory": "one-second nvidia-smi sampling on each physical host",
+      "performance": "mAcc, mAP, mean real Accuracy, and mean fake Accuracy from captured sample-level predictions"
+    }
+  },
+  "baseline": {
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 6,
+    "entropy": "averaged",
+    "ois": true,
+    "p1_accuracy_reference": 0.9549230231997763,
+    "p1_average_precision_reference": 0.972173971158963
+  },
+  "execution_order": [
+    {"order": 1, "variant": "views8", "views": 8, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "pending"},
+    {"order": 2, "variant": "views16", "views": 16, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "pending"},
+    {"order": 3, "variant": "steps1", "views": 32, "tta_steps": 1, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "pending"},
+    {"order": 4, "variant": "ois_off", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": false, "status": "pending"},
+    {"order": 5, "variant": "select2", "views": 32, "tta_steps": 2, "selection_count": 2, "entropy": "averaged", "ois": true, "status": "pending"},
+    {"order": 6, "variant": "select4", "views": 32, "tta_steps": 2, "selection_count": 4, "entropy": "averaged", "ois": true, "status": "pending"},
+    {"order": 7, "variant": "pointwise", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "pointwise", "ois": true, "status": "pending"},
+    {"order": 8, "variant": "baseline", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "pending"},
+    {"order": 9, "variant": "select8", "views": 32, "tta_steps": 2, "selection_count": 8, "entropy": "averaged", "ois": true, "status": "pending"},
+    {"order": 10, "variant": "select12", "views": 32, "tta_steps": 2, "selection_count": 12, "entropy": "averaged", "ois": true, "status": "pending"},
+    {"order": 11, "variant": "steps3", "views": 32, "tta_steps": 3, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "pending"}
+  ],
+  "paper_reference": {
+    "url": "https://arxiv.org/pdf/2508.01603",
+    "table_8": "Averaged entropy 95.61 mAcc / 99.32 mAP; pointwise entropy 95.35 / 99.30.",
+    "table_9": "T=1/2/3 reports 94.47/94.88/94.94 mAcc and 98.53/98.72/98.80 mAP in the paper's ablation setup.",
+    "implementation_details": "Nv=32 views, m=6 selected views, T=2, and learning rate 5e-3."
+  },
+  "artifacts": {
+    "runtime_patch": "patches/iapl-a173e77-p4-inference-ablation.patch",
+    "base_launcher": "scripts/run_iapl_manual_ranks.sh",
+    "variant_launcher": "scripts/run_iapl_p4_ufd_ablation_node.sh",
+    "remote_output_root": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation"
+  },
+  "completion": "All eleven runs are preserved, including failures. Produce performance, latency, throughput, per-rank peak allocation, and host peak VRAM curves against the profiled baseline."
+}
