@@ -645,6 +645,13 @@ rank0 虽完成本地循环，八 rank gather 未完成且没有 `san` 预测文
 不计入结果。当前保留进程等待 7,200 秒 collective timeout 或链路恢复；若最终
 失败，将完整归档 attempt2 并从头启动 attempt3，不拼接新的 RNG 流。
 
+已准备无破坏性的 attempt3 备用路径：3090 GPU 与系统盘仍正常，但故障 `/data`
+仍是 0-byte NVMe 和 ext4 `shutdown`，不会再读取。3090 通过用户态 SSHFS 从
+3070x2 只读挂载完整 UFD Arrow；真实 loader 已通过 19 域、88,353 样本、标签、
+row mapping 与首图解码预检。若 attempt2 超时，可恢复原 A6000 `4`、3090 `2`、
+4090-2 `2` GPU 布局从头运行；远程存储差异将单独记录，并审计是否改变 A6000
+四 rank 的关键路径瓶颈。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

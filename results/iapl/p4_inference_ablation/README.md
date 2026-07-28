@@ -210,3 +210,18 @@ remain active. The processes are left intact through the configured 7,200 s
 collective timeout in case the link recovers. If it does not, the final timeout
 state will be archived and all nineteen domains will be restarted rather than
 splicing predictions from a new RNG stream.
+
+A non-destructive attempt-3 fallback is now prepared. The 3090 GPU and healthy
+system disk remain online, while its failed `/data` NVMe still reports a 0-byte
+device and an ext4 `shutdown` mount and is not read. Instead, a user-local
+SSHFS 3.7.3 binary mounts the complete verified UFD Arrow copy from 3070x2
+read-only over the LAN. The real Arrow loader preflight passes all 19 domains,
+88,353 samples, label counts, row mappings, and first-image decoding without
+writing to either dataset.
+
+If attempt 2 reaches its collective timeout, attempt 3 can therefore restore
+the original A6000 4 + 3090 2 + 4090-2 2 GPU layout without waiting for the
+offline 4090-1 or touching the failed NVMe. The remote storage backend will be
+recorded explicitly; the A6000 remains the four-rank timing bottleneck, but the
+final profile must still verify that SSHFS does not move the bottleneck to the
+3090 ranks.

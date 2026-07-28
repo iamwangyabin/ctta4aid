@@ -89,7 +89,8 @@
           "stalled_at": "2026-07-29T06:46:49+08:00",
           "completed_domains": 15,
           "stall_cause": "4090-1 unreachable over LAN and Tailscale; incomplete ARP neighbor from both surviving peers",
-          "incident": "results/iapl/p4_inference_ablation/steps1/attempt2/stall_20260729_0648_4090_1_unreachable"
+          "incident": "results/iapl/p4_inference_ablation/steps1/attempt2/stall_20260729_0648_4090_1_unreachable",
+          "recovery_preflight": "results/iapl/p4_inference_ablation/steps1/attempt2/recovery_preflight_3090_sshfs_20260729.json"
         }
       ]
     },
@@ -130,6 +131,9 @@
     ],
     "launch_audits": [
       "results/iapl/p4_inference_ablation/steps1/attempt2_launch_20260729.json"
+    ],
+    "recovery_preflights": [
+      "results/iapl/p4_inference_ablation/steps1/attempt2/recovery_preflight_3090_sshfs_20260729.json"
     ],
     "completed_results": [
       "results/iapl/p4_inference_ablation/views8/final",
