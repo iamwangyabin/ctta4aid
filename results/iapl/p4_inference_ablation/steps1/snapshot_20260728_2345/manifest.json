@@ -1,0 +1,39 @@
+{
+  "experiment": "P4 steps1 full UFD ablation",
+  "snapshot_at": "2026-07-28T23:45:26+08:00",
+  "status": "running",
+  "domains_completed": 3,
+  "completed_domains": ["crn", "cyclegan", "dalle"],
+  "next_domain": "biggan",
+  "next_domain_progress": "100/500",
+  "partial_macro_average": {
+    "accuracy": 0.9668476579161903,
+    "average_precision": 0.9776239899915331,
+    "real_accuracy": 0.9393938988932161,
+    "fake_accuracy": 0.9943333333333334
+  },
+  "delta_to_p1_two_steps_same_domains": {
+    "accuracy": -0.0010775699318790188,
+    "average_precision": 0.009827720026225895,
+    "real_accuracy": -0.0014903542374350431,
+    "fake_accuracy": -0.0006666666666665932
+  },
+  "profile": {
+    "cluster_images_per_second_range": [5.535104161139219, 5.569180581982412],
+    "max_rank_mean_image_latency_ms_range": [1436.0270091096675, 1445.3205878520384],
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "host_peak_memory_mib_so_far": {"A6000": 37171, "3090": 18652, "4090-2": 19154}
+  },
+  "audit": {
+    "prediction_sample_counts_match_distributed_padding": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "policy": "Preserve the provisional crn AP reversal without restart or selection. Continue steps1 through all 19 domains before starting ois_off."
+  },
+  "sha256": {
+    "partial_metrics.json": "3dbab7df98c290c3f92f87d858a4b1a92445e026f41812510182b3e7bc2d1a8a",
+    "profile.json": "0632636ffa92297dfb78098898995efd602eb11c9c17f11976eb5f2fd559d76d",
+    "ordered_prediction_checksum_list": "81289d87e3af9ec712e2f09a10d1ecfec827e1b3d96132d7b50a469132aa5bb4"
+  }
+}

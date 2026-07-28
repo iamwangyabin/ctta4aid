@@ -84,7 +84,8 @@
       "results/iapl/p4_inference_ablation/views8/snapshot_20260728_1545",
       "results/iapl/p4_inference_ablation/views8/snapshot_20260728_1645",
       "results/iapl/p4_inference_ablation/views16/snapshot_20260728_1915",
-      "results/iapl/p4_inference_ablation/views16/snapshot_20260728_2045"
+      "results/iapl/p4_inference_ablation/views16/snapshot_20260728_2045",
+      "results/iapl/p4_inference_ablation/steps1/snapshot_20260728_2345"
     ],
     "completed_results": [
       "results/iapl/p4_inference_ablation/views8/final",

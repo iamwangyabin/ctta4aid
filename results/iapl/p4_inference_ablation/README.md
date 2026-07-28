@@ -111,3 +111,12 @@ After the views16 final audit and push, `steps1` passed its three-host 32-view
 Arrow preflight and started at 22:50:27 CST. All eight ranks crossed the
 distributed barrier and entered model execution. This is the first direct
 tuning-step ablation and keeps every other baseline factor fixed.
+
+The 23:45 snapshot preserves the first three `steps1` domains while `biggan`
+continues. Macro Acc/AP are 96.6848%/97.7624%. Against the original two-step P1
+run on these same domains, Acc is 0.1078 percentage points lower but AP is
+0.9828 points higher, driven primarily by `crn`; this provisional reversal is
+kept without restart. Throughput is 5.54-5.57 images/s, weighted latency about
+1.44 s/image, and per-rank allocation is 8,437.55 MiB. Host peaks are
+37,171/18,652/19,154 MiB, making 32-view memory cost visible even with one
+tuning step.
