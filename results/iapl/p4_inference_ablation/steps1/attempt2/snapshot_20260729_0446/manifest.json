@@ -1,0 +1,56 @@
+{
+  "experiment": "P4 steps1 full UFD ablation",
+  "attempt": 2,
+  "snapshot_at": "2026-07-29T04:46:28+08:00",
+  "status": "running",
+  "domains_completed": 10,
+  "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided"],
+  "next_domain": "imle",
+  "next_domain_progress": "0/1596",
+  "rank_layout": {"A6000": [0, 1, 2, 3], "4090-1": [4, 5], "4090-2": [6, 7]},
+  "partial_macro_average": {
+    "accuracy": 0.9516603950895581,
+    "average_precision": 0.9831261723331253,
+    "real_accuracy": 0.9755423223173836,
+    "fake_accuracy": 0.9277748109710897
+  },
+  "delta_to_failed_attempt1_same_domains": {
+    "accuracy": 0.00014065392771878127,
+    "average_precision": -0.000007083534613760989,
+    "real_accuracy": -0.0001926370184779369,
+    "fake_accuracy": 0.00047412898443288665
+  },
+  "delta_to_p1_two_steps_same_domains": {
+    "accuracy": 0.0006623829481550159,
+    "average_precision": 0.005249786743491303,
+    "real_accuracy": 0.00000025671029146856483,
+    "fake_accuracy": 0.001324128984432904
+  },
+  "weak_result_preserved": {
+    "domain": "guided",
+    "accuracy": 0.729,
+    "average_precision": 0.9593455073446849,
+    "real_accuracy": 0.989,
+    "fake_accuracy": 0.469
+  },
+  "profile": {
+    "cluster_images_per_second_range": [5.443081204980882, 5.514072612155713],
+    "max_rank_mean_image_latency_ms_range": [1449.8692599093201, 1469.755768603878],
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "host_peak_memory_mib_so_far": {"A6000": 37179, "4090-1": 23731, "4090-2": 19162},
+    "host_memory_note": "The 4090-1 physical peak includes 5,277 MiB of persistent driver accounting present before launch; rank-local PyTorch memory is unaffected."
+  },
+  "audit": {
+    "prediction_sample_counts_match_distributed_padding": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "replacement_reproducibility": "Across the same ten domains, attempt 2 differs from failed attempt 1 by +0.0141 percentage points Acc and -0.0007 points AP.",
+    "policy": "Preserve guided and both attempts without selection. Continue attempt 2 through all 19 domains before starting ois_off."
+  },
+  "sha256": {
+    "partial_metrics.json": "79f588da55b2f3183208ee5732ed30c9e91310a391f166570da225ae6a473ffd",
+    "profile.json": "7af166fc573ad2674a3e10aa932830891eac9a394b63ea8f23ca30399b70daa8",
+    "ordered_prediction_checksum_list": "7ee26719f607dd0d254755ce25f5741b1832db375159236b7a2429aea6a7fc47"
+  }
+}

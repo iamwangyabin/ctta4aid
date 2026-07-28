@@ -170,3 +170,16 @@ Throughput is stable at 5.50-5.51 images/s, bottleneck-rank latency is
 A6000/4090-1/4090-2. The 4090-1 figure includes 5,277 MiB of stale driver
 accounting present before launch, so rank-local PyTorch memory is the valid
 cross-run comparison. Eight-rank logs remain free of runtime errors.
+
+The 04:46 snapshot reaches ten completed domains and enters `imle`. Macro
+Acc/AP are 95.1660%/98.3126%. Against failed attempt 1 on exactly those ten
+domains, Acc changes by +0.0141 percentage points and AP by -0.0007 points;
+the replacement run is effectively identical rather than a selected retry.
+Against P1's two-step result on those domains, one step is +0.0662 points in
+Acc and +0.5250 points in AP. This remains provisional until all domains
+complete.
+
+The weak `guided` result is preserved at 72.9000% Acc / 95.9346% AP, including
+46.9000% fake accuracy. Throughput remains 5.44-5.51 images/s, rank-local peak
+allocation remains 8,437.55 MiB, all three physical-memory peaks are unchanged,
+and all eight rank logs remain free of execution errors.

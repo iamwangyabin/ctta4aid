@@ -627,6 +627,11 @@ preflight 全部通过，八个 ranks 已越过 barrier 并进入 `crn`。不得
 4090-1 的 23,731 MiB 物理读数含启动前已有的 5,277 MiB 驱动残留记账，跨 run
 显存比较以 rank-local PyTorch 峰值为准。
 
+04:46 attempt2 已完成前十域并进入 `imle`，宏平均为 95.1660% Acc /
+98.3126% AP。与故障 attempt1 同十域相比为 +0.0141/-0.0007 个百分点，恢复
+运行与原运行实质一致；`guided` 的 72.90% Acc / 95.93% AP 及 46.90% fake
+Accuracy 继续作为弱结果保留。吞吐、显存和八 rank 错误审计均稳定。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
