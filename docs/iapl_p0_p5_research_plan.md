@@ -545,6 +545,13 @@ P2、训练 seed100、训练 seed101 持平或略高。前五域宏平均升至 
 97.87% AP，但此前未见生成器的弱结果不被掩盖。SD1.5 随后进入 50/2000，
 八 ranks 健康且无执行错误。
 
+10:47，seed102 `stable_diffusion_v_1_5` 用 1:31:46 完成。16,000 个唯一
+预测独立复算为 99.9125% Acc / 99.9571% AP，real/fake accuracy 为
+99.9375%/99.8875%，无 padding。该结果与静态 Acc 和训练 seed100 持平，
+比 P2 高 0.18/0.09 Acc/AP 点，比训练 seed101 高 0.40/0.56 点。前六域
+宏平均为 83.59% Acc / 98.22% AP；两个 diffusion 域稳定且强，此前未见
+生成器仍是宏平均瓶颈。`VQDM` 随后进入 0/1500，八 ranks 健康。
+
 ## P4: inference ablations
 
 按推理代价从低到高运行 TTA steps、views、confidence selection 数量、entropy loss、

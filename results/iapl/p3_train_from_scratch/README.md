@@ -619,3 +619,11 @@ It matches or slightly exceeds static evaluation, P2, trained seed100, and
 trained seed101. The first five-domain mean rises to 80.33% Acc / 97.87% AP,
 without concealing the earlier unseen-generator failures. SD1.5 then entered
 50/2000 with all ranks healthy and no execution error.
+
+`stable_diffusion_v_1_5` completed at 10:47 after 1h31m46s. Its 16,000 unique
+predictions give 99.9125% Acc / 99.9571% AP and 99.9375% / 99.8875%
+real/fake accuracy without padding. It matches static Accuracy and trained
+seed100, while exceeding P2 by 0.18 / 0.09 Acc/AP points and trained seed101 by
+0.40 / 0.56 points. The first six-domain mean is 83.59% Acc / 98.22% AP. Both
+diffusion domains are stable and strong; the earlier unseen-generator failures
+remain the macro bottleneck. `VQDM` then entered 0/1500 with all ranks healthy.

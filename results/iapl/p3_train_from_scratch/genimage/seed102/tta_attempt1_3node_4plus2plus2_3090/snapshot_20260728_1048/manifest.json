@@ -1,0 +1,73 @@
+{
+  "experiment": "P3 GenImage seed102 official TTA running snapshot",
+  "status": "running_six_of_eight_domains_complete",
+  "observed_at": "2026-07-28T10:48:29+08:00",
+  "started_at": "2026-07-28T03:27:12+08:00",
+  "checkpoint_sha256": "5d94e1159367ec8b4f6fc70cf6e5b8856430cc9f676c60117349b0b92bf3f18f",
+  "world_size": 8,
+  "domains_completed": ["ADM", "BigGAN", "glide", "Midjourney", "stable_diffusion_v_1_4", "stable_diffusion_v_1_5"],
+  "active_domain": "VQDM",
+  "active_domain_progress": "0/1500",
+  "partial_metrics": {
+    "accuracy": 0.8358958333333333,
+    "average_precision": 0.9822175514212153,
+    "real_accuracy": 0.9997569444444445,
+    "fake_accuracy": 0.6720347222222222
+  },
+  "stable_diffusion_v_1_5": {
+    "dataset_size": 16000,
+    "samples_after_distributed_padding": 16000,
+    "unique_sampler_indices": 16000,
+    "duplicate_sampler_indices": 0,
+    "accuracy": 0.999125,
+    "average_precision": 0.9995705145496018,
+    "real_accuracy": 0.999375,
+    "fake_accuracy": 0.998875,
+    "delta_from_training_static": {
+      "accuracy": 0.000025,
+      "average_precision": -0.0004294854503982,
+      "real_accuracy": 0.000175,
+      "fake_accuracy": -0.000025
+    },
+    "delta_to_released_checkpoint_P2": {
+      "accuracy": 0.00175,
+      "average_precision": 0.0008716844354928,
+      "real_accuracy": 0.0035,
+      "fake_accuracy": 0.0
+    },
+    "delta_to_trained_seed100_tta": {
+      "accuracy": 0.0,
+      "average_precision": 0.0004422775721785,
+      "real_accuracy": -0.000125,
+      "fake_accuracy": 0.000125
+    },
+    "delta_to_trained_seed101_tta": {
+      "accuracy": 0.004,
+      "average_precision": 0.005572655284041,
+      "real_accuracy": 0.008,
+      "fake_accuracy": 0.0
+    }
+  },
+  "prediction_audit": {
+    "files": 6,
+    "dataset_size_sum": 76000,
+    "samples_after_distributed_padding": 76000,
+    "unique_index_sum": 76000,
+    "duplicate_sampler_indices": 0,
+    "prediction_sha256": {
+      "ADM.json": "aac6f633f2139c4d5b893056860894d794af7aa2a99b62574f737b6a28dc7994",
+      "BigGAN.json": "42d72a4b2fa8e2c600f4c11f21c6e8420170366af19e1fc82233469ba4242a17",
+      "glide.json": "c93b3dfc9b6ad095c8b4fa46b46d3af539ae600905dfa25664ef2a1a9b46f1a0",
+      "Midjourney.json": "b5b6583430870d5eef74772b321fb0c5c6dbf800f62075caa40c01936af48930",
+      "stable_diffusion_v_1_4.json": "5ae5e13783fab920d9324340da819ae3ceb56b896b926bfa03b28931646e36ae",
+      "stable_diffusion_v_1_5.json": "d7e6012898830d24dcb948e09e195ef0ff51cb05e4067a4d5cf0b0e56d995dab"
+    }
+  },
+  "process_audit": {
+    "all_eight_ranks_alive": true,
+    "all_three_launchers_alive": true,
+    "traceback_or_runtime_error_found": false,
+    "gpu_memory_mib": {"A6000": 37179, "3090": 18656, "4090-2": 19162}
+  },
+  "conclusion": "Seed102 stable_diffusion_v_1_5 reaches 99.91% Accuracy and 99.96% AP, matching static Accuracy and trained seed100 while exceeding P2 and trained seed101. The six-domain mean is 83.59% Accuracy and 98.22% AP. Both diffusion domains are stable and strong; the remaining macro deficit still comes from the earlier unseen-generator domains."
+}
