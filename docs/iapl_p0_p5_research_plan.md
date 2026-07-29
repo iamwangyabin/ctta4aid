@@ -714,6 +714,18 @@ seed、rank 布局、域顺序、checkpoint 和数据完全固定。八 ranks �
 rank0 进入 `crn`，A6000/3090/4090-2 初始显存为 37,175/18,652/19,154 MiB，
 均为 100% 利用率且无错误。后续变体未提前启动。
 
+21:14:52 `ois_off` 完成全部 19 域，最终为 94.6641% Acc / 98.2870% AP，
+real/fake Accuracy 为 96.8499%/92.4680%。相对本地 P1 的 OIS-on 对照，关闭
+OIS 使 Acc 和 fake Accuracy 分别下降 0.8282/2.2402 点，但 AP 和 real
+Accuracy 分别上升 1.0696/0.5749 点；`san` 单域下降 18.4091 Acc 点。由此保留
+“OIS 主要改善阈值校准和异常域稳定性，而非普遍提升排序 AP”的结论。
+
+结果审计和提交 `4e5d40c` 推送后，下一项 `select2` 已在三机通过脚本、NCCL、
+checkpoint、空输出、端口和真实 12,764 行 `crn` Arrow 预检；3090 只读 SSHFS
+与 4090-2 兼容驱动均正常。但 A6000 上另一用户的训练进程正使用 2,986 MiB，
+连续 SM 样本为 46-49%，此时启动会破坏 P4 耗时和物理显存曲线的公平性。未修改
+该进程，`select2` 保持未启动，后续心跳先复核干净 GPU 门槛再按顺序启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

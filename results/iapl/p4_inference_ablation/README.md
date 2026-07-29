@@ -442,3 +442,13 @@ reservation remain 8,437.54/8,776 MiB. Raw physical peaks are
 2,976 MiB process; the clean P4 plateau is 37,175 MiB. Every critical rank is
 on A6000. This completes ordered variant 4; `select2` is next and will not
 start until this audit is committed and pushed.
+
+After commit `4e5d40c` was pushed, `select2` passed the three-host code, NCCL,
+checkpoint, empty-output, port, and real 12,764-row `crn` Arrow preflight. The
+3090 read-only SSHFS backend and 4090-2 compatibility libraries remain healthy,
+and those two GPUs are idle. Launch is intentionally held at the final clean-GPU
+gate because another user's A6000 training process is now actively consuming
+2,986 MiB and 46-49% sampled SM utilization. Starting the four A6000 ranks would
+contaminate the latency and host-memory curves that P4 is meant to measure. The
+other process is not modified; `select2` remains unlaunched and will be retried
+when the required A6000 is clean.

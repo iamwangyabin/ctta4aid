@@ -1,0 +1,70 @@
+{
+  "experiment": "P4 select2 full UFD ablation",
+  "status": "waiting_for_clean_a6000",
+  "checked_at": "2026-07-29T21:30:32+08:00",
+  "protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 2,
+    "tta_entropy": "averaged",
+    "ois": true,
+    "seed": 100,
+    "master_addr": "192.168.10.2",
+    "master_port": 29663,
+    "domains": 19,
+    "dataset_size": 88353
+  },
+  "strict_order_prerequisite": {
+    "variant": "ois_off",
+    "status": "completed_and_audited",
+    "artifact": "results/iapl/p4_inference_ablation/ois_off/final",
+    "commit": "4e5d40c"
+  },
+  "passed_checks": {
+    "hosts_reachable": ["A6000", "3090", "4090-2"],
+    "remote_output_absent_on_all_hosts": true,
+    "master_port_free": true,
+    "checkpoint_and_clip_present": true,
+    "nccl_version": 23007,
+    "real_crn_arrow_smoke_rows": 12764,
+    "real_crn_arrow_smoke_passed_on_all_hosts": true,
+    "3090_sshfs_mounted_read_only": true,
+    "4090_2_driver_compat_present": true,
+    "scripts_match_on_all_hosts": true,
+    "script_sha256": {
+      "scripts/run_iapl_manual_ranks.sh": "4b009dc1e0dcce9b39a86c5204867ca1eb0ff9ecff44c92a4cb203a39f706e88",
+      "scripts/run_iapl_p4_ufd_ablation_node.sh": "7913234cd11002c721e0908f73be0ae9c985b727b90484f30a0935c1c42db86c"
+    },
+    "idle_hosts": {
+      "3090": {"memory_mib": 106, "utilization_percent": 0},
+      "4090-2": {"memory_mib": 252, "utilization_percent": 0}
+    }
+  },
+  "launch_gate": {
+    "passed": false,
+    "reason": "A separate user's training process is actively computing on the A6000 required for ranks 0-3, so launching now would invalidate the P4 latency and host-memory comparison.",
+    "shared_process": {
+      "user": "wangchenhao",
+      "pid": 520294,
+      "command": "python3 train_sharepara_moe_0406_loss.py",
+      "started_at": "2026-07-29T19:59:32+08:00",
+      "memory_mib": 2986,
+      "pmon_sm_utilization_percent_samples": [47, 49, 46],
+      "pmon_memory_utilization_percent_samples": [21, 23, 20]
+    },
+    "a6000_total_memory_mib": 3011,
+    "a6000_device_utilization_percent": 38,
+    "action": "Do not modify the other user's process. Keep select2 unlaunched and repeat the clean-GPU gate on the next heartbeat."
+  },
+  "data_policy": {
+    "A6000": "local verified UFD Arrow copy",
+    "3090": "read-only SSHFS mount of the verified 3070x2 UFD Arrow copy; failed /data is not accessed",
+    "4090-2": "local verified UFD Arrow copy"
+  }
+}

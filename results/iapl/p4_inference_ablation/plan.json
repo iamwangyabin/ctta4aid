@@ -125,7 +125,7 @@
       "profiling_note": "A separate user's 2,976 MiB A6000 process contaminates raw host-memory samples after 20:00:44; preserve raw data and use rank-local CUDA memory for attribution.",
       "result": "results/iapl/p4_inference_ablation/ois_off/final"
     },
-    {"order": 5, "variant": "select2", "views": 32, "tta_steps": 2, "selection_count": 2, "entropy": "averaged", "ois": true, "status": "pending"},
+    {"order": 5, "variant": "select2", "views": 32, "tta_steps": 2, "selection_count": 2, "entropy": "averaged", "ois": true, "status": "pending", "preflight_status": "waiting_for_clean_a6000", "preflight_checked_at": "2026-07-29T21:30:32+08:00", "prelaunch_audit": "results/iapl/p4_inference_ablation/select2/preflight_wait_20260729_2130.json"},
     {"order": 6, "variant": "select4", "views": 32, "tta_steps": 2, "selection_count": 4, "entropy": "averaged", "ois": true, "status": "pending"},
     {"order": 7, "variant": "pointwise", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "pointwise", "ois": true, "status": "pending"},
     {"order": 8, "variant": "baseline", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "pending"},
@@ -182,6 +182,9 @@
     ],
     "recovery_preflights": [
       "results/iapl/p4_inference_ablation/steps1/attempt2/recovery_preflight_3090_sshfs_20260729.json"
+    ],
+    "prelaunch_wait_audits": [
+      "results/iapl/p4_inference_ablation/select2/preflight_wait_20260729_2130.json"
     ],
     "completed_results": [
       "results/iapl/p4_inference_ablation/views8/final",
