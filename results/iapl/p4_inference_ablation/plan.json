@@ -108,7 +108,19 @@
         }
       ]
     },
-    {"order": 4, "variant": "ois_off", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": false, "status": "pending"},
+    {
+      "order": 4,
+      "variant": "ois_off",
+      "views": 32,
+      "tta_steps": 2,
+      "selection_count": 6,
+      "entropy": "averaged",
+      "ois": false,
+      "status": "running",
+      "started_at": "2026-07-29T12:59:58+08:00",
+      "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/ois_off",
+      "launch_audit": "results/iapl/p4_inference_ablation/ois_off/launch_20260729.json"
+    },
     {"order": 5, "variant": "select2", "views": 32, "tta_steps": 2, "selection_count": 2, "entropy": "averaged", "ois": true, "status": "pending"},
     {"order": 6, "variant": "select4", "views": 32, "tta_steps": 2, "selection_count": 4, "entropy": "averaged", "ois": true, "status": "pending"},
     {"order": 7, "variant": "pointwise", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "pointwise", "ois": true, "status": "pending"},
@@ -152,7 +164,8 @@
     ],
     "launch_audits": [
       "results/iapl/p4_inference_ablation/steps1/attempt2_launch_20260729.json",
-      "results/iapl/p4_inference_ablation/steps1/attempt3_launch_20260729.json"
+      "results/iapl/p4_inference_ablation/steps1/attempt3_launch_20260729.json",
+      "results/iapl/p4_inference_ablation/ois_off/launch_20260729.json"
     ],
     "recovery_preflights": [
       "results/iapl/p4_inference_ablation/steps1/attempt2/recovery_preflight_3090_sshfs_20260729.json"

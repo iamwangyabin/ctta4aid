@@ -707,6 +707,13 @@ AP 点；相对本地 P1 two-step 几乎相同 Acc（+0.0141 点），AP 高 0.6
 平均绝对概率差 0.00558。八 rank 无错误，全部进程退出，三机 GPU 已空闲；
 attempt1/2 失败记录完整保留。P4 下一项严格为 `ois_off`。
 
+`steps1` 最终审计并推送后，`ois_off` 在三机重新通过空输出、脚本哈希、NCCL、
+真实 `crn` Arrow、端口、GPU 与 SSHFS 预检，并于 12:59:58 使用端口 29662
+启动。该实验只把 OIS 从 true 改为 false，其余 views、TTA steps、选择数、熵、
+seed、rank 布局、域顺序、checkpoint 和数据完全固定。八 ranks 已越过 barrier，
+rank0 进入 `crn`，A6000/3090/4090-2 初始显存为 37,175/18,652/19,154 MiB，
+均为 100% 利用率且无错误。后续变体未提前启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

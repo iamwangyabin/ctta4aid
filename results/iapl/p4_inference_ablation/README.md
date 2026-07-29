@@ -315,3 +315,11 @@ It finds 431 threshold disagreements (0.4878%), 50,043 exactly equal
 probabilities, and a weighted mean absolute probability difference of 0.00558.
 The full run has no rank error, all processes exited, and all three GPUs
 returned to idle. Both failed attempts remain preserved. `ois_off` is next.
+
+After the final `steps1` audit and push, `ois_off` passed fresh preflight on all
+three hosts and launched at 12:59:58 on port 29662. This changes only OIS from
+true to false; views, TTA steps, selected views, entropy, seed, rank layout,
+domain order, checkpoint, and data remain fixed. All eight ranks crossed the
+barrier, rank 0 entered `crn`, and initial A6000/3090/4090-2 memory is
+37,175/18,652/19,154 MiB at 100% utilization. The 3090 read-only SSHFS mount
+remains live and no later variant has started.
