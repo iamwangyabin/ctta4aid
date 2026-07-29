@@ -389,3 +389,18 @@ result. Both outcomes remain in the run. Throughput spans 2.9078-3.0047
 images/s after the earlier transient slowdown, all critical ranks remain on
 A6000, and 63,575 unique samples, the SSHFS mount, memory records, and all rank
 logs pass the audit.
+
+The 19:47 snapshot reaches seventeen completed domains and continues into
+`stargan`. Macro Acc/AP are now 94.5387%/98.2081%. Relative to P1 on the same
+domains, OIS-off is 0.9104 Acc points lower despite AP being 1.0438 points
+higher. Real accuracy rises 0.6591 points while fake accuracy falls 2.4900
+points, exposing a substantial threshold tradeoff rather than a uniform gain.
+
+The main cause is a preserved `san` collapse: 74.7727% Acc and 89.1415% AP,
+with fake accuracy falling to 52.5114%. Relative to P1, this is -18.4091 Acc,
+-6.5173 AP, and -37.4429 fake-accuracy points on the complete 438-image domain.
+The distributed gather completed successfully on the healthy A6000/3090/
+4090-2 layout, so this is an accepted model result rather than a repeat of the
+earlier 4090-1 outage during attempt 2. No run is restarted or selected away.
+All 72,373 unique samples, profiles, memory monitors, SSHFS state, and rank logs
+pass the audit.
