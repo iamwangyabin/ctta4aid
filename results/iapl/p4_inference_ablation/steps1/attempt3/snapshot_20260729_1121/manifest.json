@@ -1,0 +1,89 @@
+{
+  "experiment": "P4 steps1 full UFD ablation",
+  "attempt": 3,
+  "snapshot_at": "2026-07-29T11:21:46+08:00",
+  "status": "running",
+  "domains_completed": 11,
+  "completed_domains": [
+    "crn",
+    "cyclegan",
+    "dalle",
+    "biggan",
+    "deepfake",
+    "gaugan",
+    "glide_50_27",
+    "glide_100_10",
+    "glide_100_27",
+    "guided",
+    "imle"
+  ],
+  "next_domain": "ldm_100",
+  "next_domain_progress": "50/250",
+  "rank_layout": {
+    "A6000": [0, 1, 2, 3],
+    "3090": [4, 5],
+    "4090-2": [6, 7]
+  },
+  "partial_macro_average": {
+    "accuracy": 0.948494130246056,
+    "average_precision": 0.9800330037514381,
+    "real_accuracy": 0.9631706438177766,
+    "fake_accuracy": 0.9338188018060517
+  },
+  "delta_to_attempt1_first10_domains": {
+    "accuracy": -0.00013265152526287238,
+    "average_precision": -8.132441566255366e-05,
+    "real_accuracy": -0.0001651966421011286,
+    "fake_accuracy": -0.00010000000000010001
+  },
+  "delta_to_attempt2_same_domains": {
+    "accuracy": -0.0002342193568913853,
+    "average_precision": -3.281842625879605e-06,
+    "real_accuracy": 5.3417168741631826e-05,
+    "fake_accuracy": -0.0005219354403934728
+  },
+  "delta_to_p1_two_steps_same_domains": {
+    "accuracy": -9.416904592995934e-06,
+    "average_precision": 0.006835888412493496,
+    "real_accuracy": -0.0007008408172047842,
+    "fake_accuracy": 0.0006818181818182278
+  },
+  "profile": {
+    "cluster_images_per_second_range": [5.398496196328737, 5.515450795623456],
+    "max_rank_mean_image_latency_ms_range": [1450.01633242416, 1478.5363963413688],
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "host_peak_memory_mib_so_far": {
+      "A6000": 37179,
+      "3090": 18652,
+      "4090-2": 19162
+    },
+    "critical_path_ranks": {
+      "crn": 1,
+      "cyclegan": 0,
+      "dalle": 0,
+      "biggan": 0,
+      "deepfake": 0,
+      "gaugan": 0,
+      "glide_50_27": 1,
+      "glide_100_10": 2,
+      "glide_100_27": 3,
+      "guided": 3,
+      "imle": 1
+    },
+    "sshfs_timing_audit": "Every completed domain is bottlenecked by an A6000 rank, not the 3090 SSHFS ranks."
+  },
+  "audit": {
+    "prediction_sample_counts_match_distributed_padding": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "3090_sshfs_mounted": true,
+    "reproducibility": "Attempt 3 differs from attempt 1 by at most 0.0133 Acc points and 0.0082 AP points over the shared first ten domains, and from attempt 2 by 0.0235 Acc points and 0.0004 AP points over all eleven domains.",
+    "policy": "Keep all attempts and continue attempt 3 through all 19 domains before starting ois_off."
+  },
+  "sha256": {
+    "partial_metrics.json": "f4bb9566f90be624f13f96f70debc59b4f6e3ad7d10c87eb38892e75d17c2386",
+    "profile.json": "22b7a6989819df3020563bf4bd77caa8bd39c285f2e5ff467e9ca7a8eeced4d7",
+    "ordered_prediction_checksum_list": "5f8c69dea28da2d998865a87649cac1279fa74f3b46a3e371fe824acb0e7feac"
+  }
+}

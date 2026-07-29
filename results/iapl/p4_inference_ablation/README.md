@@ -274,3 +274,15 @@ eight-domain difference is 0.0279 Acc points and 0.0114 AP points. Every domain
 still has an A6000 critical rank, throughput remains 5.40-5.47 images/s, the
 SSHFS mount is live, and no execution error appears in any of the eight rank
 logs.
+
+Remote monitoring recovered at 11:16 without an experiment interruption. The
+11:21 snapshot adds `glide_100_27`, `guided`, and `imle`; `ldm_100` is running.
+The eleven-domain one-step macro is 94.8494% Acc / 98.0033% AP. Against P1's
+two-step protocol on the same domains, Acc differs by only -0.0009 percentage
+points while AP improves by 0.6836 points.
+
+Attempt 3 remains reproducible after passing attempt 1's failure boundary. Its
+shared first ten domains differ from attempt 1 by at most 0.0133 Acc points and
+0.0082 AP points, while all eleven domains differ from attempt 2 by 0.0235 and
+0.0004 points. All critical ranks remain on A6000, all GPUs are active, the
+SSHFS mount remains live, and all eight rank logs remain error-free.

@@ -680,6 +680,13 @@ GPU。最终日志和资源曲线已归档；`san` 仍不计入，前十五域�
 最大复现偏差也仅 0.0279 Acc 点、0.0114 AP 点。八域关键路径继续全部位于
 A6000，SSHFS、吞吐、三机 GPU 和八 rank 错误审计均正常。
 
+11:16 远程监控恢复，期间实验未中断。11:21 attempt3 已完成
+`glide_100_27`、`guided`、`imle` 并进入 `ldm_100`，越过 attempt1 的十域
+故障边界。前十一域为 94.8494% Acc / 98.0033% AP；相对 P1 同域 two-step，
+Acc 仅低 0.0009 点，AP 高 0.6836 点。相对 attempt1 共享前十域最大偏差为
+0.0133/0.0082 Acc/AP 点，相对 attempt2 十一域为 0.0235/0.0004 点。三机、
+SSHFS、A6000 关键路径和八 rank 错误审计继续正常。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
