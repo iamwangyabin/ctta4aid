@@ -116,12 +116,14 @@
       "selection_count": 6,
       "entropy": "averaged",
       "ois": false,
-      "status": "running",
+      "status": "completed",
       "started_at": "2026-07-29T12:59:58+08:00",
+      "completed_at": "2026-07-29T21:14:52+08:00",
       "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/ois_off",
       "launch_audit": "results/iapl/p4_inference_ablation/ois_off/launch_20260729.json",
       "runtime_audit": "results/iapl/p4_inference_ablation/ois_off/runtime_audit_20260729_2018.json",
-      "profiling_note": "A separate user's 2,976 MiB A6000 process contaminates raw host-memory samples after 20:00:44; preserve raw data and use rank-local CUDA memory for attribution."
+      "profiling_note": "A separate user's 2,976 MiB A6000 process contaminates raw host-memory samples after 20:00:44; preserve raw data and use rank-local CUDA memory for attribution.",
+      "result": "results/iapl/p4_inference_ablation/ois_off/final"
     },
     {"order": 5, "variant": "select2", "views": 32, "tta_steps": 2, "selection_count": 2, "entropy": "averaged", "ois": true, "status": "pending"},
     {"order": 6, "variant": "select4", "views": 32, "tta_steps": 2, "selection_count": 4, "entropy": "averaged", "ois": true, "status": "pending"},
@@ -184,7 +186,8 @@
     "completed_results": [
       "results/iapl/p4_inference_ablation/views8/final",
       "results/iapl/p4_inference_ablation/views16/final",
-      "results/iapl/p4_inference_ablation/steps1/attempt3/final"
+      "results/iapl/p4_inference_ablation/steps1/attempt3/final",
+      "results/iapl/p4_inference_ablation/ois_off/final"
     ],
     "remote_output_root": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation"
   },

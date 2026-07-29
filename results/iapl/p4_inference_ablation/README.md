@@ -419,3 +419,26 @@ succeeded seconds later. Both peers reached its LAN address with 0% packet
 loss, NCCL sockets remained established, the GPU stayed at 100% utilization,
 and no rank error or experiment interruption occurred. This is recorded as a
 control-plane observation rather than an experiment failure.
+
+`ois_off` completed all 19 domains at 21:14:52 CST after 8h14m54s. Final
+Acc/AP are 94.6641%/98.2870%, with 96.8499% real and 92.4680% fake Accuracy.
+Relative to the matched local P1 OIS-on run, disabling OIS lowers Acc by
+0.8282 points and fake accuracy by 2.2402 points, while raising AP by 1.0696
+points and real accuracy by 0.5749 points. The 1,092 threshold disagreements
+on identical indices and labels confirm that OIS primarily changes calibration
+rather than uniformly improving ranking.
+
+The severe `san` result remains the clearest evidence for OIS: disabling it
+costs 18.4091 Acc points, 6.5173 AP points, and 37.4429 fake-accuracy points on
+that domain. OIS-off improves other domains, notably `seeingdark`, `imle`, and
+`crn`, so the accepted conclusion is a tradeoff rather than universal module
+dominance. The run processes all 88,353 unique samples, all rank processes
+exit cleanly, and no execution error appears in any rank log.
+
+The final critical-path sum is 29,602.64 s, or 2.9846 unique images/s and
+2,679.70 ms weighted bottleneck-rank latency. Per-rank peak allocation and
+reservation remain 8,437.54/8,776 MiB. Raw physical peaks are
+40,166/18,652/19,154 MiB, but the A6000 value includes the documented shared
+2,976 MiB process; the clean P4 plateau is 37,175 MiB. Every critical rank is
+on A6000. This completes ordered variant 4; `select2` is next and will not
+start until this audit is committed and pushed.

@@ -1,0 +1,135 @@
+{
+  "experiment": "P4 ois_off full UFD ablation",
+  "variant": "ois_off",
+  "status": "completed_and_audited",
+  "started_at": "2026-07-29T12:59:58+08:00",
+  "completed_at": "2026-07-29T21:14:52+08:00",
+  "elapsed_seconds": 29694,
+  "protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 6,
+    "tta_entropy": "averaged",
+    "ois": false,
+    "seed": 100,
+    "domains": 19,
+    "dataset_size": 88353,
+    "3090_data_backend": "read-only SSHFS mount of the verified 3070x2 UFD Arrow copy"
+  },
+  "metrics": {
+    "accuracy": 0.9466411639233027,
+    "average_precision": 0.9828704053327227,
+    "real_accuracy": 0.9684985534076054,
+    "fake_accuracy": 0.9246800501159048
+  },
+  "local_p1_ois_on": {
+    "accuracy": 0.9549230231997763,
+    "average_precision": 0.972173971158963,
+    "real_accuracy": 0.9627500452306085,
+    "fake_accuracy": 0.9470821121276851,
+    "delta_accuracy": -0.008281859276473624,
+    "delta_average_precision": 0.010696434173759761,
+    "delta_real_accuracy": 0.005748508176996903,
+    "delta_fake_accuracy": -0.0224020620117803
+  },
+  "prediction_comparison_to_p1": {
+    "samples": 88353,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 1092,
+    "threshold_disagreement_rate": 0.012359512410444468,
+    "exact_probability_matches": 43341,
+    "weighted_mean_absolute_probability_delta": 0.023733941105867018,
+    "max_absolute_probability_delta": 0.9999485015869141,
+    "largest_disagreement_domains": {
+      "imle": 365,
+      "crn": 344,
+      "san": 91,
+      "stylegan": 83,
+      "stargan": 36
+    }
+  },
+  "profile": {
+    "sum_domain_wall_seconds": 29602.64411367994,
+    "overall_unique_images_per_second": 2.9846320369459973,
+    "weighted_bottleneck_rank_latency_ms_per_image": 2679.699838298175,
+    "cluster_images_per_second_range": [2.906194063343701, 3.0147765300254146],
+    "max_rank_mean_image_latency_ms_range": [2653.5963512799935, 2752.7411541112488],
+    "max_rank_peak_allocated_mib": 8437.54443359375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "raw_host_peak_memory_mib": {
+      "A6000": 40166,
+      "3090": 18652,
+      "4090-2": 19154
+    },
+    "a6000_clean_p4_plateau_mib": 37175,
+    "a6000_observed_p4_process_memory_sum_mib": 37144,
+    "a6000_raw_peak_contaminated_by_other_user": true,
+    "all_critical_ranks_on_a6000": true,
+    "timing_caveat": "Another user's A6000 process allocated 2,976 MiB after 20:00:44. It showed no GPU compute use during checks, but latter stargan/stylegan timing remains conservatively flagged."
+  },
+  "notable_results_preserved": {
+    "san": {
+      "accuracy": 0.7477272727272727,
+      "average_precision": 0.8914148423340752,
+      "fake_accuracy": 0.5251141552511416,
+      "delta_to_p1_accuracy": -0.18409090909090908,
+      "delta_to_p1_average_precision": -0.06517314272145547
+    },
+    "guided": {
+      "accuracy": 0.7195,
+      "average_precision": 0.9171114859021031,
+      "fake_accuracy": 0.451
+    },
+    "seeingdark": {
+      "accuracy": 0.9527777777777777,
+      "average_precision": 0.977997349468474,
+      "delta_to_p1_accuracy": 0.0527777777777777,
+      "delta_to_p1_average_precision": 0.10365234749189312
+    }
+  },
+  "audit": {
+    "prediction_files": 19,
+    "samples_after_distributed_padding": 88376,
+    "prediction_sample_counts_match_distributed_padding": true,
+    "unique_sampler_indices_match_dataset_sizes": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "3090_sshfs_mounted_through_completion": true,
+    "all_p4_rank_processes_exited": true,
+    "post_run_gpu_memory_mib": {
+      "A6000_total_including_other_user": 3011,
+      "3090": 106,
+      "4090-2": 252
+    },
+    "runtime_audit": "results/iapl/p4_inference_ablation/ois_off/runtime_audit_20260729_2018.json"
+  },
+  "artifacts": {
+    "metrics": "final_metrics.json",
+    "profile": "profile.json",
+    "ois_on_vs_off_summary": "ois_on_vs_off_summary.json",
+    "p1_prediction_comparison": "p1_ois_on_prediction_comparison.json",
+    "steps1_prediction_comparison": "steps1_prediction_comparison.json",
+    "predictions": "predictions",
+    "rank_logs": "rank0.log through rank7.log",
+    "gpu_monitors": [
+      "gpu_monitor_ubuntu.csv",
+      "gpu_monitor_yabin-B760M-POWER-DDR4.csv",
+      "gpu_monitor_yabin-local4090-yaohui.csv"
+    ]
+  },
+  "sha256": {
+    "final_metrics.json": "14c707036669362a9b479c0dbc993d2c2227ccc678f1467e1a7fb80b31b09b1b",
+    "profile.json": "072a3495d88eae88923bb30826095174be14e75bf4dc305bd50dcaf5417bb17a",
+    "ois_on_vs_off_summary.json": "e9af086f90668c132716d6970de2b6371219018011560917ff98773056427e9f",
+    "p1_ois_on_prediction_comparison.json": "530b119c1aedc080b4fd24de6a97e77f9a54d5532fe1fcd6b6c31010605dc190",
+    "steps1_prediction_comparison.json": "44f700d83d4f0988b2266135515ed8016cbdb1e59c1be7dad3c54bd68ea3c2fa",
+    "ordered_prediction_checksum_list": "4e86564aa4fb928a42feff8ea8cb9f02698aa4ae882a284df15d086ae11d5372"
+  },
+  "conclusion": "Disabling OIS lowers macro Accuracy by 0.83 points and fake Accuracy by 2.24 points versus the matched local OIS-on reference, despite raising macro AP by 1.07 points and real Accuracy by 0.57 points. OIS mainly improves threshold calibration and prevents severe failures such as san; it is not a uniform AP improvement."
+}
