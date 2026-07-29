@@ -674,6 +674,12 @@ GPU。最终日志和资源曲线已归档；`san` 仍不计入，前十五域�
 全部位于 A6000，吞吐为 5.40-5.46 images/s；SSHFS 挂载、三机满载和八 rank
 错误审计继续正常。
 
+10:30 attempt3 已继续完成 `gaugan`、`glide_50_27`、`glide_100_10` 并进入
+`glide_100_27`。前八域 one-step TTA 为 97.5734% Acc / 98.4958% AP；相对 P1
+同域 two-step，Acc 仅低 0.0264 点而 AP 高 0.5547 点。相对 attempts 1/2 的
+最大复现偏差也仅 0.0279 Acc 点、0.0114 AP 点。八域关键路径继续全部位于
+A6000，SSHFS、吞吐、三机 GPU 和八 rank 错误审计均正常。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

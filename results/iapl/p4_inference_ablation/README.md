@@ -263,3 +263,14 @@ All five completed domains still place their critical path on A6000. Cluster
 throughput is 5.40-5.46 images/s, bottleneck latency is 1.47-1.48 s per image,
 the 3090 read-only SSHFS mount is live, and all eight rank logs remain free of
 execution errors.
+
+The 10:30 snapshot adds `gaugan`, `glide_50_27`, and `glide_100_10`; the next
+domain is `glide_100_27`. Across the first eight domains, one-step TTA reaches
+97.5734% Acc / 98.4958% AP. It is only 0.0264 percentage points below the P1
+two-step protocol in Acc while gaining 0.5547 AP points on the same domains.
+
+Attempt-3 reproducibility remains tight: against attempts 1 and 2, the maximum
+eight-domain difference is 0.0279 Acc points and 0.0114 AP points. Every domain
+still has an A6000 critical rank, throughput remains 5.40-5.47 images/s, the
+SSHFS mount is live, and no execution error appears in any of the eight rank
+logs.
