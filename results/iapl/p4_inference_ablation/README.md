@@ -452,3 +452,12 @@ gate because another user's A6000 training process is now actively consuming
 contaminate the latency and host-memory curves that P4 is meant to measure. The
 other process is not modified; `select2` remains unlaunched and will be retried
 when the required A6000 is clean.
+
+At 03:17:47 CST the shared process had exited without intervention and A6000
+returned to 17 MiB and 0% utilization. Fresh three-host output, port, GPU, and
+read-only SSHFS checks passed, so `select2` started worker-first at 03:18:49
+and completed the eight-rank launch at 03:19:19 on port 29663. All ranks crossed
+the barrier, rank 0 entered `crn`, and initial A6000/3090/4090-2 memory reached
+37,167/18,652/19,158 MiB at 100% utilization. The first rank-0 iteration took
+7.3004 s during warm-up, rank-local peak allocation reached 8,437 MiB, and no
+error appears in any of the eight logs. Later variants remain unlaunched.
