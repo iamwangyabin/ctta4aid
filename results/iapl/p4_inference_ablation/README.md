@@ -240,3 +240,15 @@ the read-only SSHFS mount and never accesses its failed `/data` filesystem.
 All runtime and launcher hashes match, all eight ranks crossed the barrier,
 rank 0 entered `crn`, and the initial memory/utilization readings are
 37,179/18,652/19,162 MiB at 100%. No later variant has been started.
+
+The 09:19 attempt-3 snapshot preserves `crn`, `cyclegan`, and `dalle` while
+`biggan` continues. Their macro Acc/AP are 96.6717%/97.7579%. Against attempts
+1 and 2 on exactly these domains, attempt 3 differs by at most 0.0131
+percentage points in Acc and 0.0100 points in AP, so the SSHFS recovery has not
+introduced a meaningful prediction shift.
+
+Throughput is 5.40-5.43 images/s and bottleneck-rank latency is 1.47-1.48 s per
+image. The critical rank is on A6000 for every completed domain; neither 3090
+SSHFS rank determines wall time. Rank-local allocation remains 8,437.55 MiB,
+host peaks remain 37,179/18,652/19,162 MiB, the SSHFS mount remains live, and
+all eight rank logs are free of execution errors.

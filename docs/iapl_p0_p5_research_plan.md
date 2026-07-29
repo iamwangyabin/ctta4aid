@@ -662,6 +662,12 @@ GPU。最终日志和资源曲线已归档；`san` 仍不计入，前十五域�
 越过 barrier，rank0 进入 `crn`；初始显存为 37,179/18,652/19,162 MiB，三机
 均 100% 利用率且无启动错误。后续 P4 变体仍未提前启动。
 
+09:19 attempt3 已完成 `crn`、`cyclegan`、`dalle` 三域并进入 `biggan`，宏平均
+为 96.6717% Acc / 97.7579% AP。相对 attempts 1/2 相同三域，Acc 最大只差
+0.0131 点、AP 最大只差 0.0100 点，SSHFS 恢复未引入实质预测漂移。吞吐为
+5.40-5.43 images/s，三个域的关键路径 rank 全在 A6000 而非 3090 SSHFS；挂载、
+显存和八 rank 错误审计均正常。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

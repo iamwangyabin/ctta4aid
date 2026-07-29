@@ -1,0 +1,57 @@
+{
+  "experiment": "P4 steps1 full UFD ablation",
+  "attempt": 3,
+  "snapshot_at": "2026-07-29T09:19:42+08:00",
+  "status": "running",
+  "domains_completed": 3,
+  "completed_domains": ["crn", "cyclegan", "dalle"],
+  "next_domain": "biggan",
+  "next_domain_progress": "50/500",
+  "rank_layout": {"A6000": [0, 1, 2, 3], "3090": [4, 5], "4090-2": [6, 7]},
+  "partial_macro_average": {
+    "accuracy": 0.9667171232461819,
+    "average_precision": 0.9775787285375613,
+    "real_accuracy": 0.9391329113162247,
+    "fake_accuracy": 0.9943333333333334
+  },
+  "delta_to_attempt1_same_domains": {
+    "accuracy": -0.0001305346700084531,
+    "average_precision": -0.00004526145397176773,
+    "real_accuracy": -0.0002609875769914449,
+    "fake_accuracy": 0.0
+  },
+  "delta_to_attempt2_same_domains": {
+    "accuracy": -0.00002610693400173547,
+    "average_precision": -0.00009979711659768742,
+    "real_accuracy": -0.000052197515398323845,
+    "fake_accuracy": 0.0
+  },
+  "delta_to_p1_two_steps_same_domains": {
+    "accuracy": -0.001208104601887472,
+    "average_precision": 0.009782458572254127,
+    "real_accuracy": -0.001751341814426488,
+    "fake_accuracy": -0.0006666666666665932
+  },
+  "profile": {
+    "cluster_images_per_second_range": [5.398496196328737, 5.434798409409988],
+    "max_rank_mean_image_latency_ms_range": [1471.5345688790806, 1478.5363963413688],
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "host_peak_memory_mib_so_far": {"A6000": 37179, "3090": 18652, "4090-2": 19162},
+    "critical_path_ranks": {"crn": 1, "cyclegan": 0, "dalle": 0},
+    "sshfs_timing_audit": "Every completed domain is bottlenecked by an A6000 rank, not the 3090 SSHFS ranks."
+  },
+  "audit": {
+    "prediction_sample_counts_match_distributed_padding": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "3090_sshfs_mounted": true,
+    "reproducibility": "Across the same first three domains, attempt 3 differs from attempts 1 and 2 by at most 0.0131 percentage points Acc and 0.0100 points AP.",
+    "policy": "Keep all attempts and continue attempt 3 through all 19 domains before starting ois_off."
+  },
+  "sha256": {
+    "partial_metrics.json": "50272e0857a5b3baf9da704e272266b21c46fea6dcfa9747af30e56b86c6aabe",
+    "profile.json": "c982c229b7f92b0024acab1455c85e4779943981b923dfa7978e6ab8a6abcc45",
+    "ordered_prediction_checksum_list": "65dc3a623daeef4615cc2209a70ce2a32bc2cdc6ea6d3556f2d2f50c93892af9"
+  }
+}
