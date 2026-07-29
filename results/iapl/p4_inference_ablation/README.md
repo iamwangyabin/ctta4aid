@@ -376,3 +376,16 @@ all critical ranks remain on A6000 and rank-local memory stays unchanged. The
 A6000 physical monitor briefly reaches 38,778 MiB while the other host peaks
 remain unchanged; all 44,811 unique samples, SSHFS state, and rank logs pass
 the audit.
+
+The 19:17 snapshot reaches fourteen completed domains while `progan`
+continues. Macro Acc/AP recover to 95.5077%/98.7569%. Against P1 on the same
+domains, disabling OIS is 0.1676 Acc points lower and 0.9926 AP points higher;
+against `steps1`, the differences are -0.1597 Acc and +0.4453 AP points.
+
+The recovery is driven in part by `imle`, where OIS-off gives 92.1288% Acc and
+98.8687% AP. Relative to P1, its Acc is 0.2271 points lower but AP is 6.2283
+points higher, the opposite AP direction from the preserved weak `guided`
+result. Both outcomes remain in the run. Throughput spans 2.9078-3.0047
+images/s after the earlier transient slowdown, all critical ranks remain on
+A6000, and 63,575 unique samples, the SSHFS mount, memory records, and all rank
+logs pass the audit.

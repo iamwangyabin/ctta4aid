@@ -1,0 +1,1518 @@
+{
+  "left": "results/iapl/p4_inference_ablation/ois_off/snapshot_20260729_1917/predictions",
+  "right": "results/iapl/p1_ufd_19domain_8rank_3node/predictions",
+  "domains": {
+    "biggan": {
+      "domain": "biggan",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 4000,
+      "right_samples_with_padding": 4000,
+      "left_duplicate_indices": 0,
+      "right_duplicate_indices": 0,
+      "common_unique_indices": 4000,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 4000,
+      "mean_absolute_probability_delta": 0.005466107308864593,
+      "max_absolute_probability_delta": 0.9967193603515625,
+      "probability_correlation": 0.9951936545805335,
+      "threshold_disagreements": 11,
+      "exact_probability_matches": 2051,
+      "by_label": {
+        "0": {
+          "samples": 2000,
+          "mean_absolute_probability_delta": 0.010249191164970398,
+          "max_absolute_probability_delta": 0.9967193603515625,
+          "probability_correlation": 0.8978929315323403,
+          "threshold_disagreements": 10,
+          "exact_probability_matches": 67
+        },
+        "1": {
+          "samples": 2000,
+          "mean_absolute_probability_delta": 0.0006830234527587891,
+          "max_absolute_probability_delta": 0.8486328125,
+          "probability_correlation": 0.9188769007474095,
+          "threshold_disagreements": 1,
+          "exact_probability_matches": 1984
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 544,
+          "label": 0,
+          "left_probability": 0.0032806396484375,
+          "right_probability": 1.0,
+          "absolute_delta": 0.9967193603515625
+        },
+        {
+          "index": 1550,
+          "label": 0,
+          "left_probability": 1.0,
+          "right_probability": 0.004913330078125,
+          "absolute_delta": 0.995086669921875
+        },
+        {
+          "index": 1150,
+          "label": 0,
+          "left_probability": 0.0185546875,
+          "right_probability": 1.0,
+          "absolute_delta": 0.9814453125
+        },
+        {
+          "index": 1096,
+          "label": 0,
+          "left_probability": 0.0267333984375,
+          "right_probability": 0.9921875,
+          "absolute_delta": 0.9654541015625
+        },
+        {
+          "index": 81,
+          "label": 0,
+          "left_probability": 0.9375,
+          "right_probability": 0.00014019012451171875,
+          "absolute_delta": 0.9373598098754883
+        },
+        {
+          "index": 480,
+          "label": 0,
+          "left_probability": 0.0654296875,
+          "right_probability": 1.0,
+          "absolute_delta": 0.9345703125
+        },
+        {
+          "index": 3874,
+          "label": 1,
+          "left_probability": 0.1513671875,
+          "right_probability": 1.0,
+          "absolute_delta": 0.8486328125
+        },
+        {
+          "index": 1064,
+          "label": 0,
+          "left_probability": 0.162109375,
+          "right_probability": 0.96875,
+          "absolute_delta": 0.806640625
+        },
+        {
+          "index": 1158,
+          "label": 0,
+          "left_probability": 0.7890625,
+          "right_probability": 0.0038299560546875,
+          "absolute_delta": 0.7852325439453125
+        },
+        {
+          "index": 68,
+          "label": 0,
+          "left_probability": 0.6796875,
+          "right_probability": 0.00860595703125,
+          "absolute_delta": 0.67108154296875
+        }
+      ]
+    },
+    "crn": {
+      "domain": "crn",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 12768,
+      "right_samples_with_padding": 12768,
+      "left_duplicate_indices": 4,
+      "right_duplicate_indices": 4,
+      "common_unique_indices": 12764,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 12764,
+      "mean_absolute_probability_delta": 0.05460994365408816,
+      "max_absolute_probability_delta": 0.931640625,
+      "probability_correlation": 0.9609553060168824,
+      "threshold_disagreements": 344,
+      "exact_probability_matches": 6514,
+      "by_label": {
+        "0": {
+          "samples": 6382,
+          "mean_absolute_probability_delta": 0.10921315450497983,
+          "max_absolute_probability_delta": 0.931640625,
+          "probability_correlation": 0.8392897839528332,
+          "threshold_disagreements": 344,
+          "exact_probability_matches": 143
+        },
+        "1": {
+          "samples": 6382,
+          "mean_absolute_probability_delta": 6.732803196490128e-06,
+          "max_absolute_probability_delta": 0.00390625,
+          "probability_correlation": null,
+          "threshold_disagreements": 0,
+          "exact_probability_matches": 6371
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 3042,
+          "label": 0,
+          "left_probability": 0.052734375,
+          "right_probability": 0.984375,
+          "absolute_delta": 0.931640625
+        },
+        {
+          "index": 1412,
+          "label": 0,
+          "left_probability": 0.07470703125,
+          "right_probability": 0.984375,
+          "absolute_delta": 0.90966796875
+        },
+        {
+          "index": 1825,
+          "label": 0,
+          "left_probability": 0.09130859375,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.90478515625
+        },
+        {
+          "index": 3208,
+          "label": 0,
+          "left_probability": 0.9765625,
+          "right_probability": 0.07470703125,
+          "absolute_delta": 0.90185546875
+        },
+        {
+          "index": 2389,
+          "label": 0,
+          "left_probability": 0.09423828125,
+          "right_probability": 0.9921875,
+          "absolute_delta": 0.89794921875
+        },
+        {
+          "index": 2752,
+          "label": 0,
+          "left_probability": 0.98828125,
+          "right_probability": 0.09521484375,
+          "absolute_delta": 0.89306640625
+        },
+        {
+          "index": 1999,
+          "label": 0,
+          "left_probability": 0.99609375,
+          "right_probability": 0.10498046875,
+          "absolute_delta": 0.89111328125
+        },
+        {
+          "index": 5717,
+          "label": 0,
+          "left_probability": 0.10107421875,
+          "right_probability": 0.9921875,
+          "absolute_delta": 0.89111328125
+        },
+        {
+          "index": 4143,
+          "label": 0,
+          "left_probability": 0.98828125,
+          "right_probability": 0.09814453125,
+          "absolute_delta": 0.89013671875
+        },
+        {
+          "index": 1535,
+          "label": 0,
+          "left_probability": 0.10693359375,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.88916015625
+        }
+      ]
+    },
+    "cyclegan": {
+      "domain": "cyclegan",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 2648,
+      "right_samples_with_padding": 2648,
+      "left_duplicate_indices": 6,
+      "right_duplicate_indices": 6,
+      "common_unique_indices": 2642,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 2642,
+      "mean_absolute_probability_delta": 0.0069068545513672865,
+      "max_absolute_probability_delta": 0.9984970092773438,
+      "probability_correlation": 0.9917192082317263,
+      "threshold_disagreements": 12,
+      "exact_probability_matches": 1364,
+      "by_label": {
+        "0": {
+          "samples": 1321,
+          "mean_absolute_probability_delta": 0.013807795022492332,
+          "max_absolute_probability_delta": 0.9984970092773438,
+          "probability_correlation": 0.8182369518540473,
+          "threshold_disagreements": 12,
+          "exact_probability_matches": 45
+        },
+        "1": {
+          "samples": 1321,
+          "mean_absolute_probability_delta": 5.914080242240727e-06,
+          "max_absolute_probability_delta": 0.00390625,
+          "probability_correlation": null,
+          "threshold_disagreements": 0,
+          "exact_probability_matches": 1319
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 120,
+          "label": 0,
+          "left_probability": 1.0,
+          "right_probability": 0.00150299072265625,
+          "absolute_delta": 0.9984970092773438
+        },
+        {
+          "index": 2399,
+          "label": 0,
+          "left_probability": 0.00433349609375,
+          "right_probability": 1.0,
+          "absolute_delta": 0.99566650390625
+        },
+        {
+          "index": 2510,
+          "label": 0,
+          "left_probability": 0.99609375,
+          "right_probability": 0.00555419921875,
+          "absolute_delta": 0.99053955078125
+        },
+        {
+          "index": 2497,
+          "label": 0,
+          "left_probability": 0.00970458984375,
+          "right_probability": 0.9921875,
+          "absolute_delta": 0.98248291015625
+        },
+        {
+          "index": 2421,
+          "label": 0,
+          "left_probability": 0.9765625,
+          "right_probability": 0.00021648406982421875,
+          "absolute_delta": 0.9763460159301758
+        },
+        {
+          "index": 1991,
+          "label": 0,
+          "left_probability": 0.96484375,
+          "right_probability": 0.0012054443359375,
+          "absolute_delta": 0.9636383056640625
+        },
+        {
+          "index": 195,
+          "label": 0,
+          "left_probability": 0.96484375,
+          "right_probability": 0.001983642578125,
+          "absolute_delta": 0.962860107421875
+        },
+        {
+          "index": 2448,
+          "label": 0,
+          "left_probability": 0.0517578125,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.9443359375
+        },
+        {
+          "index": 7,
+          "label": 0,
+          "left_probability": 0.08056640625,
+          "right_probability": 1.0,
+          "absolute_delta": 0.91943359375
+        },
+        {
+          "index": 1882,
+          "label": 0,
+          "left_probability": 0.76171875,
+          "right_probability": 0.010986328125,
+          "absolute_delta": 0.750732421875
+        }
+      ]
+    },
+    "dalle": {
+      "domain": "dalle",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 2000,
+      "right_samples_with_padding": 2000,
+      "left_duplicate_indices": 0,
+      "right_duplicate_indices": 0,
+      "common_unique_indices": 2000,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 2000,
+      "mean_absolute_probability_delta": 0.007276712775230408,
+      "max_absolute_probability_delta": 0.970947265625,
+      "probability_correlation": 0.9928889852443884,
+      "threshold_disagreements": 10,
+      "exact_probability_matches": 959,
+      "by_label": {
+        "0": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.006532559156417847,
+          "max_absolute_probability_delta": 0.814453125,
+          "probability_correlation": 0.7836981932751892,
+          "threshold_disagreements": 3,
+          "exact_probability_matches": 20
+        },
+        "1": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.008020866394042968,
+          "max_absolute_probability_delta": 0.970947265625,
+          "probability_correlation": 0.8416484824795122,
+          "threshold_disagreements": 7,
+          "exact_probability_matches": 939
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 1809,
+          "label": 1,
+          "left_probability": 0.021240234375,
+          "right_probability": 0.9921875,
+          "absolute_delta": 0.970947265625
+        },
+        {
+          "index": 1293,
+          "label": 1,
+          "left_probability": 0.057373046875,
+          "right_probability": 0.95703125,
+          "absolute_delta": 0.899658203125
+        },
+        {
+          "index": 1437,
+          "label": 1,
+          "left_probability": 0.0771484375,
+          "right_probability": 0.9765625,
+          "absolute_delta": 0.8994140625
+        },
+        {
+          "index": 1007,
+          "label": 1,
+          "left_probability": 0.1328125,
+          "right_probability": 0.98828125,
+          "absolute_delta": 0.85546875
+        },
+        {
+          "index": 732,
+          "label": 0,
+          "left_probability": 0.185546875,
+          "right_probability": 1.0,
+          "absolute_delta": 0.814453125
+        },
+        {
+          "index": 1190,
+          "label": 1,
+          "left_probability": 0.2421875,
+          "right_probability": 1.0,
+          "absolute_delta": 0.7578125
+        },
+        {
+          "index": 1754,
+          "label": 1,
+          "left_probability": 0.29296875,
+          "right_probability": 1.0,
+          "absolute_delta": 0.70703125
+        },
+        {
+          "index": 1993,
+          "label": 1,
+          "left_probability": 0.2734375,
+          "right_probability": 0.9453125,
+          "absolute_delta": 0.671875
+        },
+        {
+          "index": 584,
+          "label": 0,
+          "left_probability": 0.59375,
+          "right_probability": 0.0010986328125,
+          "absolute_delta": 0.5926513671875
+        },
+        {
+          "index": 73,
+          "label": 0,
+          "left_probability": 0.515625,
+          "right_probability": 0.0001583099365234375,
+          "absolute_delta": 0.5154666900634766
+        }
+      ]
+    },
+    "deepfake": {
+      "domain": "deepfake",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 5408,
+      "right_samples_with_padding": 5408,
+      "left_duplicate_indices": 3,
+      "right_duplicate_indices": 3,
+      "common_unique_indices": 5405,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 5405,
+      "mean_absolute_probability_delta": 0.03131031870952257,
+      "max_absolute_probability_delta": 0.99017333984375,
+      "probability_correlation": 0.9873095586660279,
+      "threshold_disagreements": 29,
+      "exact_probability_matches": 1724,
+      "by_label": {
+        "0": {
+          "samples": 2707,
+          "mean_absolute_probability_delta": 0.04580436177389358,
+          "max_absolute_probability_delta": 0.99017333984375,
+          "probability_correlation": 0.7303874512167003,
+          "threshold_disagreements": 17,
+          "exact_probability_matches": 40
+        },
+        "1": {
+          "samples": 2698,
+          "mean_absolute_probability_delta": 0.01676792635398056,
+          "max_absolute_probability_delta": 0.8080596923828125,
+          "probability_correlation": 0.9662225390822534,
+          "threshold_disagreements": 12,
+          "exact_probability_matches": 1684
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 2606,
+          "label": 0,
+          "left_probability": 0.00592041015625,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.99017333984375
+        },
+        {
+          "index": 1861,
+          "label": 0,
+          "left_probability": 0.99609375,
+          "right_probability": 0.0272216796875,
+          "absolute_delta": 0.9688720703125
+        },
+        {
+          "index": 434,
+          "label": 0,
+          "left_probability": 0.96875,
+          "right_probability": 0.018310546875,
+          "absolute_delta": 0.950439453125
+        },
+        {
+          "index": 2040,
+          "label": 0,
+          "left_probability": 0.89453125,
+          "right_probability": 0.000518798828125,
+          "absolute_delta": 0.894012451171875
+        },
+        {
+          "index": 2042,
+          "label": 0,
+          "left_probability": 0.8984375,
+          "right_probability": 0.006683349609375,
+          "absolute_delta": 0.891754150390625
+        },
+        {
+          "index": 3740,
+          "label": 1,
+          "left_probability": 0.80859375,
+          "right_probability": 0.0005340576171875,
+          "absolute_delta": 0.8080596923828125
+        },
+        {
+          "index": 2048,
+          "label": 0,
+          "left_probability": 0.82421875,
+          "right_probability": 0.03466796875,
+          "absolute_delta": 0.78955078125
+        },
+        {
+          "index": 2940,
+          "label": 1,
+          "left_probability": 0.212890625,
+          "right_probability": 0.98828125,
+          "absolute_delta": 0.775390625
+        },
+        {
+          "index": 4009,
+          "label": 1,
+          "left_probability": 0.1953125,
+          "right_probability": 0.96875,
+          "absolute_delta": 0.7734375
+        },
+        {
+          "index": 1479,
+          "label": 0,
+          "left_probability": 0.76171875,
+          "right_probability": 0.0263671875,
+          "absolute_delta": 0.7353515625
+        }
+      ]
+    },
+    "gaugan": {
+      "domain": "gaugan",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 10000,
+      "right_samples_with_padding": 10000,
+      "left_duplicate_indices": 0,
+      "right_duplicate_indices": 0,
+      "common_unique_indices": 10000,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 10000,
+      "mean_absolute_probability_delta": 0.003878689968585968,
+      "max_absolute_probability_delta": 0.98675537109375,
+      "probability_correlation": 0.9977148914399108,
+      "threshold_disagreements": 13,
+      "exact_probability_matches": 5148,
+      "by_label": {
+        "0": {
+          "samples": 5000,
+          "mean_absolute_probability_delta": 0.007754206109046936,
+          "max_absolute_probability_delta": 0.98675537109375,
+          "probability_correlation": 0.8945276209637738,
+          "threshold_disagreements": 13,
+          "exact_probability_matches": 149
+        },
+        "1": {
+          "samples": 5000,
+          "mean_absolute_probability_delta": 3.173828125e-06,
+          "max_absolute_probability_delta": 0.015869140625,
+          "probability_correlation": 0.9999999999999992,
+          "threshold_disagreements": 0,
+          "exact_probability_matches": 4999
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 3304,
+          "label": 0,
+          "left_probability": 0.01324462890625,
+          "right_probability": 1.0,
+          "absolute_delta": 0.98675537109375
+        },
+        {
+          "index": 3402,
+          "label": 0,
+          "left_probability": 0.0174560546875,
+          "right_probability": 1.0,
+          "absolute_delta": 0.9825439453125
+        },
+        {
+          "index": 1668,
+          "label": 0,
+          "left_probability": 0.0225830078125,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.9735107421875
+        },
+        {
+          "index": 3723,
+          "label": 0,
+          "left_probability": 0.984375,
+          "right_probability": 0.01165771484375,
+          "absolute_delta": 0.97271728515625
+        },
+        {
+          "index": 1498,
+          "label": 0,
+          "left_probability": 0.03369140625,
+          "right_probability": 1.0,
+          "absolute_delta": 0.96630859375
+        },
+        {
+          "index": 3020,
+          "label": 0,
+          "left_probability": 0.9140625,
+          "right_probability": 0.0008544921875,
+          "absolute_delta": 0.9132080078125
+        },
+        {
+          "index": 3103,
+          "label": 0,
+          "left_probability": 0.1640625,
+          "right_probability": 1.0,
+          "absolute_delta": 0.8359375
+        },
+        {
+          "index": 2164,
+          "label": 0,
+          "left_probability": 0.1689453125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.8310546875
+        },
+        {
+          "index": 168,
+          "label": 0,
+          "left_probability": 0.84765625,
+          "right_probability": 0.0390625,
+          "absolute_delta": 0.80859375
+        },
+        {
+          "index": 1820,
+          "label": 0,
+          "left_probability": 0.80859375,
+          "right_probability": 0.000667572021484375,
+          "absolute_delta": 0.8079261779785156
+        }
+      ]
+    },
+    "glide_100_10": {
+      "domain": "glide_100_10",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 2000,
+      "right_samples_with_padding": 2000,
+      "left_duplicate_indices": 0,
+      "right_duplicate_indices": 0,
+      "common_unique_indices": 2000,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 2000,
+      "mean_absolute_probability_delta": 0.007866928577423096,
+      "max_absolute_probability_delta": 0.888671875,
+      "probability_correlation": 0.9957026115791986,
+      "threshold_disagreements": 5,
+      "exact_probability_matches": 879,
+      "by_label": {
+        "0": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.006427361488342285,
+          "max_absolute_probability_delta": 0.638671875,
+          "probability_correlation": 0.813693226428171,
+          "threshold_disagreements": 2,
+          "exact_probability_matches": 18
+        },
+        "1": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.009306495666503906,
+          "max_absolute_probability_delta": 0.888671875,
+          "probability_correlation": 0.9511779716330233,
+          "threshold_disagreements": 3,
+          "exact_probability_matches": 861
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 1361,
+          "label": 1,
+          "left_probability": 0.111328125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.888671875
+        },
+        {
+          "index": 1469,
+          "label": 1,
+          "left_probability": 0.1416015625,
+          "right_probability": 0.98828125,
+          "absolute_delta": 0.8466796875
+        },
+        {
+          "index": 944,
+          "label": 0,
+          "left_probability": 0.361328125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.638671875
+        },
+        {
+          "index": 1448,
+          "label": 1,
+          "left_probability": 0.4453125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.5546875
+        },
+        {
+          "index": 73,
+          "label": 0,
+          "left_probability": 0.53515625,
+          "right_probability": 9.632110595703125e-05,
+          "absolute_delta": 0.535059928894043
+        },
+        {
+          "index": 994,
+          "label": 0,
+          "left_probability": 0.45703125,
+          "right_probability": 0.0004730224609375,
+          "absolute_delta": 0.4565582275390625
+        },
+        {
+          "index": 127,
+          "label": 0,
+          "left_probability": 0.458984375,
+          "right_probability": 0.00592041015625,
+          "absolute_delta": 0.45306396484375
+        },
+        {
+          "index": 1020,
+          "label": 1,
+          "left_probability": 0.71875,
+          "right_probability": 0.98046875,
+          "absolute_delta": 0.26171875
+        },
+        {
+          "index": 1209,
+          "label": 1,
+          "left_probability": 0.73828125,
+          "right_probability": 0.9921875,
+          "absolute_delta": 0.25390625
+        },
+        {
+          "index": 732,
+          "label": 0,
+          "left_probability": 0.7578125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.2421875
+        }
+      ]
+    },
+    "glide_100_27": {
+      "domain": "glide_100_27",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 2000,
+      "right_samples_with_padding": 2000,
+      "left_duplicate_indices": 0,
+      "right_duplicate_indices": 0,
+      "common_unique_indices": 2000,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 2000,
+      "mean_absolute_probability_delta": 0.008055042177438736,
+      "max_absolute_probability_delta": 0.99578857421875,
+      "probability_correlation": 0.9923455763016411,
+      "threshold_disagreements": 8,
+      "exact_probability_matches": 925,
+      "by_label": {
+        "0": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.007409447491168976,
+          "max_absolute_probability_delta": 0.99578857421875,
+          "probability_correlation": 0.5815840794571626,
+          "threshold_disagreements": 3,
+          "exact_probability_matches": 34
+        },
+        "1": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.008700636863708497,
+          "max_absolute_probability_delta": 0.993896484375,
+          "probability_correlation": 0.9351385414725142,
+          "threshold_disagreements": 5,
+          "exact_probability_matches": 891
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 943,
+          "label": 0,
+          "left_probability": 0.00421142578125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.99578857421875
+        },
+        {
+          "index": 1532,
+          "label": 1,
+          "left_probability": 0.006103515625,
+          "right_probability": 1.0,
+          "absolute_delta": 0.993896484375
+        },
+        {
+          "index": 199,
+          "label": 0,
+          "left_probability": 0.01544189453125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.98455810546875
+        },
+        {
+          "index": 1132,
+          "label": 1,
+          "left_probability": 0.0247802734375,
+          "right_probability": 0.98828125,
+          "absolute_delta": 0.9635009765625
+        },
+        {
+          "index": 1813,
+          "label": 1,
+          "left_probability": 0.07568359375,
+          "right_probability": 1.0,
+          "absolute_delta": 0.92431640625
+        },
+        {
+          "index": 1892,
+          "label": 1,
+          "left_probability": 0.08056640625,
+          "right_probability": 1.0,
+          "absolute_delta": 0.91943359375
+        },
+        {
+          "index": 1495,
+          "label": 1,
+          "left_probability": 0.69921875,
+          "right_probability": 0.00592041015625,
+          "absolute_delta": 0.69329833984375
+        },
+        {
+          "index": 73,
+          "label": 0,
+          "left_probability": 0.62109375,
+          "right_probability": 0.000667572021484375,
+          "absolute_delta": 0.6204261779785156
+        },
+        {
+          "index": 1942,
+          "label": 1,
+          "left_probability": 0.64453125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.35546875
+        },
+        {
+          "index": 1034,
+          "label": 1,
+          "left_probability": 0.4921875,
+          "right_probability": 0.1708984375,
+          "absolute_delta": 0.3212890625
+        }
+      ]
+    },
+    "glide_50_27": {
+      "domain": "glide_50_27",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 2000,
+      "right_samples_with_padding": 2000,
+      "left_duplicate_indices": 0,
+      "right_duplicate_indices": 0,
+      "common_unique_indices": 2000,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 2000,
+      "mean_absolute_probability_delta": 0.00750246387720108,
+      "max_absolute_probability_delta": 0.99835205078125,
+      "probability_correlation": 0.9948799249738269,
+      "threshold_disagreements": 5,
+      "exact_probability_matches": 914,
+      "by_label": {
+        "0": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.008223443150520324,
+          "max_absolute_probability_delta": 0.99835205078125,
+          "probability_correlation": 0.5456983295547468,
+          "threshold_disagreements": 3,
+          "exact_probability_matches": 31
+        },
+        "1": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.006781484603881836,
+          "max_absolute_probability_delta": 0.7255859375,
+          "probability_correlation": 0.9654808782369639,
+          "threshold_disagreements": 2,
+          "exact_probability_matches": 883
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 199,
+          "label": 0,
+          "left_probability": 0.00164794921875,
+          "right_probability": 1.0,
+          "absolute_delta": 0.99835205078125
+        },
+        {
+          "index": 321,
+          "label": 0,
+          "left_probability": 0.03515625,
+          "right_probability": 1.0,
+          "absolute_delta": 0.96484375
+        },
+        {
+          "index": 1437,
+          "label": 1,
+          "left_probability": 0.87109375,
+          "right_probability": 0.1455078125,
+          "absolute_delta": 0.7255859375
+        },
+        {
+          "index": 1232,
+          "label": 1,
+          "left_probability": 0.3828125,
+          "right_probability": 0.984375,
+          "absolute_delta": 0.6015625
+        },
+        {
+          "index": 73,
+          "label": 0,
+          "left_probability": 0.5703125,
+          "right_probability": 0.0001583099365234375,
+          "absolute_delta": 0.5701541900634766
+        },
+        {
+          "index": 944,
+          "label": 0,
+          "left_probability": 0.474609375,
+          "right_probability": 0.000667572021484375,
+          "absolute_delta": 0.4739418029785156
+        },
+        {
+          "index": 1096,
+          "label": 1,
+          "left_probability": 0.5859375,
+          "right_probability": 0.98828125,
+          "absolute_delta": 0.40234375
+        },
+        {
+          "index": 964,
+          "label": 0,
+          "left_probability": 0.404296875,
+          "right_probability": 0.002471923828125,
+          "absolute_delta": 0.401824951171875
+        },
+        {
+          "index": 1730,
+          "label": 1,
+          "left_probability": 0.365234375,
+          "right_probability": 0.0028076171875,
+          "absolute_delta": 0.3624267578125
+        },
+        {
+          "index": 127,
+          "label": 0,
+          "left_probability": 0.359375,
+          "right_probability": 0.006683349609375,
+          "absolute_delta": 0.352691650390625
+        }
+      ]
+    },
+    "guided": {
+      "domain": "guided",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 2000,
+      "right_samples_with_padding": 2000,
+      "left_duplicate_indices": 0,
+      "right_duplicate_indices": 0,
+      "common_unique_indices": 2000,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 2000,
+      "mean_absolute_probability_delta": 0.029240190863609315,
+      "max_absolute_probability_delta": 0.9997043609619141,
+      "probability_correlation": 0.9692487650163627,
+      "threshold_disagreements": 25,
+      "exact_probability_matches": 362,
+      "by_label": {
+        "0": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.02150187087059021,
+          "max_absolute_probability_delta": 0.9997043609619141,
+          "probability_correlation": 0.534760119402423,
+          "threshold_disagreements": 13,
+          "exact_probability_matches": 18
+        },
+        "1": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.03697851085662842,
+          "max_absolute_probability_delta": 0.947509765625,
+          "probability_correlation": 0.9761509857531889,
+          "threshold_disagreements": 12,
+          "exact_probability_matches": 344
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 458,
+          "label": 0,
+          "left_probability": 0.0002956390380859375,
+          "right_probability": 1.0,
+          "absolute_delta": 0.9997043609619141
+        },
+        {
+          "index": 309,
+          "label": 0,
+          "left_probability": 0.99609375,
+          "right_probability": 0.00186920166015625,
+          "absolute_delta": 0.9942245483398438
+        },
+        {
+          "index": 277,
+          "label": 0,
+          "left_probability": 0.984375,
+          "right_probability": 0.00592041015625,
+          "absolute_delta": 0.97845458984375
+        },
+        {
+          "index": 1994,
+          "label": 1,
+          "left_probability": 0.040771484375,
+          "right_probability": 0.98828125,
+          "absolute_delta": 0.947509765625
+        },
+        {
+          "index": 1136,
+          "label": 1,
+          "left_probability": 0.052734375,
+          "right_probability": 1.0,
+          "absolute_delta": 0.947265625
+        },
+        {
+          "index": 71,
+          "label": 0,
+          "left_probability": 0.06103515625,
+          "right_probability": 1.0,
+          "absolute_delta": 0.93896484375
+        },
+        {
+          "index": 1132,
+          "label": 1,
+          "left_probability": 0.06103515625,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.93505859375
+        },
+        {
+          "index": 493,
+          "label": 0,
+          "left_probability": 0.921875,
+          "right_probability": 0.0003681182861328125,
+          "absolute_delta": 0.9215068817138672
+        },
+        {
+          "index": 1666,
+          "label": 1,
+          "left_probability": 0.09814453125,
+          "right_probability": 0.9921875,
+          "absolute_delta": 0.89404296875
+        },
+        {
+          "index": 749,
+          "label": 0,
+          "left_probability": 0.126953125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.873046875
+        }
+      ]
+    },
+    "imle": {
+      "domain": "imle",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 12768,
+      "right_samples_with_padding": 12768,
+      "left_duplicate_indices": 4,
+      "right_duplicate_indices": 4,
+      "common_unique_indices": 12764,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 12764,
+      "mean_absolute_probability_delta": 0.05541789916494878,
+      "max_absolute_probability_delta": 0.92529296875,
+      "probability_correlation": 0.9585013028168425,
+      "threshold_disagreements": 365,
+      "exact_probability_matches": 6528,
+      "by_label": {
+        "0": {
+          "samples": 6382,
+          "mean_absolute_probability_delta": 0.1108351862568797,
+          "max_absolute_probability_delta": 0.92529296875,
+          "probability_correlation": 0.8318843663043197,
+          "threshold_disagreements": 365,
+          "exact_probability_matches": 147
+        },
+        "1": {
+          "samples": 6382,
+          "mean_absolute_probability_delta": 6.120730178627389e-07,
+          "max_absolute_probability_delta": 0.00390625,
+          "probability_correlation": null,
+          "threshold_disagreements": 0,
+          "exact_probability_matches": 6381
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 3484,
+          "label": 0,
+          "left_probability": 0.07470703125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.92529296875
+        },
+        {
+          "index": 2773,
+          "label": 0,
+          "left_probability": 0.055908203125,
+          "right_probability": 0.9765625,
+          "absolute_delta": 0.920654296875
+        },
+        {
+          "index": 2988,
+          "label": 0,
+          "left_probability": 0.984375,
+          "right_probability": 0.0654296875,
+          "absolute_delta": 0.9189453125
+        },
+        {
+          "index": 3754,
+          "label": 0,
+          "left_probability": 0.0654296875,
+          "right_probability": 0.984375,
+          "absolute_delta": 0.9189453125
+        },
+        {
+          "index": 4868,
+          "label": 0,
+          "left_probability": 0.9921875,
+          "right_probability": 0.078125,
+          "absolute_delta": 0.9140625
+        },
+        {
+          "index": 5472,
+          "label": 0,
+          "left_probability": 0.07275390625,
+          "right_probability": 0.984375,
+          "absolute_delta": 0.91162109375
+        },
+        {
+          "index": 5098,
+          "label": 0,
+          "left_probability": 0.049560546875,
+          "right_probability": 0.9609375,
+          "absolute_delta": 0.911376953125
+        },
+        {
+          "index": 522,
+          "label": 0,
+          "left_probability": 0.98828125,
+          "right_probability": 0.0791015625,
+          "absolute_delta": 0.9091796875
+        },
+        {
+          "index": 2327,
+          "label": 0,
+          "left_probability": 0.0888671875,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.9072265625
+        },
+        {
+          "index": 4143,
+          "label": 0,
+          "left_probability": 0.98046875,
+          "right_probability": 0.08056640625,
+          "absolute_delta": 0.89990234375
+        }
+      ]
+    },
+    "ldm_100": {
+      "domain": "ldm_100",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 2000,
+      "right_samples_with_padding": 2000,
+      "left_duplicate_indices": 0,
+      "right_duplicate_indices": 0,
+      "common_unique_indices": 2000,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 2000,
+      "mean_absolute_probability_delta": 0.004166708707809448,
+      "max_absolute_probability_delta": 0.89111328125,
+      "probability_correlation": 0.9975491595396694,
+      "threshold_disagreements": 3,
+      "exact_probability_matches": 989,
+      "by_label": {
+        "0": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.00543760871887207,
+          "max_absolute_probability_delta": 0.5694007873535156,
+          "probability_correlation": 0.8821905550239364,
+          "threshold_disagreements": 1,
+          "exact_probability_matches": 23
+        },
+        "1": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.002895808696746826,
+          "max_absolute_probability_delta": 0.89111328125,
+          "probability_correlation": 0.9298831072924522,
+          "threshold_disagreements": 2,
+          "exact_probability_matches": 966
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 1145,
+          "label": 1,
+          "left_probability": 0.10498046875,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.89111328125
+        },
+        {
+          "index": 1102,
+          "label": 1,
+          "left_probability": 0.81640625,
+          "right_probability": 0.0005035400390625,
+          "absolute_delta": 0.8159027099609375
+        },
+        {
+          "index": 944,
+          "label": 0,
+          "left_probability": 0.5703125,
+          "right_probability": 0.000911712646484375,
+          "absolute_delta": 0.5694007873535156
+        },
+        {
+          "index": 1055,
+          "label": 1,
+          "left_probability": 0.671875,
+          "right_probability": 1.0,
+          "absolute_delta": 0.328125
+        },
+        {
+          "index": 964,
+          "label": 0,
+          "left_probability": 0.30078125,
+          "right_probability": 0.00070953369140625,
+          "absolute_delta": 0.30007171630859375
+        },
+        {
+          "index": 1299,
+          "label": 1,
+          "left_probability": 0.28125,
+          "right_probability": 0.0247802734375,
+          "absolute_delta": 0.2564697265625
+        },
+        {
+          "index": 732,
+          "label": 0,
+          "left_probability": 0.76953125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.23046875
+        },
+        {
+          "index": 926,
+          "label": 0,
+          "left_probability": 0.2255859375,
+          "right_probability": 0.0023956298828125,
+          "absolute_delta": 0.2231903076171875
+        },
+        {
+          "index": 1851,
+          "label": 1,
+          "left_probability": 0.7890625,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.20703125
+        },
+        {
+          "index": 431,
+          "label": 0,
+          "left_probability": 0.1923828125,
+          "right_probability": 0.000148773193359375,
+          "absolute_delta": 0.19223403930664062
+        }
+      ]
+    },
+    "ldm_200": {
+      "domain": "ldm_200",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 2000,
+      "right_samples_with_padding": 2000,
+      "left_duplicate_indices": 0,
+      "right_duplicate_indices": 0,
+      "common_unique_indices": 2000,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 2000,
+      "mean_absolute_probability_delta": 0.004936085045337677,
+      "max_absolute_probability_delta": 0.9927215576171875,
+      "probability_correlation": 0.9952031534383277,
+      "threshold_disagreements": 5,
+      "exact_probability_matches": 1004,
+      "by_label": {
+        "0": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.00913405478000641,
+          "max_absolute_probability_delta": 0.9927215576171875,
+          "probability_correlation": 0.3917210061530817,
+          "threshold_disagreements": 4,
+          "exact_probability_matches": 25
+        },
+        "1": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.0007381153106689453,
+          "max_absolute_probability_delta": 0.52734375,
+          "probability_correlation": 0.9753973102471255,
+          "threshold_disagreements": 1,
+          "exact_probability_matches": 979
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 24,
+          "label": 0,
+          "left_probability": 0.0033721923828125,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.9927215576171875
+        },
+        {
+          "index": 199,
+          "label": 0,
+          "left_probability": 0.007354736328125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.992645263671875
+        },
+        {
+          "index": 964,
+          "label": 0,
+          "left_probability": 0.046142578125,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.949951171875
+        },
+        {
+          "index": 732,
+          "label": 0,
+          "left_probability": 0.2041015625,
+          "right_probability": 1.0,
+          "absolute_delta": 0.7958984375
+        },
+        {
+          "index": 1090,
+          "label": 1,
+          "left_probability": 0.47265625,
+          "right_probability": 1.0,
+          "absolute_delta": 0.52734375
+        },
+        {
+          "index": 584,
+          "label": 0,
+          "left_probability": 0.5,
+          "right_probability": 0.0025482177734375,
+          "absolute_delta": 0.4974517822265625
+        },
+        {
+          "index": 73,
+          "label": 0,
+          "left_probability": 0.482421875,
+          "right_probability": 7.009506225585938e-05,
+          "absolute_delta": 0.48235177993774414
+        },
+        {
+          "index": 944,
+          "label": 0,
+          "left_probability": 0.482421875,
+          "right_probability": 0.00040435791015625,
+          "absolute_delta": 0.48201751708984375
+        },
+        {
+          "index": 127,
+          "label": 0,
+          "left_probability": 0.228515625,
+          "right_probability": 0.003936767578125,
+          "absolute_delta": 0.224578857421875
+        },
+        {
+          "index": 926,
+          "label": 0,
+          "left_probability": 0.2236328125,
+          "right_probability": 0.0025482177734375,
+          "absolute_delta": 0.2210845947265625
+        }
+      ]
+    },
+    "ldm_200_cfg": {
+      "domain": "ldm_200_cfg",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 2000,
+      "right_samples_with_padding": 2000,
+      "left_duplicate_indices": 0,
+      "right_duplicate_indices": 0,
+      "common_unique_indices": 2000,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 2000,
+      "mean_absolute_probability_delta": 0.009073490798473359,
+      "max_absolute_probability_delta": 0.9987945556640625,
+      "probability_correlation": 0.991179248869974,
+      "threshold_disagreements": 12,
+      "exact_probability_matches": 915,
+      "by_label": {
+        "0": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.00786214292049408,
+          "max_absolute_probability_delta": 0.9987945556640625,
+          "probability_correlation": 0.5982898015961183,
+          "threshold_disagreements": 4,
+          "exact_probability_matches": 18
+        },
+        "1": {
+          "samples": 1000,
+          "mean_absolute_probability_delta": 0.010284838676452636,
+          "max_absolute_probability_delta": 0.91845703125,
+          "probability_correlation": 0.9340397236408117,
+          "threshold_disagreements": 8,
+          "exact_probability_matches": 897
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 569,
+          "label": 0,
+          "left_probability": 0.0012054443359375,
+          "right_probability": 1.0,
+          "absolute_delta": 0.9987945556640625
+        },
+        {
+          "index": 821,
+          "label": 0,
+          "left_probability": 0.015869140625,
+          "right_probability": 1.0,
+          "absolute_delta": 0.984130859375
+        },
+        {
+          "index": 1957,
+          "label": 1,
+          "left_probability": 0.08154296875,
+          "right_probability": 1.0,
+          "absolute_delta": 0.91845703125
+        },
+        {
+          "index": 1069,
+          "label": 1,
+          "left_probability": 0.09423828125,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.90185546875
+        },
+        {
+          "index": 1345,
+          "label": 1,
+          "left_probability": 0.07373046875,
+          "right_probability": 0.97265625,
+          "absolute_delta": 0.89892578125
+        },
+        {
+          "index": 1010,
+          "label": 1,
+          "left_probability": 0.1025390625,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.8935546875
+        },
+        {
+          "index": 1271,
+          "label": 1,
+          "left_probability": 0.1572265625,
+          "right_probability": 0.984375,
+          "absolute_delta": 0.8271484375
+        },
+        {
+          "index": 1786,
+          "label": 1,
+          "left_probability": 0.26953125,
+          "right_probability": 1.0,
+          "absolute_delta": 0.73046875
+        },
+        {
+          "index": 732,
+          "label": 0,
+          "left_probability": 0.1875,
+          "right_probability": 0.85546875,
+          "absolute_delta": 0.66796875
+        },
+        {
+          "index": 73,
+          "label": 0,
+          "left_probability": 0.52734375,
+          "right_probability": 0.00020313262939453125,
+          "absolute_delta": 0.5271406173706055
+        }
+      ]
+    }
+  }
+}
