@@ -303,3 +303,15 @@ eighteen-domain macro is 95.5460% Acc / 97.7375% AP. One-step is 0.0135 Acc
 points and 0.6550 AP points above P1 two-step on the same domains. The final
 domain started with all three GPUs active; the 3090 SSHFS mount and all eight
 rank logs remain healthy.
+
+`steps1` completed all 19 domains at 12:53:06 after 4h29m48s. Final Acc/AP are
+95.5064%/97.8391%, with 96.2234% real and 94.7879% fake Accuracy. Relative to
+the paper's Table 9 T=1 row, this is +1.0364 Acc points and -0.6909 AP points.
+Relative to the local P1 two-step run, it is effectively tied in Acc
+(+0.0141 points) and improves AP by 0.6217 points.
+
+The sample-level P1 comparison uses the same 88,353 unique indices and labels.
+It finds 431 threshold disagreements (0.4878%), 50,043 exactly equal
+probabilities, and a weighted mean absolute probability difference of 0.00558.
+The full run has no rank error, all processes exited, and all three GPUs
+returned to idle. Both failed attempts remain preserved. `ois_off` is next.

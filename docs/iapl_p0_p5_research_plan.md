@@ -699,6 +699,14 @@ two-step 高 0.0113/0.6171 Acc/AP 点，相对 attempt2 共享前十五域仅差
 Acc/AP 点。最终域启动时三机 GPU 均正常工作，3090 SSHFS 与八 rank 日志
 继续正常；`ois_off` 尚未提前启动。
 
+12:53:06 `stylegan` 完成，`steps1` attempt3 以 4:29:48 完成全部 19 域。
+最终为 95.5064% Acc / 97.8391% AP，real/fake Accuracy 为
+96.2234%/94.7879%。相对论文 Table 9 的 T=1 高 1.0364 Acc 点、低 0.6909
+AP 点；相对本地 P1 two-step 几乎相同 Acc（+0.0141 点），AP 高 0.6217 点。
+与 P1 的 88,353 个相同索引和标签逐样本比较有 431 个阈值分歧（0.4878%），
+平均绝对概率差 0.00558。八 rank 无错误，全部进程退出，三机 GPU 已空闲；
+attempt1/2 失败记录完整保留。P4 下一项严格为 `ois_off`。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

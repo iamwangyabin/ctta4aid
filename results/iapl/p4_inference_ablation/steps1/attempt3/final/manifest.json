@@ -1,0 +1,114 @@
+{
+  "experiment": "P4 steps1 full UFD ablation",
+  "variant": "steps1",
+  "attempt": 3,
+  "status": "completed",
+  "started_at": "2026-07-29T08:23:18+08:00",
+  "completed_at": "2026-07-29T12:53:06+08:00",
+  "elapsed_seconds": 16188,
+  "protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "views": 32,
+    "tta_steps": 1,
+    "selection_count": 6,
+    "tta_entropy": "averaged",
+    "ois": true,
+    "seed": 100,
+    "domains": 19,
+    "dataset_size": 88353,
+    "3090_data_backend": "read-only SSHFS mount of the verified 3070x2 UFD Arrow copy"
+  },
+  "metrics": {
+    "accuracy": 0.9550639206133632,
+    "average_precision": 0.9783912338521367,
+    "real_accuracy": 0.9622341634004739,
+    "fake_accuracy": 0.9478785948233699
+  },
+  "paper_table9_t1": {
+    "accuracy": 0.9447,
+    "average_precision": 0.9853,
+    "delta_accuracy": 0.01036392061336322,
+    "delta_average_precision": -0.006908766147863288
+  },
+  "local_p1_two_steps": {
+    "accuracy": 0.9549230231997763,
+    "average_precision": 0.972173971158963,
+    "real_accuracy": 0.9627500452306085,
+    "fake_accuracy": 0.9470821121276851,
+    "delta_accuracy": 0.00014089741358691565,
+    "delta_average_precision": 0.006217262693173686,
+    "delta_real_accuracy": -0.0005158818301346235,
+    "delta_fake_accuracy": 0.0007964826956847748
+  },
+  "prediction_comparison_to_p1": {
+    "samples": 88353,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 431,
+    "threshold_disagreement_rate": 0.004878159202290811,
+    "exact_probability_matches": 50043,
+    "weighted_mean_absolute_probability_delta": 0.005583880463152503,
+    "max_absolute_probability_delta": 0.9999337196350098,
+    "largest_disagreement_domains": {
+      "crn": 144,
+      "imle": 123,
+      "stylegan": 43,
+      "stargan": 22,
+      "guided": 18
+    }
+  },
+  "profile": {
+    "sum_domain_wall_seconds": 16104.14426898904,
+    "cluster_images_per_second_range": [4.835436827468635, 5.558078988133566],
+    "max_rank_mean_image_latency_ms_range": [1439.1060119139022, 1654.4523867118792],
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "host_peak_memory_mib": {
+      "A6000": 37179,
+      "3090": 18652,
+      "4090-2": 19162
+    },
+    "all_critical_ranks_on_a6000": true
+  },
+  "audit": {
+    "prediction_files": 19,
+    "prediction_sample_counts_match_distributed_padding": true,
+    "unique_sampler_indices_match_dataset_sizes": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "3090_sshfs_mounted_through_completion": true,
+    "all_rank_processes_exited": true,
+    "post_run_gpu_memory_mib": {
+      "A6000": 17,
+      "3090": 106,
+      "4090-2": 252
+    },
+    "failed_attempts_preserved": [
+      "results/iapl/p4_inference_ablation/steps1/failure_20260729_0126_nvme",
+      "results/iapl/p4_inference_ablation/steps1/attempt2/failure_20260729_0809_4090_1_outage"
+    ]
+  },
+  "artifacts": {
+    "metrics": "final_metrics.json",
+    "profile": "profile.json",
+    "p1_prediction_comparison": "p1_two_steps_prediction_comparison.json",
+    "predictions": "predictions",
+    "rank_logs": "rank0.log through rank7.log",
+    "gpu_monitors": [
+      "gpu_monitor_ubuntu.csv",
+      "gpu_monitor_yabin-B760M-POWER-DDR4.csv",
+      "gpu_monitor_yabin-local4090-yaohui.csv"
+    ]
+  },
+  "sha256": {
+    "final_metrics.json": "0fd5f55103a39b9dbf0b48383ec875209a6054abbc035bcf96d5f40de65a397a",
+    "profile.json": "db9d08878e8304551ebab851f292cf28faa3c43d69feff866f156dbd5ada9d89",
+    "p1_two_steps_prediction_comparison.json": "448f6efa800dfee4c8e79fe8c6e6084a490d421d9462d72cc4ba7f5a35bfa3ba",
+    "ordered_prediction_checksum_list": "1b1468d03eae3c2bfaa811d9e5c78295462c9b867cc1bffd42f681441c2459f6"
+  },
+  "conclusion": "One-step TTA completes all 19 UFD domains after two preserved hardware failures. It exceeds the paper T=1 Accuracy by 1.04 points but trails AP by 0.69 points; versus the local two-step P1 run it is effectively tied in Accuracy and improves AP by 0.62 points."
+}

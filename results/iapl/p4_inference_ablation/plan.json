@@ -67,8 +67,8 @@
       "selection_count": 6,
       "entropy": "averaged",
       "ois": true,
-      "status": "running",
-      "active_attempt": 3,
+      "status": "completed",
+      "completed_at": "2026-07-29T12:53:06+08:00",
       "attempts": [
         {
           "attempt": 1,
@@ -96,12 +96,15 @@
         },
         {
           "attempt": 3,
-          "status": "running",
+          "status": "completed",
           "started_at": "2026-07-29T08:23:18+08:00",
+          "completed_at": "2026-07-29T12:53:06+08:00",
+          "completed_domains": 19,
           "rank_layout": {"A6000": [0, 1, 2, 3], "3090": [4, 5], "4090-2": [6, 7]},
           "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/steps1_attempt3",
           "3090_data_backend": "read-only SSHFS mount of the verified 3070x2 UFD Arrow copy; failed /data is not accessed",
-          "launch_audit": "results/iapl/p4_inference_ablation/steps1/attempt3_launch_20260729.json"
+          "launch_audit": "results/iapl/p4_inference_ablation/steps1/attempt3_launch_20260729.json",
+          "result": "results/iapl/p4_inference_ablation/steps1/attempt3/final"
         }
       ]
     },
@@ -156,7 +159,8 @@
     ],
     "completed_results": [
       "results/iapl/p4_inference_ablation/views8/final",
-      "results/iapl/p4_inference_ablation/views16/final"
+      "results/iapl/p4_inference_ablation/views16/final",
+      "results/iapl/p4_inference_ablation/steps1/attempt3/final"
     ],
     "remote_output_root": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation"
   },
