@@ -225,3 +225,18 @@ offline 4090-1 or touching the failed NVMe. The remote storage backend will be
 recorded explicitly; the A6000 remains the four-rank timing bottleneck, but the
 final profile must still verify that SSHFS does not move the bottleneck to the
 3090 ranks.
+
+Attempt 2 reached the expected NCCL watchdog failure at 08:08-08:09 CST.
+Ranks 1-3 and 6-7 independently report `ALLREDUCE` sequence 193 exceeding the
+configured 7,200 s timeout; rank 0 reports the resulting remote-peer error.
+All reachable processes exited and both A6000 and 4090-2 returned to 0% GPU.
+The final logs and monitors are archived, while `san` remains rejected and the
+fifteen earlier prediction files remain the only accepted partial results.
+
+Attempt 3 started from seed 100 at 08:23 CST after all three hosts passed the
+real 32-view Arrow creator preflight. It restores the original A6000 4 + 3090
+2 + 4090-2 2 GPU layout. The 3090 reads the verified 3070x2 Arrow copy through
+the read-only SSHFS mount and never accesses its failed `/data` filesystem.
+All runtime and launcher hashes match, all eight ranks crossed the barrier,
+rank 0 entered `crn`, and the initial memory/utilization readings are
+37,179/18,652/19,162 MiB at 100%. No later variant has been started.

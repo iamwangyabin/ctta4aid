@@ -67,8 +67,8 @@
       "selection_count": 6,
       "entropy": "averaged",
       "ois": true,
-      "status": "stalled",
-      "active_attempt": 2,
+      "status": "running",
+      "active_attempt": 3,
       "attempts": [
         {
           "attempt": 1,
@@ -82,15 +82,26 @@
         },
         {
           "attempt": 2,
-          "status": "stalled",
+          "status": "failed",
           "started_at": "2026-07-29T02:29:04+08:00",
           "rank_layout": {"A6000": [0, 1, 2, 3], "4090-1": [4, 5], "4090-2": [6, 7]},
           "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/steps1_attempt2",
           "stalled_at": "2026-07-29T06:46:49+08:00",
+          "failed_at": "2026-07-29T08:09:08+08:00",
           "completed_domains": 15,
           "stall_cause": "4090-1 unreachable over LAN and Tailscale; incomplete ARP neighbor from both surviving peers",
           "incident": "results/iapl/p4_inference_ablation/steps1/attempt2/stall_20260729_0648_4090_1_unreachable",
-          "recovery_preflight": "results/iapl/p4_inference_ablation/steps1/attempt2/recovery_preflight_3090_sshfs_20260729.json"
+          "recovery_preflight": "results/iapl/p4_inference_ablation/steps1/attempt2/recovery_preflight_3090_sshfs_20260729.json",
+          "final_failure": "results/iapl/p4_inference_ablation/steps1/attempt2/failure_20260729_0809_4090_1_outage"
+        },
+        {
+          "attempt": 3,
+          "status": "running",
+          "started_at": "2026-07-29T08:23:18+08:00",
+          "rank_layout": {"A6000": [0, 1, 2, 3], "3090": [4, 5], "4090-2": [6, 7]},
+          "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/steps1_attempt3",
+          "3090_data_backend": "read-only SSHFS mount of the verified 3070x2 UFD Arrow copy; failed /data is not accessed",
+          "launch_audit": "results/iapl/p4_inference_ablation/steps1/attempt3_launch_20260729.json"
         }
       ]
     },
@@ -127,10 +138,12 @@
     ],
     "failure_snapshots": [
       "results/iapl/p4_inference_ablation/steps1/failure_20260729_0126_nvme",
-      "results/iapl/p4_inference_ablation/steps1/attempt2/stall_20260729_0648_4090_1_unreachable"
+      "results/iapl/p4_inference_ablation/steps1/attempt2/stall_20260729_0648_4090_1_unreachable",
+      "results/iapl/p4_inference_ablation/steps1/attempt2/failure_20260729_0809_4090_1_outage"
     ],
     "launch_audits": [
-      "results/iapl/p4_inference_ablation/steps1/attempt2_launch_20260729.json"
+      "results/iapl/p4_inference_ablation/steps1/attempt2_launch_20260729.json",
+      "results/iapl/p4_inference_ablation/steps1/attempt3_launch_20260729.json"
     ],
     "recovery_preflights": [
       "results/iapl/p4_inference_ablation/steps1/attempt2/recovery_preflight_3090_sshfs_20260729.json"

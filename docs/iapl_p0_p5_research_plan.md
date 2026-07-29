@@ -652,6 +652,16 @@ row mapping 与首图解码预检。若 attempt2 超时，可恢复原 A6000 `4`
 4090-2 `2` GPU 布局从头运行；远程存储差异将单独记录，并审计是否改变 A6000
 四 rank 的关键路径瓶颈。
 
+08:08-08:09 attempt2 最终触发预期的 NCCL watchdog：A6000 与 4090-2 的
+存活 ranks 均记录 `ALLREDUCE` sequence 193 超过 7,200 秒，进程全部退出并释放
+GPU。最终日志和资源曲线已归档；`san` 仍不计入，前十五域只作为失败前有效部分。
+
+08:23 attempt3 从 seed100 和全 19 域重新启动，恢复 A6000 `4`、3090 `2`、
+4090-2 `2` 的原物理/逻辑布局。3090 只读使用 3070x2 的 SSHFS Arrow 副本，
+不访问故障 `/data`。三机真实 32-view creator 与代码哈希预检通过，八 ranks 已
+越过 barrier，rank0 进入 `crn`；初始显存为 37,179/18,652/19,162 MiB，三机
+均 100% 利用率且无启动错误。后续 P4 变体仍未提前启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
