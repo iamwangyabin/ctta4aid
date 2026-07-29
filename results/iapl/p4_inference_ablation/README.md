@@ -336,3 +336,16 @@ The profiled `crn` throughput is 3.0001 images/s and bottleneck-rank latency is
 peaks are 37,175/18,652/19,154 MiB. All critical ranks are on A6000, the 3090
 SSHFS mount remains live, all prediction counts match distributed padding and
 the unique dataset size, and no execution error appears in any rank log.
+
+The 14:47 snapshot extends `ois_off` to three completed domains while `biggan`
+continues. The provisional macro Acc/AP are 96.4887%/99.2424%. Against P1 on
+the same `crn`, `cyclegan`, and `dalle` samples, disabling OIS is 0.3038 Acc
+points lower and 2.4628 AP points higher. The AP gain is no longer confined to
+one stored prediction file, but the remaining sixteen domains are still
+required before attributing it to OIS.
+
+All three domains run at 2.9985-3.0001 images/s with 2.661-2.668 s
+bottleneck-rank latency. Memory peaks are unchanged and every critical rank is
+on A6000, so the 3090 SSHFS data path is not limiting the run. The three-domain
+snapshot covers 17,406 unique samples with matching indices and labels, and all
+eight rank logs remain free of execution errors.
