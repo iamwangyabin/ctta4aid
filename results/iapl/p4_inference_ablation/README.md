@@ -461,3 +461,14 @@ the barrier, rank 0 entered `crn`, and initial A6000/3090/4090-2 memory reached
 37,167/18,652/19,158 MiB at 100% utilization. The first rank-0 iteration took
 7.3004 s during warm-up, rank-local peak allocation reached 8,437 MiB, and no
 error appears in any of the eight logs. Later variants remain unlaunched.
+
+The 04:47 snapshot preserves the first two completed `select2` domains while
+the run enters `dalle`. Partial Acc/AP are 94.1064%/94.7412%, respectively
+1.5573/0.6449 points below the matched P1 baseline domains. The difference is
+concentrated in `crn`, where selecting two views gives 89.9123% Acc and
+92.0658% AP, down 2.6237/0.7093 points; fake accuracy remains 100%, while real
+accuracy falls by 5.2459 points. All 15,406 unique indices and labels match P1,
+with 360 threshold disagreements. Both completed domains run at about 2.95
+unique images/s, every critical rank is on A6000, and the eight-rank, SSHFS,
+GPU-memory, and log audits remain healthy. The weak early result is retained
+without restart or selection.

@@ -1,0 +1,34 @@
+{
+  "by_domain": {
+    "crn": {
+      "domain": "crn",
+      "dataset_size": 12764,
+      "samples_with_distributed_padding": 12768,
+      "unique_sampler_indices": 12764,
+      "duplicate_sampler_indices": 4,
+      "accuracy": 0.9253602756892231,
+      "average_precision": 0.9277511266172409,
+      "real_accuracy": 0.8507673034763545,
+      "fake_accuracy": 1.0,
+      "world_size": 8
+    },
+    "cyclegan": {
+      "domain": "cyclegan",
+      "dataset_size": 2642,
+      "samples_with_distributed_padding": 2648,
+      "unique_sampler_indices": 2642,
+      "duplicate_sampler_indices": 6,
+      "accuracy": 0.9879154078549849,
+      "average_precision": 0.9799703264094956,
+      "real_accuracy": 0.975885455915599,
+      "fake_accuracy": 1.0,
+      "world_size": 8
+    }
+  },
+  "mean": {
+    "accuracy": 0.956637841772104,
+    "average_precision": 0.9538607265133683,
+    "real_accuracy": 0.9133263796959767,
+    "fake_accuracy": 1.0
+  }
+}

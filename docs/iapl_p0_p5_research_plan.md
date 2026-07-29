@@ -733,6 +733,13 @@ checkpoint、空输出、端口和真实 12,764 行 `crn` Arrow 预检；3090 �
 37,167/18,652/19,158 MiB，均为 100% 利用率，八份日志无错误。后续变体未提前
 启动。
 
+04:47 `select2` 已完成 `crn`、`cyclegan` 并进入 `dalle`，部分宏平均为
+94.1064% Acc / 94.7412% AP，相对 P1 相同两域低 1.5573/0.6449 点。差距主要
+来自 `crn`：89.9123% Acc / 92.0658% AP，Acc 低 2.6237 点，其中 fake
+Accuracy 仍为 100%，real Accuracy 低 5.2459 点。15,406 个唯一索引和标签与
+P1 完全一致，共 360 个阈值分歧。三机、3090 只读 SSHFS、吞吐、显存和八 rank
+日志均正常，弱结果原样保留，后续变体未提前启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
