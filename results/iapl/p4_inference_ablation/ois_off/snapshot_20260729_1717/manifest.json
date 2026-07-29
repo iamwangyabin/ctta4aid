@@ -1,0 +1,79 @@
+{
+  "experiment": "P4 ois_off full UFD ablation",
+  "snapshot_at": "2026-07-29T17:17:42+08:00",
+  "status": "running",
+  "domains_completed": 10,
+  "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided"],
+  "next_domain": "imle",
+  "next_domain_progress": "100/1596",
+  "partial_macro_average": {
+    "accuracy": 0.9489794009438585,
+    "average_precision": 0.9844210608738463,
+    "real_accuracy": 0.9740268025584855,
+    "fake_accuracy": 0.9239300370644923
+  },
+  "delta_to_p1_two_steps_same_domains": {
+    "accuracy": -0.002018611197544651,
+    "average_precision": 0.00654467528421232,
+    "real_accuracy": -0.0015152630486066077,
+    "fake_accuracy": -0.0025206449221645277
+  },
+  "delta_to_steps1_same_domains": {
+    "accuracy": -0.002407688692718013,
+    "average_precision": 0.0013691294217695882,
+    "real_accuracy": -0.0015429601352748845,
+    "fake_accuracy": -0.003270644922164556
+  },
+  "weak_result_preserved": {
+    "domain": "guided",
+    "accuracy": 0.7195,
+    "average_precision": 0.9171114859021031,
+    "real_accuracy": 0.988,
+    "fake_accuracy": 0.451,
+    "delta_to_p1_accuracy": -0.0044999999999999485,
+    "delta_to_p1_average_precision": -0.03650562429430837
+  },
+  "prediction_comparison": {
+    "p1_two_steps": {
+      "common_unique_indices": 44811,
+      "index_and_label_sequences_equal": true,
+      "threshold_disagreements": 462,
+      "exact_probability_matches": 20840,
+      "weighted_mean_absolute_probability_delta": 0.023767724634879524
+    },
+    "steps1": {
+      "common_unique_indices": 44811,
+      "index_and_label_sequences_equal": true,
+      "threshold_disagreements": 537,
+      "exact_probability_matches": 20804,
+      "weighted_mean_absolute_probability_delta": 0.023955022541723426
+    }
+  },
+  "profile": {
+    "cluster_images_per_second_range": [2.9078198362885166, 3.0001405543075523],
+    "max_rank_mean_image_latency_ms_range": [2661.2095100693673, 2751.2020862375853],
+    "max_rank_peak_allocated_mib": 8437.54443359375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "host_peak_memory_mib_so_far": {
+      "A6000": 38778,
+      "3090": 18652,
+      "4090-2": 19154
+    },
+    "all_critical_ranks_on_a6000": true
+  },
+  "audit": {
+    "prediction_sample_counts_match_distributed_padding": true,
+    "unique_sampler_indices_match_dataset_sizes": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "3090_sshfs_mounted": true,
+    "policy": "Preserve the weak guided result and transient gaugan slowdown without restart or selection. Continue ois_off through all 19 domains before starting select2."
+  },
+  "sha256": {
+    "partial_metrics.json": "637cd355daded977947a74f2f18043b0be0613cf6192c9723e7459814a63b2fa",
+    "profile.json": "0dbffeabd89d404b8ca272b3d54bc98f7550b190ff0dc19bab19af5ce3d090b4",
+    "p1_prediction_comparison.json": "2dea1b753db4eb7c93a5c5aaed6889182d4e5eac40423441ff762ac0560183cb",
+    "steps1_prediction_comparison.json": "1ed37d4e3412c15d045c3fa8ed5fd9ab47f8874a2071a8b62a63132df13007df",
+    "ordered_prediction_checksum_list": "e84b86d3320211ad2c3654458385f9e7d6f6e543d77fe33e74bd2f2fffde5cb7"
+  }
+}

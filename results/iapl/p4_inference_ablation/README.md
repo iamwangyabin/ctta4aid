@@ -361,3 +361,18 @@ All five domains remain tightly grouped at 2.9985-3.0001 images/s and
 2.661-2.668 s bottleneck-rank latency. Rank-local and physical-GPU memory peaks
 are unchanged, every critical rank is on A6000, the SSHFS mount is healthy,
 and 26,811 unique samples plus all eight logs pass the snapshot audit.
+
+The 17:17 snapshot reaches ten completed domains while `imle` continues. The
+ten-domain macro Acc/AP are 94.8979%/98.4421%. Against P1 on the same domains,
+disabling OIS is 0.2019 Acc points lower and 0.6545 AP points higher. Against
+`steps1`, it is 0.2408 Acc points lower and only 0.1369 AP points higher, so the
+large early AP advantage has mostly disappeared.
+
+The weak `guided` result is retained without restart: 71.9500% Acc and
+91.7111% AP, including 45.1000% fake accuracy. Its AP is 3.6506 points below
+P1, which is the clearest negative OIS-off result so far. The transient
+`gaugan` slowdown expands the throughput range to 2.9078-3.0001 images/s, but
+all critical ranks remain on A6000 and rank-local memory stays unchanged. The
+A6000 physical monitor briefly reaches 38,778 MiB while the other host peaks
+remain unchanged; all 44,811 unique samples, SSHFS state, and rank logs pass
+the audit.
