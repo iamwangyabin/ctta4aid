@@ -472,3 +472,13 @@ with 360 threshold disagreements. Both completed domains run at about 2.95
 unique images/s, every critical rank is on A6000, and the eight-rank, SSHFS,
 GPU-memory, and log audits remain healthy. The weak early result is retained
 without restart or selection.
+
+The 06:19 snapshot extends `select2` to five completed domains while `gaugan`
+runs. Partial Acc/AP recover to 96.3388%/96.8035%, but remain 0.6768/0.2990
+points below P1 on the same domains. Real accuracy is 1.4599 points lower while
+fake accuracy is 0.1071 points higher. The gap remains dominated by `crn`;
+`dalle` matches P1 accuracy and adds 0.0999 AP points, while `deepfake` adds
+0.0555 Acc points. All 26,811 unique samples match P1 indices and labels, with
+398 threshold disagreements. Throughput stays within 2.9520-2.9632 images/s,
+all critical ranks remain on A6000, and no host, SSHFS, memory, or rank-log
+failure is detected.

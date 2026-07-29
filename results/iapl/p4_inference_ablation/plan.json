@@ -166,7 +166,8 @@
       "results/iapl/p4_inference_ablation/ois_off/snapshot_20260729_1717",
       "results/iapl/p4_inference_ablation/ois_off/snapshot_20260729_1917",
       "results/iapl/p4_inference_ablation/ois_off/snapshot_20260729_1947",
-      "results/iapl/p4_inference_ablation/select2/snapshot_20260730_0447"
+      "results/iapl/p4_inference_ablation/select2/snapshot_20260730_0447",
+      "results/iapl/p4_inference_ablation/select2/snapshot_20260730_0619"
     ],
     "failure_snapshots": [
       "results/iapl/p4_inference_ablation/steps1/failure_20260729_0126_nvme",

@@ -740,6 +740,13 @@ Accuracy 仍为 100%，real Accuracy 低 5.2459 点。15,406 个唯一索引和�
 P1 完全一致，共 360 个阈值分歧。三机、3090 只读 SSHFS、吞吐、显存和八 rank
 日志均正常，弱结果原样保留，后续变体未提前启动。
 
+06:19 `select2` 已扩展到五域并进入 `gaugan`，部分宏平均回升到 96.3388% Acc /
+96.8035% AP，但相对 P1 相同五域仍低 0.6768/0.2990 点；real Accuracy 低
+1.4599 点，fake Accuracy 高 0.1071 点。差距仍主要由 `crn` 贡献，`dalle` 的
+Acc 与 P1 持平且 AP 高 0.0999 点，`deepfake` Acc 高 0.0555 点。26,811 个
+唯一样本索引和标签完全一致，吞吐稳定在 2.9520-2.9632 images/s，三机、SSHFS、
+显存和八 rank 日志继续正常。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
