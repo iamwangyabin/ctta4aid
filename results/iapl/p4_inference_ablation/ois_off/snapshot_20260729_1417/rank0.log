@@ -1,0 +1,107 @@
+/home/yabin/miniconda3/envs/caid-gemini-compat/lib/python3.11/site-packages/pytorch_wavelets/dtcwt/coeffs.py:7: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream
+world size: 8, rank: 0, local rank: 0
+{
+  "SHELL": "/bin/bash",
+  "IAPL_DISTRIBUTED_TIMEOUT_SECONDS": "7200",
+  "PYTHONUNBUFFERED": "1",
+  "IAPL_GPU_MONITOR_PATH": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/ois_off/gpu_monitor_ubuntu.csv",
+  "IAPL_TTA_STEPS": "2",
+  "MASTER_PORT": "29662",
+  "IAPL_TTA_ENTROPY": "averaged",
+  "LC_ADDRESS": "zh_CN.UTF-8",
+  "LC_NAME": "zh_CN.UTF-8",
+  "IAPL_SELECTION_COUNT": "6",
+  "LC_MONETARY": "zh_CN.UTF-8",
+  "NCCL_NVLS_ENABLE": "0",
+  "NCCL_MAX_CTAS": "2",
+  "PWD": "/home/yabin/ctta4aid_assets/external/IAPL",
+  "IAPL_PROFILE_PATH": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/ois_off/profile.json",
+  "LOGNAME": "yabin",
+  "XDG_SESSION_TYPE": "tty",
+  "IAPL_DATASET_PATH": "hf_arrow:///home/yabin/ctta4aid_assets/data/df_arrow_20260717/ForenSynths|/home/yabin/ctta4aid_assets/data/df_arrow_20260717/Ojha",
+  "IAPL_OUTPUT_DIR": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/ois_off",
+  "WORLD_SIZE": "8",
+  "MOTD_SHOWN": "pam",
+  "IAPL_SELECTION_P": "0.2",
+  "HOME": "/home/home/yabin",
+  "LC_PAPER": "zh_CN.UTF-8",
+  "LANG": "en_US.UTF-8",
+  "IAPL_VIEWS": "32",
+  "IAPL_OIS": "false",
+  "SSH_CONNECTION": "100.70.179.13 51481 100.86.243.3 22",
+  "MASTER_ADDR": "192.168.10.2",
+  "CUDA_VISIBLE_DEVICES": "0",
+  "XDG_SESSION_CLASS": "user",
+  "NCCL_MULTI_RANK_GPU_ENABLE": "1",
+  "PYTHONPATH": "/home/yabin/ctta4aid-arrow/src",
+  "LC_IDENTIFICATION": "zh_CN.UTF-8",
+  "USER": "yabin",
+  "SHLVL": "0",
+  "LC_TELEPHONE": "zh_CN.UTF-8",
+  "LC_MEASUREMENT": "zh_CN.UTF-8",
+  "XDG_SESSION_ID": "1443",
+  "IAPL_SEED": "100",
+  "LD_LIBRARY_PATH": "/home/yabin/miniconda3/envs/caid-gemini-compat/lib/python3.11/site-packages/cv2/../../lib64:/home/yabin/miniconda3/envs/caid-gemini-compat/lib/python3.11/site-packages/nvidia/nccl/lib",
+  "LC_CTYPE": "C.UTF-8",
+  "XDG_RUNTIME_DIR": "/run/user/1008",
+  "SSH_CLIENT": "100.70.179.13 51481 22",
+  "LC_TIME": "zh_CN.UTF-8",
+  "LC_ALL": "C.UTF-8",
+  "IAPL_PREDICTION_DIR": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/ois_off/predictions",
+  "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+  "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1008/bus",
+  "LC_NUMERIC": "zh_CN.UTF-8",
+  "OLDPWD": "/home/home/yabin",
+  "_": "/usr/bin/env",
+  "RANK": "0",
+  "LOCAL_RANK": "0",
+  "KMP_DUPLICATE_LIB_OK": "True",
+  "KMP_INIT_AT_FORK": "FALSE"
+}
+world_size:8 rank:0 local_rank:0
+| distributed init (rank 0): env://
+distributed collective timeout: 7200 seconds
+Before torch.distributed.barrier()
+End torch.distributed.barrier()
+-----------freezen TTA mode-----------
+-----------freezen TTA mode-----------
+[{'params': ['prompt_learner.ctx']}]
+Test:  [   0/1596]  eta: 2:55:47    time: 6.6088  data: 1.5373  max mem: 8437
+Test:  [  50/1596]  eta: 1:11:15    time: 2.7332  data: 0.0368  max mem: 8438
+Test:  [ 100/1596]  eta: 1:08:00    time: 2.6698  data: 0.0385  max mem: 8438
+Test:  [ 150/1596]  eta: 1:05:09    time: 2.6517  data: 0.0372  max mem: 8438
+Test:  [ 200/1596]  eta: 1:02:40    time: 2.6640  data: 0.0396  max mem: 8438
+Test:  [ 250/1596]  eta: 1:00:16    time: 2.6604  data: 0.0404  max mem: 8438
+Test:  [ 300/1596]  eta: 0:57:56    time: 2.6604  data: 0.0427  max mem: 8438
+Test:  [ 350/1596]  eta: 0:55:38    time: 2.6599  data: 0.0388  max mem: 8438
+Test:  [ 400/1596]  eta: 0:53:21    time: 2.6647  data: 0.0393  max mem: 8438
+Test:  [ 450/1596]  eta: 0:51:06    time: 2.6631  data: 0.0405  max mem: 8438
+Test:  [ 500/1596]  eta: 0:48:50    time: 2.6589  data: 0.0384  max mem: 8438
+Test:  [ 550/1596]  eta: 0:46:36    time: 2.6661  data: 0.0384  max mem: 8438
+Test:  [ 600/1596]  eta: 0:44:21    time: 2.6672  data: 0.0373  max mem: 8438
+Test:  [ 650/1596]  eta: 0:42:08    time: 2.6687  data: 0.0400  max mem: 8438
+Test:  [ 700/1596]  eta: 0:39:53    time: 2.6614  data: 0.0398  max mem: 8438
+Test:  [ 750/1596]  eta: 0:37:39    time: 2.6644  data: 0.0389  max mem: 8438
+Test:  [ 800/1596]  eta: 0:35:26    time: 2.6664  data: 0.0400  max mem: 8438
+Test:  [ 850/1596]  eta: 0:33:12    time: 2.6555  data: 0.0401  max mem: 8438
+Test:  [ 900/1596]  eta: 0:30:57    time: 2.6496  data: 0.0377  max mem: 8438
+Test:  [ 950/1596]  eta: 0:28:43    time: 2.6602  data: 0.0403  max mem: 8438
+Test:  [1000/1596]  eta: 0:26:30    time: 2.6602  data: 0.0403  max mem: 8438
+Test:  [1050/1596]  eta: 0:24:16    time: 2.6593  data: 0.0394  max mem: 8438
+Test:  [1100/1596]  eta: 0:22:02    time: 2.6630  data: 0.0405  max mem: 8438
+Test:  [1150/1596]  eta: 0:19:49    time: 2.6619  data: 0.0382  max mem: 8438
+Test:  [1200/1596]  eta: 0:17:36    time: 2.6602  data: 0.0381  max mem: 8438
+Test:  [1250/1596]  eta: 0:15:22    time: 2.6640  data: 0.0397  max mem: 8438
+Test:  [1300/1596]  eta: 0:13:09    time: 2.6595  data: 0.0391  max mem: 8438
+Test:  [1350/1596]  eta: 0:10:55    time: 2.6631  data: 0.0407  max mem: 8438
+Test:  [1400/1596]  eta: 0:08:42    time: 2.6610  data: 0.0434  max mem: 8438
+Test:  [1450/1596]  eta: 0:06:29    time: 2.6661  data: 0.0433  max mem: 8438
+Test:  [1500/1596]  eta: 0:04:15    time: 2.6646  data: 0.0432  max mem: 8438
+Test:  [1550/1596]  eta: 0:02:02    time: 2.6680  data: 0.0436  max mem: 8438
+Test:  [1595/1596]  eta: 0:00:02    time: 2.6612  data: 0.0435  max mem: 8438
+Test: Total time: 1:10:54 (2.6658 s / it)
+(crn) acc: 92.18; ap: 98.85; racc: 84.36; facc: 100.00;
+Test:  [  0/331]  eta: 0:30:29    time: 5.5273  data: 2.9087  max mem: 8435
+Test:  [ 50/331]  eta: 0:12:40    time: 2.6481  data: 0.0286  max mem: 8435
+Test:  [100/331]  eta: 0:10:18    time: 2.6428  data: 0.0300  max mem: 8435

@@ -323,3 +323,16 @@ domain order, checkpoint, and data remain fixed. All eight ranks crossed the
 barrier, rank 0 entered `crn`, and initial A6000/3090/4090-2 memory is
 37,175/18,652/19,154 MiB at 100% utilization. The 3090 read-only SSHFS mount
 remains live and no later variant has started.
+
+The 14:17 snapshot preserves the first completed `ois_off` domain while
+`cyclegan` continues. On `crn`, disabling OIS gives 92.1758% Acc and 98.8495%
+AP. Relative to the local two-step P1 result on the same 12,764 unique samples,
+Acc falls 0.3603 percentage points while AP rises 6.0744 points. This large
+single-domain AP change is provisional and is preserved without restart or
+selection until all nineteen domains determine the macro result.
+
+The profiled `crn` throughput is 3.0001 images/s and bottleneck-rank latency is
+2.666 s/image. Per-rank allocation/reservation is 8,437.54/8,776 MiB and host
+peaks are 37,175/18,652/19,154 MiB. All critical ranks are on A6000, the 3090
+SSHFS mount remains live, all prediction counts match distributed padding and
+the unique dataset size, and no execution error appears in any rank log.
