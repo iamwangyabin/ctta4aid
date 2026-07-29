@@ -694,6 +694,11 @@ SSHFS、A6000 关键路径和八 rank 错误审计继续正常。
 two-step 高 0.0113/0.6171 Acc/AP 点，相对 attempt2 共享前十五域仅差
 0.0205/0.0008 点。三机、SSHFS、样本数和八 rank 错误审计全部正常。
 
+12:17 `stargan` 完成，attempt3 已进入最后一个 `stylegan` 域。前十八域为
+95.5460% Acc / 97.7375% AP，相对 P1 同域 two-step 高 0.0135/0.6550
+Acc/AP 点。最终域启动时三机 GPU 均正常工作，3090 SSHFS 与八 rank 日志
+继续正常；`ois_off` 尚未提前启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

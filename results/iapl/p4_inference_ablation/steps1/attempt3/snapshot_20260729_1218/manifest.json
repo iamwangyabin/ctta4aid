@@ -1,0 +1,104 @@
+{
+  "experiment": "P4 steps1 full UFD ablation",
+  "attempt": 3,
+  "snapshot_at": "2026-07-29T12:18:38+08:00",
+  "status": "running",
+  "domains_completed": 18,
+  "completed_domains": [
+    "crn",
+    "cyclegan",
+    "dalle",
+    "biggan",
+    "deepfake",
+    "gaugan",
+    "glide_50_27",
+    "glide_100_10",
+    "glide_100_27",
+    "guided",
+    "imle",
+    "ldm_100",
+    "ldm_200",
+    "ldm_200_cfg",
+    "progan",
+    "san",
+    "seeingdark",
+    "stargan"
+  ],
+  "next_domain": "stylegan",
+  "next_domain_progress": "50/1498",
+  "rank_layout": {
+    "A6000": [0, 1, 2, 3],
+    "3090": [4, 5],
+    "4090-2": [6, 7]
+  },
+  "partial_macro_average": {
+    "accuracy": 0.9554602176419501,
+    "average_precision": 0.9773747884898101,
+    "real_accuracy": 0.9601453314415129,
+    "fake_accuracy": 0.9507601454974071
+  },
+  "delta_to_attempt1_first10_domains": {
+    "accuracy": -0.00013265152526287238,
+    "average_precision": -8.132441566255366e-05,
+    "real_accuracy": -0.0001651966421011286,
+    "fake_accuracy": -0.00010000000000010001
+  },
+  "delta_to_attempt2_first15_domains": {
+    "accuracy": -0.0002050941950537677,
+    "average_precision": 7.873576349903821e-06,
+    "real_accuracy": -2.749407625624034e-05,
+    "fake_accuracy": -0.00038275265628850974
+  },
+  "delta_to_p1_two_steps_same_domains": {
+    "accuracy": 0.00013481761554301475,
+    "average_precision": 0.00655014632102624,
+    "real_accuracy": -0.0005445419318087508,
+    "fake_accuracy": 0.0008129122272958478
+  },
+  "profile": {
+    "cluster_images_per_second_range": [4.835436827468635, 5.555034877552866],
+    "max_rank_mean_image_latency_ms_range": [1439.4149049019907, 1654.4523867118792],
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "host_peak_memory_mib_so_far": {
+      "A6000": 37179,
+      "3090": 18652,
+      "4090-2": 19162
+    },
+    "critical_path_ranks": {
+      "crn": 1,
+      "cyclegan": 0,
+      "dalle": 0,
+      "biggan": 0,
+      "deepfake": 0,
+      "gaugan": 0,
+      "glide_50_27": 1,
+      "glide_100_10": 2,
+      "glide_100_27": 3,
+      "guided": 3,
+      "imle": 1,
+      "ldm_100": 1,
+      "ldm_200": 1,
+      "ldm_200_cfg": 0,
+      "progan": 2,
+      "san": 3,
+      "seeingdark": 1,
+      "stargan": 3
+    },
+    "sshfs_timing_audit": "Every completed domain is bottlenecked by an A6000 rank, not the 3090 SSHFS ranks."
+  },
+  "audit": {
+    "prediction_sample_counts_match_distributed_padding": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "3090_sshfs_mounted": true,
+    "attempt2_failure_boundary_passed": true,
+    "reproducibility": "Attempt 3 differs from attempt 2 by 0.0205 Acc points and 0.0008 AP points over their shared first fifteen domains.",
+    "policy": "Keep all attempts and finish stylegan before starting ois_off."
+  },
+  "sha256": {
+    "partial_metrics.json": "7327abd35fa6e0699845fc556b86301e8812b01e26a1ce8e32aaa9dc3fc91c6b",
+    "profile.json": "48e7092f7952e1f055b8238b32422d6089ab06debd8f7849b55deeb2f9ec8a12",
+    "ordered_prediction_checksum_list": "7a7ba8904b44211df90cae8d8a50803b646381b412d6196b25b88bc0994edb18"
+  }
+}

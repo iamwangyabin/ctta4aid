@@ -297,3 +297,9 @@ on the same domains, one-step is 0.0113 Acc points and 0.6171 AP points higher.
 Against attempt 2's shared first fifteen domains, the differences are 0.0205
 Acc points and 0.0008 AP points. All critical ranks remain on A6000; the three
 hosts, SSHFS mount, prediction counts, and eight-rank error audit remain clean.
+
+At 12:17, `stargan` completed and the final `stylegan` domain started. The
+eighteen-domain macro is 95.5460% Acc / 97.7375% AP. One-step is 0.0135 Acc
+points and 0.6550 AP points above P1 two-step on the same domains. The final
+domain started with all three GPUs active; the 3090 SSHFS mount and all eight
+rank logs remain healthy.
