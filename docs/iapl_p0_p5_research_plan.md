@@ -687,6 +687,13 @@ Acc 仅低 0.0009 点，AP 高 0.6836 点。相对 attempt1 共享前十域最�
 0.0133/0.0082 Acc/AP 点，相对 attempt2 十一域为 0.0235/0.0004 点。三机、
 SSHFS、A6000 关键路径和八 rank 错误审计继续正常。
 
+12:03 attempt3 已完成并成功 gather `san`，因此不是只重复 attempt2 的 rank0
+本地循环，而是正式越过其 4090-1 掉线边界。12:05 已累计完成十七域，新增
+`ldm_100`、`ldm_200`、`ldm_200_cfg`、`progan`、`san`、`seeingdark`，只剩
+`stargan`、`stylegan`。当前为 95.4605% Acc / 97.7813% AP；相对 P1 同域
+two-step 高 0.0113/0.6171 Acc/AP 点，相对 attempt2 共享前十五域仅差
+0.0205/0.0008 点。三机、SSHFS、样本数和八 rank 错误审计全部正常。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

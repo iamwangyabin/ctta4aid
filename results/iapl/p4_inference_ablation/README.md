@@ -286,3 +286,14 @@ shared first ten domains differ from attempt 1 by at most 0.0133 Acc points and
 0.0082 AP points, while all eleven domains differ from attempt 2 by 0.0235 and
 0.0004 points. All critical ranks remain on A6000, all GPUs are active, the
 SSHFS mount remains live, and all eight rank logs remain error-free.
+
+At 12:03, attempt 3 completed and gathered `san`, thereby passing attempt 2's
+4090-1 outage boundary rather than merely repeating rank 0's local loop. The
+12:05 snapshot also includes `ldm_100`, `ldm_200`, `ldm_200_cfg`, `progan`, and
+`seeingdark`; only `stargan` and `stylegan` remain.
+
+The seventeen-domain macro is 95.4605% Acc / 97.7813% AP. Against P1 two-step
+on the same domains, one-step is 0.0113 Acc points and 0.6171 AP points higher.
+Against attempt 2's shared first fifteen domains, the differences are 0.0205
+Acc points and 0.0008 AP points. All critical ranks remain on A6000; the three
+hosts, SSHFS mount, prediction counts, and eight-rank error audit remain clean.
