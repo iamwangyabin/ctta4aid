@@ -1,0 +1,70 @@
+{
+  "by_domain": {
+    "biggan": {
+      "domain": "biggan",
+      "dataset_size": 4000,
+      "samples_with_distributed_padding": 4000,
+      "unique_sampler_indices": 4000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.98725,
+      "average_precision": 0.9916818549890711,
+      "real_accuracy": 0.9775,
+      "fake_accuracy": 0.997,
+      "world_size": 8
+    },
+    "crn": {
+      "domain": "crn",
+      "dataset_size": 12764,
+      "samples_with_distributed_padding": 12768,
+      "unique_sampler_indices": 12764,
+      "duplicate_sampler_indices": 4,
+      "accuracy": 0.9217575187969925,
+      "average_precision": 0.9884950957869528,
+      "real_accuracy": 0.8435640463513937,
+      "fake_accuracy": 1.0,
+      "world_size": 8
+    },
+    "cyclegan": {
+      "domain": "cyclegan",
+      "dataset_size": 2642,
+      "samples_with_distributed_padding": 2648,
+      "unique_sampler_indices": 2642,
+      "duplicate_sampler_indices": 6,
+      "accuracy": 0.986404833836858,
+      "average_precision": 0.9894906951347353,
+      "real_accuracy": 0.972871137905049,
+      "fake_accuracy": 1.0,
+      "world_size": 8
+    },
+    "dalle": {
+      "domain": "dalle",
+      "dataset_size": 2000,
+      "samples_with_distributed_padding": 2000,
+      "unique_sampler_indices": 2000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9865,
+      "average_precision": 0.9992865681212671,
+      "real_accuracy": 0.995,
+      "fake_accuracy": 0.978,
+      "world_size": 8
+    },
+    "deepfake": {
+      "domain": "deepfake",
+      "dataset_size": 5405,
+      "samples_with_distributed_padding": 5408,
+      "unique_sampler_indices": 5405,
+      "duplicate_sampler_indices": 3,
+      "accuracy": 0.9548816568047337,
+      "average_precision": 0.9706039192613406,
+      "real_accuracy": 0.9841328413284133,
+      "fake_accuracy": 0.9255003706449222,
+      "world_size": 8
+    }
+  },
+  "mean": {
+    "accuracy": 0.9673588018877168,
+    "average_precision": 0.9879116266586735,
+    "real_accuracy": 0.9546136051169712,
+    "fake_accuracy": 0.9801000741289844
+  }
+}

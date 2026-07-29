@@ -349,3 +349,15 @@ bottleneck-rank latency. Memory peaks are unchanged and every critical rank is
 on A6000, so the 3090 SSHFS data path is not limiting the run. The three-domain
 snapshot covers 17,406 unique samples with matching indices and labels, and all
 eight rank logs remain free of execution errors.
+
+The 15:47 snapshot preserves five completed domains while `gaugan` continues.
+The provisional macro Acc/AP are 96.7359%/98.7912%. Against P1 on those five
+domains, disabling OIS is 0.2797 Acc points lower and 1.6887 AP points higher;
+against `steps1`, it is 0.2135 Acc points lower and 0.9292 AP points higher.
+The AP advantage is narrowing as more domains arrive, so the run remains
+unselected and unchanged rather than treating the early `crn` gain as final.
+
+All five domains remain tightly grouped at 2.9985-3.0001 images/s and
+2.661-2.668 s bottleneck-rank latency. Rank-local and physical-GPU memory peaks
+are unchanged, every critical rank is on A6000, the SSHFS mount is healthy,
+and 26,811 unique samples plus all eight logs pass the snapshot audit.
