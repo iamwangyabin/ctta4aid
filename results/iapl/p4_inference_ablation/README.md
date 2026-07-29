@@ -404,3 +404,18 @@ The distributed gather completed successfully on the healthy A6000/3090/
 earlier 4090-1 outage during attempt 2. No run is restarted or selected away.
 All 72,373 unique samples, profiles, memory monitors, SSHFS state, and rank logs
 pass the audit.
+
+After `stargan` completed and `stylegan` started, another user's process began
+sharing the A6000 at 19:59:32 and allocated 2,976 MiB at 20:00:44. Raw A6000
+host-memory samples after that boundary are therefore retained but not
+attributed wholly to P4; the four P4 ranks still sum to about 37,144 MiB and
+their internal CUDA allocation remains valid. `stargan` averaged 2.6633 s per
+iteration, within the earlier range, but its latter portion and `stylegan`
+timing are conservatively flagged as potentially shared-GPU affected. The
+other user's process is not modified.
+
+A single Tailscale SSH probe to 4090-2 also timed out at 20:18, but retry
+succeeded seconds later. Both peers reached its LAN address with 0% packet
+loss, NCCL sockets remained established, the GPU stayed at 100% utilization,
+and no rank error or experiment interruption occurred. This is recorded as a
+control-plane observation rather than an experiment failure.
