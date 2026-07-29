@@ -491,3 +491,12 @@ is 0.2169 points higher. Of the new domains, `glide_100_10` improves Acc/AP by
 offsetting the persistent `crn` loss. All 40,811 sample indices and labels match
 P1. Throughput remains 2.9345-2.9632 images/s, all critical ranks remain on
 A6000, and the distributed, storage, GPU, and log audits remain clean.
+
+The 07:48 snapshot reaches ten completed `select2` domains and enters `imle`.
+Partial Acc/AP are 95.0004%/97.6275%, only 0.0994/0.1602 points below matched
+P1. The apparent Acc recovery is driven by `guided`: its absolute result is
+still weak at 74.40% Acc and 95.40% AP, but it improves P1 by 2.00 Acc points
+and 4.30 fake-accuracy points. Real accuracy remains 0.8519 points below P1,
+while fake accuracy is 0.6535 points higher. All 44,811 indices and labels
+match, and the throughput, rank-local memory, host memory, SSHFS, and eight-log
+audits remain stable.

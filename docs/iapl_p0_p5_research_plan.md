@@ -753,6 +753,12 @@ Acc 与 P1 持平且 AP 高 0.0999 点，`deepfake` Acc 高 0.0555 点。26,811 
 高 0.3500/0.1251 点，部分抵消了 `crn` 的持续损失。40,811 个索引和标签完全
 一致，吞吐、三机 GPU、SSHFS 和八 rank 日志均稳定。
 
+07:48 `select2` 已完成十域并进入 `imle`，部分宏平均为 95.0004% Acc /
+97.6275% AP，相对 P1 相同十域仅低 0.0994/0.1602 点。Acc 差距收窄主要来自
+`guided`：其绝对结果仍弱（74.40% Acc / 95.40% AP），但比 P1 高 2.00 Acc
+点、4.30 fake-accuracy 点。real Accuracy 仍低 0.8519 点，fake Accuracy 高
+0.6535 点。44,811 个索引和标签一致，吞吐、显存、SSHFS 与八 rank 日志正常。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
