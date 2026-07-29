@@ -252,3 +252,14 @@ image. The critical rank is on A6000 for every completed domain; neither 3090
 SSHFS rank determines wall time. Rank-local allocation remains 8,437.55 MiB,
 host peaks remain 37,179/18,652/19,162 MiB, the SSHFS mount remains live, and
 all eight rank logs are free of execution errors.
+
+The 09:48 snapshot adds `biggan` and `deepfake`; `gaugan` is now running. The
+five-domain macro Acc/AP are 96.9494%/97.8619%. Relative to attempts 1 and 2 on
+the same domains, the maximum difference is 0.0166 percentage points in Acc
+and 0.0232 points in AP. This remains consistent with ordinary runtime
+variation rather than a storage-backend regression.
+
+All five completed domains still place their critical path on A6000. Cluster
+throughput is 5.40-5.46 images/s, bottleneck latency is 1.47-1.48 s per image,
+the 3090 read-only SSHFS mount is live, and all eight rank logs remain free of
+execution errors.

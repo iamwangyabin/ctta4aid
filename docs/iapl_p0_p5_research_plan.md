@@ -668,6 +668,12 @@ GPU。最终日志和资源曲线已归档；`san` 仍不计入，前十五域�
 5.40-5.43 images/s，三个域的关键路径 rank 全在 A6000 而非 3090 SSHFS；挂载、
 显存和八 rank 错误审计均正常。
 
+09:48 attempt3 又完成 `biggan`、`deepfake` 并进入 `gaugan`；前五域宏平均为
+96.9494% Acc / 97.8619% AP。相对 attempts 1/2 相同五域，Acc 最大差 0.0166
+点、AP 最大差 0.0232 点，仍属于运行微小波动而非远程存储回归。五域关键路径
+全部位于 A6000，吞吐为 5.40-5.46 images/s；SSHFS 挂载、三机满载和八 rank
+错误审计继续正常。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
