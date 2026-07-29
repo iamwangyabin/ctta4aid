@@ -1,0 +1,82 @@
+{
+  "experiment": "P4 select2 full UFD ablation",
+  "status": "running",
+  "captured_at": "2026-07-30T07:18:02+08:00",
+  "protocol": {
+    "world_size": 8,
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 2,
+    "tta_entropy": "averaged",
+    "ois": true,
+    "seed": 100
+  },
+  "progress": {
+    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10"],
+    "completed_domain_count": 8,
+    "current_domain": "glide_100_27",
+    "unique_samples": 40811,
+    "samples_after_distributed_padding": 40824
+  },
+  "partial_metrics": {
+    "accuracy": 0.9720047526139062,
+    "average_precision": 0.9773744540124867,
+    "real_accuracy": 0.9611534515226625,
+    "fake_accuracy": 0.9828575055596738
+  },
+  "matched_p1_metrics": {
+    "accuracy": 0.9759975151767538,
+    "average_precision": 0.9794112155336997,
+    "real_accuracy": 0.9713025820088651,
+    "fake_accuracy": 0.980688352483321
+  },
+  "select2_minus_p1": {
+    "accuracy": -0.00399276256284764,
+    "average_precision": -0.0020367615212130152,
+    "real_accuracy": -0.010149130486202584,
+    "fake_accuracy": 0.002169153076352792
+  },
+  "new_domain_deltas_to_p1": {
+    "gaugan": {"accuracy": -0.0020999999999999908, "average_precision": -0.001180608242874026},
+    "glide_50_27": {"accuracy": 0.000500000000000056, "average_precision": -0.0014172333324106168},
+    "glide_100_10": {"accuracy": 0.0035000000000000586, "average_precision": 0.0012513230448347734}
+  },
+  "prediction_comparison_to_p1": {
+    "index_and_label_sequences_equal": true,
+    "samples": 40811,
+    "threshold_disagreements": 445,
+    "threshold_disagreement_rate": 0.010903922961946535,
+    "exact_probability_matches": 22833,
+    "weighted_mean_absolute_probability_delta": 0.010982206429711004
+  },
+  "profile": {
+    "cluster_images_per_second_range": [2.934530571893507, 2.9631568197234808],
+    "bottleneck_latency_ms_per_image_range": [2699.82335958397, 2726.1600463879295],
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "host_peak_memory_mib": {"A6000": 37167, "3090": 18652, "4090-2": 19158},
+    "critical_path_ranks": [0, 2, 1, 1, 1, 3, 2, 2],
+    "critical_path_host": "A6000"
+  },
+  "audit": {
+    "prediction_files": 8,
+    "unique_sampler_indices_match_dataset_sizes": true,
+    "prediction_sample_counts_match_distributed_padding": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "3090_sshfs_mounted_read_only": true,
+    "all_eight_ranks_still_running": true,
+    "all_three_hosts_at_full_gpu_utilization": true
+  },
+  "prediction_sha256": {
+    "biggan.json": "148cb7b7e8acde7f28409f44f914463e0dcd58e45afde44d8ec8c46e0723dc69",
+    "crn.json": "ed5a8ce9c434661922e119707999a91c9e3df8611b0a2134d833e4b8c72b1571",
+    "cyclegan.json": "8025f3a5d0a1bde92835f8fff718cee46d55ecc459909131ff6ba378f707c624",
+    "dalle.json": "8355e23ffce6a95e10b069ac84d745152d359c82c0f0d720bedda63ce465247c",
+    "deepfake.json": "6ac91abe582cb3d39edd49b517e0c5738a783595a64aee809762a4534d35b448",
+    "gaugan.json": "1ad4d5fefc37576a7bdccbe28fbf16a6aa92e169486b4f2380bd263a4e61815b",
+    "glide_100_10.json": "de6da713c90cc7f7f863ab2681e3e81cfb7637416bf6c4103e391a9671c648a5",
+    "glide_50_27.json": "18f8f5359947a197d616644939cfa6ab171f06b5229d426f1e290e456f5acfb0"
+  },
+  "policy": "Preserve all eight select2 results without restart or selection. Continue through all 19 domains before starting select4."
+}

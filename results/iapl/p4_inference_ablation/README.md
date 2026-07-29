@@ -482,3 +482,12 @@ fake accuracy is 0.1071 points higher. The gap remains dominated by `crn`;
 398 threshold disagreements. Throughput stays within 2.9520-2.9632 images/s,
 all critical ranks remain on A6000, and no host, SSHFS, memory, or rank-log
 failure is detected.
+
+The 07:18 snapshot reaches eight completed `select2` domains and enters
+`glide_100_27`. Partial Acc/AP are 97.2005%/97.7374%, now 0.3993/0.2037 points
+below matched P1. Real accuracy remains 1.0149 points lower, while fake accuracy
+is 0.2169 points higher. Of the new domains, `glide_100_10` improves Acc/AP by
+0.3500/0.1251 points and `glide_50_27` improves Acc by 0.0500 points, partially
+offsetting the persistent `crn` loss. All 40,811 sample indices and labels match
+P1. Throughput remains 2.9345-2.9632 images/s, all critical ranks remain on
+A6000, and the distributed, storage, GPU, and log audits remain clean.

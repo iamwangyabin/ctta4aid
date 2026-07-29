@@ -747,6 +747,12 @@ Acc 与 P1 持平且 AP 高 0.0999 点，`deepfake` Acc 高 0.0555 点。26,811 
 唯一样本索引和标签完全一致，吞吐稳定在 2.9520-2.9632 images/s，三机、SSHFS、
 显存和八 rank 日志继续正常。
 
+07:18 `select2` 已完成八域并进入 `glide_100_27`，部分宏平均为 97.2005% Acc /
+97.7374% AP，相对 P1 相同八域低 0.3993/0.2037 点。real Accuracy 仍低
+1.0149 点，fake Accuracy 高 0.2169 点；新增域中 `glide_100_10` 的 Acc/AP
+高 0.3500/0.1251 点，部分抵消了 `crn` 的持续损失。40,811 个索引和标签完全
+一致，吞吐、三机 GPU、SSHFS 和八 rank 日志均稳定。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
