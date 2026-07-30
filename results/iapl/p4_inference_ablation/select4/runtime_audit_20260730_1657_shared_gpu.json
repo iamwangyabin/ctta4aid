@@ -69,6 +69,19 @@
     "gpu_utilization_percent": 100,
     "observation": "The external process re-expanded after the 17:52 check, confirming that interval C has variable allocation rather than a monotonic shutdown. ldm_200_cfg timing remains contaminated; the process was not modified."
   },
+  "process_turnover_at_19_21_05": {
+    "previous_external_pid": 801613,
+    "previous_external_pid_present": false,
+    "new_external_pid": 832548,
+    "new_process_started_at": "2026-07-30T19:06:54+08:00",
+    "user_as_reported_by_ps": "wangche+",
+    "command": "python3 train_sharepara_moe_0406_loss.py",
+    "used_memory_mib": 4530,
+    "raw_a6000_peak_at_19_08_02_mib": 42386,
+    "raw_a6000_memory_at_19_21_04_mib": 41710,
+    "five_sample_pmon_compute_activity": "observed in one sample at 33% SM and 28% memory utilization",
+    "observation": "A new process with the same user and command replaced the earlier PID. Unlike the first short pmon check, compute activity was directly observed. stylegan timing is therefore explicitly shared-compute contaminated. Neither process was modified."
+  },
   "impact": {
     "prediction_validity": "No correctness error is visible. Preserve all predictions and accuracy metrics.",
     "timing_validity": "Timing from imle through the later domains remains shared-GPU contaminated while the external process is resident and must be flagged in latency and throughput reporting.",

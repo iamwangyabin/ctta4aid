@@ -180,7 +180,8 @@
       "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1749",
       "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1818",
       "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1849",
-      "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1852"
+      "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1852",
+      "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1918"
     ],
     "failure_snapshots": [
       "results/iapl/p4_inference_ablation/steps1/failure_20260729_0126_nvme",

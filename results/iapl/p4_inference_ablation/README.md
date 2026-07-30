@@ -678,3 +678,16 @@ match both controls. The weak result is retained without rerun or selection.
 Its throughput drops to 2.3972 images/s and bottleneck latency rises to
 3,337.23 ms under the still-resident external A6000 job. This timing is not
 used as a clean P4 measurement; the prediction result remains valid.
+
+The 19:18 snapshot completes `stargan` and starts the final `stylegan` domain.
+Eighteen-domain Acc/AP are 95.4548%/97.0038%, 0.0778/0.0787 points below P1
+and 0.3285/0.3409 points above `select2`. `stargan` reaches 96.85% Acc and
+95.69% AP: 0.10 Acc points below P1 with identical AP, but 0.40/0.1372 points
+above `select2`. All 76,371 unique indices and labels match both controls;
+the P1 comparison has 407 threshold disagreements and a 0.00560 weighted MAD.
+
+The earlier external PID exited, but PID 832548 from the same user and command
+started at 19:06:54 with 4,530 MiB. Raw A6000 memory briefly set a new 42,386
+MiB peak at 19:08:02, and a five-sample pmon check directly observed the new
+process using 33% SM in one sample. It was not modified. `stylegan` timing is
+therefore shared-compute contaminated, while its predictions remain usable.
