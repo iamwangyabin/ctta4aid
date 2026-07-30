@@ -932,6 +932,19 @@ A6000 ranks。八 rank 均越过 barrier，rank0 已进入 `crn`，首 iteration
 6.6779 s；三机初始显存为 37,167/18,656/19,162 MiB、利用率均为 100%，关键日志
 无错误。有序第 7 项 `pointwise` 已开始运行。
 
+07:19 首域 `crn` 完成并进入 `cyclegan`。`crn` 为 89.0821% Acc / 91.8670%
+AP，real/fake Accuracy 为 78.1710%/100%；相对同为六视图的 averaged P1
+对照低 3.4539 Acc、0.9081 AP 和 6.9057 real-accuracy 点，相对 `select4`
+低 2.5611/0.3052 Acc/AP 点。12,764 个唯一索引和标签与两组对照完全一致，
+相对 P1 有 443 个阈值分歧、概率 MAD 为 0.03206，差异全部集中在 real 类。
+该偏弱结果不重跑、不筛选。
+
+该域耗时 4,446.67 s，吞吐 2.8705 images/s、瓶颈延迟 2,786.13 ms，比
+`select4` 慢约 2.71%；rank 内部显存仍为 8,437.55/8,776 MiB，三机原始峰值
+为干净的 37,167/18,656/19,162 MiB。八 rank 均存活且 3090 SSHFS 只读。
+一次 A6000 SSH 检查超时、首次带格式的远端文件列表因引号丢失失败，均原样记录
+并立即只读重试成功，对实验无影响。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

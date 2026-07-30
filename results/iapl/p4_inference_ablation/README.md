@@ -734,3 +734,20 @@ empty output path, and free port 29665. Workers started on 3090 and 4090-2 at
 crossed the barrier and rank0 entered `crn` with a 6.6779 s first iteration.
 Initial host memory was 37,167/18,656/19,162 MiB at 100% utilization, with no
 critical log error. Ordered variant 7 `pointwise` is now running.
+
+The 07:19 snapshot preserves the first completed `pointwise` domain while
+`cyclegan` runs. `crn` reaches 89.0821% Acc / 91.8670% AP with 78.1710% real
+and 100% fake Accuracy. Against the matched six-view averaged P1 reference,
+this is 3.4539 Acc, 0.9081 AP, and 6.9057 real-accuracy points lower; against
+`select4`, it is 2.5611/0.3052 points lower in Acc/AP. All 12,764 unique
+indices and labels match both controls. Pointwise and P1 disagree on 443
+threshold decisions with a 0.03206 probability MAD, all concentrated in the
+real class. The weak result is retained without rerun or selection.
+
+`crn` takes 4,446.67 s at 2.8705 images/s and 2,786.13 ms bottleneck latency,
+about 2.71% slower than `select4`; rank-local peak allocation/reservation is
+unchanged at 8,437.55/8,776 MiB. Raw monitor peaks remain the clean
+37,167/18,656/19,162 MiB plateaus, all eight ranks are alive, and the 3090
+SSHFS remains read-only. One A6000 SSH check timed out and the first formatted
+file listing lost its remote quote; both monitoring failures were preserved,
+immediately retried read-only, and had no experiment impact.
