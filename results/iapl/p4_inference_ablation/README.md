@@ -570,3 +570,13 @@ unique sample indices and labels match both controls. The P1 comparison has
 166 threshold disagreements and a 0.00981 weighted probability MAD. Domain
 throughput remains 2.9472-2.9565 images/s, all critical ranks remain on A6000,
 and the three-host storage, GPU, memory, and log audits stay clean.
+
+The 14:48 snapshot reaches five completed `select4` domains and runs `gaugan`.
+Partial Acc/AP are 96.7531%/96.9622%, 0.2625/0.1403 points below matched P1
+but 0.4143/0.1586 points above `select2`. Real accuracy is 0.4796 points below
+P1 and 0.9802 points above `select2`; fake accuracy is lower by 0.0452/0.1522
+points. `biggan` is nearly identical to P1 and gains 0.25 Acc points over
+`select2`; `deepfake` differs by less than 0.04 Acc points from either control.
+All 26,811 sample indices and labels match both references, with 180 P1
+threshold disagreements and a 0.00703 weighted probability MAD. Throughput,
+rank-local memory, physical memory, SSHFS, and all eight logs remain stable.

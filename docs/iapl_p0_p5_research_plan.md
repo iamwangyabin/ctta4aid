@@ -809,6 +809,14 @@ Accuracy 仍为 100%。12,764 个唯一索引和标签与两组对照完全一�
 0.00981。域吞吐保持 2.9472-2.9565 images/s，三机、SSHFS、显存和八 rank
 日志继续正常，后续变体未提前启动。
 
+14:48 `select4` 已完成五域并运行 `gaugan`，部分平均为 96.7531% Acc /
+96.9622% AP，相对 P1 低 0.2625/0.1403 点，但相对 `select2` 高
+0.4143/0.1586 点。real Accuracy 相对两者分别低 0.4796 点、高 0.9802 点；
+fake Accuracy 低 0.0452/0.1522 点。`biggan` 与 P1 几乎相同且比 `select2`
+高 0.25 Acc 点，`deepfake` 与两组对照的 Acc 差均小于 0.04 点。26,811 个
+索引和标签完全一致，相对 P1 有 180 个阈值分歧，平均绝对概率差 0.00703。
+吞吐、rank 显存、三机物理显存、SSHFS 和八 rank 日志继续稳定。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

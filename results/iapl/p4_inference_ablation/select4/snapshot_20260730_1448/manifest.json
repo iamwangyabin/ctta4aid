@@ -1,0 +1,122 @@
+{
+  "experiment": "P4 select4 full UFD ablation",
+  "status": "running",
+  "captured_at": "2026-07-30T14:48:00+08:00",
+  "protocol": {
+    "world_size": 8,
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 4,
+    "tta_entropy": "averaged",
+    "ois": true,
+    "seed": 100,
+    "dataset": "UniversalFakeDetect public 19-domain release"
+  },
+  "progress": {
+    "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake"],
+    "completed_domain_count": 5,
+    "current_domain": "gaugan",
+    "unique_samples": 26811,
+    "samples_after_distributed_padding": 26824
+  },
+  "partial_metrics": {
+    "accuracy": 0.9675307061428935,
+    "average_precision": 0.9696216664153614,
+    "real_accuracy": 0.9531678727213528,
+    "fake_accuracy": 0.9818896219421793
+  },
+  "matched_p1_metrics": {
+    "accuracy": 0.970156024282806,
+    "average_precision": 0.9710247399635843,
+    "real_accuracy": 0.9579641312141842,
+    "fake_accuracy": 0.9823413639733136
+  },
+  "select4_minus_p1": {
+    "accuracy": -0.0026253181399125136,
+    "average_precision": -0.0014030735482228884,
+    "real_accuracy": -0.0047962584928313845,
+    "fake_accuracy": -0.00045174203113429456
+  },
+  "matched_select2_metrics": {
+    "accuracy": 0.9633876041822498,
+    "average_precision": 0.9680352252357334,
+    "real_accuracy": 0.9433655224362602,
+    "fake_accuracy": 0.9834120088954782
+  },
+  "select4_minus_select2": {
+    "accuracy": 0.004143101960643714,
+    "average_precision": 0.0015864411796280287,
+    "real_accuracy": 0.009802350285092687,
+    "fake_accuracy": -0.001522386953298871
+  },
+  "notable_new_domains": {
+    "biggan": {
+      "accuracy": 0.98675,
+      "average_precision": 0.979543606660986,
+      "delta_to_p1_accuracy": -0.0007500000000000284,
+      "delta_to_select2_accuracy": 0.0025000000000000577
+    },
+    "deepfake": {
+      "accuracy": 0.959689349112426,
+      "average_precision": 0.9716811055725023,
+      "delta_to_p1_accuracy": 0.00018491124260344716,
+      "delta_to_select2_accuracy": -0.00036982248520711636
+    }
+  },
+  "prediction_comparison_to_p1": {
+    "index_and_label_sequences_equal": true,
+    "samples": 26811,
+    "threshold_disagreements": 180,
+    "threshold_disagreement_rate": 0.00671366230278617,
+    "exact_probability_matches": 15905,
+    "weighted_mean_absolute_probability_delta": 0.007027207024347946,
+    "max_absolute_probability_delta": 0.9997835159301758
+  },
+  "prediction_comparison_to_select2": {
+    "index_and_label_sequences_equal": true,
+    "samples": 26811,
+    "threshold_disagreements": 288,
+    "threshold_disagreement_rate": 0.010741859684457872,
+    "exact_probability_matches": 15352,
+    "weighted_mean_absolute_probability_delta": 0.010944097828453325,
+    "max_absolute_probability_delta": 0.9994659423828125
+  },
+  "profile": {
+    "cluster_images_per_second_range": [2.947171729054305, 2.9591257881679263],
+    "bottleneck_rank_latency_ms_range": [2702.001436420106, 2712.534209431091],
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "host_peak_memory_mib": {
+      "A6000": 37175,
+      "3090": 18652,
+      "4090-2": 19162
+    },
+    "critical_path_host": "A6000"
+  },
+  "audit": {
+    "prediction_files": 5,
+    "unique_sampler_indices_match_dataset_sizes": true,
+    "prediction_sample_counts_match_distributed_padding": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "3090_sshfs_mounted_read_only": true,
+    "all_eight_ranks_still_running": true,
+    "all_three_hosts_at_full_gpu_utilization": true
+  },
+  "artifacts": {
+    "metrics": "metrics.json",
+    "p1_reference_metrics": "p1_reference_metrics.json",
+    "select2_reference_metrics": "select2_reference_metrics.json",
+    "p1_prediction_comparison": "p1_prediction_comparison.json",
+    "select2_prediction_comparison": "select2_prediction_comparison.json",
+    "profile": "profile.json"
+  },
+  "prediction_sha256": {
+    "biggan.json": "eb2a666314697f6ee9e2e075ff33fa54a7eb0b4bdd739e622c6d9d3dcbd8bcc6",
+    "crn.json": "f6fef38fe3bbe53fe039d63f61b1dc7f8b858784889a86aa8edd73d1e0b88f39",
+    "cyclegan.json": "ea7de07eb10003c98bd41f05ad6d71b4901362672ca476ad22b922b085c2041c",
+    "dalle.json": "fdc822a69975c4b9ea6cc52dbe0a8a519623461a8f61db730d8a5625596c63d0",
+    "deepfake.json": "119e7446991b84fb605995cca3a08b43dc7e854ed93c2b9cf4b51ef9535bb53c"
+  },
+  "policy": "Preserve all five select4 results without restart or selection. Continue through all 19 domains before starting pointwise."
+}
