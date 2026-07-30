@@ -1,0 +1,120 @@
+{
+  "experiment": "P4 pointwise full UFD ablation",
+  "status": "running",
+  "strict_order_prerequisite": {
+    "variant": "select4",
+    "status": "completed_and_audited",
+    "artifact": "results/iapl/p4_inference_ablation/select4/final",
+    "commit": "c62e96f"
+  },
+  "protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 6,
+    "tta_entropy": "pointwise",
+    "ois": true,
+    "seed": 100,
+    "master_addr": "192.168.10.2",
+    "master_port": 29665,
+    "distributed_timeout_seconds": 7200,
+    "domains": 19,
+    "dataset_size": 88353
+  },
+  "datasets": {
+    "A6000": "local hf_arrow:///home/yabin/ctta4aid_assets/data/df_arrow_20260717/ForenSynths|/home/yabin/ctta4aid_assets/data/df_arrow_20260717/Ojha",
+    "3090": "read-only SSHFS hf_arrow:///home/yabin/ctta4aid_assets/data/df_arrow_remote_3070/ForenSynths|/home/yabin/ctta4aid_assets/data/df_arrow_remote_3070/Ojha",
+    "4090-2": "local hf_arrow:///home/yabin/ctta4aid_assets/data/df_arrow_20260716/ForenSynths|/home/yabin/ctta4aid_assets/data/df_arrow_20260716/Ojha"
+  },
+  "clean_gpu_wait": {
+    "started_at": "2026-07-30T20:27:16+08:00",
+    "resolved_at": "2026-07-31T05:48:12+08:00",
+    "audit": "results/iapl/p4_inference_ablation/pointwise/preflight_wait_20260730_2027.json",
+    "external_processes_observed_not_modified": [832548, 862256, 867149, 871170],
+    "resolution": "A6000 returned to 17 MiB and 0% utilization with no compute process."
+  },
+  "preflight": {
+    "completed_before_first_launcher_at": "2026-07-31T05:52:47+08:00",
+    "hosts_passed": ["A6000", "3090", "4090-2"],
+    "remote_output_absent_on_all_hosts": true,
+    "master_port_free": true,
+    "checkpoint_and_clip_present": true,
+    "nccl_version": 23007,
+    "real_crn_arrow_smoke_rows": 12764,
+    "pointwise_entropy_verified": true,
+    "selection_count_verified": 6,
+    "3090_sshfs_mounted_read_only": true,
+    "3090_failed_data_device_accessed": false,
+    "4090_2_isolated_driver_lib": "/home/yabin/ctta4aid_assets/driver_compat/nvidia-580.159.03/rootfs/usr/lib/x86_64-linux-gnu",
+    "prelaunch_memory_mib": {
+      "A6000": 17,
+      "3090": 106,
+      "4090-2": 252
+    },
+    "prelaunch_utilization_percent": {
+      "A6000": 0,
+      "3090": 0,
+      "4090-2": 0
+    },
+    "failed_command_attempts_preserved": [
+      {
+        "scope": "three-host preflight command",
+        "exit_code": 126,
+        "cause": "The dataset-path pipe was not preserved through the SSH remote shell, so each Ojha directory was parsed as a command.",
+        "impact": "No experiment rank started and all pointwise output directories remained absent.",
+        "fix": "Preserve literal remote quotes around IAPL_DATASET_PATH and rerun the same preflight."
+      },
+      {
+        "scope": "A6000 port-bind check",
+        "exit_code": 2,
+        "cause": "The Python -c program lost its remote-shell quoting.",
+        "impact": "No socket remained open.",
+        "fix": "Preserve literal quotes around the remote Python program; port 29665 then bound and closed successfully."
+      }
+    ]
+  },
+  "code_sha256": {
+    "scripts/run_iapl_manual_ranks.sh": "4b009dc1e0dcce9b39a86c5204867ca1eb0ff9ecff44c92a4cb203a39f706e88",
+    "scripts/run_iapl_p4_ufd_ablation_node.sh": "7913234cd11002c721e0908f73be0ae9c985b727b90484f30a0935c1c42db86c",
+    "matched_on_all_hosts": true
+  },
+  "launch": {
+    "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/pointwise",
+    "3090": {
+      "started_at": "2026-07-31T05:52:47+08:00",
+      "launcher_pid": 767662
+    },
+    "4090-2": {
+      "started_at": "2026-07-31T05:53:09+08:00",
+      "launcher_pid": 994546
+    },
+    "A6000": {
+      "started_at": "2026-07-31T05:53:43+08:00",
+      "launcher_pid": 925352
+    }
+  },
+  "initial_runtime": {
+    "checked_at": "2026-07-31T05:55:24+08:00",
+    "all_eight_ranks_crossed_barrier": true,
+    "rank0_entered_crn": true,
+    "rank0_first_iteration_seconds": 6.6779,
+    "host_memory_mib": {
+      "A6000": 37167,
+      "3090": 18656,
+      "4090-2": 19162
+    },
+    "host_utilization_percent": {
+      "A6000": 100,
+      "3090": 100,
+      "4090-2": 100
+    },
+    "rank0_peak_allocated_mib": 8437,
+    "3090_sshfs_mounted_read_only": true,
+    "errors_detected": 0
+  }
+}

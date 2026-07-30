@@ -716,3 +716,21 @@ far, while six views remains the most balanced accuracy default. `pointwise`
 was not launched: at 20:27 the external A6000 process still held 4,538 MiB
 and used 48% GPU, so its clean-profile preflight is waiting rather than
 contaminating another ordered run.
+
+The A6000 wait ended at 05:48 on July 31 after the external training sequence
+fully exited: the GPU returned to 17 MiB, 0% utilization, and no compute
+process. PIDs 832548, 862256, 867149, and 871170 were observed throughout the
+wait but never modified. The first remote preflight command preserved a
+quoting failure: its dataset-path pipe reached the remote shell unquoted and
+all three hosts exited 126 before any rank or output was created. The first
+port probe likewise exited 2 after losing its Python `-c` quotes. Both command
+construction faults were retained, corrected, and rerun successfully.
+
+The corrected three-host preflight verified the real 12,764-row `crn` Arrow
+domain, NCCL 23007, exact six-view selection, pointwise entropy, the read-only
+3090 SSHFS, the isolated 4090-2 driver library, matching launcher hashes, an
+empty output path, and free port 29665. Workers started on 3090 and 4090-2 at
+05:52:47 and 05:53:09; A6000 ranks followed at 05:53:43. All eight ranks
+crossed the barrier and rank0 entered `crn` with a 6.6779 s first iteration.
+Initial host memory was 37,167/18,656/19,162 MiB at 100% utilization, with no
+critical log error. Ordered variant 7 `pointwise` is now running.

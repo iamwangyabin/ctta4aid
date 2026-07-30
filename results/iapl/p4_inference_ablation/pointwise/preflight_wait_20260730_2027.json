@@ -1,6 +1,6 @@
 {
   "experiment": "P4 pointwise full UFD ablation",
-  "status": "waiting_for_clean_a6000",
+  "status": "resolved_clean_gpu",
   "checked_at": "2026-07-30T20:27:16+08:00",
   "strict_order_prerequisite": {
     "variant": "select4",
@@ -59,5 +59,21 @@
     "clean_for_profiled_launch": false,
     "operator_action": "Observed only; the external process was not modified or terminated."
   },
-  "decision": "Do not launch pointwise while another user's A6000 process is active. Preserve and synchronize the completed select4 audit, then recheck for a clean A6000. Do not modify or terminate the external process."
+  "extended_wait": {
+    "external_processes_observed_not_modified": [832548, 862256, 867149, 871170],
+    "last_blocking_process": {
+      "pid": 871170,
+      "user_as_reported_by_ps": "wangche+",
+      "command": "python3 train_sharepara_moe_0406_loss.py",
+      "last_observed_memory_mib": 4368
+    },
+    "operator_action": "All external processes were observed only and were never modified or terminated."
+  },
+  "resolution": {
+    "detected_at": "2026-07-31T05:48:12+08:00",
+    "A6000_memory_mib": 17,
+    "A6000_utilization_percent": 0,
+    "A6000_compute_processes": 0,
+    "decision": "Run the full three-host preflight and launch pointwise in worker-first order."
+  }
 }
