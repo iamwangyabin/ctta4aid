@@ -1,0 +1,114 @@
+{
+  "left": "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1318/predictions",
+  "right": "results/iapl/p1_ufd_19domain_8rank_3node/predictions",
+  "domains": {
+    "crn": {
+      "domain": "crn",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 12768,
+      "right_samples_with_padding": 12768,
+      "left_duplicate_indices": 4,
+      "right_duplicate_indices": 4,
+      "common_unique_indices": 12764,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 12764,
+      "mean_absolute_probability_delta": 0.0123963100489536,
+      "max_absolute_probability_delta": 0.96630859375,
+      "probability_correlation": 0.9782448793304347,
+      "threshold_disagreements": 154,
+      "exact_probability_matches": 7728,
+      "by_label": {
+        "0": {
+          "samples": 6382,
+          "mean_absolute_probability_delta": 0.0247926200979072,
+          "max_absolute_probability_delta": 0.96630859375,
+          "probability_correlation": 0.920959656750312,
+          "threshold_disagreements": 154,
+          "exact_probability_matches": 1346
+        },
+        "1": {
+          "samples": 6382,
+          "mean_absolute_probability_delta": 0.0,
+          "max_absolute_probability_delta": 0.0,
+          "probability_correlation": null,
+          "threshold_disagreements": 0,
+          "exact_probability_matches": 6382
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 3972,
+          "label": 0,
+          "left_probability": 1.0,
+          "right_probability": 0.03369140625,
+          "absolute_delta": 0.96630859375
+        },
+        {
+          "index": 537,
+          "label": 0,
+          "left_probability": 0.99609375,
+          "right_probability": 0.03564453125,
+          "absolute_delta": 0.96044921875
+        },
+        {
+          "index": 5937,
+          "label": 0,
+          "left_probability": 1.0,
+          "right_probability": 0.040283203125,
+          "absolute_delta": 0.959716796875
+        },
+        {
+          "index": 426,
+          "label": 0,
+          "left_probability": 1.0,
+          "right_probability": 0.0439453125,
+          "absolute_delta": 0.9560546875
+        },
+        {
+          "index": 566,
+          "label": 0,
+          "left_probability": 1.0,
+          "right_probability": 0.046142578125,
+          "absolute_delta": 0.953857421875
+        },
+        {
+          "index": 4221,
+          "label": 0,
+          "left_probability": 0.03857421875,
+          "right_probability": 0.9921875,
+          "absolute_delta": 0.95361328125
+        },
+        {
+          "index": 1673,
+          "label": 0,
+          "left_probability": 0.99609375,
+          "right_probability": 0.04345703125,
+          "absolute_delta": 0.95263671875
+        },
+        {
+          "index": 5098,
+          "label": 0,
+          "left_probability": 0.9921875,
+          "right_probability": 0.03955078125,
+          "absolute_delta": 0.95263671875
+        },
+        {
+          "index": 4901,
+          "label": 0,
+          "left_probability": 0.99609375,
+          "right_probability": 0.0439453125,
+          "absolute_delta": 0.9521484375
+        },
+        {
+          "index": 2327,
+          "label": 0,
+          "left_probability": 0.99609375,
+          "right_probability": 0.044677734375,
+          "absolute_delta": 0.951416015625
+        }
+      ]
+    }
+  }
+}

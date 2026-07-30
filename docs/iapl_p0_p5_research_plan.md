@@ -792,6 +792,14 @@ Acc 与 P1 持平且 AP 高 0.0999 点，`deepfake` Acc 高 0.0555 点。26,811 
 4.9484 s；三机初始显存为 37,175/18,652/19,162 MiB，均为 100% 利用率且无
 启动错误。后续变体未提前启动。
 
+13:18 `select4` 已完成 `crn` 并进入 `cyclegan`。`crn` 为 91.6432% Acc /
+92.1722% AP，相对 P1 六视图低 0.8929/0.6030 点，但相对 `select2` 高
+1.7309/0.1064 点；real Accuracy 分别低 1.7852 点、高 3.4607 点，fake
+Accuracy 仍为 100%。12,764 个唯一索引和标签与两组对照完全一致；相对 P1 有
+154 个阈值分歧，平均绝对概率差 0.01240。该域吞吐为 2.9483 unique images/s，
+瓶颈 rank 延迟 2,712.53 ms/image。三机 GPU、3090 只读 SSHFS 与八 rank 日志
+均正常，暂时退化原样保留，后续变体未提前启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

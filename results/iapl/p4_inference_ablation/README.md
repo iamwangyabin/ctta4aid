@@ -547,3 +547,15 @@ the worker-first launch at 11:59:15 on port 29664. All eight ranks crossed the
 barrier and entered `crn`; rank 0's first iteration took 4.9484 s. Initial
 A6000/3090/4090-2 memory is 37,175/18,652/19,162 MiB at 100% utilization,
 with no startup error. Later variants remain unlaunched.
+
+The 13:18 snapshot preserves the first completed `select4` domain while the
+run enters `cyclegan`. On `crn`, selecting four views gives 91.6432% Acc and
+92.1722% AP. This is 0.8929/0.6030 points below P1's six-view reference, but
+1.7309/0.1064 points above `select2`; the real-accuracy deltas are -1.7852 and
++3.4607 points, respectively, while fake accuracy remains 100%. All 12,764
+unique indices and labels match both references. The P1 comparison has 154
+threshold disagreements and a 0.01240 mean absolute probability delta.
+`crn` runs at 2.9483 unique images/s with 2,712.53 ms bottleneck-rank latency.
+All three GPUs remain fully utilized, 3090's read-only SSHFS is healthy, and
+the eight rank logs contain no execution error. This provisional degradation
+is retained without restart or selection.
