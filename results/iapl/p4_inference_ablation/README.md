@@ -615,9 +615,9 @@ snapshot and both remain unattributed. The third began at 17:09:19 and a
 17:21:48 snapshot identified another user's `train_sharepara_moe_0406_loss.py`
 process holding 4,530 MiB alongside the four unchanged P4 ranks. It was
 observed only and not modified. Predictions remain valid, but `imle` timing
-is flagged as shared-GPU contaminated. The raw 41,788 MiB peak, clean 37,175
-MiB P4 plateau, and rank-local CUDA allocation are reported separately; the
-run continues without restart.
+is flagged as shared-GPU contaminated. The then-current raw 41,788 MiB peak,
+clean 37,175 MiB P4 plateau, and rank-local CUDA allocation are reported
+separately; the run continues without restart.
 
 The 17:49 snapshot reaches thirteen completed domains and runs `ldm_200_cfg`.
 Partial Acc/AP are 95.4505%/97.5280%, 0.0882/0.1257 points below matched P1
@@ -691,3 +691,28 @@ started at 19:06:54 with 4,530 MiB. Raw A6000 memory briefly set a new 42,386
 MiB peak at 19:08:02, and a five-sample pmon check directly observed the new
 process using 33% SM in one sample. It was not modified. `stylegan` timing is
 therefore shared-compute contaminated, while its predictions remain usable.
+
+`select4` completed all 19 domains at 20:23:14 CST after 8h23m59s. Final
+Acc/AP are 95.4230%/97.1425%, with 95.9466% real and 94.8983% fake Accuracy.
+Against the matched six-view P1 reference, four views lose only 0.0693 Acc
+and 0.0749 AP points; real Accuracy is 0.3284 points lower while fake Accuracy
+is 0.1900 points higher. Against `select2`, four views recover 0.3068 Acc,
+0.3219 AP, and 0.8600 real-accuracy points, while fake Accuracy is 0.2468
+points lower. The remaining P1 gap is concentrated in `seeingdark`, `crn`,
+and `imle`; `san` improves by 1.1364 Acc points. All 88,353 unique indices
+and labels match both controls, with 455 P1 threshold disagreements and a
+0.00538 weighted probability MAD.
+
+The profile sums to 30,181.21 s, or 2.9274 unique images/s and 2,732.07 ms
+weighted bottleneck latency. Rank-local peak allocation/reservation remains
+8,437.55/8,776 MiB. Raw host peaks are 42,910/18,652/19,162 MiB, but the
+A6000 peak and timing from `imle` through `stylegan` are shared-process
+contaminated; the clean P4 plateau is 37,175 MiB. The final raw peak was a
+single 19:59:44 sample. All rank and launcher logs are error-free, the 3090
+SSHFS remained read-only, and all eight P4 processes exited.
+
+This establishes four views as the best reduced-cost selection setting so
+far, while six views remains the most balanced accuracy default. `pointwise`
+was not launched: at 20:27 the external A6000 process still held 4,538 MiB
+and used 48% GPU, so its clean-profile preflight is waiting rather than
+contaminating another ordered run.

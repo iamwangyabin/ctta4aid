@@ -3,7 +3,7 @@
   "status": "shared_a6000_memory_contamination_preserved",
   "detected_from": "remote gpu_monitor_ubuntu.csv and contemporaneous nvidia-smi/ps snapshots",
   "clean_p4_plateau_mib": 37175,
-  "raw_monitor_peak_mib": 41788,
+  "raw_monitor_peak_mib": 42910,
   "active_domain": "imle",
   "intervals": [
     {
@@ -82,10 +82,23 @@
     "five_sample_pmon_compute_activity": "observed in one sample at 33% SM and 28% memory utilization",
     "observation": "A new process with the same user and command replaced the earlier PID. Unlike the first short pmon check, compute activity was directly observed. stylegan timing is therefore explicitly shared-compute contaminated. Neither process was modified."
   },
+  "final_observation": {
+    "select4_completed_at": "2026-07-30T20:23:14+08:00",
+    "raw_a6000_peak_mib": 42910,
+    "raw_a6000_peak_at": "2026-07-30T19:59:44+08:00",
+    "peak_was_single_monitor_sample": true,
+    "post_run_checked_at": "2026-07-30T20:27:16+08:00",
+    "all_p4_rank_processes_exited": true,
+    "external_process_pid": 832548,
+    "external_process_memory_mib": 4538,
+    "total_a6000_memory_mib": 4563,
+    "a6000_utilization_percent": 48,
+    "reporting_conclusion": "The run's predictions and rank-local memory are valid. Raw A6000 host memory and timing from imle through stylegan are shared-process contaminated and must not be presented as clean P4 efficiency measurements."
+  },
   "impact": {
     "prediction_validity": "No correctness error is visible. Preserve all predictions and accuracy metrics.",
     "timing_validity": "Timing from imle through the later domains remains shared-GPU contaminated while the external process is resident and must be flagged in latency and throughput reporting.",
-    "memory_reporting": "Report the 41,788 MiB raw host peak separately from the 37,175 MiB clean P4 plateau, and use rank-local CUDA allocation for attributable P4 memory."
+    "memory_reporting": "Report the 42,910 MiB final raw host peak separately from the 37,175 MiB clean P4 plateau, and use rank-local CUDA allocation for attributable P4 memory."
   },
   "operator_action": "The other user's process was observed only. It was not modified or terminated, and select4 was not restarted.",
   "reporting_policy": "Preserve all three intervals and the raw run. Do not assign intervals A or B without process snapshots; identify interval C as shared memory from the captured external process; flag imle timing rather than discarding the result."

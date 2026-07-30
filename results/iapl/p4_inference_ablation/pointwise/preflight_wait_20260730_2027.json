@@ -1,0 +1,63 @@
+{
+  "experiment": "P4 pointwise full UFD ablation",
+  "status": "waiting_for_clean_a6000",
+  "checked_at": "2026-07-30T20:27:16+08:00",
+  "strict_order_prerequisite": {
+    "variant": "select4",
+    "status": "completed_and_audited",
+    "result": "results/iapl/p4_inference_ablation/select4/final"
+  },
+  "planned_protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 6,
+    "tta_entropy": "pointwise",
+    "ois": true,
+    "seed": 100,
+    "master_port": 29665
+  },
+  "host_status": {
+    "A6000": {
+      "p4_rank_processes": 0,
+      "external_process_pid": 832548,
+      "external_process_user_as_reported_by_ps": "wangche+",
+      "external_process_command": "python3 train_sharepara_moe_0406_loss.py",
+      "external_process_memory_mib": 4538,
+      "total_gpu_memory_used_mib": 4563,
+      "gpu_utilization_percent": 48,
+      "clean_for_profiled_launch": false
+    },
+    "3090": {
+      "p4_rank_processes": 0,
+      "gpu_memory_used_mib": 106,
+      "gpu_utilization_percent": 0,
+      "sshfs_mounted_read_only": true,
+      "failed_data_device_accessed": false,
+      "clean_for_profiled_launch": true
+    },
+    "4090-2": {
+      "p4_rank_processes": 0,
+      "gpu_memory_used_mib": 252,
+      "gpu_utilization_percent": 0,
+      "status_source": "audited 580.159.03 driver compatibility library",
+      "clean_for_profiled_launch": true
+    }
+  },
+  "follow_up_at_2026_07_30_20_35_09": {
+    "A6000_p4_rank_processes": 0,
+    "external_process_pid": 832548,
+    "external_process_elapsed": "01:28:54",
+    "external_process_memory_mib": 4538,
+    "total_gpu_memory_used_mib": 4563,
+    "gpu_utilization_percent": 47,
+    "clean_for_profiled_launch": false,
+    "operator_action": "Observed only; the external process was not modified or terminated."
+  },
+  "decision": "Do not launch pointwise while another user's A6000 process is active. Preserve and synchronize the completed select4 audit, then recheck for a clean A6000. Do not modify or terminate the external process."
+}
