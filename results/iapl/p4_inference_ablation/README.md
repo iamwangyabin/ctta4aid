@@ -500,3 +500,12 @@ and 4.30 fake-accuracy points. Real accuracy remains 0.8519 points below P1,
 while fake accuracy is 0.6535 points higher. All 44,811 indices and labels
 match, and the throughput, rank-local memory, host memory, SSHFS, and eight-log
 audits remain stable.
+
+The 09:48 snapshot reaches fourteen completed `select2` domains and runs
+`progan`. Partial Acc/AP are 95.4638%/97.5420%, now 0.2115/0.2223 points below
+matched P1. The renewed gap comes from `imle`, which records 89.8888% Acc and
+91.3541% AP, down 2.4671/1.2863 points and 4.9327 real-accuracy points. The
+three completed LDM domains remain near P1 and slightly improve Acc. All 63,575
+indices and labels match. Throughput remains 2.9319-2.9632 images/s; all
+critical ranks are on A6000, and the distributed, storage, memory, and log
+audits stay clean.

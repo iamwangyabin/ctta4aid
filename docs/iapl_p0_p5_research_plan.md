@@ -759,6 +759,12 @@ Acc 与 P1 持平且 AP 高 0.0999 点，`deepfake` Acc 高 0.0555 点。26,811 
 点、4.30 fake-accuracy 点。real Accuracy 仍低 0.8519 点，fake Accuracy 高
 0.6535 点。44,811 个索引和标签一致，吞吐、显存、SSHFS 与八 rank 日志正常。
 
+09:48 `select2` 已完成十四域并运行 `progan`，部分宏平均为 95.4638% Acc /
+97.5420% AP，相对 P1 相同十四域低 0.2115/0.2223 点。新增差距主要来自
+`imle`：89.8888% Acc / 91.3541% AP，低 2.4671/1.2863 点，real Accuracy
+低 4.9327 点；三个 LDM 域与 P1 接近且 Acc 略高。63,575 个索引和标签一致，
+三机、SSHFS、吞吐、显存与八 rank 日志继续正常。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
