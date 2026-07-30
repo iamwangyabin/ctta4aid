@@ -537,3 +537,13 @@ all processes exited. The accepted conclusion is that two selected views are
 not performance-neutral: the six-view default remains the better balanced
 operating point. This completes ordered variant 5; `select4` is next and will
 not start until this final audit is committed and pushed.
+
+After commit `f3f1506` was pushed, `select4` passed fresh empty-output, code,
+NCCL, checkpoint, port, GPU, and real 12,764-row `crn` Arrow checks on all
+three hosts. The 3090 read-only SSHFS remained healthy and the failed `/data`
+device was not accessed; 4090-2 used its audited driver compatibility library.
+Ranks 4/5 started at 11:58:42, ranks 6/7 at 11:59:00, and ranks 0-3 completed
+the worker-first launch at 11:59:15 on port 29664. All eight ranks crossed the
+barrier and entered `crn`; rank 0's first iteration took 4.9484 s. Initial
+A6000/3090/4090-2 memory is 37,175/18,652/19,162 MiB at 100% utilization,
+with no startup error. Later variants remain unlaunched.

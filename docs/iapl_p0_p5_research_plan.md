@@ -784,6 +784,14 @@ Acc 与 P1 持平且 AP 高 0.0999 点，`deepfake` Acc 高 0.0555 点。26,811 
 状态全部审计通过。因此保留“选择两视图并非无损加速，六视图是更均衡默认值”的
 结论。该最终结果提交并推送前不启动 `select4`。
 
+提交 `f3f1506` 推送后，`select4` 在三机重新通过空输出、代码、NCCL、checkpoint、
+端口、GPU 和真实 12,764 行 `crn` Arrow 预检；3090 只读 SSHFS 正常且未访问失效
+`/data`，4090-2 使用已审计驱动兼容库。rank 4/5 于 11:58:42 启动，rank 6/7
+于 11:59:00 启动，rank 0-3 于 11:59:15 完成 worker-first 八 rank 启动，端口
+29664。全部 ranks 已越过 barrier 并进入 `crn`，rank0 首个 iteration 为
+4.9484 s；三机初始显存为 37,175/18,652/19,162 MiB，均为 100% 利用率且无
+启动错误。后续变体未提前启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
