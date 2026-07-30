@@ -800,6 +800,15 @@ Accuracy 仍为 100%。12,764 个唯一索引和标签与两组对照完全一�
 瓶颈 rank 延迟 2,712.53 ms/image。三机 GPU、3090 只读 SSHFS 与八 rank 日志
 均正常，暂时退化原样保留，后续变体未提前启动。
 
+13:48 `select4` 已完成 `crn`、`cyclegan`、`dalle` 并运行 `biggan`。三域
+部分平均为 96.3738% Acc / 96.5628% AP，相对 P1 低 0.4187/0.2168 点，
+但相对 `select2` 高 0.6195/0.1798 点。real Accuracy 相对两者分别低
+0.7371 点、高 1.4381 点；fake Accuracy 低 0.10/0.20 点。`cyclegan` 相对
+`select2` 恢复 0.3776 Acc 点，`dalle` 则相对两组对照均低 0.25 点。17,406
+个唯一索引和标签完全一致，相对 P1 有 166 个阈值分歧，平均绝对概率差
+0.00981。域吞吐保持 2.9472-2.9565 images/s，三机、SSHFS、显存和八 rank
+日志继续正常，后续变体未提前启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

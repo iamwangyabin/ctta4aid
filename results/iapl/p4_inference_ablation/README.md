@@ -559,3 +559,14 @@ threshold disagreements and a 0.01240 mean absolute probability delta.
 All three GPUs remain fully utilized, 3090's read-only SSHFS is healthy, and
 the eight rank logs contain no execution error. This provisional degradation
 is retained without restart or selection.
+
+The 13:48 snapshot extends `select4` to `crn`, `cyclegan`, and `dalle` while
+`biggan` runs. Partial Acc/AP are 96.3738%/96.5628%, 0.4187/0.2168 points
+below matched P1 but 0.6195/0.1798 points above `select2`. Real accuracy is
+0.7371 points below P1 and 1.4381 points above `select2`; fake accuracy is
+0.10/0.20 points lower. `cyclegan` recovers 0.3776 Acc points over `select2`,
+whereas `dalle` loses 0.25 Acc points against both references. All 17,406
+unique sample indices and labels match both controls. The P1 comparison has
+166 threshold disagreements and a 0.00981 weighted probability MAD. Domain
+throughput remains 2.9472-2.9565 images/s, all critical ranks remain on A6000,
+and the three-host storage, GPU, memory, and log audits stay clean.
