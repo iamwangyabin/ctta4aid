@@ -636,3 +636,5 @@ Their predictions are retained, but timing is explicitly shared-GPU
 contaminated. The external process was not modified. 4090-2's default NVML
 still has its known library mismatch, while the audited 580.159.03 library
 reports 19,162 MiB at 100%; both ranks and all logs remain healthy.
+At 18:00:01 the same external process had re-expanded to 4,514 MiB and raw
+A6000 use returned to 41,694 MiB, so `ldm_200_cfg` timing is flagged as well.
