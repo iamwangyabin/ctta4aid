@@ -666,3 +666,15 @@ running `seeingdark` timing are flagged. Their throughput is 2.8790 and
 2.8421 images/s for the two completed domains, but prediction validity is
 unaffected. All eight ranks and both data paths remain healthy; `pointwise`
 has not started.
+
+`seeingdark` completed at 18:52 and the 17-domain snapshot preserves its weak
+88.61% Acc / 86.61% AP result before `stargan` proceeds. This is 1.3889/0.8267
+points below P1 because real Accuracy falls to 77.22%, but it remains
+2.2222/2.5464 points above `select2`; fake Accuracy is 100%. The partial
+17-domain Acc/AP become 95.3727%/97.0810%, 0.0764/0.0833 points below P1 and
+0.3243/0.3528 points above `select2`. All 72,373 unique indices and labels
+match both controls. The weak result is retained without rerun or selection.
+
+Its throughput drops to 2.3972 images/s and bottleneck latency rises to
+3,337.23 ms under the still-resident external A6000 job. This timing is not
+used as a clean P4 measurement; the prediction result remains valid.
