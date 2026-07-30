@@ -590,3 +590,19 @@ essentially tied with P1 and 0.1373 points below `select2`. `gaugan` recovers
 0.1055 AP points. All 38,811 sample indices and labels match both references.
 The P1 comparison has 194 threshold disagreements and a 0.00527 weighted MAD.
 Throughput, memory, the read-only SSHFS, and every rank log remain healthy.
+
+The 16:18 snapshot reaches ten completed `select4` domains and enters `imle`.
+Partial Acc/AP are 95.0385%/97.6713%, 0.0613/0.1163 points below matched P1
+and 0.0382/0.0439 points above `select2`. `guided` remains weak at 73.00% Acc
+and 94.96% AP: it gains 0.60 Acc points over P1 but loses 1.40 points to
+`select2`. All 44,811 sample indices and labels match both references, with
+234 P1 threshold disagreements and a 0.00547 weighted probability MAD.
+
+The raw A6000 monitor briefly rose from the 37,175 MiB P4 plateau to 39,240
+MiB during `glide_100_27` from 15:55:43 to 15:55:54, then returned in one
+sample. Rank-local allocation/reservation stayed at 8,437.55/8,776 MiB and no
+log error occurred. A later process snapshot shows only the four P4 ranks at
+37,175 MiB. Because no process snapshot exists during the event, the extra
+2,065 MiB is preserved as an unattributed transient rather than assigned to
+P4 or another user. `glide_100_27` timing is not an outlier but is
+conservatively flagged; the run continues without restart.

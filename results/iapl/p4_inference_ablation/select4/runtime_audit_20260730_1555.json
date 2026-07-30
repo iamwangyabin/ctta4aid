@@ -1,0 +1,45 @@
+{
+  "experiment": "P4 select4 full UFD ablation",
+  "status": "unattributed_transient_a6000_memory_peak_preserved",
+  "detected_from": "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1618/gpu_monitor_ubuntu.csv",
+  "event": {
+    "started_at": "2026-07-30T15:55:43+08:00",
+    "peak_at": "2026-07-30T15:55:54+08:00",
+    "returned_to_plateau_at": "2026-07-30T15:55:55+08:00",
+    "baseline_p4_plateau_mib": 37175,
+    "raw_peak_mib": 39240,
+    "unattributed_extra_mib": 2065,
+    "gpu_utilization_percent_during_event": 100,
+    "active_domain": "glide_100_27"
+  },
+  "attribution": {
+    "rank_local_peak_allocated_mib": 8437.5458984375,
+    "rank_local_peak_reserved_mib": 8776.0,
+    "rank_local_profile_changed": false,
+    "errors_detected_in_eight_rank_logs": 0,
+    "process_identity_captured_during_event": false,
+    "conclusion": "The extra 2,065 MiB is not attributable to the rank-local PyTorch allocation profile. Preserve the raw peak as an unattributed transient rather than assigning it to P4 or another user without a contemporaneous process snapshot."
+  },
+  "post_event_check": {
+    "checked_at": "2026-07-30T16:21:27+08:00",
+    "raw_memory_mib": 37175,
+    "gpu_utilization_percent": 100,
+    "compute_processes": 4,
+    "compute_process_pids": [708462, 708463, 708464, 708465],
+    "compute_process_memory_mib": [9276, 9300, 9296, 9272],
+    "compute_process_memory_sum_mib": 37144,
+    "only_select4_ranks_present": true
+  },
+  "timing": {
+    "glide_100_27_wall_seconds": 676.6850644060178,
+    "glide_100_27_cluster_images_per_second": 2.955584665897074,
+    "glide_100_27_bottleneck_latency_ms_per_image": 2706.740257624071,
+    "neighbor_domain_wall_seconds": {
+      "glide_50_27": 675.6437472230173,
+      "glide_100_10": 677.405523375026,
+      "guided": 676.2180366659886
+    },
+    "conclusion": "No timing outlier is visible, but glide_100_27 timing remains conservatively flagged because compute attribution during the transient was not captured."
+  },
+  "reporting_policy": "Keep the raw 39,240 MiB host peak, report the 37,175 MiB clean P4 plateau separately, use rank-local CUDA allocation for the attributable memory curve, and do not restart or discard the run."
+}

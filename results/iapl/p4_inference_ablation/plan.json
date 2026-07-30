@@ -175,7 +175,8 @@
       "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1318",
       "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1348",
       "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1448",
-      "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1548"
+      "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1548",
+      "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1618"
     ],
     "failure_snapshots": [
       "results/iapl/p4_inference_ablation/steps1/failure_20260729_0126_nvme",
@@ -190,7 +191,8 @@
       "results/iapl/p4_inference_ablation/select4/launch_20260730.json"
     ],
     "runtime_audits": [
-      "results/iapl/p4_inference_ablation/ois_off/runtime_audit_20260729_2018.json"
+      "results/iapl/p4_inference_ablation/ois_off/runtime_audit_20260729_2018.json",
+      "results/iapl/p4_inference_ablation/select4/runtime_audit_20260730_1555.json"
     ],
     "recovery_preflights": [
       "results/iapl/p4_inference_ablation/steps1/attempt2/recovery_preflight_3090_sshfs_20260729.json"
