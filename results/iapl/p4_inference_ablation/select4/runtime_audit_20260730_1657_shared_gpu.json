@@ -1,0 +1,61 @@
+{
+  "experiment": "P4 select4 full UFD ablation",
+  "status": "shared_a6000_memory_contamination_preserved",
+  "detected_from": "remote gpu_monitor_ubuntu.csv and contemporaneous nvidia-smi/ps snapshots",
+  "clean_p4_plateau_mib": 37175,
+  "raw_monitor_peak_mib": 41788,
+  "active_domain": "imle",
+  "intervals": [
+    {
+      "id": "A",
+      "first_observed_at": "2026-07-30T16:57:50+08:00",
+      "started_before_first_observation": true,
+      "first_observed_memory_mib": 39448,
+      "peak_at": "2026-07-30T16:58:16+08:00",
+      "peak_memory_mib": 41788,
+      "returned_to_plateau_at": "2026-07-30T16:59:07+08:00",
+      "process_snapshot_available": false,
+      "attribution": "unattributed"
+    },
+    {
+      "id": "B",
+      "started_at": "2026-07-30T16:59:43+08:00",
+      "plateau_memory_mib": 41398,
+      "returned_to_plateau_at": "2026-07-30T17:09:14+08:00",
+      "process_snapshot_available": false,
+      "attribution": "unattributed"
+    },
+    {
+      "id": "C",
+      "started_at": "2026-07-30T17:09:19+08:00",
+      "last_checked_at": "2026-07-30T17:21:48+08:00",
+      "last_observed_memory_mib": 41710,
+      "process_snapshot_available": true,
+      "attribution": "another user's process",
+      "process": {
+        "pid": 801613,
+        "user_as_reported_by_ps": "wangche+",
+        "command": "python3 train_sharepara_moe_0406_loss.py",
+        "used_memory_mib_at_17_21_48": 4530,
+        "elapsed_seconds_at_17_21_48": 753,
+        "five_sample_pmon_compute_activity": "not observed",
+        "interpretation": "The process was memory-resident at the check; the five-sample pmon window does not prove that it was idle over the full interval."
+      }
+    }
+  ],
+  "select4_process_snapshot_at_17_21_48": {
+    "pids": [708462, 708463, 708464, 708465],
+    "used_memory_mib": [9276, 9300, 9296, 9272],
+    "sum_mib": 37144,
+    "rank_local_peak_allocated_mib": 8437.5458984375,
+    "rank_local_peak_reserved_mib": 8776.0,
+    "errors_detected_in_eight_rank_logs": 0
+  },
+  "impact": {
+    "prediction_validity": "No correctness error is visible. Preserve all predictions and accuracy metrics.",
+    "timing_validity": "The imle timing is shared-GPU contaminated from at least 16:57:50 onward and must be flagged in latency and throughput reporting.",
+    "memory_reporting": "Report the 41,788 MiB raw host peak separately from the 37,175 MiB clean P4 plateau, and use rank-local CUDA allocation for attributable P4 memory."
+  },
+  "operator_action": "The other user's process was observed only. It was not modified or terminated, and select4 was not restarted.",
+  "reporting_policy": "Preserve all three intervals and the raw run. Do not assign intervals A or B without process snapshots; identify interval C as shared memory from the captured external process; flag imle timing rather than discarding the result."
+}

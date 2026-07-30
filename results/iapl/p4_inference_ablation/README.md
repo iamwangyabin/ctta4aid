@@ -606,3 +606,15 @@ log error occurred. A later process snapshot shows only the four P4 ranks at
 2,065 MiB is preserved as an unattributed transient rather than assigned to
 P4 or another user. `glide_100_27` timing is not an outlier but is
 conservatively flagged; the run continues without restart.
+
+During `imle`, the raw A6000 monitor recorded three later shared-memory
+intervals. The first was already at 39,448 MiB when observed at 16:57:50,
+peaked at 41,788 MiB, and cleared at 16:59:07; the second held 41,398 MiB
+from 16:59:43 to 17:09:14. Neither interval has a contemporaneous process
+snapshot and both remain unattributed. The third began at 17:09:19 and a
+17:21:48 snapshot identified another user's `train_sharepara_moe_0406_loss.py`
+process holding 4,530 MiB alongside the four unchanged P4 ranks. It was
+observed only and not modified. Predictions remain valid, but `imle` timing
+is flagged as shared-GPU contaminated. The raw 41,788 MiB peak, clean 37,175
+MiB P4 plateau, and rank-local CUDA allocation are reported separately; the
+run continues without restart.
