@@ -765,6 +765,12 @@ Acc 与 P1 持平且 AP 高 0.0999 点，`deepfake` Acc 高 0.0555 点。26,811 
 低 4.9327 点；三个 LDM 域与 P1 接近且 Acc 略高。63,575 个索引和标签一致，
 三机、SSHFS、吞吐、显存与八 rank 日志继续正常。
 
+10:18 `select2` 已完成十七域并运行 `stargan`，部分宏平均为 95.0484% Acc /
+96.7281% AP，相对 P1 相同十七域低 0.4007/0.4361 点。`progan` 基本不变，
+`san` Acc 仅低 0.2273 点；但 `seeingdark` 降至 86.3889% Acc / 84.0614% AP，
+低 3.6111/3.3731 点，real Accuracy 低 7.2222 点。该弱结果原样保留。72,373
+个索引和标签一致，三机、SSHFS、显存与八 rank 日志正常。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

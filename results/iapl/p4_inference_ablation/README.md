@@ -509,3 +509,12 @@ three completed LDM domains remain near P1 and slightly improve Acc. All 63,575
 indices and labels match. Throughput remains 2.9319-2.9632 images/s; all
 critical ranks are on A6000, and the distributed, storage, memory, and log
 audits stay clean.
+
+The 10:18 snapshot reaches seventeen completed `select2` domains and runs
+`stargan`. Partial Acc/AP are 95.0484%/96.7281%, 0.4007/0.4361 points below
+matched P1. `progan` is effectively unchanged and `san` loses only 0.2273 Acc
+points, but `seeingdark` falls to 86.3889% Acc and 84.0614% AP, down
+3.6111/3.3731 points and 7.2222 real-accuracy points. This weak result is kept.
+All 72,373 indices and labels match P1; the small-domain overhead expands the
+throughput range to 2.7465-2.9632 images/s, while memory, SSHFS, GPU, and all
+eight rank logs remain healthy.
