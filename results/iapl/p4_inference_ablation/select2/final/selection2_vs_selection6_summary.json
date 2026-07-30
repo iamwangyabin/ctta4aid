@@ -1,0 +1,98 @@
+{
+  "comparison": "P4 selection_count=2 versus matched local P1 selection_count=6 reference",
+  "matched_protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "views": 32,
+    "tta_steps": 2,
+    "tta_entropy": "averaged",
+    "ois": true,
+    "seed": 100,
+    "domains": 19,
+    "dataset_size": 88353,
+    "only_changed_factor": "selection_count: 6 -> 2"
+  },
+  "selection_count_2": {
+    "accuracy": 0.9511623337438609,
+    "average_precision": 0.9682061659300476,
+    "real_accuracy": 0.9508665349981028,
+    "fake_accuracy": 0.9514509424172158
+  },
+  "selection_count_6": {
+    "accuracy": 0.9549230231997762,
+    "average_precision": 0.972173971158963,
+    "real_accuracy": 0.9627500452306087,
+    "fake_accuracy": 0.9470821121276849
+  },
+  "selection2_minus_selection6": {
+    "accuracy": -0.0037606894559152337,
+    "average_precision": -0.003967805228915378,
+    "real_accuracy": -0.01188351023250589,
+    "fake_accuracy": 0.004368830289530945
+  },
+  "prediction_comparison": {
+    "unique_samples": 88353,
+    "samples_with_distributed_padding": 88376,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 1015,
+    "threshold_disagreement_rate": 0.01148800833022082,
+    "exact_probability_matches": 51639,
+    "weighted_mean_absolute_probability_delta": 0.011513789263437914,
+    "max_absolute_probability_delta": 0.9999573230743408,
+    "largest_disagreement_domains": {
+      "crn": 345,
+      "imle": 331,
+      "stylegan": 86,
+      "guided": 54,
+      "stargan": 40,
+      "gaugan": 27,
+      "biggan": 15,
+      "cyclegan": 15
+    }
+  },
+  "largest_accuracy_regressions": {
+    "seeingdark": {
+      "accuracy": 0.8638888888888889,
+      "average_precision": 0.8406142534922034,
+      "real_accuracy": 0.7277777777777777,
+      "fake_accuracy": 1.0,
+      "delta_accuracy": -0.036111111111111094,
+      "delta_average_precision": -0.03373074848437681,
+      "delta_real_accuracy": -0.0722222222222223,
+      "delta_fake_accuracy": 0.0
+    },
+    "crn": {
+      "accuracy": 0.8991228070175439,
+      "average_precision": 0.9206578188113098,
+      "delta_accuracy": -0.02623746870887056,
+      "delta_average_precision": -0.00709330780931805,
+      "delta_real_accuracy": -0.05245850297708235,
+      "delta_fake_accuracy": 0.0
+    },
+    "imle": {
+      "accuracy": 0.8988878446115288,
+      "average_precision": 0.913541368451188,
+      "delta_accuracy": -0.024671052631578982,
+      "delta_average_precision": -0.012863044411897895,
+      "delta_real_accuracy": -0.04932665209965559,
+      "delta_fake_accuracy": 0.0
+    }
+  },
+  "largest_accuracy_improvement": {
+    "guided": {
+      "accuracy": 0.744,
+      "average_precision": 0.9539817609214204,
+      "real_accuracy": 0.986,
+      "fake_accuracy": 0.502,
+      "delta_accuracy": 0.020000000000000018,
+      "delta_average_precision": 0.0003646501426048936,
+      "delta_real_accuracy": -0.0030000000000000027,
+      "delta_fake_accuracy": 0.04300000000000004
+    }
+  },
+  "conclusion": "Selecting only two of 32 views is cheaper than the six-view reference but is not performance neutral: macro Accuracy and AP fall by 0.38 and 0.40 percentage points, respectively. The loss is concentrated in real-image Accuracy (-1.19 points), especially seeingdark, crn, and imle, while fake Accuracy rises by 0.44 points. The six-view default is therefore the better balanced operating point."
+}

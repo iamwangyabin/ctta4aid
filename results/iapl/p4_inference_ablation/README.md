@@ -518,3 +518,22 @@ points, but `seeingdark` falls to 86.3889% Acc and 84.0614% AP, down
 All 72,373 indices and labels match P1; the small-domain overhead expands the
 throughput range to 2.7465-2.9632 images/s, while memory, SSHFS, GPU, and all
 eight rank logs remain healthy.
+
+`select2` completed all 19 domains at 11:39:06 CST after 8h19m47s. Final
+Acc/AP are 95.1162%/96.8206%, with 95.0867% real and 95.1451% fake Accuracy.
+Against the matched P1 six-view reference, selecting two views loses
+0.3761 Acc points, 0.3968 AP points, and 1.1884 real-accuracy points while
+gaining 0.4369 fake-accuracy points. The largest losses are `seeingdark`,
+`crn`, and `imle`; `guided` instead gains 2.00 Acc points. All 88,353 unique
+indices and labels match P1, with 1,015 threshold disagreements and a 0.01151
+weighted mean absolute probability delta.
+
+The final critical-path sum is 29,925.58 s, or 2.9524 unique images/s and
+2,708.93 ms weighted bottleneck-rank latency. Per-rank peak allocation and
+reservation are 8,437.55/8,776 MiB, and clean physical peaks are
+37,167/18,652/19,158 MiB on A6000/3090/4090-2. All eight rank logs and three
+launcher logs are error-free, the 3090 read-only SSHFS remained mounted, and
+all processes exited. The accepted conclusion is that two selected views are
+not performance-neutral: the six-view default remains the better balanced
+operating point. This completes ordered variant 5; `select4` is next and will
+not start until this final audit is committed and pushed.

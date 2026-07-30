@@ -771,6 +771,19 @@ Acc 与 P1 持平且 AP 高 0.0999 点，`deepfake` Acc 高 0.0555 点。26,811 
 低 3.6111/3.3731 点，real Accuracy 低 7.2222 点。该弱结果原样保留。72,373
 个索引和标签一致，三机、SSHFS、显存与八 rank 日志正常。
 
+11:39:06 `select2` 完成全部 19 域，耗时 8:19:47。最终为 95.1162% Acc /
+96.8206% AP，real/fake Accuracy 为 95.0867%/95.1451%。相对完全匹配的 P1
+六视图对照，选择两视图使 Acc/AP/real Accuracy 分别下降
+0.3761/0.3968/1.1884 点，fake Accuracy 上升 0.4369 点；主要损失集中在
+`seeingdark`、`crn` 和 `imle`，而 `guided` Acc 上升 2.00 点。88,353 个唯一
+索引和标签完全一致，共 1,015 个阈值分歧，平均绝对概率差 0.01151。
+
+关键路径总计 29,925.58 s，吞吐为 2.9524 unique images/s，加权瓶颈 rank
+延迟为 2,708.93 ms/image；rank 峰值显存为 8,437.55/8,776 MiB，三机干净物理
+峰值为 37,167/18,652/19,158 MiB。八 rank、三 launcher、只读 SSHFS 与退出
+状态全部审计通过。因此保留“选择两视图并非无损加速，六视图是更均衡默认值”的
+结论。该最终结果提交并推送前不启动 `select4`。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

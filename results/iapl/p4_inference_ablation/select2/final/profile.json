@@ -1,0 +1,1286 @@
+{
+  "protocol": {
+    "world_size": 8,
+    "views": 32,
+    "tta_steps": 2,
+    "selection_p": 0.2,
+    "selection_count": 2,
+    "tta_entropy": "averaged",
+    "ois": true
+  },
+  "domains": {
+    "crn": {
+      "dataset_size": 12764,
+      "samples_after_distributed_padding": 12768,
+      "wall_seconds": 4316.081385581987,
+      "cluster_images_per_second": 2.957312168078796,
+      "max_rank_mean_image_latency_ms": 2704.3116451014953,
+      "max_rank_peak_allocated_mib": 8437.5458984375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 1596,
+          "elapsed_seconds": 4316.081385581987,
+          "peak_allocated_mib": 8437.5458984375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 1596,
+          "elapsed_seconds": 4313.467260532023,
+          "peak_allocated_mib": 8437.5458984375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 1596,
+          "elapsed_seconds": 4314.195594955003,
+          "peak_allocated_mib": 8437.5458984375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 1596,
+          "elapsed_seconds": 4305.337636723998,
+          "peak_allocated_mib": 8437.5458984375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 1596,
+          "elapsed_seconds": 2329.0990095529705,
+          "peak_allocated_mib": 8437.5458984375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 1596,
+          "elapsed_seconds": 2329.5275736799813,
+          "peak_allocated_mib": 8437.5458984375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 1596,
+          "elapsed_seconds": 1383.2063271100633,
+          "peak_allocated_mib": 8437.23095703125,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 1596,
+          "elapsed_seconds": 1383.7748753163032,
+          "peak_allocated_mib": 8437.5458984375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "cyclegan": {
+      "dataset_size": 2642,
+      "samples_after_distributed_padding": 2648,
+      "wall_seconds": 894.972169568995,
+      "cluster_images_per_second": 2.9520471025063797,
+      "max_rank_mean_image_latency_ms": 2703.8434125951508,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 331,
+          "elapsed_seconds": 893.7893241519923,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 331,
+          "elapsed_seconds": 893.9935149869998,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 331,
+          "elapsed_seconds": 894.972169568995,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 331,
+          "elapsed_seconds": 894.3164308230043,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 331,
+          "elapsed_seconds": 481.2709219509852,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 331,
+          "elapsed_seconds": 481.8580407309928,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 331,
+          "elapsed_seconds": 294.6985828089528,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 331,
+          "elapsed_seconds": 292.3656290448271,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "dalle": {
+      "dataset_size": 2000,
+      "samples_after_distributed_padding": 2000,
+      "wall_seconds": 674.9558398959925,
+      "cluster_images_per_second": 2.9631568197234808,
+      "max_rank_mean_image_latency_ms": 2699.82335958397,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 250,
+          "elapsed_seconds": 674.2201179050026,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 250,
+          "elapsed_seconds": 674.9558398959925,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 250,
+          "elapsed_seconds": 674.4908721629763,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 250,
+          "elapsed_seconds": 674.3134943820187,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 250,
+          "elapsed_seconds": 364.0021710600122,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 250,
+          "elapsed_seconds": 364.0909150209627,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 250,
+          "elapsed_seconds": 215.7163455216214,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 250,
+          "elapsed_seconds": 216.2738270801492,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "biggan": {
+      "dataset_size": 4000,
+      "samples_after_distributed_padding": 4000,
+      "wall_seconds": 1353.2827905219747,
+      "cluster_images_per_second": 2.955775413693955,
+      "max_rank_mean_image_latency_ms": 2706.5655810439494,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 500,
+          "elapsed_seconds": 1350.256300753972,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 500,
+          "elapsed_seconds": 1353.2827905219747,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 500,
+          "elapsed_seconds": 1347.1969011040055,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 500,
+          "elapsed_seconds": 1353.2224157659803,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 500,
+          "elapsed_seconds": 729.6323040120187,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 500,
+          "elapsed_seconds": 729.3842608230188,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 500,
+          "elapsed_seconds": 435.7966445200145,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 500,
+          "elapsed_seconds": 436.2988788979128,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "deepfake": {
+      "dataset_size": 5405,
+      "samples_after_distributed_padding": 5408,
+      "wall_seconds": 1827.0132930050022,
+      "cluster_images_per_second": 2.9583802267306227,
+      "max_rank_mean_image_latency_ms": 2702.682386102074,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 676,
+          "elapsed_seconds": 1820.45772892097,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 676,
+          "elapsed_seconds": 1827.0132930050022,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 676,
+          "elapsed_seconds": 1824.2825838780263,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 676,
+          "elapsed_seconds": 1825.7693715850473,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 676,
+          "elapsed_seconds": 985.5301005020156,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 676,
+          "elapsed_seconds": 986.0296494209906,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 676,
+          "elapsed_seconds": 589.5319245769642,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 676,
+          "elapsed_seconds": 590.016760176979,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "gaugan": {
+      "dataset_size": 10000,
+      "samples_after_distributed_padding": 10000,
+      "wall_seconds": 3388.8066031239578,
+      "cluster_images_per_second": 2.9508913228572973,
+      "max_rank_mean_image_latency_ms": 2711.045282499166,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 1250,
+          "elapsed_seconds": 3382.874897429021,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 1250,
+          "elapsed_seconds": 3385.5383553230204,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 1250,
+          "elapsed_seconds": 3384.8660125380266,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 1250,
+          "elapsed_seconds": 3388.8066031239578,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 1250,
+          "elapsed_seconds": 1825.1949258630048,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 1250,
+          "elapsed_seconds": 1824.893935893022,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 1250,
+          "elapsed_seconds": 1084.5025313142687,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 1250,
+          "elapsed_seconds": 1086.3155308743007,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "glide_50_27": {
+      "dataset_size": 2000,
+      "samples_after_distributed_padding": 2000,
+      "wall_seconds": 681.5400115969824,
+      "cluster_images_per_second": 2.934530571893507,
+      "max_rank_mean_image_latency_ms": 2726.1600463879295,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 250,
+          "elapsed_seconds": 679.2877234529587,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 250,
+          "elapsed_seconds": 676.2377263130038,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 250,
+          "elapsed_seconds": 681.5400115969824,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 250,
+          "elapsed_seconds": 679.1360528419609,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 250,
+          "elapsed_seconds": 363.7204157980159,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 250,
+          "elapsed_seconds": 364.15304472501157,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 250,
+          "elapsed_seconds": 212.68275787075981,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 250,
+          "elapsed_seconds": 212.7631695177406,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "glide_100_10": {
+      "dataset_size": 2000,
+      "samples_after_distributed_padding": 2000,
+      "wall_seconds": 679.053643745021,
+      "cluster_images_per_second": 2.9452754114827835,
+      "max_rank_mean_image_latency_ms": 2716.214574980084,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 250,
+          "elapsed_seconds": 678.8700171480305,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 250,
+          "elapsed_seconds": 678.1432456329931,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 250,
+          "elapsed_seconds": 679.053643745021,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 250,
+          "elapsed_seconds": 678.8173165019834,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 250,
+          "elapsed_seconds": 364.46571506001055,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 250,
+          "elapsed_seconds": 364.2317477670149,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 250,
+          "elapsed_seconds": 221.37414964707568,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 250,
+          "elapsed_seconds": 220.6045441380702,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "glide_100_27": {
+      "dataset_size": 2000,
+      "samples_after_distributed_padding": 2000,
+      "wall_seconds": 679.1615581280203,
+      "cluster_images_per_second": 2.9448074262515975,
+      "max_rank_mean_image_latency_ms": 2716.646232512081,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 250,
+          "elapsed_seconds": 678.7404699090403,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 250,
+          "elapsed_seconds": 678.5413392049959,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 250,
+          "elapsed_seconds": 678.4279010329628,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 250,
+          "elapsed_seconds": 679.1615581280203,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 250,
+          "elapsed_seconds": 364.6217573360191,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 250,
+          "elapsed_seconds": 364.28580613201484,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 250,
+          "elapsed_seconds": 212.26167400786653,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 250,
+          "elapsed_seconds": 212.49407713487744,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "guided": {
+      "dataset_size": 2000,
+      "samples_after_distributed_padding": 2000,
+      "wall_seconds": 678.2326659209793,
+      "cluster_images_per_second": 2.948840568279292,
+      "max_rank_mean_image_latency_ms": 2712.9306636839174,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 250,
+          "elapsed_seconds": 677.9670846390072,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 250,
+          "elapsed_seconds": 678.2326659209793,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 250,
+          "elapsed_seconds": 678.1153351440444,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 250,
+          "elapsed_seconds": 678.0704032159992,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 250,
+          "elapsed_seconds": 364.170307073975,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 250,
+          "elapsed_seconds": 364.6380229750066,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 250,
+          "elapsed_seconds": 213.30584956612438,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 250,
+          "elapsed_seconds": 213.08174223825336,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "imle": {
+      "dataset_size": 12764,
+      "samples_after_distributed_padding": 12768,
+      "wall_seconds": 4353.512479806028,
+      "cluster_images_per_second": 2.931885473903294,
+      "max_rank_mean_image_latency_ms": 2727.7647116579124,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 1596,
+          "elapsed_seconds": 4340.0914795909775,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 1596,
+          "elapsed_seconds": 4344.554024222016,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 1596,
+          "elapsed_seconds": 4350.729732036998,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 1596,
+          "elapsed_seconds": 4353.512479806028,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 1596,
+          "elapsed_seconds": 2329.349089541007,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 1596,
+          "elapsed_seconds": 2328.982043154945,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 1596,
+          "elapsed_seconds": 1391.8199385828339,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 1596,
+          "elapsed_seconds": 1391.0335874650627,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "ldm_100": {
+      "dataset_size": 2000,
+      "samples_after_distributed_padding": 2000,
+      "wall_seconds": 679.1591210499755,
+      "cluster_images_per_second": 2.944817993326826,
+      "max_rank_mean_image_latency_ms": 2716.636484199902,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 250,
+          "elapsed_seconds": 677.0271171630011,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 250,
+          "elapsed_seconds": 677.4702754600439,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 250,
+          "elapsed_seconds": 679.1591210499755,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 250,
+          "elapsed_seconds": 679.097327215015,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 250,
+          "elapsed_seconds": 364.55455643101595,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 250,
+          "elapsed_seconds": 364.6310155900428,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 250,
+          "elapsed_seconds": 218.50888776406646,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 250,
+          "elapsed_seconds": 218.55758054321632,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "ldm_200": {
+      "dataset_size": 2000,
+      "samples_after_distributed_padding": 2000,
+      "wall_seconds": 679.539328349987,
+      "cluster_images_per_second": 2.943170345793332,
+      "max_rank_mean_image_latency_ms": 2718.157313399948,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 250,
+          "elapsed_seconds": 679.539328349987,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 250,
+          "elapsed_seconds": 679.3738489020034,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 250,
+          "elapsed_seconds": 678.5782054570154,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 250,
+          "elapsed_seconds": 678.0717751070042,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 250,
+          "elapsed_seconds": 364.3969958900125,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 250,
+          "elapsed_seconds": 364.59552750899456,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 250,
+          "elapsed_seconds": 222.70645070215687,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 250,
+          "elapsed_seconds": 221.87742569716647,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "ldm_200_cfg": {
+      "dataset_size": 2000,
+      "samples_after_distributed_padding": 2000,
+      "wall_seconds": 680.9479697769857,
+      "cluster_images_per_second": 2.9370819633326923,
+      "max_rank_mean_image_latency_ms": 2723.791879107943,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 250,
+          "elapsed_seconds": 679.7984589450061,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 250,
+          "elapsed_seconds": 679.7329584120307,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 250,
+          "elapsed_seconds": 680.9479697769857,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 250,
+          "elapsed_seconds": 679.6721777759958,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 250,
+          "elapsed_seconds": 364.25105881597847,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 250,
+          "elapsed_seconds": 364.6308708759607,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 250,
+          "elapsed_seconds": 218.71160716796294,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 250,
+          "elapsed_seconds": 216.94608825305477,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "progan": {
+      "dataset_size": 8000,
+      "samples_after_distributed_padding": 8000,
+      "wall_seconds": 2709.5022025300423,
+      "cluster_images_per_second": 2.9525718755754724,
+      "max_rank_mean_image_latency_ms": 2709.5022025300423,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 1000,
+          "elapsed_seconds": 2709.5022025300423,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 1000,
+          "elapsed_seconds": 2707.5423564119847,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 1000,
+          "elapsed_seconds": 2709.258904693008,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 1000,
+          "elapsed_seconds": 2707.4619581560255,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 1000,
+          "elapsed_seconds": 1459.346536830999,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 1000,
+          "elapsed_seconds": 1459.6685780379921,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 1000,
+          "elapsed_seconds": 864.9413976049982,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 1000,
+          "elapsed_seconds": 864.1417435952462,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "san": {
+      "dataset_size": 438,
+      "samples_after_distributed_padding": 440,
+      "wall_seconds": 149.9427104650531,
+      "cluster_images_per_second": 2.9211156623854944,
+      "max_rank_mean_image_latency_ms": 2726.2310993646015,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 55,
+          "elapsed_seconds": 149.10489590099314,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 55,
+          "elapsed_seconds": 149.9427104650531,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 55,
+          "elapsed_seconds": 149.51957318896893,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 55,
+          "elapsed_seconds": 148.6681375670014,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 55,
+          "elapsed_seconds": 79.83359091100283,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 55,
+          "elapsed_seconds": 79.64822733402252,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 55,
+          "elapsed_seconds": 46.01230676099658,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 55,
+          "elapsed_seconds": 46.73164214473218,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "seeingdark": {
+      "dataset_size": 360,
+      "samples_after_distributed_padding": 360,
+      "wall_seconds": 131.07826891099103,
+      "cluster_images_per_second": 2.7464506740202586,
+      "max_rank_mean_image_latency_ms": 2912.850420244245,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 45,
+          "elapsed_seconds": 115.50201030902099,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 45,
+          "elapsed_seconds": 124.60320940800011,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 45,
+          "elapsed_seconds": 131.07826891099103,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 45,
+          "elapsed_seconds": 130.78858795802807,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 45,
+          "elapsed_seconds": 82.24680852500023,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 45,
+          "elapsed_seconds": 78.8888816019753,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 45,
+          "elapsed_seconds": 42.817881668917835,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 45,
+          "elapsed_seconds": 54.160835944116116,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "stargan": {
+      "dataset_size": 3998,
+      "samples_after_distributed_padding": 4000,
+      "wall_seconds": 1348.499649578007,
+      "cluster_images_per_second": 2.964776447106319,
+      "max_rank_mean_image_latency_ms": 2696.999299156014,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 500,
+          "elapsed_seconds": 1348.499649578007,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 500,
+          "elapsed_seconds": 1345.3896911239717,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 500,
+          "elapsed_seconds": 1348.104951084999,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 500,
+          "elapsed_seconds": 1345.7760728590074,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 500,
+          "elapsed_seconds": 728.6608118269942,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 500,
+          "elapsed_seconds": 728.1187799079926,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 500,
+          "elapsed_seconds": 438.4388988148421,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 500,
+          "elapsed_seconds": 438.38120465073735,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    },
+    "stylegan": {
+      "dataset_size": 11982,
+      "samples_after_distributed_padding": 11984,
+      "wall_seconds": 4020.295377694012,
+      "cluster_images_per_second": 2.980378025575005,
+      "max_rank_mean_image_latency_ms": 2683.7752855100216,
+      "max_rank_peak_allocated_mib": 8435.0615234375,
+      "max_rank_peak_reserved_mib": 8776.0,
+      "ranks": [
+        {
+          "rank": 0,
+          "samples": 1498,
+          "elapsed_seconds": 4017.67996503599,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 1,
+          "samples": 1498,
+          "elapsed_seconds": 4019.557461582008,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 2,
+          "samples": 1498,
+          "elapsed_seconds": 4019.3650022799848,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 3,
+          "samples": 1498,
+          "elapsed_seconds": 4020.295377694012,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 4,
+          "samples": 1498,
+          "elapsed_seconds": 2181.6209464690182,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 5,
+          "samples": 1498,
+          "elapsed_seconds": 2181.368971041986,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        },
+        {
+          "rank": 6,
+          "samples": 1498,
+          "elapsed_seconds": 1305.666420856025,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8776.0
+        },
+        {
+          "rank": 7,
+          "samples": 1498,
+          "elapsed_seconds": 1306.8877658648416,
+          "peak_allocated_mib": 8435.0615234375,
+          "peak_reserved_mib": 8772.0
+        }
+      ]
+    }
+  }
+}
