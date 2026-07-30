@@ -638,3 +638,15 @@ still has its known library mismatch, while the audited 580.159.03 library
 reports 19,162 MiB at 100%; both ranks and all logs remain healthy.
 At 18:00:01 the same external process had re-expanded to 4,514 MiB and raw
 A6000 use returned to 41,694 MiB, so `ldm_200_cfg` timing is flagged as well.
+
+The 18:18 snapshot adds `ldm_200_cfg` and continues into `progan`. Fourteen-
+domain Acc/AP are 95.6005%/97.6475%, 0.0748/0.1167 points below matched P1
+and 0.1367/0.1055 points above `select2`. `ldm_200_cfg` reaches 97.55% Acc
+and 99.20% AP, 0.10 Acc points above P1 but 0.20 points below `select2`.
+All 63,575 unique indices and labels still match both controls; the P1
+comparison has 371 threshold disagreements and a 0.00615 weighted MAD.
+The external A6000 allocation remained at 4,514 MiB. `ldm_200_cfg` throughput
+fell to 2.8307 images/s and 2,826.17 ms bottleneck latency, the clearest
+shared-GPU timing impact so far; its prediction metrics are valid and retained.
+All eight ranks, 3090's read-only SSHFS, and the audited 4090-2 compatibility
+path remain healthy, and no later P4 variant has started.
