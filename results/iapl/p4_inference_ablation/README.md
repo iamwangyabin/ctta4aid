@@ -751,3 +751,16 @@ unchanged at 8,437.55/8,776 MiB. Raw monitor peaks remain the clean
 SSHFS remains read-only. One A6000 SSH check timed out and the first formatted
 file listing lost its remote quote; both monitoring failures were preserved,
 immediately retried read-only, and had no experiment impact.
+
+The 07:49 snapshot reaches three completed domains and runs `biggan`.
+Partial Acc/AP are 95.6242%/96.3819%, 1.1683/0.3977 points below the matched
+P1 average and 0.7496/0.1809 points below `select4`. `cyclegan` reaches
+98.6405% Acc / 97.7071% AP, 0.1511/0.2899 points below P1; `dalle` reaches
+99.15%/99.5716%, improving P1 Accuracy by 0.10 points with essentially
+unchanged AP. All 17,406 unique samples and labels match both controls; the
+P1 comparison has 455 threshold disagreements and a 0.02422 weighted MAD.
+
+The three-domain wall time is 6,066.76 s at 2.8691 images/s, about 2.79%
+slower than `select4`; rank-local memory remains 8,437.55/8,776 MiB. Raw
+host peaks stay at the clean 37,167/18,656/19,162 MiB plateaus, all ranks are
+healthy, and no external A6000 process has appeared.

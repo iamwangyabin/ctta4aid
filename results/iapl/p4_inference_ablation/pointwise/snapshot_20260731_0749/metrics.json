@@ -1,0 +1,46 @@
+{
+  "by_domain": {
+    "crn": {
+      "domain": "crn",
+      "dataset_size": 12764,
+      "samples_with_distributed_padding": 12768,
+      "unique_sampler_indices": 12764,
+      "duplicate_sampler_indices": 4,
+      "accuracy": 0.8908208020050126,
+      "average_precision": 0.9186699294659565,
+      "real_accuracy": 0.7817099906044472,
+      "fake_accuracy": 1.0,
+      "world_size": 8
+    },
+    "cyclegan": {
+      "domain": "cyclegan",
+      "dataset_size": 2642,
+      "samples_with_distributed_padding": 2648,
+      "unique_sampler_indices": 2642,
+      "duplicate_sampler_indices": 6,
+      "accuracy": 0.986404833836858,
+      "average_precision": 0.9770710059171598,
+      "real_accuracy": 0.972871137905049,
+      "fake_accuracy": 1.0,
+      "world_size": 8
+    },
+    "dalle": {
+      "domain": "dalle",
+      "dataset_size": 2000,
+      "samples_with_distributed_padding": 2000,
+      "unique_sampler_indices": 2000,
+      "duplicate_sampler_indices": 0,
+      "accuracy": 0.9915,
+      "average_precision": 0.9957163516350965,
+      "real_accuracy": 0.994,
+      "fake_accuracy": 0.989,
+      "world_size": 8
+    }
+  },
+  "mean": {
+    "accuracy": 0.9562418786139569,
+    "average_precision": 0.9638190956727376,
+    "real_accuracy": 0.9161937095031654,
+    "fake_accuracy": 0.9963333333333333
+  }
+}
