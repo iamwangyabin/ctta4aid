@@ -817,6 +817,14 @@ fake Accuracy 低 0.0452/0.1522 点。`biggan` 与 P1 几乎相同且比 `select
 索引和标签完全一致，相对 P1 有 180 个阈值分歧，平均绝对概率差 0.00703。
 吞吐、rank 显存、三机物理显存、SSHFS 和八 rank 日志继续稳定。
 
+15:48 `select4` 已完成七域并进入 `glide_100_10`，部分平均升至
+97.3408% Acc / 97.5981% AP，相对 P1 低 0.1875/0.1194 点，相对
+`select2` 高 0.3188/0.1312 点。real Accuracy 相对两者分别低 0.3712 点、
+高 0.7745 点；fake Accuracy 与 P1 基本持平，较 `select2` 低 0.1373 点。
+`gaugan` 相对 `select2` 恢复 0.16 Acc 点，`glide_50_27` Acc 持平且 AP 高
+0.1055 点。38,811 个索引和标签完全一致，相对 P1 有 194 个阈值分歧，平均
+绝对概率差 0.00527。吞吐、显存、只读 SSHFS 和全部 rank 日志继续正常。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

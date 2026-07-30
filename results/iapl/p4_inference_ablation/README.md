@@ -580,3 +580,13 @@ points. `biggan` is nearly identical to P1 and gains 0.25 Acc points over
 All 26,811 sample indices and labels match both references, with 180 P1
 threshold disagreements and a 0.00703 weighted probability MAD. Throughput,
 rank-local memory, physical memory, SSHFS, and all eight logs remain stable.
+
+The 15:48 snapshot reaches seven completed `select4` domains and enters
+`glide_100_10`. Partial Acc/AP rise to 97.3408%/97.5981%, 0.1875/0.1194
+points below matched P1 and 0.3188/0.1312 points above `select2`. Real accuracy
+is 0.3712 points below P1 but 0.7745 points above `select2`; fake accuracy is
+essentially tied with P1 and 0.1373 points below `select2`. `gaugan` recovers
+0.16 Acc points over `select2`, and `glide_50_27` matches its Acc while adding
+0.1055 AP points. All 38,811 sample indices and labels match both references.
+The P1 comparison has 194 threshold disagreements and a 0.00527 weighted MAD.
+Throughput, memory, the read-only SSHFS, and every rank log remain healthy.
