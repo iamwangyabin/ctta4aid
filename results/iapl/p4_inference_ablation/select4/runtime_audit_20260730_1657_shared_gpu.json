@@ -51,9 +51,19 @@
     "rank_local_peak_reserved_mib": 8776.0,
     "errors_detected_in_eight_rank_logs": 0
   },
+  "follow_up_at_17_52_38": {
+    "external_process_still_present": true,
+    "external_process_pid": 801613,
+    "external_process_used_memory_mib": 1554,
+    "external_process_elapsed_seconds": 2603,
+    "raw_a6000_memory_mib": 38734,
+    "select4_process_memory_sum_mib": 37144,
+    "memory_reconfiguration_started_at": "2026-07-30T17:49:18+08:00",
+    "observation": "The same external process reduced its resident allocation but did not exit. It was again observed only and was not modified."
+  },
   "impact": {
     "prediction_validity": "No correctness error is visible. Preserve all predictions and accuracy metrics.",
-    "timing_validity": "The imle timing is shared-GPU contaminated from at least 16:57:50 onward and must be flagged in latency and throughput reporting.",
+    "timing_validity": "Timing from imle through the later domains remains shared-GPU contaminated while the external process is resident and must be flagged in latency and throughput reporting.",
     "memory_reporting": "Report the 41,788 MiB raw host peak separately from the 37,175 MiB clean P4 plateau, and use rank-local CUDA allocation for attributable P4 memory."
   },
   "operator_action": "The other user's process was observed only. It was not modified or terminated, and select4 was not restarted.",

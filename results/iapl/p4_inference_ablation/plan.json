@@ -176,7 +176,8 @@
       "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1348",
       "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1448",
       "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1548",
-      "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1618"
+      "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1618",
+      "results/iapl/p4_inference_ablation/select4/snapshot_20260730_1749"
     ],
     "failure_snapshots": [
       "results/iapl/p4_inference_ablation/steps1/failure_20260729_0126_nvme",

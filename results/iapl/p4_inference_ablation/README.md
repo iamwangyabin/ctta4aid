@@ -618,3 +618,21 @@ observed only and not modified. Predictions remain valid, but `imle` timing
 is flagged as shared-GPU contaminated. The raw 41,788 MiB peak, clean 37,175
 MiB P4 plateau, and rank-local CUDA allocation are reported separately; the
 run continues without restart.
+
+The 17:49 snapshot reaches thirteen completed domains and runs `ldm_200_cfg`.
+Partial Acc/AP are 95.4505%/97.5280%, 0.0882/0.1257 points below matched P1
+but 0.1626/0.1025 points above `select2`. `imle` is 91.7215% Acc and 92.1722%
+AP: it is 0.6344/0.4683 points below P1 but recovers 1.8327/0.8180 points over
+`select2`. `ldm_100` matches P1 Accuracy, and `ldm_200` is 0.10 points above
+P1. All 61,575 unique indices and labels match both references, with 365 P1
+threshold disagreements and a 0.00624 weighted probability delta.
+
+The external A6000 process remained present through the new domains. At
+17:49:18 it began changing its allocation and by 17:52:38 held 1,554 MiB,
+with raw host use at 38,734 MiB; the four P4 ranks remained at their unchanged
+37,144 MiB sum. Correspondingly, `imle`, `ldm_100`, and `ldm_200` throughput
+is 2.9303/2.9163/2.9151 images/s versus the earlier 2.9472-2.9601 range.
+Their predictions are retained, but timing is explicitly shared-GPU
+contaminated. The external process was not modified. 4090-2's default NVML
+still has its known library mismatch, while the audited 580.159.03 library
+reports 19,162 MiB at 100%; both ranks and all logs remain healthy.
