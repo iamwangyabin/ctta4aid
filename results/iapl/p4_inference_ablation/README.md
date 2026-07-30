@@ -650,3 +650,19 @@ fell to 2.8307 images/s and 2,826.17 ms bottleneck latency, the clearest
 shared-GPU timing impact so far; its prediction metrics are valid and retained.
 All eight ranks, 3090's read-only SSHFS, and the audited 4090-2 compatibility
 path remain healthy, and no later P4 variant has started.
+
+The 18:49 snapshot reaches sixteen completed domains and enters `seeingdark`.
+Partial Acc/AP are 95.7953%/97.7355%; for the first time in this run the
+matched partial Accuracy is 0.0056 points above P1, while AP remains 0.0368
+points lower. Relative to `select2`, Acc/AP are 0.2056/0.2157 points higher.
+`progan` is exactly 100% on all metrics and matches P1. `san` reaches 94.32%
+Acc and 96.70% AP, gaining 1.1364/1.0449 points over P1 and 1.3636/1.9747
+points over `select2`. All 72,013 unique indices and labels match both
+controls; only 378 P1 threshold disagreements remain, with a 0.00552 weighted
+MAD. These gains are retained without selection.
+
+The external A6000 process remains resident, so `progan`, `san`, and the
+running `seeingdark` timing are flagged. Their throughput is 2.8790 and
+2.8421 images/s for the two completed domains, but prediction validity is
+unaffected. All eight ranks and both data paths remain healthy; `pointwise`
+has not started.
