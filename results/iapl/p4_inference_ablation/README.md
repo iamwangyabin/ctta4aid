@@ -876,3 +876,21 @@ experiment ranks remain active, the other two hosts remain at their expected
 memory plateaus, and the 3090 SSHFS remains read-only. Predictions remain
 valid; `progan` timing is retained but excluded from clean timing comparisons.
 Neither external PID was modified.
+
+The 12:53 snapshot completes `progan`, `san`, and `seeingdark` and starts
+`stargan`. Seventeen-domain Acc/AP are 94.9786%/96.6477%, 0.4705/0.5166
+points below the matched P1 average and 0.3941/0.4333 points below `select4`.
+`progan` remains perfect and matches both controls. `san` reaches
+94.0909% Acc / 94.9032% AP, improving P1 Accuracy by 0.9091 points while
+losing 0.7556 AP points. `seeingdark` falls to 85.8333%/83.8105%, losing
+4.1667/3.6240 points to P1; its 71.6667% real Accuracy is the source of the
+gap, while fake Accuracy remains 100%. These mixed and weak results are
+retained unchanged.
+
+All 72,373 unique samples and labels match both controls. The P1 comparison
+has 1,031 threshold disagreements and a 0.01342 weighted probability MAD.
+Rank-local allocation/reservation remains 8,437.55/8,776 MiB and no critical
+log error is present. The seventeen-domain profile is 1.52% slower than
+`select4`, but it includes directly observed shared compute during `progan`,
+`san`, and `seeingdark`; the timing is preserved but is not used as a clean
+comparison.
