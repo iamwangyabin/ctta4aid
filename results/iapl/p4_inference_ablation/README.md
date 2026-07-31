@@ -937,3 +937,10 @@ on all three hosts and that the 3090 SSHFS is still read-only. The 3090 and
 active after 2:34:29, holds 4,514 MiB, and the GPU reports 71% utilization;
 nine workers with the same command are present. The process was only
 observed. Baseline stays in preflight wait, and `select8` has not started.
+
+At 15:19, PID 1023924 had exited on its own, but the same external user's
+training sequence had replaced it with PIDs 1063576 and 1068634. They hold
+1,816/4,710 MiB; total A6000 memory is 6,554 MiB at 70% utilization, with
+18 workers using the same command. The other two GPUs remain idle, the
+read-only SSHFS is healthy, and all baseline output paths remain absent.
+Nothing external was modified. Baseline remains ordered next and unlaunched.
