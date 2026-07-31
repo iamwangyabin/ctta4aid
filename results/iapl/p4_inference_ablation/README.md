@@ -795,3 +795,11 @@ slower than `select4`; rank-local memory remains 8,437.55/8,776 MiB. Raw
 host peaks stay at 37,167/18,656/19,162 MiB. Only the four P4 A6000 ranks
 are resident, all eight ranks remain alive, and the 3090 SSHFS remains
 read-only.
+
+At 09:48, one read-only 3090 `nvidia-smi` monitoring connection over the
+configured SSH alias timed out with exit 255. A concurrent `findmnt` query
+to the same host succeeded, and the immediate retry reported 18,656 MiB at
+100% utilization. Both 3090 ranks and all four A6000 ranks remained active,
+rank0 continued updating `glide_100_10`, and LAN probes from A6000 and
+4090-2 had zero packet loss. The transient monitoring failure is preserved;
+it did not affect the experiment.

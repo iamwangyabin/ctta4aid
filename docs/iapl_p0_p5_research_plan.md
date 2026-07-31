@@ -981,6 +981,12 @@ rank 内部显存保持 8,437.55/8,776 MiB，三机原始峰值仍为
 37,167/18,656/19,162 MiB。A6000 仅有四个 P4 rank，八 rank 均存活，3090
 SSHFS 保持只读。
 
+09:48 一次经配置 SSH 别名执行的 3090 只读 `nvidia-smi` 监控连接超时并以
+255 退出；同一轮并行检查中该主机的 `findmnt` 成功。立即复查得到 18,656 MiB、
+100% 利用率，3090 两 rank 与 A6000 四 rank 均保持活跃，rank0 继续更新
+`glide_100_10`；A6000 和 4090-2 到 3090 LAN 的三次探测均零丢包。该瞬时监控
+失败已独立保存，不是节点故障、rank 停滞或数据挂载故障，对实验无影响。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

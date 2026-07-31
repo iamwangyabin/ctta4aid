@@ -203,7 +203,8 @@
     "runtime_audits": [
       "results/iapl/p4_inference_ablation/ois_off/runtime_audit_20260729_2018.json",
       "results/iapl/p4_inference_ablation/select4/runtime_audit_20260730_1555.json",
-      "results/iapl/p4_inference_ablation/select4/runtime_audit_20260730_1657_shared_gpu.json"
+      "results/iapl/p4_inference_ablation/select4/runtime_audit_20260730_1657_shared_gpu.json",
+      "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_0948_transient_3090_ssh_timeout.json"
     ],
     "recovery_preflights": [
       "results/iapl/p4_inference_ablation/steps1/attempt2/recovery_preflight_3090_sshfs_20260729.json"
