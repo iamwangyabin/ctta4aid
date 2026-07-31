@@ -952,3 +952,7 @@ and absent outputs remain healthy. No experiment was started out of order.
 At 19:19, the same PIDs have run for 4:18:53 and 4:05:46. A6000 remains at
 6,556 MiB and 99%, while all other prerequisites are unchanged. The wait is
 preserved and no later variant has been started.
+
+At 21:19, the same PIDs have run for 6:18:51 and 6:05:44. A6000 remains at
+6,556 MiB and 99%; the other hosts, read-only SSHFS, and absent outputs are
+still healthy. The periodic audit is preserved without advancing the order.
