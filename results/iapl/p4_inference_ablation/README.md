@@ -985,3 +985,16 @@ A6000 at 04:22:49. All eight ranks crossed the barrier and rank 0 entered
 `crn`; its first iteration took 5.4718 seconds with 8,437 MiB peak allocated.
 The hosts reached 37,175/18,652/19,158 MiB at 100%. Ordered variant 8, the
 profiled averaged `baseline`, is now running.
+
+The 05:49 snapshot completes `crn` and `dalle`. Their mean is 95.7117% Acc /
+96.1881% AP, only 0.0813 Accuracy points below and 0.0172 AP points above the
+matched P1 result. `crn` reaches 92.4734%/92.8021%; `dalle` reaches
+98.9500%/99.5741%. All 14,764 unique indices and labels match P1, while random
+views produce 56 threshold disagreements and a 0.00425 weighted probability
+MAD. The small metric difference is therefore not a protocol mismatch.
+
+Clean two-domain throughput is 2.9320 images/s, 0.59% below clean `select4`
+and 2.12% above clean `pointwise` on the same domains. Rank-local peaks are
+8,437.55/8,776 MiB. All ranks remain healthy, A6000 has no external compute
+process, and the 3090 SSHFS remains read-only. Two failed local postprocessing
+runtime guesses and the successful retry are preserved. `biggan` is active.

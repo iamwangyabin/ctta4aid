@@ -1122,6 +1122,17 @@ Arrow、averaged entropy、六视图精确选择、只读 SSHFS、4090-2 隔离�
 5.4718 秒、rank 峰值 8,437 MiB；三机为 37,175/18,652/19,158 MiB 且
 100% 利用率。有序第 8 项 profiled averaged `baseline` 已开始运行。
 
+05:49 `baseline` 完成 `crn` 和 `dalle`，平均为 95.7117% Acc / 96.1881% AP，
+相对匹配 P1 仅低 0.0813 Acc 点、高 0.0172 AP 点。`crn` 为 92.4734% /
+92.8021%，`dalle` 为 98.9500% / 99.5741%。14,764 个唯一样本的 index/
+label 序列与 P1 完全一致，但随机视图导致 56 个阈值分歧、加权 MAD
+0.00425，说明微小指标差异不是协议漂移。
+
+两域净计时吞吐为 2.9320 images/s，同域比干净 `select4` 慢 0.59%，比干净
+`pointwise` 快 2.12%；rank 峰值为 8,437.55/8,776 MiB。三机无关键错误，
+A6000 仅有本实验四个 rank，3090 SSHFS 仍为只读。后处理中两次本地
+Python 路径/依赖失败与最终成功重试均已原样记录。`biggan` 正在运行。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
