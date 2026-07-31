@@ -960,3 +960,8 @@ still healthy. The periodic audit is preserved without advancing the order.
 At 23:19, the same PIDs have run for 8:19:14 and 8:06:07. A6000 remains at
 6,556 MiB and 77%; every other prerequisite remains healthy. The wait is
 preserved and the baseline has not started.
+
+At 01:19 on August 1, the same PIDs have run for 10:19:10 and 10:06:03.
+A6000 remains at 6,556 MiB and 99%. The 3090 briefly reports 1% with no
+compute process, 4090-2 reports 0%, and the read-only mount and absent output
+paths remain healthy. The overnight wait is preserved without reordering.
