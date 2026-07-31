@@ -764,3 +764,20 @@ The three-domain wall time is 6,066.76 s at 2.8691 images/s, about 2.79%
 slower than `select4`; rank-local memory remains 8,437.55/8,776 MiB. Raw
 host peaks stay at the clean 37,167/18,656/19,162 MiB plateaus, all ranks are
 healthy, and no external A6000 process has appeared.
+
+The 08:49 snapshot completes `biggan` and `deepfake` and runs `gaugan`.
+Five-domain Acc/AP are 96.2831%/96.7975%, 0.7325/0.3049 points below the
+matched P1 average and 0.4700/0.1646 points below `select4`. `biggan` reaches
+98.50% Acc / 97.7603% AP, 0.25/0.1981 points below P1. `deepfake` reaches
+96.0429%/97.0817%, improving P1 Accuracy by 0.0925 points while losing
+0.1334 AP points. All 26,811 unique samples and labels match both controls;
+the P1 comparison has 484 threshold disagreements and a 0.01684 weighted
+probability MAD.
+
+The five-domain wall time is 9,342.31 s at 2.8698 images/s, about 2.87%
+slower than `select4`; rank-local memory remains 8,437.55/8,776 MiB. Raw
+host peaks remain 37,167/18,656/19,162 MiB, only the four P4 A6000 ranks are
+present, all eight ranks remain alive, and the 3090 SSHFS remains read-only.
+The first local P1 comparison used an incorrect result path and exited 1;
+the failure is recorded and the corrected comparison completed without
+experiment impact.

@@ -1,0 +1,91 @@
+{
+  "experiment": "P4 pointwise full UFD ablation",
+  "status": "running",
+  "captured_at": "2026-07-31T08:49:00+08:00",
+  "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake"],
+  "active_domain": "gaugan",
+  "active_rank0_progress": "400/1250",
+  "partial_metrics": {
+    "accuracy": 0.9628309259849421,
+    "average_precision": 0.9679754297230474,
+    "real_accuracy": 0.9418546020856631,
+    "fake_accuracy": 0.9838085248332098,
+    "delta_to_p1_selection6": {
+      "accuracy": -0.007325098297863963,
+      "average_precision": -0.0030493102405369397,
+      "real_accuracy": -0.016109529128520993,
+      "fake_accuracy": 0.0014671608598962216
+    },
+    "delta_to_select4": {
+      "accuracy": -0.004699780157951317,
+      "average_precision": -0.001646236692314118,
+      "real_accuracy": -0.011313270635689631,
+      "fake_accuracy": 0.0019189028910304052
+    }
+  },
+  "new_domains": {
+    "biggan": {
+      "accuracy": 0.985,
+      "average_precision": 0.9776032320198744,
+      "real_accuracy": 0.9725,
+      "fake_accuracy": 0.9975,
+      "delta_to_p1_accuracy": -0.0025000000000000577,
+      "delta_to_p1_average_precision": -0.0019813871521485726
+    },
+    "deepfake": {
+      "accuracy": 0.9604289940828402,
+      "average_precision": 0.9708166295771493,
+      "real_accuracy": 0.9881918819188192,
+      "fake_accuracy": 0.9325426241660489,
+      "delta_to_p1_accuracy": 0.0009245562130176799,
+      "delta_to_p1_average_precision": -0.0013336411728274156
+    }
+  },
+  "prediction_audit": {
+    "unique_samples": 26811,
+    "index_and_label_sequences_equal_to_both_controls": true,
+    "p1_threshold_disagreements": 484,
+    "p1_exact_probability_matches": 16933,
+    "p1_weighted_probability_mad": 0.016843114316825843,
+    "select4_threshold_disagreements": 382,
+    "select4_exact_probability_matches": 16132,
+    "select4_weighted_probability_mad": 0.01362877472596533
+  },
+  "profile": {
+    "sum_domain_wall_seconds": 9342.308109724778,
+    "overall_unique_images_per_second": 2.869847545714251,
+    "relative_to_select4_wall_time": 0.028693977200213494,
+    "relative_to_select4_throughput": -0.027893598909084383,
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0
+  },
+  "audit": {
+    "rank_logs": 8,
+    "launcher_logs": 3,
+    "critical_errors_detected": 0,
+    "gpu_monitor_line_counts": {
+      "A6000": 10191,
+      "3090": 10446,
+      "4090-2": 10399
+    },
+    "raw_gpu_monitor_peaks_mib": {
+      "A6000": 37167,
+      "3090": 18656,
+      "4090-2": 19162
+    },
+    "3090_sshfs_mounted_read_only": true,
+    "A6000_external_compute_process_detected": false,
+    "all_eight_ranks_running_after_snapshot": true,
+    "post_snapshot_rank0_progress": "500/1250",
+    "local_processing_failures": [
+      {
+        "command": "compare against results/iapl/p1_official_full/final/predictions",
+        "exit_code": 1,
+        "cause": "incorrect local P1 prediction path contained no common domains",
+        "recovery": "reran against results/iapl/p1_ufd_19domain_8rank_3node/predictions and completed successfully",
+        "experiment_impact": "none"
+      }
+    ]
+  },
+  "conclusion": "Across the first five domains, pointwise entropy is 0.73 Accuracy and 0.30 AP points below the matched averaged P1 reference. The gap remains dominated by crn; deepfake slightly improves Accuracy while losing 0.13 AP points. Both negative and positive results are preserved."
+}
