@@ -948,3 +948,7 @@ Nothing external was modified. Baseline remains ordered next and unlaunched.
 The 17:19 periodic audit still sees both external PIDs after 2:18:31 and
 2:05:24. A6000 is at 6,556 MiB and 98%; the other hosts, read-only SSHFS,
 and absent outputs remain healthy. No experiment was started out of order.
+
+At 19:19, the same PIDs have run for 4:18:53 and 4:05:46. A6000 remains at
+6,556 MiB and 99%, while all other prerequisites are unchanged. The wait is
+preserved and no later variant has been started.
