@@ -1054,6 +1054,15 @@ MAD 为 0.01342。rank 内部显存仍为 8,437.55/8,776 MiB，日志无关键�
 十七域 profile 比 `select4` 慢 1.52%，但 `progan`、`san`、`seeingdark` 期间
 已直接确认共享计算，因此该计时仅保存审计，不作为干净计时结论。
 
+13:20 已完成 `stargan` 并开始最后一个 `stylegan` 域。十八域部分平均为
+95.0757% Acc / 96.5869% AP，相对匹配 P1 低 0.4569/0.4955 点，相对
+`select4` 低 0.3791/0.4169 点。`stargan` 为 96.7250%/95.5545%，real
+Accuracy 93.4533%、fake Accuracy 100%，相对 P1 低 0.2250/0.1372 点。
+
+76,371 个唯一样本和标签与两组对照一致，相对 P1 有 1,056 个阈值分歧、加权
+MAD 为 0.01304。rank 内部显存和日志继续正常。外部 A6000 进程仍占 4,496 MiB，
+因此十八域 profile 继续仅作审计保存，不作为干净计时结论。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

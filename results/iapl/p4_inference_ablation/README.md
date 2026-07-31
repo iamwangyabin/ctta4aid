@@ -894,3 +894,17 @@ log error is present. The seventeen-domain profile is 1.52% slower than
 `select4`, but it includes directly observed shared compute during `progan`,
 `san`, and `seeingdark`; the timing is preserved but is not used as a clean
 comparison.
+
+The 13:20 snapshot completes `stargan` and starts the final `stylegan`
+domain. Eighteen-domain Acc/AP are 95.0757%/96.5869%, 0.4569/0.4955 points
+below the matched P1 average and 0.3791/0.4169 points below `select4`.
+`stargan` reaches 96.7250% Acc / 95.5545% AP with 93.4533% real and 100%
+fake Accuracy, losing 0.2250/0.1372 points to P1.
+
+All 76,371 unique samples and labels match both controls. The P1 comparison
+has 1,056 threshold disagreements and a 0.01304 weighted probability MAD.
+Rank-local allocation/reservation remains 8,437.55/8,776 MiB and no critical
+log error is present. The external A6000 process is still resident with
+4,496 MiB while `stylegan` runs. The eighteen-domain profile is retained but,
+because it includes the already confirmed shared-compute period, is not used
+as a clean timing comparison.
