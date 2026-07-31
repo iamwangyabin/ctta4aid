@@ -1,0 +1,86 @@
+{
+  "experiment": "P4 pointwise full UFD ablation",
+  "status": "running",
+  "captured_at": "2026-07-31T12:05:00+08:00",
+  "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle", "ldm_100", "ldm_200", "ldm_200_cfg"],
+  "active_domain": "progan",
+  "active_rank0_progress": "50/1000",
+  "partial_metrics": {
+    "accuracy": 0.9533660754278481,
+    "average_precision": 0.9744975459066539,
+    "real_accuracy": 0.959391484101329,
+    "fake_accuracy": 0.9473459017261464,
+    "delta_to_p1_selection6": {
+      "accuracy": -0.003386711619090329,
+      "average_precision": -0.0031448388611956457,
+      "real_accuracy": -0.011293253826156273,
+      "fake_accuracy": 0.004523986021391507
+    },
+    "delta_to_select4": {
+      "accuracy": -0.0026388133575211098,
+      "average_precision": -0.001977486483696373,
+      "real_accuracy": -0.008317161775732298,
+      "fake_accuracy": 0.0030424653182251466
+    }
+  },
+  "new_domains": {
+    "ldm_100": {
+      "accuracy": 0.9925,
+      "average_precision": 0.9923774276859375,
+      "delta_to_p1_accuracy": 0.000500000000000056,
+      "delta_to_p1_average_precision": -0.001813614199988045
+    },
+    "ldm_200": {
+      "accuracy": 0.9945,
+      "average_precision": 0.9935869320454231,
+      "delta_to_p1_accuracy": 0.0,
+      "delta_to_p1_average_precision": -0.002038518554760449
+    },
+    "ldm_200_cfg": {
+      "accuracy": 0.978,
+      "average_precision": 0.9896844722402762,
+      "delta_to_p1_accuracy": 0.0034999999999999476,
+      "delta_to_p1_average_precision": -0.0023241532951172594
+    }
+  },
+  "prediction_audit": {
+    "unique_samples": 63575,
+    "index_and_label_sequences_equal_to_both_controls": true,
+    "p1_threshold_disagreements": 998,
+    "p1_exact_probability_matches": 39771,
+    "p1_weighted_probability_mad": 0.01475968984276865,
+    "select4_threshold_disagreements": 817,
+    "select4_exact_probability_matches": 37854,
+    "select4_weighted_probability_mad": 0.012346435820451647
+  },
+  "profile": {
+    "sum_domain_wall_seconds": 21999.32704820868,
+    "overall_unique_images_per_second": 2.8898611244191064,
+    "relative_to_select4_wall_time": 0.01823823217988796,
+    "relative_to_select4_throughput": -0.017911557043819415,
+    "timing_validity": "The aggregate includes shared-A6000 residency from late ldm_100 through ldm_200_cfg and is not treated as a clean timing comparison.",
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0
+  },
+  "audit": {
+    "rank_logs": 8,
+    "launcher_logs": 3,
+    "critical_errors_detected": 0,
+    "gpu_monitor_line_counts": {
+      "A6000": 21512,
+      "3090": 22031,
+      "4090-2": 21964
+    },
+    "raw_gpu_monitor_peaks_mib": {
+      "A6000": 42364,
+      "3090": 18656,
+      "4090-2": 19162
+    },
+    "3090_sshfs_mounted_read_only": true,
+    "A6000_external_compute_process_detected": true,
+    "A6000_external_pid": 1012081,
+    "all_eight_ranks_running_after_snapshot": true,
+    "shared_gpu_incident": "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_1206_shared_a6000.json"
+  },
+  "conclusion": "Across the first fourteen domains, pointwise entropy is 0.34 Accuracy and 0.31 AP points below the matched averaged P1 reference. The three LDM domains recover partial Accuracy but each loses 0.18-0.23 AP points. Predictions are valid; shared-process host memory and timing are preserved and explicitly qualified."
+}

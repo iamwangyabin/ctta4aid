@@ -187,7 +187,8 @@
       "results/iapl/p4_inference_ablation/pointwise/snapshot_20260731_0849",
       "results/iapl/p4_inference_ablation/pointwise/snapshot_20260731_0944",
       "results/iapl/p4_inference_ablation/pointwise/snapshot_20260731_1019",
-      "results/iapl/p4_inference_ablation/pointwise/snapshot_20260731_1132"
+      "results/iapl/p4_inference_ablation/pointwise/snapshot_20260731_1132",
+      "results/iapl/p4_inference_ablation/pointwise/snapshot_20260731_1205"
     ],
     "failure_snapshots": [
       "results/iapl/p4_inference_ablation/steps1/failure_20260729_0126_nvme",
@@ -208,7 +209,8 @@
       "results/iapl/p4_inference_ablation/select4/runtime_audit_20260730_1657_shared_gpu.json",
       "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_0948_transient_3090_ssh_timeout.json",
       "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_1018_repeated_3090_ssh_timeout.json",
-      "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_1131_parallel_a6000_ssh_timeout.json"
+      "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_1131_parallel_a6000_ssh_timeout.json",
+      "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_1206_shared_a6000.json"
     ],
     "recovery_preflights": [
       "results/iapl/p4_inference_ablation/steps1/attempt2/recovery_preflight_3090_sshfs_20260729.json"

@@ -1,0 +1,45 @@
+{
+  "experiment": "P4 pointwise full UFD ablation",
+  "captured_at": "2026-07-31T12:10:00+08:00",
+  "status": "running",
+  "active_domain": "progan",
+  "incident": {
+    "external_pid": 1012081,
+    "external_user": "separate A6000 user",
+    "command": "python3 train_sharepara_moe_0406_loss.py",
+    "started_at": "2026-07-31T11:33:59+08:00",
+    "gpu_memory_mib": 4348,
+    "first_monitor_sample_above_40000_mib": {
+      "timestamp": "2026-07-31T11:34:14+08:00",
+      "memory_used_mib": 40056
+    },
+    "raw_monitor_peak": {
+      "timestamp": "2026-07-31T11:35:13+08:00",
+      "memory_used_mib": 42364
+    },
+    "snapshot_tail_memory_used_mib": 41520
+  },
+  "experiment_state": {
+    "external_process_started_after_domain": "imle",
+    "partially_shared_domains": ["ldm_100"],
+    "fully_shared_domains": ["ldm_200", "ldm_200_cfg", "progan"],
+    "P4_A6000_rank_pids": [925490, 925491, 925492, 925493],
+    "P4_A6000_rank_memory_mib": [9272, 9296, 9296, 9272],
+    "all_eight_ranks_active": true,
+    "3090_sshfs_read_only": true
+  },
+  "contention_probe": {
+    "tool": "nvidia-smi pmon -c 5 -s um",
+    "external_pid_samples_with_observed_sm_activity": 0,
+    "interpretation": "The five-second probe did not directly observe external SM use, but it cannot establish that the process was inactive throughout the affected domains."
+  },
+  "assessment": {
+    "external_process_modified": false,
+    "prediction_validity": "valid",
+    "rank_local_cuda_memory_validity": "valid",
+    "raw_A6000_host_memory_validity": "shared-process contaminated from 11:34:14",
+    "timing_validity": "Conservatively mark late ldm_100 onward as potentially shared-compute contaminated; do not use these domains as clean timing evidence.",
+    "experiment_action": "Continue without restart or result selection, preserve the external process, raw monitor, and timing qualification.",
+    "conclusion": "The external process explains the new host-memory plateau. It was observed only and not modified; prediction results remain usable while host-memory and timing claims are qualified."
+  }
+}

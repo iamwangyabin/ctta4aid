@@ -844,3 +844,24 @@ returned in 0.81 s and showed normal progress. The monitoring correction is
 therefore generalized to all hosts: SSH and SCP operations targeting the same
 server are serialized. The following snapshot transfers used that rule and
 all completed successfully.
+
+The 12:05 snapshot completes `ldm_100`, `ldm_200`, and `ldm_200_cfg` and
+runs `progan`. Fourteen-domain Acc/AP are 95.3366%/97.4498%, 0.3387/0.3145
+points below the matched P1 average and 0.2639/0.1977 points below `select4`.
+`ldm_100` improves P1 Accuracy by 0.05 points but loses 0.1814 AP points;
+`ldm_200` matches Accuracy and loses 0.2039 AP points; `ldm_200_cfg` improves
+Accuracy by 0.35 points while losing 0.2324 AP points.
+
+All 63,575 unique samples and labels match both controls; the P1 comparison
+has 998 threshold disagreements and a 0.01476 weighted probability MAD.
+Rank-local allocation/reservation remains 8,437.55/8,776 MiB and logs remain
+error-free.
+
+A separate user's PID 1012081 started on A6000 at 11:33:59 and holds
+4,348 MiB. The raw monitor crossed 40,000 MiB at 11:34:14 and peaked at
+42,364 MiB at 11:35:13. A five-sample pmon window did not directly observe
+external SM use, but that short window cannot establish clean timing.
+Therefore raw A6000 memory is contaminated and timing from late `ldm_100`
+onward is conservatively marked potentially shared-compute contaminated.
+Predictions and rank-local CUDA memory remain valid. The external process was
+observed only and not modified.
