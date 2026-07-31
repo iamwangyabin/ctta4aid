@@ -930,3 +930,10 @@ data-mount checks but was not launched at 14:34. A separate user's A6000 PID
 1023924 still held 4,514 MiB and used the GPU. The process was not modified.
 The baseline remains in preflight wait until A6000 returns to its clean idle
 plateau, after which the full three-host preflight will be repeated.
+
+The 14:50 ordered recheck confirms that the baseline output remains absent
+on all three hosts and that the 3090 SSHFS is still read-only. The 3090 and
+4090-2 are idle at 106/252 MiB. The same external A6000 PID 1023924 remains
+active after 2:34:29, holds 4,514 MiB, and the GPU reports 71% utilization;
+nine workers with the same command are present. The process was only
+observed. Baseline stays in preflight wait, and `select8` has not started.
