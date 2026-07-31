@@ -1112,6 +1112,16 @@ SSHFS 和三机空输出保持正常。跨日等待已归档，顺序未改变�
 worker，A6000 为 4,737 MiB、20%。该变化已归档；由于关键节点尚未回到
 干净空闲平台，`baseline` 仍未启动。
 
+04:19 剩余外部 PID 1068634 自行退出，A6000 回到 17 MiB、0% 且无计算
+进程。三机随后完成代码/权重哈希、NCCL 23007、真实 12,764 行 `crn`
+Arrow、averaged entropy、六视图精确选择、只读 SSHFS、4090-2 隔离驱动库、
+空输出、空闲 GPU 和 29666 端口检查。
+
+04:22:13/04:22:29 先启动 3090 ranks 4-5 和 4090-2 ranks 6-7，04:22:49
+启动 A6000 ranks 0-3。八 ranks 均越过 barrier，rank0 已进入 `crn`，首迭代
+5.4718 秒、rank 峰值 8,437 MiB；三机为 37,175/18,652/19,158 MiB 且
+100% 利用率。有序第 8 项 profiled averaged `baseline` 已开始运行。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

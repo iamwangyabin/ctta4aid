@@ -973,3 +973,15 @@ not drifted. The twelve-hour wait is preserved and synchronized.
 At 03:49, PID 1063576 had exited on its own. PID 1068634 remains with nine
 workers and 4,712 MiB; A6000 reports 4,737 MiB and 20%. This transition is
 preserved, but the critical host is not clean enough to start the baseline.
+
+At 04:19, PID 1068634 exited on its own and A6000 returned to 17 MiB, 0%,
+with no compute process. All three hosts then passed code/checkpoint hashes,
+NCCL 23007, the real 12,764-row `crn` Arrow smoke, averaged entropy, exact
+six-view selection, the read-only SSHFS, the isolated 4090-2 driver library,
+empty output, idle GPU, and master-port checks.
+
+Workers started on the 3090 and 4090-2 at 04:22:13/04:22:29, followed by
+A6000 at 04:22:49. All eight ranks crossed the barrier and rank 0 entered
+`crn`; its first iteration took 5.4718 seconds with 8,437 MiB peak allocated.
+The hosts reached 37,175/18,652/19,158 MiB at 100%. Ordered variant 8, the
+profiled averaged `baseline`, is now running.
