@@ -1108,6 +1108,10 @@ SSHFS 和三机空输出保持正常。跨日等待已归档，顺序未改变�
 03:19 同两个 PID 已分别持续 12:18:49/12:05:42，A6000 仍为 6,556 MiB、99%；
 其他两机、只读 SSHFS 和三机空输出无漂移。十二小时等待已归档并同步。
 
+03:49 PID 1063576 已自行退出，但 PID 1068634 仍占 4,712 MiB，共 9 个
+worker，A6000 为 4,737 MiB、20%。该变化已归档；由于关键节点尚未回到
+干净空闲平台，`baseline` 仍未启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

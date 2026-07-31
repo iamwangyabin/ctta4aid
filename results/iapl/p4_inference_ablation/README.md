@@ -969,3 +969,7 @@ paths remain healthy. The overnight wait is preserved without reordering.
 At 03:19, the same PIDs have run for 12:18:49 and 12:05:42. A6000 remains at
 6,556 MiB and 99%; the other hosts, read-only mount, and absent outputs have
 not drifted. The twelve-hour wait is preserved and synchronized.
+
+At 03:49, PID 1063576 had exited on its own. PID 1068634 remains with nine
+workers and 4,712 MiB; A6000 reports 4,737 MiB and 20%. This transition is
+preserved, but the critical host is not clean enough to start the baseline.
