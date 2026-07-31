@@ -1,0 +1,73 @@
+{
+  "experiment": "P4 profiled averaged baseline",
+  "status": "running",
+  "captured_at": "2026-08-01T07:20:26+08:00",
+  "completed_domains": ["crn", "dalle", "biggan", "cyclegan", "deepfake"],
+  "active_domain": "gaugan",
+  "active_rank0_progress": "500/1250",
+  "partial_metrics": {
+    "accuracy": 0.9699067465025566,
+    "average_precision": 0.9712461904290921,
+    "real_accuracy": 0.957939782402265,
+    "fake_accuracy": 0.9818672349888807,
+    "delta_to_p1_selection6": {
+      "accuracy": -0.00024927778024963487,
+      "average_precision": 0.0002214504655078109,
+      "real_accuracy": -0.00002434881191903937,
+      "fake_accuracy": -0.00047412898443288665
+    }
+  },
+  "new_domain_deltas_to_p1": {
+    "biggan": {
+      "accuracy": 0.0007499999999999174,
+      "average_precision": 0.0018594781041887387
+    },
+    "cyclegan": {
+      "accuracy": 0.0,
+      "average_precision": -0.0007264420507112623
+    },
+    "deepfake": {
+      "accuracy": -0.00036982248520711636,
+      "average_precision": -0.00036914566982415575
+    }
+  },
+  "prediction_audit": {
+    "unique_samples": 26811,
+    "samples_with_distributed_padding": 26824,
+    "duplicate_sampler_indices": 13,
+    "world_size": 8,
+    "index_and_label_sequences_equal_to_p1": true,
+    "p1_threshold_disagreements": 81,
+    "p1_exact_probability_matches": 16162,
+    "p1_weighted_probability_mad": 0.003442236761890127
+  },
+  "profile": {
+    "sum_domain_wall_seconds": 9148.103057261207,
+    "overall_unique_images_per_second": 2.9307715306857043,
+    "relative_to_clean_select4_same_domains_wall_time": 0.007309800456655857,
+    "relative_to_clean_select4_same_domains_throughput": -0.0072567550254569735,
+    "relative_to_clean_pointwise_same_domains_wall_time": -0.02078769509447187,
+    "relative_to_clean_pointwise_same_domains_throughput": 0.02122899701150871,
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0
+  },
+  "audit": {
+    "rank_logs": 8,
+    "launcher_logs": 3,
+    "critical_errors_detected": 0,
+    "gpu_monitor_line_counts": {
+      "A6000": 10301,
+      "3090": 10580,
+      "4090-2": 10563
+    },
+    "raw_gpu_monitor_peaks_mib": {
+      "A6000": 37175,
+      "3090": 18652,
+      "4090-2": 19158
+    },
+    "3090_sshfs_mounted_read_only": true,
+    "A6000_external_compute_process_detected": false,
+    "all_eight_ranks_running_after_snapshot": true
+  },
+  "conclusion": "Across five domains, the clean profiled baseline is within 0.0249 Accuracy points and 0.0221 AP points of P1. All index and label sequences match, and 81 threshold disagreements remain attributable to random views. Clean throughput is 0.73% below select4 and 2.12% above pointwise on the same domains."
+}

@@ -1133,6 +1133,16 @@ label 序列与 P1 完全一致，但随机视图导致 56 个阈值分歧、加
 A6000 仅有本实验四个 rank，3090 SSHFS 仍为只读。后处理中两次本地
 Python 路径/依赖失败与最终成功重试均已原样记录。`biggan` 正在运行。
 
+07:19 `baseline` 已完成前五域，平均为 96.9907% Acc / 97.1246% AP，
+相对匹配 P1 仅低 0.0249 Acc 点、高 0.0221 AP 点。新完成的 `biggan`
+为 98.8250%/98.1444%，`cyclegan` 为 98.7915%/97.9244%，`deepfake`
+为 95.9135%/97.1781%，均与 P1 在 0.2 点内。
+
+26,811 个唯一样本的 index/label 序列与 P1 一致，共 81 个阈值分歧、
+加权 MAD 0.00344。同域净吞吐为 2.9308 images/s，比 `select4` 慢 0.73%、
+比 `pointwise` 快 2.12%。三机、八 ranks、A6000 独占性和只读 SSHFS 无异常，
+`gaugan` 已进入中段。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

@@ -998,3 +998,15 @@ and 2.12% above clean `pointwise` on the same domains. Rank-local peaks are
 8,437.55/8,776 MiB. All ranks remain healthy, A6000 has no external compute
 process, and the 3090 SSHFS remains read-only. Two failed local postprocessing
 runtime guesses and the successful retry are preserved. `biggan` is active.
+
+The 07:19 snapshot completes five domains. Mean Acc/AP are
+96.9907%/97.1246%, only 0.0249 Accuracy points below and 0.0221 AP points
+above matched P1. New results are 98.8250%/98.1444% for `biggan`,
+98.7915%/97.9244% for `cyclegan`, and 95.9135%/97.1781% for `deepfake`;
+all remain within 0.2 points of P1.
+
+All 26,811 unique indices and labels match P1, with 81 threshold
+disagreements and 0.00344 weighted probability MAD. Clean same-domain
+throughput is 2.9308 images/s, 0.73% below `select4` and 2.12% above
+`pointwise`. All three hosts, eight ranks, A6000 exclusivity, and the
+read-only SSHFS remain healthy. `gaugan` has entered its middle segment.
