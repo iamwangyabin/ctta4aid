@@ -803,3 +803,24 @@ to the same host succeeded, and the immediate retry reported 18,656 MiB at
 rank0 continued updating `glide_100_10`, and LAN probes from A6000 and
 4090-2 had zero packet loss. The transient monitoring failure is preserved;
 it did not affect the experiment.
+
+The 10:19 snapshot completes `glide_100_10`, `glide_100_27`, and `guided`
+and runs `imle`. Ten-domain Acc/AP are 94.8895%/97.5010%, 0.2103/0.2866
+points below the matched P1 average and 0.1490/0.1703 points below `select4`.
+`glide_100_10` improves P1 Accuracy/AP by 0.40/0.0149 points, while
+`glide_100_27` is effectively unchanged. `guided` is mixed: its low
+73.50% Acc still improves P1 by 1.10 points, but 94.2165% AP loses 1.1452
+points. The result is retained without rerun or selection.
+
+All 44,811 unique samples and labels match both controls; the P1 comparison
+has 582 threshold disagreements and a 0.01224 weighted probability MAD.
+Ten-domain wall time is 15,539.40 s at 2.8837 images/s, about 2.43% slower
+than `select4`. Rank-local and host memory peaks remain unchanged, all eight
+ranks are active, and no critical log error is present.
+
+The 10:18 parallel status check reproduced the earlier 3090 SSH timeout:
+the GPU query timed out while the concurrent mount query succeeded. A
+serialized retry returned in 0.37 s with 18,656 MiB and 100% utilization.
+Since both timeouts occurred only during concurrent connections and all
+ranks kept progressing, future 3090 mount and GPU checks are serialized.
+The repeated monitoring failure and correction are preserved separately.
