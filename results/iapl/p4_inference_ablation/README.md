@@ -944,3 +944,7 @@ training sequence had replaced it with PIDs 1063576 and 1068634. They hold
 18 workers using the same command. The other two GPUs remain idle, the
 read-only SSHFS is healthy, and all baseline output paths remain absent.
 Nothing external was modified. Baseline remains ordered next and unlaunched.
+
+The 17:19 periodic audit still sees both external PIDs after 2:18:31 and
+2:05:24. A6000 is at 6,556 MiB and 98%; the other hosts, read-only SSHFS,
+and absent outputs remain healthy. No experiment was started out of order.
