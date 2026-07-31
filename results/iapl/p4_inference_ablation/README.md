@@ -824,3 +824,23 @@ serialized retry returned in 0.37 s with 18,656 MiB and 100% utilization.
 Since both timeouts occurred only during concurrent connections and all
 ranks kept progressing, future 3090 mount and GPU checks are serialized.
 The repeated monitoring failure and correction are preserved separately.
+
+The 11:32 snapshot completes the large `imle` domain and runs `ldm_100`.
+Eleven-domain Acc/AP are 94.3830%/96.9756%, 0.4674/0.3441 points below the
+matched P1 average and 0.3540/0.1958 points below `select4`. `imle` reaches
+89.3170% Acc / 91.7218% AP with 78.6408% real and 100% fake Accuracy. It
+loses 3.0388 Acc, 0.9187 AP, and 6.0758 real-accuracy points to P1, making
+it the new dominant pointwise loss. The weak result is retained unchanged.
+
+All 57,575 unique samples and labels match both controls; the P1 comparison
+has 974 threshold disagreements and a 0.01588 weighted probability MAD.
+Eleven-domain wall time is 19,917.74 s at 2.8906 images/s, about 2.00% slower
+than `select4`. Rank-local and host peaks remain unchanged, all eight ranks
+are active, and logs contain no critical error.
+
+At 11:31, one of two concurrent A6000 SSH connections timed out during the
+banner exchange while the prediction listing succeeded. The serialized retry
+returned in 0.81 s and showed normal progress. The monitoring correction is
+therefore generalized to all hosts: SSH and SCP operations targeting the same
+server are serialized. The following snapshot transfers used that rule and
+all completed successfully.

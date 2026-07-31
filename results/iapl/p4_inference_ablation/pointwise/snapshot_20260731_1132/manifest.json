@@ -1,0 +1,76 @@
+{
+  "experiment": "P4 pointwise full UFD ablation",
+  "status": "running",
+  "captured_at": "2026-07-31T11:32:00+08:00",
+  "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan", "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle"],
+  "active_domain": "ldm_100",
+  "active_rank0_progress": "100/250",
+  "partial_metrics": {
+    "accuracy": 0.943829550544534,
+    "average_precision": 0.9697560737019562,
+    "real_accuracy": 0.9498618888562369,
+    "fake_accuracy": 0.9378038749241863,
+    "delta_to_p1_selection6": {
+      "accuracy": -0.004673996606114964,
+      "average_precision": -0.0034410416369884803,
+      "real_accuracy": -0.014009595778744348,
+      "fake_accuracy": 0.004666891299952827
+    },
+    "delta_to_select4": {
+      "accuracy": -0.0035403079095723215,
+      "average_precision": -0.001958044845120299,
+      "real_accuracy": -0.010040024078204741,
+      "fake_accuracy": 0.0029631376777410953
+    }
+  },
+  "new_domains": {
+    "imle": {
+      "accuracy": 0.893170426065163,
+      "average_precision": 0.9172175912618569,
+      "real_accuracy": 0.7864077669902912,
+      "fake_accuracy": 1.0,
+      "delta_to_p1_accuracy": -0.030388471177944854,
+      "delta_to_p1_average_precision": -0.009186821570194237,
+      "delta_to_p1_real_accuracy": -0.06075790792358282,
+      "delta_to_p1_fake_accuracy": 0.0
+    }
+  },
+  "prediction_audit": {
+    "unique_samples": 57575,
+    "index_and_label_sequences_equal_to_both_controls": true,
+    "p1_threshold_disagreements": 974,
+    "p1_exact_probability_matches": 35976,
+    "p1_weighted_probability_mad": 0.015877173609491334,
+    "select4_threshold_disagreements": 791,
+    "select4_exact_probability_matches": 34213,
+    "select4_weighted_probability_mad": 0.013176987200160157
+  },
+  "profile": {
+    "sum_domain_wall_seconds": 19917.740573051735,
+    "overall_unique_images_per_second": 2.890639115859241,
+    "relative_to_select4_wall_time": 0.02001832638843637,
+    "relative_to_select4_throughput": -0.019625457573213434,
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0
+  },
+  "audit": {
+    "rank_logs": 8,
+    "launcher_logs": 3,
+    "critical_errors_detected": 0,
+    "gpu_monitor_line_counts": {
+      "A6000": 19614,
+      "3090": 20148,
+      "4090-2": 20069
+    },
+    "raw_gpu_monitor_peaks_mib": {
+      "A6000": 37167,
+      "3090": 18656,
+      "4090-2": 19162
+    },
+    "3090_sshfs_mounted_read_only": true,
+    "A6000_external_compute_process_detected": false,
+    "all_eight_ranks_running_after_snapshot": true,
+    "monitoring_incident": "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_1131_parallel_a6000_ssh_timeout.json"
+  },
+  "conclusion": "Across the first eleven domains, pointwise entropy is 0.47 Accuracy and 0.34 AP points below the matched averaged P1 reference. imle is the new dominant loss: Accuracy/AP fall by 3.04/0.92 points and real Accuracy by 6.08 points, while fake Accuracy remains 100%. The weak result is preserved without rerun or selection."
+}

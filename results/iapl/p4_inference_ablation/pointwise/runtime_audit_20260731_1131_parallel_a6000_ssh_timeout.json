@@ -1,0 +1,32 @@
+{
+  "experiment": "P4 pointwise full UFD ablation",
+  "captured_at": "2026-07-31T11:33:00+08:00",
+  "status": "running",
+  "active_domain": "ldm_100",
+  "incident": {
+    "detected_at": "2026-07-31T11:31:52+08:00",
+    "operation": "read-only rank0 tail query launched concurrently with a prediction-file listing to the same A6000 SSH alias",
+    "exit_code": 255,
+    "error": "Connection timed out during banner exchange; connection to 100.86.243.3 port 22 timed out",
+    "concurrent_observation": "The prediction listing connection to A6000 succeeded and showed the completed imle prediction."
+  },
+  "recovery": {
+    "action": "Retried the rank0 query as a single serialized SSH connection with a 10-second connection timeout.",
+    "retry_exit_code": 0,
+    "retry_elapsed_seconds": 0.814,
+    "retry_observation": "rank0 reported the completed imle result and continued to ldm_100 at 100/250.",
+    "all_rank_processes_active": true,
+    "A6000_rank_pids": [925490, 925491, 925492, 925493],
+    "3090_rank_pids": [767714, 767716],
+    "4090_2_rank_pids": [994608, 994609]
+  },
+  "assessment": {
+    "node_outage": false,
+    "rank_stall": false,
+    "experiment_impact": "none",
+    "likely_monitoring_cause": "The timeout again affected only one of two concurrent SSH connections to the same host; the other connection and the serialized retry succeeded.",
+    "monitoring_change": "The earlier 3090 correction is generalized to every host: no concurrent SSH or SCP sessions will target the same server during experiment monitoring and snapshot collection.",
+    "validation": "The subsequent A6000 log/profile copy and prediction copy were intentionally serialized and both completed successfully.",
+    "conclusion": "This is a monitoring-control banner timeout, not an experiment failure. The failure and generalized per-host serialization correction are preserved."
+  }
+}
