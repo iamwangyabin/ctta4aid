@@ -781,3 +781,17 @@ present, all eight ranks remain alive, and the 3090 SSHFS remains read-only.
 The first local P1 comparison used an incorrect result path and exited 1;
 the failure is recorded and the corrected comparison completed without
 experiment impact.
+
+The 09:44 snapshot completes `gaugan` and `glide_50_27` and runs
+`glide_100_10`. Seven-domain Acc/AP are 97.0208%/97.4702%, 0.5075/0.2473
+points below the matched P1 average and 0.3200/0.1279 points below `select4`.
+`gaugan` reaches 99.23% Acc / 98.8725% AP, 0.19/0.2942 points below P1.
+`glide_50_27` reaches 98.50%/99.4314%, improving P1 by 0.30/0.0877 points.
+All 38,811 unique samples and labels match both controls; the P1 comparison
+has 517 threshold disagreements and a 0.01250 weighted probability MAD.
+
+The seven-domain wall time is 13,477.68 s at 2.8797 images/s, about 2.56%
+slower than `select4`; rank-local memory remains 8,437.55/8,776 MiB. Raw
+host peaks stay at 37,167/18,656/19,162 MiB. Only the four P4 A6000 ranks
+are resident, all eight ranks remain alive, and the 3090 SSHFS remains
+read-only.
