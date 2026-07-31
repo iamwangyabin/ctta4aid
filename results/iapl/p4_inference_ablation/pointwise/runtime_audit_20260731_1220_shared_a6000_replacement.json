@@ -1,0 +1,62 @@
+{
+  "experiment": "P4 pointwise full UFD ablation",
+  "captured_at": "2026-07-31T12:20:13+08:00",
+  "status": "running",
+  "active_domain": "progan",
+  "active_rank0_progress": "350/1000",
+  "incident": {
+    "previous_external_pid": 1012081,
+    "previous_external_pid_present": false,
+    "replacement_external_pid": 1023924,
+    "replacement_external_user": "separate A6000 user",
+    "command": "python3 train_sharepara_moe_0406_loss.py",
+    "started_at": "2026-07-31T12:15:59+08:00",
+    "gpu_memory_mib": 4476,
+    "A6000_total_memory_used_mib": 41648,
+    "A6000_utilization_percent": 100
+  },
+  "contention_probe": {
+    "tool": "nvidia-smi pmon -c 5 -s um",
+    "replacement_pid_samples_with_observed_sm_activity": 2,
+    "observed_sm_percent": [
+      9,
+      19
+    ],
+    "interpretation": "Unlike the earlier short probe, this probe directly observed external SM activity while progan was running."
+  },
+  "experiment_state": {
+    "completed_domains": 14,
+    "prediction_files": 14,
+    "P4_A6000_rank_pids": [
+      925490,
+      925491,
+      925492,
+      925493
+    ],
+    "P4_3090_rank_pids": [
+      767714,
+      767716
+    ],
+    "P4_4090_2_rank_pids": [
+      994608,
+      994609
+    ],
+    "all_eight_ranks_active": true,
+    "host_memory_used_mib": {
+      "A6000": 41648,
+      "3090": 18656,
+      "4090-2": 19162
+    },
+    "3090_sshfs_read_only": true,
+    "critical_errors_detected": 0
+  },
+  "assessment": {
+    "external_process_modified": false,
+    "prediction_validity": "valid",
+    "rank_local_cuda_memory_validity": "valid",
+    "raw_A6000_host_memory_validity": "shared-process contaminated",
+    "timing_validity": "progan timing is directly shared-compute contaminated from at least 12:15:59; retain it but exclude it from clean timing comparisons.",
+    "experiment_action": "Continue without restart or result selection, preserve both external process observations, and do not modify the other user's process.",
+    "conclusion": "The previous external PID disappeared and a replacement training PID began using the same A6000. Directly observed SM activity confirms shared compute during progan; predictions remain usable while affected timing and raw host memory are qualified."
+  }
+}

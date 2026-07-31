@@ -210,7 +210,8 @@
       "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_0948_transient_3090_ssh_timeout.json",
       "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_1018_repeated_3090_ssh_timeout.json",
       "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_1131_parallel_a6000_ssh_timeout.json",
-      "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_1206_shared_a6000.json"
+      "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_1206_shared_a6000.json",
+      "results/iapl/p4_inference_ablation/pointwise/runtime_audit_20260731_1220_shared_a6000_replacement.json"
     ],
     "recovery_preflights": [
       "results/iapl/p4_inference_ablation/steps1/attempt2/recovery_preflight_3090_sshfs_20260729.json"

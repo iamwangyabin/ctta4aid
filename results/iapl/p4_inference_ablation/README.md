@@ -865,3 +865,14 @@ Therefore raw A6000 memory is contaminated and timing from late `ldm_100`
 onward is conservatively marked potentially shared-compute contaminated.
 Predictions and rank-local CUDA memory remain valid. The external process was
 observed only and not modified.
+
+At 12:20, the earlier external PID 1012081 was gone and a replacement PID
+1023924 from the same separate A6000 user was present. It started at 12:15:59,
+held 4,476 MiB, and brought total A6000 use to 41,648 MiB while `progan`
+reached 350/1000 on rank 0. A five-sample pmon probe directly observed the
+replacement process using 9% and 19% SM in two samples. This confirms shared
+compute during `progan`, rather than only shared memory residency. All eight
+experiment ranks remain active, the other two hosts remain at their expected
+memory plateaus, and the 3090 SSHFS remains read-only. Predictions remain
+valid; `progan` timing is retained but excluded from clean timing comparisons.
+Neither external PID was modified.
