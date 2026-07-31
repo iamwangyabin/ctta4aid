@@ -1,0 +1,49 @@
+{
+  "experiment": "P4 profiled averaged baseline",
+  "status": "waiting_for_clean_a6000",
+  "checked_at": "2026-07-31T23:19:44+08:00",
+  "strict_order_prerequisite": {
+    "variant": "pointwise",
+    "status": "completed_and_audited",
+    "artifact": "results/iapl/p4_inference_ablation/pointwise/final"
+  },
+  "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/baseline",
+  "preflight": {
+    "remote_output_absent_on_all_hosts": true,
+    "3090_sshfs_mounted_read_only": true,
+    "3090_failed_data_device_accessed": false,
+    "host_memory_mib": {
+      "A6000": 6556,
+      "3090": 106,
+      "4090-2": 252
+    },
+    "host_utilization_percent": {
+      "A6000": 77,
+      "3090": 0,
+      "4090-2": 0
+    },
+    "blocking_external_processes": [
+      {
+        "host": "A6000",
+        "pid": 1063576,
+        "user": "separate A6000 user",
+        "command": "python3 train_sharepara_moe_0406_loss.py",
+        "started_at": "2026-07-31T15:00:43+08:00",
+        "elapsed_at_check": "08:19:14",
+        "gpu_memory_mib": 1816
+      },
+      {
+        "host": "A6000",
+        "pid": 1068634,
+        "user": "separate A6000 user",
+        "command": "python3 train_sharepara_moe_0406_loss.py",
+        "started_at": "2026-07-31T15:13:50+08:00",
+        "elapsed_at_check": "08:06:07",
+        "gpu_memory_mib": 4712
+      }
+    ],
+    "external_worker_process_count": 18,
+    "external_processes_observed_not_modified": true
+  },
+  "decision": "The same two external jobs remain active after more than eight hours. Keep the profiled baseline unlaunched, preserve strict ordering, and repeat the full three-host preflight only after A6000 returns to its clean idle plateau."
+}

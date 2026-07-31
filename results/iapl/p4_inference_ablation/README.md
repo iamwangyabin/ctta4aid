@@ -956,3 +956,7 @@ preserved and no later variant has been started.
 At 21:19, the same PIDs have run for 6:18:51 and 6:05:44. A6000 remains at
 6,556 MiB and 99%; the other hosts, read-only SSHFS, and absent outputs are
 still healthy. The periodic audit is preserved without advancing the order.
+
+At 23:19, the same PIDs have run for 8:19:14 and 8:06:07. A6000 remains at
+6,556 MiB and 77%; every other prerequisite remains healthy. The wait is
+preserved and the baseline has not started.
