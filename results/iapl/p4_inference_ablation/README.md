@@ -908,3 +908,25 @@ log error is present. The external A6000 process is still resident with
 4,496 MiB while `stylegan` runs. The eighteen-domain profile is retained but,
 because it includes the already confirmed shared-compute period, is not used
 as a clean timing comparison.
+
+`pointwise` completed all 19 domains at 14:25. Final Acc/AP are
+95.0718%/96.7480%, 0.4205/0.4694 points below the matched averaged P1
+reference and 0.3513/0.3945 points below `select4`. The gap is concentrated
+in real-image Accuracy: mean real Accuracy loses 1.3897 points while fake
+Accuracy gains 0.5502 points over P1. `crn`, `imle`, and `seeingdark` account
+for most threshold disagreements. The final `stylegan` domain reaches
+95.0017% Acc / 99.6471% AP, improving P1 Accuracy by 0.2336 points.
+
+All 88,353 unique samples and labels match both controls. There are 1,132
+threshold disagreements and a 0.01213 weighted probability MAD against P1.
+All experiment ranks exited, the 3090 SSHFS remained read-only, and logs
+contain no critical error. Rank-local memory remains valid. Raw A6000 memory
+and timing from late `ldm_100` onward remain qualified because of the
+preserved external process; direct external SM use was observed during
+`progan`, and the process remained resident afterward.
+
+Ordered variant 8, the profiled averaged `baseline`, passed output-path and
+data-mount checks but was not launched at 14:34. A separate user's A6000 PID
+1023924 still held 4,514 MiB and used the GPU. The process was not modified.
+The baseline remains in preflight wait until A6000 returns to its clean idle
+plateau, after which the full three-host preflight will be repeated.

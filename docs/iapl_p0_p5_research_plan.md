@@ -1063,6 +1063,21 @@ Accuracy 93.4533%、fake Accuracy 100%，相对 P1 低 0.2250/0.1372 点。
 MAD 为 0.01304。rank 内部显存和日志继续正常。外部 A6000 进程仍占 4,496 MiB，
 因此十八域 profile 继续仅作审计保存，不作为干净计时结论。
 
+14:25 `pointwise` 完成全部 19 域并通过结果审计。最终为 95.0718% Acc /
+96.7480% AP，相对匹配 averaged P1 低 0.4205/0.4694 点，相对 `select4`
+低 0.3513/0.3945 点。平均 real Accuracy 相对 P1 低 1.3897 点，fake Accuracy
+反而高 0.5502 点；差距主要集中在 `crn`、`imle`、`seeingdark`。最后的
+`stylegan` 为 95.0017%/99.6471%，Acc 相对 P1 高 0.2336 点。
+
+88,353 个唯一样本和标签与两组对照一致，相对 P1 有 1,132 个阈值分歧、加权
+MAD 为 0.01213。八个实验 rank 均正常退出，3090 SSHFS 全程只读，日志无关键
+错误。预测和 rank 内部显存有效；A6000 原始显存及 `ldm_100` 后段起的计时继续
+按共享进程污染处理；`progan` 期间直接观测到外部 SM 使用，之后该进程持续驻留。
+
+14:34 有序第 8 项 profiled averaged `baseline` 的输出路径和数据挂载检查通过，
+但 A6000 上另一用户 PID 1023924 仍占 4,514 MiB 并使用 GPU，因此未启动。
+外部进程未作修改；待 A6000 回到干净空闲平台后重新执行三主机完整预检并启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
