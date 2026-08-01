@@ -1143,6 +1143,16 @@ Python 路径/依赖失败与最终成功重试均已原样记录。`biggan` 正
 比 `pointwise` 快 2.12%。三机、八 ranks、A6000 独占性和只读 SSHFS 无异常，
 `gaugan` 已进入中段。
 
+08:49 `baseline` 完成前十域，平均为 95.1343% Acc / 97.7847% AP，
+相对 P1 高 0.0345 Acc 点、仅低 0.0029 AP 点。`gaugan` 为
+99.4400%/99.1667%，三个 GLIDE 为 98.10%/99.40%、98.00%/98.96%、
+98.45%/99.43%。`guided` 为 72.40%/95.27%，real/fake Accuracy 为
+98.90%/45.90%；该低 fake 结果与 P1 一致并原样保留。
+
+44,811 个唯一样本序列与 P1 一致，118 个阈值分歧，加权 MAD 0.00297。
+净吞吐 2.9313 images/s，同域比 `select4` 慢 0.76%、比 `pointwise` 快
+1.65%。三机仍保持干净运行，`imle` 已开始。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

@@ -1010,3 +1010,15 @@ disagreements and 0.00344 weighted probability MAD. Clean same-domain
 throughput is 2.9308 images/s, 0.73% below `select4` and 2.12% above
 `pointwise`. All three hosts, eight ranks, A6000 exclusivity, and the
 read-only SSHFS remain healthy. `gaugan` has entered its middle segment.
+
+The 08:49 snapshot completes ten domains. Mean Acc/AP are
+95.1343%/97.7847%, 0.0345 Accuracy points above and only 0.0029 AP points
+below matched P1. `gaugan` reaches 99.4400%/99.1667%; the three GLIDE domains
+reach 98.10%/99.40%, 98.00%/98.96%, and 98.45%/99.43%. `guided` reaches
+72.40%/95.27% with 98.90% real and 45.90% fake Accuracy. The weak fake result
+matches P1 and is retained unchanged.
+
+All 44,811 unique indices and labels match P1, with 118 threshold
+disagreements and 0.00297 weighted probability MAD. Clean same-domain
+throughput is 2.9313 images/s, 0.76% below `select4` and 1.65% above
+`pointwise`. The three-host run remains uncontaminated and `imle` is active.
