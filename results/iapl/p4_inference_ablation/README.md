@@ -1134,3 +1134,7 @@ The external jobs were not modified and the ordered wait continues.
 At 23:20:13 CST the same replacement PIDs have run for 4:06:20 and 4:05:25.
 A6000 remains saturated at 6,254 MiB and 99%; `select8` remains unlaunched and
 its output absent. The four-hour wait is archived without modifying either job.
+
+At 01:20:46 CST on August 2 the replacement PIDs have run for 6:06:52 and
+6:05:57. A6000 is still at 6,254 MiB and 93%; `select8` remains unlaunched and
+output-free. The overnight wait is archived without modifying either job.
