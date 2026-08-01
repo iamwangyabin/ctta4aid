@@ -1081,3 +1081,24 @@ eighteen-domain throughput is retained at 2.9243 images/s, but only the first
 fourteen domains remain the clean timing baseline. Both other hosts, all eight
 ranks, the read-only SSHFS, rank-local memory, and critical-error checks remain
 healthy.
+
+The profiled averaged `baseline` completed all 19 domains at 12:49:12 CST.
+Final Acc/AP are 95.5023%/97.2455%, only 0.0100/0.0281 percentage points above
+the earlier P1 reference. Real/fake Accuracy differ by only +0.0064/+0.0135
+points. All 88,353 unique indices and labels match P1; 197 threshold
+disagreements and a 0.00250 weighted probability MAD are consistent with
+random views rather than a protocol mismatch.
+
+Against `pointwise`, averaged entropy improves Acc/AP by 0.4305/0.4975 points,
+driven by a 1.3961-point gain in real-image Accuracy while fake Accuracy falls
+0.5367 points. `stylegan` finishes at 94.7430% Acc / 99.6564% AP, within
+0.03/0.02 points of P1. The weak `guided` 72.40% Acc result is retained.
+
+The observed full-run throughput is 2.9134 images/s and rank-local allocation
+and reservation peak at 8,437.55/8,776 MiB. Two external processes remained
+on A6000 through completion, so the 43,869 MiB raw host peak and the full
+nineteen-domain timing are not clean. The first fourteen domains provide the
+clean 2.9322 images/s boundary. All experiment ranks exited, 3090/4090-2
+returned to 106/252 MiB, the SSHFS remained read-only, and no critical error
+appears in any rank or launcher log. Ordered variant 9, `select8`, is next but
+must wait for A6000 to return to a clean idle platform.

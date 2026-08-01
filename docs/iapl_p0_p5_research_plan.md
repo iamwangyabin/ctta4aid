@@ -1198,6 +1198,23 @@ A6000 原始显存作保守限定，预测和 rank 内部显存仍有效，实�
 唯一干净计时边界。另两节点、八 ranks、只读 SSHFS、rank 内部显存和关键
 错误检查均正常。
 
+`baseline` 于 12:49:12 完成全部 19 域，最终 Acc/AP 为
+95.5023%/97.2455%，相对 P1 仅高 0.0100/0.0281 点；real/fake Accuracy
+仅高 0.0064/0.0135 点。88,353 个唯一样本及标签序列完全一致，197 个阈值
+分歧、加权 MAD 0.00250，说明差异来自随机视图而非协议漂移。
+
+相对 `pointwise`，averaged entropy 的 Acc/AP 高 0.4305/0.4975 点，主要来自
+real Accuracy 高 1.3961 点，fake Accuracy 低 0.5367 点。`stylegan` 最终为
+94.7430%/99.6564%，与 P1 在 0.03/0.02 点内；`guided` 的 72.40% Acc
+弱结果继续保留。
+
+全程观测吞吐为 2.9134 images/s，rank 内部分配/保留峰值为
+8,437.55/8,776 MiB。两个外部进程持续至结束，因此 A6000 43,869 MiB
+原始峰值和全 19 域计时不作为干净结论；前十四域提供 2.9322 images/s
+干净边界。八个实验 rank 均已退出，3090/4090-2 回到 106/252 MiB，SSHFS
+全程只读，rank 和 launcher 日志均无关键错误。有序第 9 项 `select8` 下一步
+等待 A6000 回到干净空闲平台后再启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

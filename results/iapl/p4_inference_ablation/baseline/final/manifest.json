@@ -1,0 +1,208 @@
+{
+  "experiment": "P4 profiled averaged baseline",
+  "variant": "baseline",
+  "status": "completed_and_audited",
+  "started_at": "2026-08-01T04:22:13+08:00",
+  "completed_at": "2026-08-01T12:49:12+08:00",
+  "elapsed_seconds": 30419,
+  "protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 6,
+    "tta_entropy": "averaged",
+    "ois": true,
+    "seed": 100,
+    "domains": 19,
+    "dataset_size": 88353,
+    "3090_data_backend": "read-only SSHFS mount of the verified 3070x2 UFD Arrow copy"
+  },
+  "metrics": {
+    "accuracy": 0.9550230481923911,
+    "average_precision": 0.9724551843862761,
+    "real_accuracy": 0.9628141931631257,
+    "fake_accuracy": 0.9472169749648157
+  },
+  "local_p1_selection6": {
+    "accuracy": 0.9549230231997762,
+    "average_precision": 0.972173971158963,
+    "real_accuracy": 0.9627500452306087,
+    "fake_accuracy": 0.9470821121276849,
+    "delta_accuracy": 0.00010002499261496656,
+    "delta_average_precision": 0.00028121322731311515,
+    "delta_real_accuracy": 0.00006414793251696693,
+    "delta_fake_accuracy": 0.00013486283713082248
+  },
+  "select4_reference": {
+    "accuracy": 0.9542303188703385,
+    "average_precision": 0.9714247083709144,
+    "real_accuracy": 0.9594662403238818,
+    "fake_accuracy": 0.9489825905699805,
+    "delta_accuracy": 0.0007927293220526543,
+    "delta_average_precision": 0.0010304760153616588,
+    "delta_real_accuracy": 0.0033479528392438285,
+    "delta_fake_accuracy": -0.0017656156051647498
+  },
+  "pointwise_reference": {
+    "accuracy": 0.950717587850045,
+    "average_precision": 0.9674799274184949,
+    "real_accuracy": 0.948853403886647,
+    "fake_accuracy": 0.9525841732775386,
+    "delta_accuracy": 0.004305460342346135,
+    "delta_average_precision": 0.0049752569677812275,
+    "delta_real_accuracy": 0.013960789276478702,
+    "delta_fake_accuracy": -0.005367198312722921
+  },
+  "prediction_comparison_to_p1": {
+    "samples": 88353,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 197,
+    "threshold_disagreement_rate": 0.002229692257195568,
+    "exact_probability_matches": 59028,
+    "weighted_mean_absolute_probability_delta": 0.002500993606304918,
+    "largest_disagreement_domains": {
+      "crn": 48,
+      "imle": 42,
+      "stylegan": 15,
+      "cyclegan": 12,
+      "biggan": 11,
+      "glide_100_27": 10,
+      "stargan": 10
+    }
+  },
+  "prediction_comparison_to_select4": {
+    "samples": 88353,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 446,
+    "exact_probability_matches": 53799,
+    "weighted_mean_absolute_probability_delta": 0.005312589132815345
+  },
+  "prediction_comparison_to_pointwise": {
+    "samples": 88353,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 1145,
+    "exact_probability_matches": 57652,
+    "weighted_mean_absolute_probability_delta": 0.012220621998157112
+  },
+  "profile": {
+    "sum_domain_wall_seconds": 30325.990585415973,
+    "overall_unique_images_per_second": 2.913441516482225,
+    "weighted_bottleneck_rank_latency_ms_per_image": 2745.893457871581,
+    "cluster_images_per_second_range": [2.649112305392279, 2.9363546408358876],
+    "max_rank_mean_image_latency_ms_range": [2723.613021095846, 3019.8795210440744],
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "raw_host_peak_memory_mib": {
+      "A6000": 43869,
+      "3090": 18652,
+      "4090-2": 19158
+    },
+    "raw_host_peak_at": {
+      "A6000": "2026-08-01T11:37:27+08:00",
+      "3090": "2026-08-01T04:23:46+08:00",
+      "4090-2": "2026-08-01T04:23:45+08:00"
+    },
+    "clean_fourteen_domain_boundary": {
+      "domains": 14,
+      "unique_images": 63575,
+      "sum_domain_wall_seconds": 21681.387379384018,
+      "unique_images_per_second": 2.932238555012904
+    },
+    "shared_process_contamination_detected": true,
+    "timing_policy": "Use the first fourteen domains as the clean baseline. Preserve progan, san, and seeingdark as potentially shared and stargan/stylegan as directly observed shared. Rank-local CUDA memory remains attributable; raw A6000 memory from 10:46:51 is shared-process contaminated."
+  },
+  "notable_results_preserved": {
+    "guided": {
+      "accuracy": 0.724,
+      "average_precision": 0.9526996741285568,
+      "real_accuracy": 0.989,
+      "fake_accuracy": 0.459,
+      "delta_to_p1_accuracy": 0.0,
+      "delta_to_p1_average_precision": -0.0009174360678537719
+    },
+    "stylegan": {
+      "accuracy": 0.947429906542056,
+      "average_precision": 0.9965637970460244,
+      "real_accuracy": 0.999833138661772,
+      "fake_accuracy": 0.8950091804373227,
+      "delta_to_p1_accuracy": -0.0002503337783711368,
+      "delta_to_p1_average_precision": 0.00010190406383825401
+    }
+  },
+  "runtime_contamination": {
+    "audits": [
+      "results/iapl/p4_inference_ablation/baseline/runtime_audit_20260801_1049_shared_a6000.json",
+      "results/iapl/p4_inference_ablation/baseline/runtime_audit_20260801_1119_direct_a6000_contention.json"
+    ],
+    "external_processes_observed_not_modified": [1255877, 1268262],
+    "prediction_metrics_valid": true,
+    "full_host_timing_curve_clean": false,
+    "clean_fourteen_domain_timing_available": true,
+    "rank_local_memory_curve_valid": true
+  },
+  "audit": {
+    "prediction_files": 19,
+    "samples_after_distributed_padding": 88376,
+    "unique_sampler_indices": 88353,
+    "duplicate_sampler_indices": 23,
+    "prediction_sample_counts_match_distributed_padding": true,
+    "unique_sampler_indices_match_dataset_sizes": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "errors_detected_in_three_launcher_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "gpu_monitor_line_counts": {
+      "A6000": 29308,
+      "3090": 29896,
+      "4090-2": 29816
+    },
+    "3090_sshfs_mounted_read_only_through_completion": true,
+    "all_p4_rank_processes_exited": true,
+    "post_run_gpu_memory_mib": {
+      "A6000_total_with_external_processes": 6324,
+      "A6000_external_processes": [4340, 1954],
+      "3090": 106,
+      "4090-2": 252
+    }
+  },
+  "artifacts": {
+    "metrics": "metrics.json",
+    "p1_reference_metrics": "p1_reference_metrics.json",
+    "select4_reference_metrics": "select4_reference_metrics.json",
+    "pointwise_reference_metrics": "pointwise_reference_metrics.json",
+    "profile": "profile.json",
+    "baseline_comparison_summary": "baseline_comparison_summary.json",
+    "p1_prediction_comparison": "p1_prediction_comparison.json",
+    "select4_prediction_comparison": "select4_prediction_comparison.json",
+    "pointwise_prediction_comparison": "pointwise_prediction_comparison.json",
+    "predictions": "predictions",
+    "rank_logs": "rank0.log through rank7.log",
+    "launcher_logs": [
+      "node_a6000_launcher.log",
+      "node_3090_launcher.log",
+      "node_4090_2_launcher.log"
+    ],
+    "gpu_monitors": [
+      "gpu_monitor_ubuntu.csv",
+      "gpu_monitor_yabin-B760M-POWER-DDR4.csv",
+      "gpu_monitor_yabin-local4090-yaohui.csv"
+    ]
+  },
+  "sha256": {
+    "metrics.json": "ab53d51504dbdedacd3163e6cd72326ce71a6874d303e66a26115ffb4d5e7d74",
+    "p1_reference_metrics.json": "14319c65bcf1001cc440e31714a449c43e4776f44e7d773fb24c6659c4bc0d32",
+    "select4_reference_metrics.json": "90a659dc33a77227b5dd22fae7efdc9fa348414cf4eb24f3ff4fca335cbe39a5",
+    "pointwise_reference_metrics.json": "32df8bc6e0c7e87708176013fc70ba892a9235bae81d605a87d46880f39f00d6",
+    "p1_prediction_comparison.json": "264739568c9e38f7ab589db597fb71c3bea1fdba44f718fa7e13ffbbf15edec5",
+    "select4_prediction_comparison.json": "cc74738995f757f17f8e5a98436cbfe51de86c473b6c66c15f020fb79ebdf409",
+    "pointwise_prediction_comparison.json": "957542ce966ded83659449faee3e3acf587defcc1d8fe90e7de8248095a8c541",
+    "profile.json": "00e2453e392990053cc7fed7f4671488c4d7a62c074ef14b9f3349818be0209f",
+    "baseline_comparison_summary.json": "c4b924443515b6e7fa171fdcf2b3db6533f787e52bed11a7415914397e0ae875",
+    "ordered_prediction_checksum_list": "05c64b499df37872fc57ff246818cf8d24f988659e2a45cc712b858e9761f05b"
+  },
+  "conclusion": "The profiled averaged baseline reproduces P1 within 0.01 Accuracy and 0.03 AP percentage points. Exact sample and label order is confirmed; the 197 threshold disagreements reflect random views rather than protocol drift. Averaged entropy improves 0.43 Accuracy and 0.50 AP points over pointwise, primarily through real-image Accuracy. Prediction metrics and rank-local memory are valid; only the first fourteen domains provide uncontaminated timing."
+}
