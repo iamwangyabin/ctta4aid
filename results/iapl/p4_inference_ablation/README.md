@@ -1130,3 +1130,7 @@ at 6,250 MiB and 80%. No clean launch window was observed. Fresh 3090 and
 At 21:20:14 CST the replacement PIDs have run for 2:06:21 and 2:05:26.
 A6000 remains at 6,250 MiB and 99%, while the `select8` output stays absent.
 The external jobs were not modified and the ordered wait continues.
+
+At 23:20:13 CST the same replacement PIDs have run for 4:06:20 and 4:05:25.
+A6000 remains saturated at 6,254 MiB and 99%; `select8` remains unlaunched and
+its output absent. The four-hour wait is archived without modifying either job.
