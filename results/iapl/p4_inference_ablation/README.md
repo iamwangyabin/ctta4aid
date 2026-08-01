@@ -1126,3 +1126,7 @@ training sequence had already replaced them with PIDs 1338443 and 1339204 at
 at 6,250 MiB and 80%. No clean launch window was observed. Fresh 3090 and
 4090-2 checks remain idle, read-only, and output-free. A failed worker-count
 `awk` diagnostic is retained in the audit without affecting that conclusion.
+
+At 21:20:14 CST the replacement PIDs have run for 2:06:21 and 2:05:26.
+A6000 remains at 6,250 MiB and 99%, while the `select8` output stays absent.
+The external jobs were not modified and the ordered wait continues.
