@@ -1102,3 +1102,12 @@ clean 2.9322 images/s boundary. All experiment ranks exited, 3090/4090-2
 returned to 106/252 MiB, the SSHFS remained read-only, and no critical error
 appears in any rank or launcher log. Ordered variant 9, `select8`, is next but
 must wait for A6000 to return to a clean idle platform.
+
+The first `select8` preflight at 13:03:15 CST confirms strict ordering: the
+audited `baseline` artifact is committed as `f47d306`. The output directory is
+absent on all three hosts, 3090 remains idle on its read-only SSHFS Arrow mount,
+and 4090-2 is idle under the isolated driver library. A6000 is still at
+6,324 MiB and 99% utilization because the two external training processes seen
+during the end of `baseline` remain active. They were not modified. `select8`
+therefore remains in `preflight_wait` until the full clean three-host preflight
+can be repeated.

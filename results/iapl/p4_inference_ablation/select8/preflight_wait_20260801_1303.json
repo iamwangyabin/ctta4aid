@@ -1,0 +1,56 @@
+{
+  "experiment": "P4 selection-count ablation select8",
+  "status": "waiting_for_clean_a6000",
+  "checked_at": "2026-08-01T13:03:15+08:00",
+  "strict_order_prerequisite": {
+    "variant": "baseline",
+    "status": "completed_and_audited",
+    "artifact": "results/iapl/p4_inference_ablation/baseline/final",
+    "commit": "f47d306"
+  },
+  "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/select8",
+  "host_check": {
+    "A6000": {
+      "memory_mib": 6324,
+      "utilization_percent": 99,
+      "output_absent": true,
+      "external_processes": [
+        {
+          "pid": 1255877,
+          "user": "separate A6000 user",
+          "command": "python3 train_sharepara_moe_0406_loss.py",
+          "started_at": "2026-08-01T10:46:42+08:00",
+          "elapsed_at_check": "02:15:54",
+          "gpu_memory_mib": 4340
+        },
+        {
+          "pid": 1268262,
+          "user": "separate A6000 user",
+          "command": "python3 train_sharepara_moe_0406_loss.py",
+          "started_at": "2026-08-01T11:04:31+08:00",
+          "elapsed_at_check": "01:58:05",
+          "gpu_memory_mib": 1954
+        }
+      ]
+    },
+    "3090": {
+      "memory_mib": 106,
+      "utilization_percent": 0,
+      "output_absent": true,
+      "arrow_mount": "/home/yabin/ctta4aid_assets/data/df_arrow_remote_3070",
+      "arrow_mount_type": "fuse.sshfs",
+      "arrow_mount_read_only": true,
+      "failed_data_device_accessed": false
+    },
+    "4090-2": {
+      "memory_mib": 252,
+      "utilization_percent": 0,
+      "output_absent": true,
+      "compute_processes": 0,
+      "isolated_driver_lib": "/home/yabin/ctta4aid_assets/driver_compat/nvidia-580.159.03/rootfs/usr/lib/x86_64-linux-gnu"
+    }
+  },
+  "external_processes_observed_not_modified": true,
+  "remote_output_absent_on_all_hosts": true,
+  "decision": "Strict ordering is satisfied, but A6000 is actively shared by two external training processes. Do not launch select8. Repeat the full three-host preflight after A6000 returns to its clean 17 MiB and 0% utilization plateau."
+}

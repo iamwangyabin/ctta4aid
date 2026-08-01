@@ -1215,6 +1215,12 @@ real Accuracy 高 1.3961 点，fake Accuracy 低 0.5367 点。`stylegan` 最终�
 全程只读，rank 和 launcher 日志均无关键错误。有序第 9 项 `select8` 下一步
 等待 A6000 回到干净空闲平台后再启动。
 
+13:03:15 的 `select8` 首次预检确认严格顺序已满足：`baseline` 最终产物已由
+`f47d306` 提交。三台主机均无 `select8` 输出，3090 的只读 SSHFS Arrow 挂载
+和 4090-2 的隔离驱动均正常且 GPU 空闲；但 A6000 上两个外部训练进程仍在
+运行，占 6,324 MiB、利用率 99%。未修改这些外部进程，`select8` 保持
+`preflight_wait`，待 A6000 恢复 17 MiB/0% 干净基线后重做完整三机预检。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
