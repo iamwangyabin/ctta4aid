@@ -1067,3 +1067,17 @@ process was modified. The observed seventeen-domain throughput is preserved at
 2.9283 images/s, but it is not promoted to a clean result: only the first
 fourteen domains remain the clean timing baseline. Prediction metrics and
 rank-local memory remain valid, and the run continues unchanged.
+
+The 11:49 snapshot completes `stargan` and starts the final `stylegan` domain.
+Eighteen-domain Acc/AP are 95.5445%/97.1116%, only 0.0119/0.0291 percentage
+points above P1. `stargan` reaches 96.8500% Acc / 95.6002% AP with 93.7031%
+real and 100% fake Accuracy, only 0.10/0.09 points below P1. All 76,371 unique
+indices and labels match, with 182 threshold disagreements and a 0.00270
+weighted probability MAD.
+
+Direct external SM use remains observable during `stylegan`; raw A6000 memory
+peaked at 43,869 MiB and is not attributed to this experiment. The observed
+eighteen-domain throughput is retained at 2.9243 images/s, but only the first
+fourteen domains remain the clean timing baseline. Both other hosts, all eight
+ranks, the read-only SSHFS, rank-local memory, and critical-error checks remain
+healthy.
