@@ -1022,3 +1022,16 @@ All 44,811 unique indices and labels match P1, with 118 threshold
 disagreements and 0.00297 weighted probability MAD. Clean same-domain
 throughput is 2.9313 images/s, 0.76% below `select4` and 1.65% above
 `pointwise`. The three-host run remains uncontaminated and `imle` is active.
+
+The 10:19 snapshot reaches thirteen completed domains and continues into
+`ldm_200_cfg`. Mean Acc/AP are 95.5728%/97.6573%, only 0.0340/0.0035
+percentage points above matched P1. `imle` reaches 92.4029% Acc / 92.6001%
+AP; `ldm_100` and `ldm_200` reach 99.20%/99.44% and 99.50%/99.66%. Each of
+the three newly completed domains remains within 0.10 points of P1.
+
+All 61,575 unique indices and labels match P1, with 161 threshold
+disagreements and a 0.00300 weighted probability MAD. Clean same-domain
+throughput is 2.9324 images/s, 0.47% below `select4` and 1.45% above
+`pointwise`. Rank-local peaks remain 8,437.55/8,776 MiB, the 3090 SSHFS
+remains read-only, all eight ranks are healthy, and no external A6000 compute
+process or critical log error is present.

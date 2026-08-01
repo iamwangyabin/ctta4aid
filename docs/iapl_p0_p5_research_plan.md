@@ -1153,6 +1153,16 @@ Python 路径/依赖失败与最终成功重试均已原样记录。`biggan` 正
 净吞吐 2.9313 images/s，同域比 `select4` 慢 0.76%、比 `pointwise` 快
 1.65%。三机仍保持干净运行，`imle` 已开始。
 
+10:19 `baseline` 完成前十三域并进入 `ldm_200_cfg`，平均为
+95.5728% Acc / 97.6573% AP，相对匹配 P1 仅高 0.0340/0.0035 点。
+新完成的 `imle` 为 92.4029%/92.6001%，`ldm_100` 为
+99.20%/99.44%，`ldm_200` 为 99.50%/99.66%，三域均与 P1 在 0.10 点内。
+
+61,575 个唯一样本的 index/label 序列与 P1 一致，共 161 个阈值分歧，
+加权 MAD 0.00300。同域净吞吐为 2.9324 images/s，比 `select4` 慢 0.47%、
+比 `pointwise` 快 1.45%。rank 峰值保持 8,437.55/8,776 MiB，3090 SSHFS
+仍为只读，八 ranks、A6000 独占性和关键日志检查均正常。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
