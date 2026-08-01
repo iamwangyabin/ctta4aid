@@ -1115,3 +1115,7 @@ can be repeated.
 At 15:19:36 CST the same two external jobs still saturate A6000 at 6,458 MiB
 and 99% utilization. The `select8` output remains absent and the processes were
 not modified, so the ordered wait is preserved in a second audit.
+
+The 17:19:38 CST periodic audit still sees both external PIDs after 6:32:56
+and 6:15:07. A6000 is at 6,458 MiB and 85%; the `select8` output remains absent.
+The external jobs were not modified and no later variant was started.

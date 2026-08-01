@@ -1224,6 +1224,9 @@ real Accuracy 高 1.3961 点，fake Accuracy 低 0.5367 点。`stylegan` 最终�
 15:19:36 复查时，同一组两个外部任务仍以 6,458 MiB/99% 占用 A6000，
 `select8` 输出仍不存在且外部进程未作修改；第二份等待审计已保留，实验不越序。
 
+17:19:38 周期复查时，两个外部 PID 已分别持续 6:32:56/6:15:07，A6000
+为 6,458 MiB/85%，`select8` 输出仍为空。外部任务未修改，也未越序启动后续项。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
