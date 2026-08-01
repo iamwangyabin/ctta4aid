@@ -1,0 +1,75 @@
+{
+  "experiment": "P4 profiled averaged baseline",
+  "status": "running",
+  "captured_at": "2026-08-01T10:52:16+08:00",
+  "completed_domains": [
+    "crn", "dalle", "biggan", "cyclegan", "deepfake", "gaugan",
+    "glide_100_10", "glide_100_27", "glide_50_27", "guided", "imle",
+    "ldm_100", "ldm_200", "ldm_200_cfg"
+  ],
+  "active_domain": "progan",
+  "active_rank0_progress": "550/1000",
+  "partial_metrics": {
+    "accuracy": 0.9571401824691372,
+    "average_precision": 0.9777509015215813,
+    "real_accuracy": 0.9709145815858834,
+    "fake_accuracy": 0.943366869638886,
+    "delta_to_p1_selection6": {
+      "accuracy": 0.0003873954221985665,
+      "average_precision": 0.00010851675373169112,
+      "real_accuracy": 0.00022984365839806564,
+      "fake_accuracy": 0.0005449539341311205
+    }
+  },
+  "new_domain_deltas_to_p1": {
+    "ldm_200_cfg": {
+      "accuracy": 0.0010000000000000009,
+      "average_precision": 0.001059292970170933,
+      "real_accuracy": 0.0020000000000000018,
+      "fake_accuracy": 0.0
+    }
+  },
+  "prediction_audit": {
+    "unique_samples": 63575,
+    "samples_with_distributed_padding": 63592,
+    "duplicate_sampler_indices": 17,
+    "world_size": 8,
+    "index_and_label_sequences_equal_to_p1": true,
+    "p1_threshold_disagreements": 167,
+    "p1_exact_probability_matches": 39162,
+    "p1_weighted_probability_mad": 0.002996657073755598
+  },
+  "profile": {
+    "clean_completed_domains": 14,
+    "sum_clean_domain_wall_seconds": 21681.387379384018,
+    "clean_unique_images_per_second": 2.932238555012904,
+    "relative_to_clean_select4_same_domains_wall_time": 0.0035224035722920544,
+    "relative_to_clean_select4_same_domains_throughput": -0.00351003979557718,
+    "relative_to_clean_pointwise_same_domains_wall_time": -0.014452245204043757,
+    "relative_to_clean_pointwise_same_domains_throughput": 0.01466417546355836,
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "progan_timing_qualification": "potentially shared-compute contaminated from approximately iteration 450 onward"
+  },
+  "audit": {
+    "rank_logs": 8,
+    "launcher_logs": 3,
+    "critical_errors_detected": 0,
+    "gpu_monitor_line_counts": {
+      "A6000": 22529,
+      "3090": 23034,
+      "4090-2": 22985
+    },
+    "raw_gpu_monitor_peaks_mib": {
+      "A6000": 41528,
+      "3090": 18652,
+      "4090-2": 19158
+    },
+    "A6000_raw_peak_attributable_to_experiment": false,
+    "3090_sshfs_mounted_read_only": true,
+    "A6000_external_compute_process_detected": true,
+    "external_process_audit": "results/iapl/p4_inference_ablation/baseline/runtime_audit_20260801_1049_shared_a6000.json",
+    "all_eight_ranks_running_after_snapshot": true
+  },
+  "conclusion": "The first fourteen domains form a clean timing boundary at 2.9322 images/s, 0.35% below select4 and 1.47% above pointwise. Their Acc/AP are only 0.0387/0.0109 points above P1. A separate user's process appeared during progan and was not modified; predictions remain valid, while progan timing and A6000 raw memory from 10:46:51 are qualified rather than discarded."
+}

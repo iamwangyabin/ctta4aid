@@ -1035,3 +1035,19 @@ throughput is 2.9324 images/s, 0.47% below `select4` and 1.45% above
 `pointwise`. Rank-local peaks remain 8,437.55/8,776 MiB, the 3090 SSHFS
 remains read-only, all eight ranks are healthy, and no external A6000 compute
 process or critical log error is present.
+
+At 10:49 the first fourteen domains were complete and `progan` was at
+500/1000. Their mean Acc/AP are 95.7140%/97.7751%, only 0.0387/0.0109
+percentage points above P1. `ldm_200_cfg` reaches 97.55%/99.31%, improving
+P1 by 0.10/0.11 points. All 63,575 unique indices and labels match P1, with
+167 threshold disagreements and a 0.00300 weighted probability MAD.
+
+The same audit detected a separate user's PID 1255877, started at 10:46:42,
+holding 4,348 MiB on A6000 with eight children. It was observed only and not
+modified. The raw host monitor first exceeded the clean 37,175 MiB plateau at
+10:46:51 and later reached 41,528 MiB. Thirteen seconds of `pmon` sampling did
+not directly observe external SM use, but that cannot prove absence throughout
+the affected interval. The first fourteen domain profiles remain clean at
+2.9322 images/s; `progan` timing from approximately iteration 450 onward and
+raw A6000 memory are conservatively qualified. Predictions and rank-local CUDA
+memory remain valid, so the run continues without restart or result selection.

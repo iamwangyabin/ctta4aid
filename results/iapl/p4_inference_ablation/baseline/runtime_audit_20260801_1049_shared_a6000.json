@@ -1,0 +1,48 @@
+{
+  "experiment": "P4 profiled averaged baseline",
+  "captured_at": "2026-08-01T10:51:26+08:00",
+  "status": "running",
+  "active_domain": "progan",
+  "active_rank0_progress_at_detection": "500/1000",
+  "incident": {
+    "external_pid": 1255877,
+    "external_user": "separate A6000 user",
+    "command": "python3 train_sharepara_moe_0406_loss.py",
+    "started_at": "2026-08-01T10:46:42+08:00",
+    "child_processes": 8,
+    "gpu_memory_mib": 4348,
+    "first_monitor_sample_above_clean_plateau": {
+      "timestamp": "2026-08-01T10:46:51+08:00",
+      "memory_used_mib": 37188,
+      "clean_plateau_mib": 37175
+    },
+    "observed_shared_plateau_mib": 41528
+  },
+  "experiment_state": {
+    "external_process_started_after_domain": "ldm_200_cfg",
+    "partially_shared_domains": ["progan"],
+    "clean_completed_domains": 14,
+    "P4_A6000_rank_pids": [1162283, 1162284, 1162285, 1162286],
+    "P4_A6000_rank_memory_mib": [9272, 9296, 9300, 9276],
+    "all_eight_ranks_active": true,
+    "3090_sshfs_read_only": true,
+    "critical_errors_detected": 0
+  },
+  "contention_probe": {
+    "tool": "nvidia-smi pmon -c 3 followed by nvidia-smi pmon -c 10 -s um",
+    "external_pid_samples_with_observed_sm_activity": 0,
+    "interpretation": "The thirteen-second probes did not directly observe external SM use, but they cannot establish that the process was inactive throughout the affected portion of progan or later domains."
+  },
+  "observation_failures": [
+    "The first child-process detail query used a malformed remote awk expression. It failed without changing any process and was immediately repeated successfully with ps --ppid."
+  ],
+  "assessment": {
+    "external_process_modified": false,
+    "prediction_validity": "valid",
+    "rank_local_cuda_memory_validity": "valid",
+    "raw_A6000_host_memory_validity": "shared-process contaminated from 10:46:51",
+    "timing_validity": "The first fourteen completed domains are clean. Conservatively mark progan from approximately iteration 450 onward as potentially shared-compute contaminated until continued probes establish a tighter boundary.",
+    "experiment_action": "Continue without restart or result selection, preserve the external process, raw monitor, clean fourteen-domain boundary, and timing qualification.",
+    "conclusion": "The external process explains the new A6000 host-memory plateau. It was observed only and not modified; completed prediction results remain usable while progan timing and later host-memory claims are qualified."
+  }
+}
