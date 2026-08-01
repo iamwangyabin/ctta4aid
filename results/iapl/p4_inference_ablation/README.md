@@ -1143,3 +1143,7 @@ At 03:20:55 CST the replacement PIDs have run for 8:07:02 and 8:06:07.
 A6000 still holds 6,254 MiB; the instantaneous 65% utilization is not a clean
 platform. `select8` remains output-free and unlaunched, and neither job was
 modified.
+
+At 05:20:44 CST the replacement PIDs have run for 10:06:50 and 10:05:55.
+A6000 remains saturated at 6,254 MiB and 99%; `select8` remains unlaunched and
+output-free. The ten-hour wait is archived without modifying either job.
