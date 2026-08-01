@@ -1119,3 +1119,10 @@ not modified, so the ordered wait is preserved in a second audit.
 The 17:19:38 CST periodic audit still sees both external PIDs after 6:32:56
 and 6:15:07. A6000 is at 6,458 MiB and 85%; the `select8` output remains absent.
 The external jobs were not modified and no later variant was started.
+
+At 19:19 the previous two external PIDs had exited, but the same external
+training sequence had already replaced them with PIDs 1338443 and 1339204 at
+19:13/19:14. They hold 1,988/4,232 MiB and have eight workers each; A6000 is
+at 6,250 MiB and 80%. No clean launch window was observed. Fresh 3090 and
+4090-2 checks remain idle, read-only, and output-free. A failed worker-count
+`awk` diagnostic is retained in the audit without affecting that conclusion.
