@@ -1,0 +1,76 @@
+{
+  "experiment": "P4 profiled averaged baseline",
+  "status": "running",
+  "captured_at": "2026-08-01T11:20:43+08:00",
+  "completed_domains": [
+    "crn", "dalle", "biggan", "cyclegan", "deepfake", "gaugan",
+    "glide_100_10", "glide_100_27", "glide_50_27", "guided", "imle",
+    "ldm_100", "ldm_200", "ldm_200_cfg", "progan", "san", "seeingdark"
+  ],
+  "active_domain": "stargan",
+  "active_rank0_progress": "100/500",
+  "partial_metrics": {
+    "accuracy": 0.9546769417125515,
+    "average_precision": 0.9720048701960539,
+    "real_accuracy": 0.9621532380693968,
+    "fake_accuracy": 0.947183137876128,
+    "delta_to_p1_selection6": {
+      "accuracy": 0.0001853416845912781,
+      "average_precision": 0.00036214232652398426,
+      "real_accuracy": 0.00018928301279852455,
+      "fake_accuracy": 0.00018018500189254105
+    }
+  },
+  "new_domain_metrics": {
+    "progan": {"accuracy": 1.0, "average_precision": 1.0, "real_accuracy": 1.0, "fake_accuracy": 1.0},
+    "san": {"accuracy": 0.9295454545454546, "average_precision": 0.9562061662030031, "real_accuracy": 0.9638009049773756, "fake_accuracy": 0.8949771689497716},
+    "seeingdark": {"accuracy": 0.9, "average_precision": 0.879364005827774, "real_accuracy": 0.8, "fake_accuracy": 1.0}
+  },
+  "new_domain_deltas_to_p1": {
+    "progan": {"accuracy": 0.0, "average_precision": 0.0},
+    "san": {"accuracy": -0.002272727272727204, "average_precision": -0.0003818188525276378},
+    "seeingdark": {"accuracy": 0.0, "average_precision": 0.005019003851193138}
+  },
+  "prediction_audit": {
+    "unique_samples": 72373,
+    "samples_with_distributed_padding": 72392,
+    "duplicate_sampler_indices": 19,
+    "world_size": 8,
+    "index_and_label_sequences_equal_to_p1": true,
+    "p1_threshold_disagreements": 172,
+    "p1_exact_probability_matches": 46421,
+    "p1_weighted_probability_mad": 0.0027030573538170542
+  },
+  "profile": {
+    "clean_completed_domains": 14,
+    "clean_boundary_unique_images_per_second": 2.932238555012904,
+    "seventeen_domain_observed_images_per_second": 2.928309383847232,
+    "seventeen_domain_relative_to_select4_same_domains_throughput": -0.001077545309652539,
+    "seventeen_domain_relative_to_pointwise_same_domains_throughput": 0.014132022256011956,
+    "seventeen_domain_timing_validity": "preserved but not clean after direct external SM use was observed during stargan",
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8776.0
+  },
+  "audit": {
+    "rank_logs": 8,
+    "launcher_logs": 3,
+    "critical_errors_detected": 0,
+    "gpu_monitor_line_counts": {
+      "A6000": 24175,
+      "3090": 24718,
+      "4090-2": 24667
+    },
+    "raw_gpu_monitor_peaks_mib": {
+      "A6000": 43507,
+      "3090": 18652,
+      "4090-2": 19158
+    },
+    "A6000_raw_peak_attributable_to_experiment": false,
+    "3090_sshfs_mounted_read_only": true,
+    "A6000_external_compute_processes_detected": [1255877, 1268262],
+    "direct_external_sm_use_observed": true,
+    "external_process_audit": "results/iapl/p4_inference_ablation/baseline/runtime_audit_20260801_1119_direct_a6000_contention.json",
+    "all_eight_ranks_running_after_snapshot": true
+  },
+  "conclusion": "Across seventeen domains, Acc/AP are only 0.0185/0.0362 points above P1 and every index and label sequence matches. Progan is exact at 100/100, san is 0.23/0.04 points below P1, and seeingdark matches P1 Accuracy while AP is 0.50 points higher. Direct external SM use is preserved: predictions remain valid, but only the first fourteen domains form the clean timing baseline."
+}

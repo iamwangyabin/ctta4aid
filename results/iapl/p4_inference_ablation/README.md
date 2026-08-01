@@ -1051,3 +1051,19 @@ the affected interval. The first fourteen domain profiles remain clean at
 2.9322 images/s; `progan` timing from approximately iteration 450 onward and
 raw A6000 memory are conservatively qualified. Predictions and rank-local CUDA
 memory remain valid, so the run continues without restart or result selection.
+
+The 11:19 snapshot reaches seventeen completed domains and starts `stargan`.
+Mean Acc/AP are 95.4677%/97.2005%, only 0.0185/0.0362 percentage points above
+matched P1. `progan` is exactly 100% Acc/AP, `san` is 92.9545%/95.6206%, and
+`seeingdark` is 90.00%/87.9364%. `san` loses 0.23/0.04 points to P1, while
+`seeingdark` matches P1 Accuracy and gains 0.50 AP points. All 72,373 unique
+indices and labels match, with 172 threshold disagreements and a 0.00270
+weighted probability MAD.
+
+A second external process, PID 1268262, started at 11:04:31 and holds another
+1,974 MiB with eight children. At approximately 11:19:45, `pmon` directly
+observed 14% and 28% SM use by the two external PIDs during `stargan`. Neither
+process was modified. The observed seventeen-domain throughput is preserved at
+2.9283 images/s, but it is not promoted to a clean result: only the first
+fourteen domains remain the clean timing baseline. Prediction metrics and
+rank-local memory remain valid, and the run continues unchanged.
