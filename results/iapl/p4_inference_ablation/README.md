@@ -1111,3 +1111,7 @@ and 4090-2 is idle under the isolated driver library. A6000 is still at
 during the end of `baseline` remain active. They were not modified. `select8`
 therefore remains in `preflight_wait` until the full clean three-host preflight
 can be repeated.
+
+At 15:19:36 CST the same two external jobs still saturate A6000 at 6,458 MiB
+and 99% utilization. The `select8` output remains absent and the processes were
+not modified, so the ordered wait is preserved in a second audit.

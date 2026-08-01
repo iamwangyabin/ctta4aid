@@ -1,0 +1,30 @@
+{
+  "experiment": "P4 selection-count ablation select8",
+  "status": "waiting_for_clean_a6000",
+  "checked_at": "2026-08-01T15:19:36+08:00",
+  "previous_full_three_host_preflight": "results/iapl/p4_inference_ablation/select8/preflight_wait_20260801_1303.json",
+  "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/select8",
+  "delta_check": {
+    "a6000_memory_mib": 6458,
+    "a6000_utilization_percent": 99,
+    "a6000_output_absent": true,
+    "external_processes": [
+      {
+        "pid": 1255877,
+        "command": "python3 train_sharepara_moe_0406_loss.py",
+        "started_at": "2026-08-01T10:46:42+08:00",
+        "elapsed_at_check": "04:32:54",
+        "gpu_memory_mib": 4342
+      },
+      {
+        "pid": 1268262,
+        "command": "python3 train_sharepara_moe_0406_loss.py",
+        "started_at": "2026-08-01T11:04:31+08:00",
+        "elapsed_at_check": "04:15:05",
+        "gpu_memory_mib": 2086
+      }
+    ],
+    "external_processes_observed_not_modified": true
+  },
+  "decision": "The same two external jobs remain active more than two hours after the full preflight and saturate A6000. Keep select8 unlaunched and repeat the full three-host preflight only after A6000 returns to its clean idle plateau."
+}
