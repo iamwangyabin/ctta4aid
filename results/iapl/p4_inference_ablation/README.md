@@ -1317,3 +1317,14 @@ A6000/3090/4090-2, with no error signatures and the SSHFS still read-only. The
 first delayed A6000 status command completed without captured output; its
 explicit-marker retry passed and the observation is retained. `select12`
 remains blocked until attempt 2 completes and is fully audited.
+
+At 07:21 attempt 2 completed `crn` cleanly and entered `cyclegan`. `crn`
+reached 92.7867% Acc / 93.0456% AP at 2.8904 images/s, with 8,437.36 MiB peak
+allocated and 8,776 MiB peak reserved memory. Its sample and label sequences
+exactly match attempt 1; 23 threshold decisions differ with a 0.00229
+probability MAD. Accuracy is 0.0392 points lower while AP is effectively
+unchanged. All eight ranks and the read-only SSHFS are healthy, and A6000 has
+only the four experiment compute processes, so `crn` remains clean timing
+evidence. The initial 3090 SCP timeout and two unavailable local `cl`
+environment invocations are retained; the copy retry and remote comparison in
+the verified experiment environment succeeded.

@@ -1366,6 +1366,14 @@ compute process。三机随后重新通过脚本和 checkpoint 哈希、NCCL 230
 显存为 37,175/18,652/19,158 MiB，未发现错误。首次延迟 A6000 状态命令无捕获
 输出，显式 marker 重试通过并已保留；`select12` 继续等待 attempt2 完成审计。
 
+07:21 attempt2 已干净完成 `crn` 并进入 `cyclegan`。`crn` Acc/AP 为
+92.7867%/93.0456%，吞吐 2.8904 images/s，峰值 allocated/reserved 为
+8,437.36/8,776 MiB。相对 attempt1 的同域样本与标签顺序完全一致，23 个阈值
+分歧、概率 MAD 0.00229，Acc 低 0.0392 点而 AP 基本相同。八个 rank 和只读
+SSHFS 均健康，A6000 只有四个本实验 compute process，因此 `crn` 计时可作为
+干净证据。首次 3090 SCP 超时、本地 `conda run -n cl` 不可写和猜测的本地
+`cl` Python 路径不存在均已保留；重试及远端正式环境比较成功。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
