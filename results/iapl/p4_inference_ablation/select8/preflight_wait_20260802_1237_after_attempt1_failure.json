@@ -1,0 +1,51 @@
+{
+  "experiment": "P4 selection-count ablation select8",
+  "attempt": 2,
+  "status": "preflight_wait",
+  "checked_at": "2026-08-02T12:37:27+08:00",
+  "checked_through": "2026-08-02T12:41:57+08:00",
+  "ordered_predecessor": {
+    "attempt1_status": "failed_and_archived",
+    "failure_manifest": "results/iapl/p4_inference_ablation/select8/attempt1_failure_20260802_1220_3090_sshfs_sigbus/manifest.json",
+    "valid_domains_preserved": 4,
+    "splice_results": false
+  },
+  "recovery_preflight": {
+    "3090_sshfs_source": "3070x2 is online after its 11:29-11:33 reboot",
+    "3090_sshfs_options": "read-only with reconnect and keepalive",
+    "ufd_domains_checked": 19,
+    "ufd_samples_checked": 88353,
+    "labels_mappings_and_first_images_checked": true,
+    "exit_code": 0,
+    "exact_iapl_runtime_smoke": "crn passed with 12,764 rows and 32 views",
+    "exact_select8_configuration": {
+      "selection_count": 8,
+      "tta_steps": 2,
+      "tta_entropy": "averaged",
+      "ois": true,
+      "seed": 100,
+      "world_size": 8
+    },
+    "3090_gpu_mib": 106,
+    "4090_2_gpu_mib": 252,
+    "select8_processes": 0,
+    "attempt2_output_absent": true,
+    "master_port_29668_free": true
+  },
+  "blocking_platform_state": {
+    "host": "A6000",
+    "gpu_memory_mib": 6498,
+    "gpu_utilization_percent": 99,
+    "external_processes": [
+      {"pid": 1461586, "gpu_memory_mib": 2088, "started_at": "2026-08-02T11:21:13+08:00"},
+      {"pid": 1461667, "gpu_memory_mib": 4380, "started_at": "2026-08-02T11:21:17+08:00"}
+    ],
+    "external_processes_observed_not_modified": true
+  },
+  "additional_node_probe": {
+    "host": "4090-1",
+    "result": "SSH connection timed out after five seconds",
+    "usable_for_attempt2": false
+  },
+  "decision": "Wait for A6000 to return to 17 MiB, 0% utilization with no compute process, then repeat the full three-host hash, Arrow, output, port and GPU preflight before launching attempt 2 from the beginning."
+}

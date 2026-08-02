@@ -1197,3 +1197,38 @@ onward is therefore established rather than merely possible: those timings
 are retained but are not clean performance results. The first three domains
 remain the clean timing boundary, while predictions and rank-local memory
 remain valid and the ordered run continues without restart or result selection.
+
+The 12:20 audit found that attempt 1 had suffered an unrecoverable peer loss.
+The 3070x2 host serving 3090's read-only Arrow SSHFS shut down at 11:29 and
+booted again at 11:33:41. During that outage, 3090 ranks 4-5 both exited with
+SIGBUS at 11:32:06 while faulting memory-mapped Arrow pages, and rank 7 then
+reported `ncclRemoteError`. Rank 0 completed its local 676/676 `deepfake`
+iterations, but the eight-rank gather did not complete and no prediction file
+exists, so `deepfake` is invalid and is not counted.
+
+The remaining peerless experiment ranks were terminated by exact PID and all
+three launchers released their resources; external A6000 PIDs 1461586/1461667
+were observed but not modified. The complete three-host logs, monitors,
+profile, and four valid prediction files are archived. Those four domains
+average 97.3452% Acc / 97.2257% AP, gaining 0.0633/0.1514 points over matched
+P1 and 0.0852/0.1145 points over the selection6 baseline. All 21,406 unique
+indices and labels match both references. Only the first three domains remain
+clean timing evidence; the shared `cyclegan` timing is retained with its
+qualification.
+
+The failure is not attributed to 3090's failed `/data`, CUDA OOM, or corrupted
+Arrow data: attempt 1 used only the SSHFS URI under `/home`, and after the
+source reboot the same mount passed all 19 domains, 88,353 rows, labels,
+mappings, and first-image decodes with exit code 0. The first silent SSH
+preflight was followed by a successful exact IAPL launcher smoke for `crn`
+with 12,764 rows, 32 views, selection count 8, averaged entropy, and OIS. The
+attempt2 output remained absent. The silent SSH preflight, two local comparison
+invocation failures, a stalled workspace dependency lookup, the 4090-1 timeout,
+and one read-only inventory quoting error are also retained in the failure
+manifest.
+
+Attempt 2 will restart all 19 domains from seed 100 rather than splice the four
+valid predictions. Its output path is absent and port 29668 is free, but the
+two external A6000 jobs still hold 6,498 MiB at 99% utilization. Attempt 2
+therefore remains in preflight wait until A6000 returns to the clean 17 MiB / 0%
+baseline; `select12` is not started out of order.

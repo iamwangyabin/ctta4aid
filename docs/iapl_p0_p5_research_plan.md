@@ -1284,6 +1284,28 @@ real/fake Accuracy 为 97.81%/100%。11:52:45 连续五次 `pmon` 中，外部 P
 `cyclegan` 起的计时原样保留但不作为干净性能结论；预测、标签和 rank 内部显存
 继续有效，`select8` 不重启、不筛选结果并按顺序继续。
 
+12:20 复查发现 attempt1 已发生不可恢复故障。为 3090 提供只读 Arrow 的
+3070x2 在 11:29 关机并于 11:33:41 重启；连接中断期间，3090 ranks 4-5
+在 11:32:06 对内存映射 Arrow 取页时同时 SIGBUS，rank7 随后记录
+`ncclRemoteError`。`deepfake` 虽在 rank0 完成本地 676/676 iter，但八 rank
+gather 未完成且没有预测文件，不能计入。已精确终止其余失去 peers 的本实验 ranks，
+两个外部 A6000 任务未修改；三机日志、监控、profile 和四个有效预测已完整归档。
+
+失败前有效的 `crn`、`dalle`、`biggan`、`cyclegan` 四域均值为
+97.3452% Acc / 97.2257% AP，相对匹配 P1 高 0.0633/0.1514 点，相对
+selection6 baseline 高 0.0852/0.1145 点。21,406 个唯一索引和标签与两份参考
+完全一致。前三域仍是干净计时边界；`cyclegan` 的共享平台计时原样保留。
+
+根因不是 3090 的故障 `/data`、CUDA OOM 或数据损坏：attempt1 只使用 `/home`
+下的 SSHFS URI；源机恢复后，同一挂载已重新通过 19 域、88,353 行、标签、映射和
+每域首图解码。首个复检 SSH 调用异常无输出，显式 marker 重试以 exit 0 完成；
+随后精确 IAPL launcher smoke 也通过 `crn` 12,764 行、32 views、selection count 8、
+averaged entropy 与 OIS 检查。
+本地比较工具的缺 numpy、参数误用、workspace dependency lookup 卡住、4090-1
+超时和一次 `awk` 引号错误也均保留。attempt2 不拼接旧预测，将从 seed100 重跑
+全部 19 域；当前 A6000 上两个外部任务仍占 6,498 MiB/99%，因此 attempt2 输出
+保持为空并等待干净平台，不提前运行 `select12`。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
