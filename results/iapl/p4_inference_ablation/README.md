@@ -1232,3 +1232,11 @@ valid predictions. Its output path is absent and port 29668 is free, but the
 two external A6000 jobs still hold 6,498 MiB at 99% utilization. Attempt 2
 therefore remains in preflight wait until A6000 returns to the clean 17 MiB / 0%
 baseline; `select12` is not started out of order.
+
+The 14:51 attempt2 wait audit finds the two external A6000 PIDs still active
+after about 3.5 hours, holding 6,500 MiB at 97% utilization. Neither process
+was modified. The 3090 and 4090-2 remain idle at 106/252 MiB, the read-only
+SSHFS, isolated driver, port 29668, and all three empty attempt2 output paths
+remain valid, and 3070x2 has stayed online for 3 hours 18 minutes since its
+reboot. Attempt 2 remains unlaunched until A6000 is clean; `select12` remains
+blocked by strict experiment order.

@@ -1306,6 +1306,12 @@ averaged entropy 与 OIS 检查。
 全部 19 域；当前 A6000 上两个外部任务仍占 6,498 MiB/99%，因此 attempt2 输出
 保持为空并等待干净平台，不提前运行 `select12`。
 
+14:51 的 attempt2 两小时等待审计显示 A6000 外部两个 PID 已运行约 3.5 小时，
+仍占 6,500 MiB/97%；未修改外部任务。3090/4090-2 分别为 106/252 MiB、0%，
+只读 SSHFS、隔离驱动、29668 端口和三机空输出均正常；3070x2 自 11:33:41
+重启后已稳定在线 3 小时 18 分钟。attempt2 继续保持未启动，等待 A6000 回到
+17 MiB/0% 后再做最终三机预检，`select12` 仍不越序。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
