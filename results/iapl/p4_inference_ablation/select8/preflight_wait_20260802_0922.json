@@ -1,0 +1,34 @@
+{
+  "experiment": "P4 selection-count ablation select8",
+  "status": "clean_a6000_reached",
+  "checked_at": "2026-08-02T09:22:13+08:00",
+  "previous_wait_audit": "results/iapl/p4_inference_ablation/select8/preflight_wait_20260802_0720.json",
+  "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/select8",
+  "transition": {
+    "departed_external_processes": [
+      {
+        "pid": 1339204,
+        "last_seen_at": "2026-08-02T08:50:56+08:00",
+        "confirmed_absent_at": "2026-08-02T09:21:04+08:00"
+      },
+      {
+        "pid": 1338443,
+        "last_seen_at": "2026-08-02T09:21:04+08:00",
+        "confirmed_absent_at": "2026-08-02T09:22:13+08:00"
+      }
+    ],
+    "a6000_memory_mib": 17,
+    "a6000_utilization_percent": 0,
+    "a6000_compute_processes": 0,
+    "a6000_output_absent": true,
+    "external_processes_observed_not_modified": true
+  },
+  "observation_failures": [
+    {
+      "operation": "hold one SSH observation for 60 seconds before rechecking the final external process",
+      "result": "the yielded command completed early with no output",
+      "impact": "none; an immediate fresh SSH query at 09:22:13 returned 17 MiB, 0% utilization, no compute process, and absent select8 output"
+    }
+  ],
+  "decision": "A6000 returned to its clean idle plateau. Proceed with a fresh complete three-host preflight before launching select8."
+}

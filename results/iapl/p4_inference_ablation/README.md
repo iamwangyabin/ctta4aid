@@ -1151,3 +1151,23 @@ output-free. The ten-hour wait is archived without modifying either job.
 At 07:20:47 CST the replacement PIDs have run for 12:06:53 and 12:05:58.
 A6000 remains at 6,254 MiB and 95%; `select8` is still output-free and
 unlaunched. The twelve-hour wait is archived without modifying either job.
+
+At 09:21 the 4,234 MiB external PID had exited, and the remaining 1,990 MiB
+PID exited by 09:22:13 without intervention. A6000 returned to its clean
+17 MiB / 0% plateau. One delayed SSH observation returned no output; the
+immediate retry established the clean transition and the failure is preserved.
+
+All three hosts then passed fresh code/checkpoint hashes, NCCL 23007, the real
+12,764-row `crn` Arrow smoke, exact eight-view selection, averaged entropy,
+the read-only 3090 SSHFS, isolated 4090-2 driver library, empty output paths,
+and the free master port. `select8` launched ranks 4-5 at 09:26:14, ranks 6-7
+at 09:26:33, and ranks 0-3 at 09:27:01 on port 29667. All eight ranks crossed
+the barrier and rank 0 entered `crn` with a 3.8346-second first iteration.
+
+The final A6000 shell guard misparsed `17,0` and emitted two integer-test
+warnings before continuing because the remote shell lacked `set -e`. The
+actual launch remained clean: proper checks immediately before launch showed
+17 MiB/0%, no compute process and a free port, and the post-launch compute list
+exactly matches the four expected rank PIDs. An initial overloaded SSH status
+query also timed out and its retry succeeded. Both failures are retained in
+the launch audit rather than omitted.

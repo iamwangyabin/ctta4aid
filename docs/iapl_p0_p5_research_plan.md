@@ -1251,6 +1251,20 @@ A6000 为 6,250 MiB/80%，未观测到可安全启动的干净窗口。3090/4090
 07:20:47 时两个替换 PID 已持续 12:06:53/12:05:58，A6000 为
 6,254 MiB/95%；`select8` 未启动且输出为空，十二小时等待已归档且未修改外部任务。
 
+09:21 时占 4,234 MiB 的外部 PID 已自行退出，剩余 1,990 MiB PID 于 09:22:13
+前退出，A6000 恢复 17 MiB/0% 干净平台。一次延迟 SSH 观察无输出，立即重试
+确认转换且失败已保留。随后三机重新通过代码/权重哈希、NCCL 23007、真实
+12,764 行 `crn` Arrow、精确八视图选择、averaged entropy、3090 只读 SSHFS、
+4090-2 隔离驱动、三机空输出及空闲端口预检。
+
+`select8` 分别于 09:26:14、09:26:33、09:27:01 启动 3090 ranks 4-5、
+4090-2 ranks 6-7 和 A6000 ranks 0-3，端口为 29667。八 ranks 均跨过 barrier，
+rank 0 已进入 `crn`，首 iter 为 3.8346 秒。A6000 最终 shell guard 将 `17,0`
+误解析成单字段并产生两条整数检查警告，但启动前正确查询和 guard 自身输出均
+确认 17 MiB/0%、无 compute process、端口空闲，启动后 GPU 进程又精确匹配四个
+rank PID，因此运行平台仍是干净的。另一次启动后 SSH banner timeout 重试成功；
+两项失败均已保留在 launch audit，未跳过。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
