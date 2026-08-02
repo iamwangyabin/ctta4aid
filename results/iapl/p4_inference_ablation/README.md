@@ -1264,3 +1264,10 @@ present. The 3090, 4090-2, read-only SSHFS, isolated driver, port 29668, and
 all empty attempt2 output paths remain healthy, and 3070x2 has stayed online
 for 7 hours 49 minutes since reboot. The external jobs were not modified;
 attempt2 and `select12` continue to wait in strict order.
+
+The 21:21 eight-hour attempt2 wait audit sees both replacement external PIDs
+still active after 6 hours 15 minutes, with A6000 at 6,570 MiB and 98%.
+The 3090 and 4090-2 remain at their idle baselines, while the read-only SSHFS,
+isolated driver, port 29668, and all empty output paths remain healthy. The
+3070x2 source has stayed online for 9 hours 48 minutes since reboot. Neither
+external job was modified; attempt2 and `select12` remain unlaunched.

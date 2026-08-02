@@ -1330,6 +1330,11 @@ A6000 仍占 6,568 MiB；68% 只是瞬时利用率，两个 compute process 均�
 自重启后已稳定在线 7 小时 49 分钟。外部任务未修改，attempt2 和 `select12`
 继续严格按序等待。
 
+21:21 的 attempt2 八小时等待审计中，更替后的两个外部 PID 已运行 6 小时 15 分钟，
+A6000 为 6,570 MiB/98%。3090/4090-2 仍为空闲基线，只读 SSHFS、隔离驱动、
+29668 端口和三机空输出均正常；3070x2 自重启后稳定在线 9 小时 48 分钟。
+外部任务未修改，attempt2 与 `select12` 均保持未启动，继续周期检查。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
