@@ -1187,3 +1187,13 @@ and timing from `cyclegan` onward are conservatively qualified. Predictions
 and rank-local memory remain valid. The failed attempt to copy nonexistent
 live `metrics.json` is retained; metrics were generated locally from completed
 prediction files without altering them.
+
+By 11:51 `cyclegan` was complete at 98.90% Acc / 98.14% AP, with 97.81%
+real and 100% fake Accuracy, and `deepfake` was active. A five-sample pmon
+check beginning at 11:52:45 directly observed 12% SM use by external PID
+1461586 in one sample. The other external PID did not show SM use in those
+five samples, and neither process was modified. Contention from `cyclegan`
+onward is therefore established rather than merely possible: those timings
+are retained but are not clean performance results. The first three domains
+remain the clean timing boundary, while predictions and rank-local memory
+remain valid and the ordered run continues without restart or result selection.

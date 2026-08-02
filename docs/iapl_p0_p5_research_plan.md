@@ -1277,6 +1277,13 @@ selection6 低 1.75%。
 保守按共享平台限定；预测与 rank 内部显存仍有效。尝试复制运行中并不存在的
 `metrics.json` 失败已保留，随后仅从已完成预测文件生成本地指标，未修改预测。
 
+11:51 `cyclegan` 已完成并进入 `deepfake`，结果为 98.90% Acc / 98.14% AP，
+real/fake Accuracy 为 97.81%/100%。11:52:45 连续五次 `pmon` 中，外部 PID
+1461586 有一次直接使用 12% SM，故竞争已被直接确认；另一个外部 PID 在这五次
+样本中未显示 SM 使用。两个外部进程均未修改。前三域仍是唯一干净计时边界，
+`cyclegan` 起的计时原样保留但不作为干净性能结论；预测、标签和 rank 内部显存
+继续有效，`select8` 不重启、不筛选结果并按顺序继续。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
