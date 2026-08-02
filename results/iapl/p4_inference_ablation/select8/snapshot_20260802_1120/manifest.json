@@ -1,0 +1,108 @@
+{
+  "experiment": "P4 selection-count ablation select8",
+  "status": "running",
+  "captured_at": "2026-08-02T11:20:45+08:00",
+  "completed_domains": ["crn", "dalle", "biggan"],
+  "active_domain": "cyclegan",
+  "active_rank0_progress": "50/331",
+  "partial_metrics": {
+    "accuracy": 0.9682527151211362,
+    "average_precision": 0.9692010993565289,
+    "real_accuracy": 0.9436870758951873,
+    "fake_accuracy": 0.9928333333333333,
+    "delta_to_p1_selection6": {
+      "accuracy": 0.0004659565580618086,
+      "average_precision": 0.0015333984703792547,
+      "real_accuracy": 0.0022646414030691453,
+      "fake_accuracy": -0.0013333333333332975
+    },
+    "delta_to_profiled_baseline_selection6": {
+      "accuracy": 0.0007581453634085689,
+      "average_precision": 0.0007991184543543195,
+      "real_accuracy": 0.002182221526255246,
+      "fake_accuracy": -0.0006666666666667043
+    }
+  },
+  "by_domain_delta_to_p1": {
+    "crn": {
+      "accuracy": 0.0028978696741854826,
+      "average_precision": 0.0027052081254329563,
+      "real_accuracy": 0.005793924209207657,
+      "fake_accuracy": 0.0
+    },
+    "dalle": {
+      "accuracy": -0.0025000000000000577,
+      "average_precision": 0.00002990084855225561,
+      "real_accuracy": -0.0010000000000000009,
+      "fake_accuracy": -0.0040000000000000036
+    },
+    "biggan": {
+      "accuracy": 0.0010000000000000009,
+      "average_precision": 0.0018650864371525522,
+      "real_accuracy": 0.0020000000000000018,
+      "fake_accuracy": 0.0
+    }
+  },
+  "prediction_audit": {
+    "unique_samples": 18764,
+    "samples_with_distributed_padding": 18768,
+    "duplicate_sampler_indices": 4,
+    "world_size": 8,
+    "index_and_label_sequences_equal_to_p1": true,
+    "p1_threshold_disagreements": 114,
+    "p1_exact_probability_matches": 10977,
+    "p1_weighted_probability_mad": 0.006576056217135867,
+    "index_and_label_sequences_equal_to_profiled_baseline": true,
+    "profiled_baseline_threshold_disagreements": 91,
+    "profiled_baseline_exact_probability_matches": 11359,
+    "profiled_baseline_weighted_probability_mad": 0.005212798393806957
+  },
+  "profile": {
+    "clean_domains": ["crn", "dalle", "biggan"],
+    "unique_images": 18764,
+    "sum_domain_wall_seconds": 6512.174717850867,
+    "overall_unique_images_per_second": 2.881372323836,
+    "relative_to_profiled_baseline_same_domains_wall_time": 0.017815470812478695,
+    "relative_to_profiled_baseline_same_domains_throughput": -0.017503635308527277,
+    "relative_to_select4_same_domains_wall_time": 0.024134267993561664,
+    "relative_to_select4_same_domains_throughput": -0.023565531149391528,
+    "max_rank_peak_allocated_mib": 8437.3583984375,
+    "max_rank_peak_reserved_mib": 8776.0
+  },
+  "audit": {
+    "rank_logs": 8,
+    "launcher_logs": 3,
+    "critical_errors_detected": 0,
+    "gpu_monitor_line_counts": {
+      "A6000": 6629,
+      "3090": 6857,
+      "4090-2": 6863
+    },
+    "raw_gpu_monitor_peaks_mib": {
+      "A6000": 41703,
+      "3090": 18652,
+      "4090-2": 19162
+    },
+    "a6000_monitor_copy_extended_through": "2026-08-02T11:21:40+08:00",
+    "a6000_external_processes_started_during_copy": [1461586, 1461667],
+    "raw_a6000_peak_is_shared_process_contaminated": true,
+    "first_three_domain_timing_is_clean": true,
+    "3090_sshfs_mounted_read_only": true,
+    "all_eight_ranks_running_after_snapshot": true
+  },
+  "postprocess_attempts": [
+    {
+      "status": "partially_completed",
+      "operation": "copy A6000 snapshot files including an expected metrics.json",
+      "failure": "remote metrics.json did not exist because live runs only write predictions and profile data",
+      "impact": "all other requested A6000 files copied; metrics.json was generated locally from the immutable completed-domain prediction JSON files"
+    },
+    {
+      "status": "completed",
+      "operation": "summarize predictions and compare against P1 and the profiled selection6 baseline",
+      "runtime": "local Python tools"
+    }
+  ],
+  "runtime_qualification": "Two external A6000 processes started just after the first three domains completed. Their first pmon sample showed no direct SM use, but raw A6000 memory from 11:21:25 and timing from cyclegan onward are conservatively qualified. Predictions and rank-local memory remain valid.",
+  "conclusion": "Across the first three clean domains, select8 is 0.0466 Accuracy points and 0.1533 AP points above P1, and 0.0758/0.0799 points above the profiled selection6 baseline. It is 1.75% slower than selection6 on the same clean domains. Exact sample and label order is preserved; the probability differences are consistent with the changed selection count and random views."
+}

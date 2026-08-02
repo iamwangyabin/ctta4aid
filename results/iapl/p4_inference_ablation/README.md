@@ -1171,3 +1171,19 @@ actual launch remained clean: proper checks immediately before launch showed
 exactly matches the four expected rank PIDs. An initial overloaded SSH status
 query also timed out and its retry succeeded. Both failures are retained in
 the launch audit rather than omitted.
+
+The first clean snapshot at 11:20 contains `crn`, `dalle`, and `biggan`.
+Their mean Acc/AP are 96.8253%/96.9201%, which is 0.0466/0.1533 points above
+matched P1 and 0.0758/0.0799 points above the profiled selection6 baseline.
+The same 18,764 unique indices and labels are preserved; there are 114 P1
+threshold disagreements and a 0.00658 weighted probability MAD. Clean
+throughput is 2.8814 images/s, 1.75% below selection6 on the same domains.
+
+During the live monitor copy, two separate-user A6000 processes started at
+11:21:13/11:21:17, after all three clean domains had completed and while
+`cyclegan` was active. They held 2,112/4,348 MiB at 11:24. A one-sample pmon
+check did not observe their direct SM use, but raw A6000 memory from 11:21:25
+and timing from `cyclegan` onward are conservatively qualified. Predictions
+and rank-local memory remain valid. The failed attempt to copy nonexistent
+live `metrics.json` is retained; metrics were generated locally from completed
+prediction files without altering them.

@@ -1265,6 +1265,18 @@ rank 0 已进入 `crn`，首 iter 为 3.8346 秒。A6000 最终 shell guard 将 
 rank PID，因此运行平台仍是干净的。另一次启动后 SSH banner timeout 重试成功；
 两项失败均已保留在 launch audit，未跳过。
 
+11:20 首份干净快照含 `crn`、`dalle`、`biggan`，均值 Acc/AP 为
+96.8253%/96.9201%，相对匹配 P1 高 0.0466/0.1533 点，相对 profiled
+selection6 高 0.0758/0.0799 点。18,764 个唯一索引和标签一致，相对 P1 有
+114 个阈值分歧、加权 MAD 0.00658。干净吞吐 2.8814 images/s，同域相对
+selection6 低 1.75%。
+
+实时复制监控期间，两个外部 A6000 进程于 11:21:13/11:21:17 启动；此时前三域
+已完成，`cyclegan` 正在运行。11:24 分别占 2,112/4,348 MiB。一次 pmon 样本
+未见其直接 SM 使用，但从 11:21:25 起的 A6000 原始显存及 `cyclegan` 后计时
+保守按共享平台限定；预测与 rank 内部显存仍有效。尝试复制运行中并不存在的
+`metrics.json` 失败已保留，随后仅从已完成预测文件生成本地指标，未修改预测。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
