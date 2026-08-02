@@ -1312,6 +1312,12 @@ averaged entropy 与 OIS 检查。
 重启后已稳定在线 3 小时 18 分钟。attempt2 继续保持未启动，等待 A6000 回到
 17 MiB/0% 后再做最终三机预检，`select12` 仍不越序。
 
+15:21 复查时上一组外部 PID 已退出，但同一命令在 15:05:29/15:05:33 更换为
+PID 1500488/1500591，各带 8 个 worker，分别占 2,144/4,396 MiB；A6000
+为 6,568 MiB，连续查询利用率为 99%/88%。周期检查之间未直接观测到干净窗口，
+不能推断曾满足启动条件。外部进程仍只观察不修改，attempt2 输出为空且没有
+`select8` 进程，继续等待而不启动 `select12`。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

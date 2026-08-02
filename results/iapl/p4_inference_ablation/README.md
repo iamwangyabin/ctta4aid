@@ -1240,3 +1240,11 @@ SSHFS, isolated driver, port 29668, and all three empty attempt2 output paths
 remain valid, and 3070x2 has stayed online for 3 hours 18 minutes since its
 reboot. Attempt 2 remains unlaunched until A6000 is clean; `select12` remains
 blocked by strict experiment order.
+
+At 15:21 the previous external A6000 PIDs were gone, but the same command had
+already started replacement PIDs 1500488/1500591 at 15:05:29/15:05:33. Each
+has eight workers and holds 2,144/4,396 MiB; A6000 measured 6,568 MiB with
+99%/88% utilization in consecutive checks. No clean interval was directly
+observed between periodic audits, so none is inferred. The replacement jobs
+were not modified, attempt2 remains output-free and unlaunched, and `select12`
+is still blocked by strict order.
