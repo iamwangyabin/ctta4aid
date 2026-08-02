@@ -1318,6 +1318,12 @@ PID 1500488/1500591，各带 8 个 worker，分别占 2,144/4,396 MiB；A6000
 不能推断曾满足启动条件。外部进程仍只观察不修改，attempt2 输出为空且没有
 `select8` 进程，继续等待而不启动 `select12`。
 
+17:21 的 attempt2 四小时等待审计中，更替后的两个外部 PID 已运行 2 小时 15 分钟，
+A6000 为 6,568 MiB/67%；较低的单次利用率不等于干净平台，因为两个 compute
+process 仍常驻。3090/4090-2 继续空闲，只读 SSHFS、隔离驱动、29668 端口和三机
+空输出无漂移；3070x2 自重启后稳定在线 5 小时 48 分钟。外部任务未修改，attempt2
+保持未启动，`select12` 仍按顺序等待。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

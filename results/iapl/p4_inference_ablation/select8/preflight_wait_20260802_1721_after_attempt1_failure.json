@@ -1,0 +1,53 @@
+{
+  "experiment": "P4 selection-count ablation select8",
+  "attempt": 2,
+  "status": "preflight_wait",
+  "checked_at": "2026-08-02T17:21:07+08:00",
+  "ordered_wait_elapsed_since_first_recovery_audit": "04:43:40",
+  "a6000": {
+    "gpu_memory_mib": 6568,
+    "gpu_utilization_percent": 67,
+    "external_processes": [
+      {
+        "pid": 1500488,
+        "gpu_memory_mib": 2144,
+        "elapsed": "02:15:38"
+      },
+      {
+        "pid": 1500591,
+        "gpu_memory_mib": 4396,
+        "elapsed": "02:15:34"
+      }
+    ],
+    "external_processes_observed_not_modified": true,
+    "select8_processes": 0,
+    "attempt2_output_absent": true,
+    "master_port_29668_free": true
+  },
+  "3090": {
+    "checked_at": "2026-08-02T17:21:49+08:00",
+    "gpu_memory_mib": 106,
+    "gpu_utilization_percent": 0,
+    "compute_processes": 0,
+    "sshfs_pid": 222215,
+    "sshfs_read_only": true,
+    "forensynths_state_readable": true,
+    "attempt2_output_absent": true
+  },
+  "4090_2": {
+    "checked_at": "2026-08-02T17:22:16+08:00",
+    "gpu_memory_mib": 252,
+    "gpu_utilization_percent": 0,
+    "compute_processes": 0,
+    "isolated_driver_version": "580.159.03",
+    "attempt2_output_absent": true
+  },
+  "arrow_source_3070x2": {
+    "checked_at": "2026-08-02T17:22:37+08:00",
+    "boot_at": "2026-08-02T11:33:41+08:00",
+    "uptime": "05:48",
+    "forensynths_state_bytes": 11585,
+    "healthy": true
+  },
+  "decision": "The lower instantaneous A6000 utilization is not a clean platform while both external compute processes remain resident. Keep attempt 2 unlaunched and do not start select12."
+}

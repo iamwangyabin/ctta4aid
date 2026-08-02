@@ -1248,3 +1248,11 @@ has eight workers and holds 2,144/4,396 MiB; A6000 measured 6,568 MiB with
 observed between periodic audits, so none is inferred. The replacement jobs
 were not modified, attempt2 remains output-free and unlaunched, and `select12`
 is still blocked by strict order.
+
+The 17:21 four-hour attempt2 wait audit sees the replacement external PIDs
+still resident after 2 hours 15 minutes. A6000 reads 6,568 MiB and 67%; the
+lower instantaneous utilization is not a clean platform while both compute
+processes remain present. The 3090 and 4090-2 are still idle, the read-only
+SSHFS, isolated driver, port 29668, and all empty output paths have not drifted,
+and 3070x2 has remained online for 5 hours 48 minutes since reboot. Attempt 2
+remains unlaunched and `select12` remains ordered behind it.
