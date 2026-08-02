@@ -1324,6 +1324,12 @@ process 仍常驻。3090/4090-2 继续空闲，只读 SSHFS、隔离驱动、296
 空输出无漂移；3070x2 自重启后稳定在线 5 小时 48 分钟。外部任务未修改，attempt2
 保持未启动，`select12` 仍按顺序等待。
 
+19:21 的 attempt2 六小时等待审计中，更替后的外部 PID 已运行 4 小时 16 分钟，
+A6000 仍占 6,568 MiB；68% 只是瞬时利用率，两个 compute process 均未退出。
+3090/4090-2、只读 SSHFS、隔离驱动、29668 端口与三机空输出仍正常，3070x2
+自重启后已稳定在线 7 小时 49 分钟。外部任务未修改，attempt2 和 `select12`
+继续严格按序等待。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
