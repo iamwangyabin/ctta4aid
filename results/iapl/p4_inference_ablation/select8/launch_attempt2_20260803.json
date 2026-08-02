@@ -1,0 +1,123 @@
+{
+  "experiment": "P4 selection-count ablation select8",
+  "attempt": 2,
+  "status": "running",
+  "ordered_predecessor": {
+    "attempt": 1,
+    "status": "failed_and_archived",
+    "failure_manifest": "results/iapl/p4_inference_ablation/select8/attempt1_failure_20260802_1220_3090_sshfs_sigbus/manifest.json",
+    "valid_domains_preserved": 4,
+    "splice_results": false
+  },
+  "protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 8,
+    "tta_entropy": "averaged",
+    "ois": true,
+    "seed": 100,
+    "master_addr": "192.168.10.2",
+    "master_port": 29668,
+    "distributed_timeout_seconds": 7200,
+    "domains": 19,
+    "dataset_size": 88353
+  },
+  "datasets": {
+    "A6000": "local hf_arrow:///home/yabin/ctta4aid_assets/data/df_arrow_20260717/ForenSynths|/home/yabin/ctta4aid_assets/data/df_arrow_20260717/Ojha",
+    "3090": "read-only SSHFS hf_arrow:///home/yabin/ctta4aid_assets/data/df_arrow_remote_3070/ForenSynths|/home/yabin/ctta4aid_assets/data/df_arrow_remote_3070/Ojha",
+    "4090-2": "local hf_arrow:///home/yabin/ctta4aid_assets/data/df_arrow_20260716/ForenSynths|/home/yabin/ctta4aid_assets/data/df_arrow_20260716/Ojha"
+  },
+  "clean_gpu_wait": {
+    "first_recovery_audit_at": "2026-08-02T12:37:27+08:00",
+    "resolved_at": "2026-08-03T05:50:49+08:00",
+    "elapsed": "17:13:22",
+    "latest_wait_audit": "results/iapl/p4_inference_ablation/select8/preflight_wait_20260803_0520_after_attempt1_failure.json",
+    "departed_external_processes_observed_not_modified": [1461586, 1461667, 1500488, 1500591],
+    "resolution": "A6000 returned to 17 MiB and 0% utilization with no compute process."
+  },
+  "preflight": {
+    "completed_before_first_launcher_at": "2026-08-03T05:53:47+08:00",
+    "hosts_passed": ["A6000", "3090", "4090-2"],
+    "remote_output_absent_on_all_hosts": true,
+    "master_port_free": true,
+    "checkpoint_and_clip_present": true,
+    "checkpoint_sha256": "1e04047b74d287ba2f3682cde84246688dfa486354a5677b5147e677bc2a3f81",
+    "nccl_version": 23007,
+    "real_crn_arrow_smoke_rows": 12764,
+    "selection_count_verified": 8,
+    "averaged_entropy_verified": true,
+    "ois_verified": true,
+    "3090_sshfs_mounted_read_only": true,
+    "3090_failed_data_device_accessed": false,
+    "4090_2_isolated_driver_lib": "/home/yabin/ctta4aid_assets/driver_compat/nvidia-580.159.03/rootfs/usr/lib/x86_64-linux-gnu",
+    "prelaunch_memory_mib": {
+      "A6000": 17,
+      "3090": 106,
+      "4090-2": 252
+    },
+    "prelaunch_utilization_percent": {
+      "A6000": 0,
+      "3090": 0,
+      "4090-2": 0
+    }
+  },
+  "code_sha256": {
+    "scripts/run_iapl_manual_ranks.sh": "4b009dc1e0dcce9b39a86c5204867ca1eb0ff9ecff44c92a4cb203a39f706e88",
+    "scripts/run_iapl_p4_ufd_ablation_node.sh": "7913234cd11002c721e0908f73be0ae9c985b727b90484f30a0935c1c42db86c",
+    "matched_on_all_hosts": true
+  },
+  "launch": {
+    "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/select8_attempt2",
+    "3090": {
+      "started_at": "2026-08-03T05:54:04+08:00",
+      "launcher_pid": 1132367,
+      "rank_pids": [1132419, 1132420]
+    },
+    "4090-2": {
+      "started_at": "2026-08-03T05:54:22+08:00",
+      "launcher_pid": 2159339,
+      "rank_pids": [2159403, 2159404]
+    },
+    "A6000": {
+      "started_at": "2026-08-03T05:54:44+08:00",
+      "launcher_pid": 1618404,
+      "rank_pids": [1618521, 1618522, 1618523, 1618524],
+      "final_guard_memory_mib": 17,
+      "final_guard_utilization_percent": 0
+    }
+  },
+  "preserved_launch_observations": [
+    {
+      "operation": "first delayed A6000 post-launch status command",
+      "result": "the command completed without captured output",
+      "impact": "none; the immediate explicit-marker retry confirmed all four ranks, the barrier, the first iteration, expected GPU memory, and no error signatures"
+    }
+  ],
+  "initial_runtime": {
+    "checked_through": "2026-08-03T05:56:30+08:00",
+    "all_eight_ranks_crossed_barrier": true,
+    "rank0_entered_crn": true,
+    "rank0_first_iteration_seconds": 4.6187,
+    "host_memory_mib": {
+      "A6000": 37175,
+      "3090": 18652,
+      "4090-2": 19158
+    },
+    "host_utilization_percent": {
+      "A6000": 100,
+      "3090": 95,
+      "4090-2": 100
+    },
+    "a6000_compute_processes_exactly_match_rank_pids": true,
+    "rank0_peak_allocated_mib": 8437,
+    "3090_sshfs_mounted_read_only": true,
+    "errors_detected": 0
+  },
+  "decision": "Run all 19 domains from seed 100 without splicing attempt 1, monitor the 3070x2 SSHFS source and all three GPU hosts, and do not start select12 until attempt 2 completes and is audited."
+}

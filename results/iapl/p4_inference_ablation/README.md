@@ -1302,3 +1302,18 @@ explicit markers passed all checks, and the transient failure is retained.
 The read-only SSHFS, isolated driver, port 29668, empty output paths, and
 3070x2 source remain healthy. No external process was modified; attempt2 and
 `select12` remain unlaunched in strict order.
+
+At 05:50:49 the final external PID 1500488 exited on its own and A6000 returned
+to 17 MiB, 0%, with no compute process. All three hosts then passed script and
+checkpoint hashes, NCCL 23007, a real 12,764-row `crn` Arrow smoke, exact
+selection count 8, averaged entropy, OIS, the 3090 read-only SSHFS, the 4090-2
+isolated driver, empty outputs, and free port 29668. Attempt 2 launched ranks
+4-5 on 3090, ranks 6-7 on 4090-2, and ranks 0-3 on A6000 at 05:54, restarting
+all 19 domains from seed 100 without splicing attempt 1.
+
+By 05:56 all eight ranks had crossed the barrier and rank 0 entered `crn` with
+a 4.6187-second first iteration. Host memory was 37,175/18,652/19,158 MiB on
+A6000/3090/4090-2, with no error signatures and the SSHFS still read-only. The
+first delayed A6000 status command completed without captured output; its
+explicit-marker retry passed and the observation is retained. `select12`
+remains blocked until attempt 2 completes and is fully audited.

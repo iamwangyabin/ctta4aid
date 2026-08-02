@@ -1357,6 +1357,15 @@ SSHFS、隔离驱动、29668 端口及三机空输出均正常；3070x2 自重�
 通过，该失败已原样记录；其余只读 SSHFS、隔离驱动、29668 端口、三机空输出
 和 3070x2 数据源均正常。外部任务未修改，attempt2 与 `select12` 继续按序等待。
 
+05:50:49 最后一个外部 PID 1500488 自行退出，A6000 恢复 17 MiB/0% 且无
+compute process。三机随后重新通过脚本和 checkpoint 哈希、NCCL 23007、真实
+12,764 行 `crn` Arrow、精确 selection count 8、averaged entropy、OIS、3090
+只读 SSHFS、4090-2 隔离驱动、空输出和 29668 端口预检。attempt2 于 05:54
+依次启动 3090 ranks 4-5、4090-2 ranks 6-7 和 A6000 ranks 0-3，不拼接 attempt1。
+05:56 八个 ranks 均已跨过 barrier，rank0 进入 `crn` 首 iter 4.6187 秒，三机
+显存为 37,175/18,652/19,158 MiB，未发现错误。首次延迟 A6000 状态命令无捕获
+输出，显式 marker 重试通过并已保留；`select12` 继续等待 attempt2 完成审计。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
