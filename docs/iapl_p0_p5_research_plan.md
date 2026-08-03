@@ -1430,6 +1430,18 @@ A6000 出现两个外部 `train_sharepara_moe_0406_loss.py` 进程，占用约
 GPU 曲线和逐样本对比已保存。预测指标与 rank-local 显存有效，但从 `crn`
 后段开始的 wall-time 标记为共享平台污染，后续继续运行并周期复核。
 
+16:54 select12 已完成 `crn`、`cyclegan`、`dalle` 并进入 `biggan` 的
+100/500 batch。前三域 17,406 张唯一图像均值 Acc/AP 为
+96.9672%/97.0729%，较匹配 select8 高 +0.1326/+0.1158 点，较匹配 P1
+selection6 高 +0.1747/+0.2933 点。索引与标签序列全部一致，相对两个参考分别
+有 106/156 个阈值分歧、加权概率 MAD 0.00639/0.00936。A6000 原有两个外部
+训练父进程仍在，并可见 16 个子进程，raw host 峰值升至 44,657 MiB；未修改
+这些任务。八 ranks 均存活、3090 SSHFS 仍为 `ro` 且可读，日志无关键错误。
+预测指标和 rank-local 8,437.36/8,776 MiB 峰值有效，三域合计 2.7955 images/s
+耗时继续标记为共享平台污染。首次本地聚合命令因把转义换行传给 `python -c`
+而失败，修正为单行结构化数据命令后成功，失败记录已保留。三域快照已归档，
+`steps3` 继续严格等待 select12 完整结束和审计。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

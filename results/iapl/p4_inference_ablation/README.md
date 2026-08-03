@@ -1406,3 +1406,19 @@ first-domain prediction, three-host logs, profile, GPU curves, and pairwise
 comparisons are archived. Prediction metrics and rank-local memory remain
 valid, but wall time from late `crn` onward is marked shared-platform
 contaminated and will be re-audited while the run continues.
+
+At 16:54 select12 had completed `crn`, `cyclegan`, and `dalle` and reached
+batch 100/500 of `biggan`. The 17,406 unique images average 96.9672% Acc /
+97.0729% AP, +0.1326/+0.1158 points over matched select8 and
++0.1747/+0.2933 points over matched P1 selection6. All index and label
+sequences match both controls; there are 106/156 threshold disagreements and
+weighted probability MAD 0.00639/0.00936. The original two external A6000
+jobs remain, with 16 child processes visible, and the raw monitor peaks at
+44,657 MiB. They were not modified. All eight experiment ranks remain alive,
+the 3090 SSHFS is still readable and mounted `ro`, and no critical log pattern
+is present. Prediction metrics and the 8,437.36/8,776 MiB rank-local memory
+peak remain valid, while the combined 2.7955 images/s timing is explicitly
+shared-platform contaminated. The first local aggregate command failed because
+escaped newlines were passed to `python -c`; the corrected structured-data
+command succeeded and the failed audit is retained. The three-domain snapshot
+is archived; `steps3` remains blocked by strict order.
