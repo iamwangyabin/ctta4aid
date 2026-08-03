@@ -1353,3 +1353,18 @@ The first local `jq` summary queried a nonexistent exact-match field and
 failed; the corrected summary succeeded and the failure is retained. The ten
 predictions, all host logs, profile, and GPU curves are archived while later
 variants remain blocked by strict order.
+
+At 12:56 attempt 2 had completed 17/19 domains and entered `stargan`. The
+72,373 unique images average 95.4969% Acc / 97.3448% AP at a clean 2.8849
+images/s. Relative to the matched baseline this is +0.0292/+0.1443 points;
+relative to matched P1 it is +0.0477/+0.1805 points. Every index and label
+sequence matches the baseline, with 260 threshold disagreements and a 0.00391
+weighted probability MAD. The intended 15-domain checkpoint advanced by two
+domains during copying, so `seeingdark`, the profile, and rank logs were copied
+again and all summaries were regenerated for one consistent 17-domain set.
+All eight ranks, the read-only 3090 SSHFS, isolated 4090-2 driver, and 3070x2
+source are healthy with no log errors. The system Python comparison failed for
+missing `numpy`, then succeeded in the established remote environment; a local
+inspection also failed after requesting the nonexistent `by_domain` key. Both
+failures are retained. `select12` remains blocked pending the full select8
+audit.

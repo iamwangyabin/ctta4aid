@@ -1,0 +1,88 @@
+{
+  "experiment": "P4 selection-count ablation select8",
+  "attempt": 2,
+  "status": "running",
+  "checked_through": "2026-08-03T12:56:06+08:00",
+  "completed_domains": [
+    "crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan",
+    "glide_50_27", "glide_100_10", "glide_100_27", "guided", "imle",
+    "ldm_100", "ldm_200", "ldm_200_cfg", "progan", "san", "seeingdark"
+  ],
+  "active_domain": "stargan",
+  "protocol": {
+    "world_size": 8,
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 8,
+    "tta_entropy": "averaged",
+    "ois": true,
+    "seed": 100
+  },
+  "seventeen_domain_metrics": {
+    "unique_images": 72373,
+    "accuracy": 0.9549687728280151,
+    "average_precision": 0.9734480184196281,
+    "real_accuracy": 0.9638210206079798,
+    "fake_accuracy": 0.9460959273062068
+  },
+  "matched_baseline_delta": {
+    "accuracy": 0.0002918311154636033,
+    "average_precision": 0.0014431482235742754,
+    "real_accuracy": 0.001667782538583018,
+    "fake_accuracy": -0.0010872105699208934
+  },
+  "matched_p1_delta": {
+    "accuracy": 0.00047717280005510343,
+    "average_precision": 0.0018052905500982597,
+    "real_accuracy": 0.0018570655513815426,
+    "fake_accuracy": -0.0009070255680283523
+  },
+  "baseline_prediction_comparison": {
+    "common_unique_indices": 72373,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 260,
+    "weighted_probability_mad": 0.003913934193611765
+  },
+  "seventeen_domain_profile": {
+    "sum_domain_wall_seconds": 25086.738405229175,
+    "unique_images_per_second": 2.8849106978735146,
+    "max_rank_peak_allocated_mib": 8437.3583984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "clean_timing": true
+  },
+  "runtime": {
+    "a6000_memory_mib": 37175,
+    "a6000_utilization_percent": 100,
+    "a6000_compute_processes_exactly_match_four_rank_pids": true,
+    "3090_memory_mib": 18652,
+    "3090_utilization_percent": 100,
+    "4090_2_memory_mib": 19158,
+    "4090_2_utilization_percent": 100,
+    "all_eight_rank_pids_alive": true,
+    "errors_detected_in_eight_rank_and_three_launcher_logs": 0,
+    "3090_sshfs_read_only_and_readable": true,
+    "arrow_source_3070x2_uptime": "1 day, 1 hour, 20 minutes",
+    "arrow_source_state_bytes": 11585
+  },
+  "gpu_monitor_line_counts": {
+    "A6000": 24191,
+    "3090": 24745,
+    "4090-2": 24703
+  },
+  "snapshot_consistency": "The intended 15-domain checkpoint advanced to 17 completed domains while files were copied. seeingdark and the updated profile and rank logs were copied again, and the metrics and baseline comparison were regenerated for the same 17-domain set.",
+  "diagnostic_failures_preserved": [
+    "A local inspection expected a by_domain key in the comparison report, but the report uses domains; the failed query also emitted excessive JSON before the corrected key inspection succeeded.",
+    "Running the comparison helper with the system Python failed because local numpy is absent; the same repository helper then succeeded in the established remote caid-gemini-compat environment.",
+    "The first sandboxed git add could not create .git/index.lock; the identical scoped add succeeded after the required repository-write approval."
+  ],
+  "artifacts": {
+    "metrics": "metrics.json",
+    "baseline_prediction_comparison": "baseline_prediction_comparison.json",
+    "predictions": "a6000/predictions/*.json",
+    "profile": "a6000/profile.json",
+    "rank_logs": "rank0.log through rank7.log across the three host directories",
+    "launcher_logs": "one per GPU host",
+    "gpu_monitors": "one per GPU host"
+  },
+  "decision": "Continue attempt 2 in order through stargan and stylegan. Do not start select12 before the full select8 audit is archived and verified."
+}
