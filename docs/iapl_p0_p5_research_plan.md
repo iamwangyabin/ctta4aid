@@ -1523,6 +1523,10 @@ SSHFS 和三机空输出路径均正常。首次 5 秒 Tailscale SSH 探测超�
 6,498 MiB/98%。3090、4090-2 与只读 SSHFS 正常，三机 `steps3` 输出仍为空。
 外部任务未修改，`steps3` 与 P5 均未启动，继续等待干净平台。
 
+07:53 外部任务运行已达 10:32，仍占 2,088/4,380 MiB。A6000 瞬时利用率降到
+65%，但 6,498 MiB 分配和两个 compute PID 均仍存在，不把单点低利用率当作
+干净窗口。其余两机、只读 SSHFS 与三机空输出路径正常，继续等待且不启动 P5。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

@@ -1537,3 +1537,9 @@ At 05:53 both external PIDs are unchanged after 8:32. They hold
 idle, 3090's SSHFS remains read-only, and steps3 is still output-free on all
 three hosts. The external jobs were not modified; neither steps3 nor P5 was
 started.
+
+At 07:53 the two external jobs have run for 10:32 and still retain
+2,088/4,380 MiB. A6000's instantaneous utilization fell to 65%, but the
+6,498 MiB allocation and both compute PIDs remain, so this is not treated as a
+clean launch window. The other hosts, read-only SSHFS, and empty steps3 output
+paths remain healthy; steps3 and P5 remain unlaunched.
