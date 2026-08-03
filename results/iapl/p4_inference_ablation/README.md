@@ -1504,3 +1504,16 @@ literally to `python -c`; the heredoc retry succeeded and both states are
 recorded. Ordered variant 10 is complete. The next and final P4 variant is
 `steps3`, which must wait for a clean A6000 platform after this audit is
 committed and pushed.
+
+Final select12 commit `a273ad9` is now on `origin/main`. At 00:11 the ordered
+`steps3` preflight passed on all three hosts: the output is absent, port 29670
+is free, runtime and checkpoint hashes match, NCCL is 23007, the real 12,764
+row `crn` Arrow smoke succeeds, and the resolved protocol is 32 views, three
+steps, six selected views, averaged entropy, OIS, and seed 100. The 3090 SSHFS
+remains read-only and 4090-2 remains idle under its isolated driver library.
+
+The run was not launched. The two external A6000 jobs that overlapped
+select12 remain at PIDs 1837707/1837786, hold 2,086/4,378 MiB, and leave the
+GPU at 6,494 MiB and 68% utilization in the preflight sample. They were not
+modified. `steps3` is therefore in `preflight_wait` until A6000 returns to its
+clean approximately 17 MiB and 0% plateau; no P5 job has started.

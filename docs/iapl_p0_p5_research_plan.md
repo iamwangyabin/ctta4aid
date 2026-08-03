@@ -1500,6 +1500,15 @@ rank-local 峰值仍为 8,437.36/8,776 MiB。全程观测的 2.7515 images/s 与
 成功。全部失败均写入 final manifest。ordered variant 10 完成，严格下一项为
 `steps3`，只能在 select12 最终提交推送且 A6000 恢复干净后启动。
 
+select12 最终提交 `a273ad9` 已推送到 `origin/main`。00:11 严格进入最后一个
+P4 变体 `steps3` 的预检：三机输出路径均不存在，29670 端口空闲，runtime 与
+checkpoint 哈希一致，NCCL 23007、真实 `crn` 12,764 行 Arrow smoke、32
+views、3 steps、精确选择 6 views、averaged entropy、OIS、seed100 均通过；
+3090 SSHFS 仍只读，4090-2 隔离驱动有效且空闲。没有启动实验，因为 A6000
+上两个外部任务 PID 1837707/1837786 仍占 2,086/4,378 MiB，预检采样为
+6,494 MiB/68%。外部任务未修改，`steps3` 保持 `preflight_wait`，待 A6000
+回到约 17 MiB/0% 后复核并 worker-first 启动；P5 仍未开始。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
