@@ -1422,3 +1422,16 @@ shared-platform contaminated. The first local aggregate command failed because
 escaped newlines were passed to `python -c`; the corrected structured-data
 command succeeded and the failed audit is retained. The three-domain snapshot
 is archived; `steps3` remains blocked by strict order.
+
+At 17:53 select12 had completed five domains through `deepfake` and reached
+batch 100/1250 of `gaugan`. The 26,811 unique images average 97.1380% Acc /
+97.3498% AP, +0.1157/+0.1187 points over matched select8 and
++0.1224/+0.2473 points over matched P1 selection6. All five index and label
+sequences match both controls; the comparisons contain 120/171 threshold
+disagreements and weighted probability MAD 0.00475/0.00677. The two external
+A6000 jobs remain and were not modified; raw A6000 memory is 43,613 MiB at the
+last copied sample and retains the earlier 44,657 MiB peak. All eight ranks,
+the read-only 3090 SSHFS, and the three-host logs remain healthy. Prediction
+metrics and the 8,437.36/8,776 MiB rank-local memory peak are valid, while
+five-domain throughput 2.7761 images/s remains shared-platform contaminated.
+The five-domain snapshot is archived and `steps3` remains blocked.
