@@ -1412,6 +1412,15 @@ Acc/AP 为 95.4969%/97.3448%，相对匹配 baseline 为 +0.0292/+0.1443 点，
 均已归档；一次把远端 legacy 对比误当作含 exact-match 字段的汇总失败也被保留。
 ordered variant 9 完成，下一项严格为 `select12`。
 
+select8 最终提交 `7a02fca` 推送后，select12 于 15:02 完成三机全量预检：
+输出均不存在，GPU 为 17/106/252 MiB 且无外部 compute process，端口 29669
+空闲，代码与 checkpoint 哈希一致，NCCL 23007、真实 `crn` 12,764 行 Arrow
+smoke、selection_count=12、averaged entropy、OIS、3090 只读 SSHFS 和 4090-2
+隔离驱动全部通过。15:03:00 按 worker-first 启动 ranks 4-5，15:03:17 启动
+ranks 6-7，15:03:56 最后启动 ranks 0-3。八 ranks 已过 barrier，rank0 已进入
+`crn` 首批，三机满载且无日志错误。ordered variant 10 正在运行，`steps3`
+继续等待完整结束和审计。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

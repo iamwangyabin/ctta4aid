@@ -1383,3 +1383,14 @@ profile, GPU curves, and comparison reports are archived. An initial final
 summary assumed the remote legacy comparison contained exact-match counts and
 failed; the corrected optional-field query succeeded and the failure is kept.
 Ordered variant 9 is complete, making `select12` the next allowed run.
+
+After final select8 commit `7a02fca` was pushed, select12 passed the full
+three-host preflight by 15:02 CST. Outputs were absent, GPUs were idle at
+17/106/252 MiB with no external compute process, port 29669 was free, code and
+checkpoint hashes matched, and NCCL 23007, the real 12,764-row `crn` Arrow
+smoke, selection_count=12, averaged entropy, OIS, read-only 3090 SSHFS, and the
+isolated 4090-2 driver all passed. Ranks 4-5 started worker-first at 15:03:00,
+ranks 6-7 at 15:03:17, and ranks 0-3 at 15:03:56. All eight ranks crossed the
+barrier, rank0 entered the first `crn` batch, all three GPUs reached the expected
+plateau, and no error signature is present. Ordered variant 10 is running;
+`steps3` remains blocked until select12 completes and is audited.
