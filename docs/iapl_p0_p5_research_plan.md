@@ -1509,6 +1509,10 @@ views、3 steps、精确选择 6 views、averaged entropy、OIS、seed100 均通
 6,494 MiB/68%。外部任务未修改，`steps3` 保持 `preflight_wait`，待 A6000
 回到约 17 MiB/0% 后复核并 worker-first 启动；P5 仍未开始。
 
+01:52 同一组外部 PID 1837707/1837786 已运行 4:32，仍占 2,088/4,380 MiB；
+A6000 为 6,498 MiB/99%。三机 `steps3` 输出仍不存在，3090 与 4090-2 空闲，
+SSHFS 仍只读。外部任务未修改，`steps3` 未启动，P5 继续受严格顺序约束。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

@@ -1517,3 +1517,9 @@ select12 remain at PIDs 1837707/1837786, hold 2,086/4,378 MiB, and leave the
 GPU at 6,494 MiB and 68% utilization in the preflight sample. They were not
 modified. `steps3` is therefore in `preflight_wait` until A6000 returns to its
 clean approximately 17 MiB and 0% plateau; no P5 job has started.
+
+At 01:52 the same external PIDs 1837707/1837786 have run for 4:32 and still
+hold 2,088/4,380 MiB. A6000 is at 6,498 MiB and 99% utilization. The steps3
+output remains absent on every host, while 3090 and 4090-2 remain idle and
+the SSHFS remains read-only. Neither external process was modified, steps3
+was not launched, and P5 remains blocked by strict order.
