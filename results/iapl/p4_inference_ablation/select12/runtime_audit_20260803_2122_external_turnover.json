@@ -1,0 +1,72 @@
+{
+  "experiment": "P4 selection-count ablation select12",
+  "checked_at": "2026-08-03T21:24:03+08:00",
+  "host": "A6000",
+  "event": "external_training_processes_turned_over_during_ldm_200_cfg",
+  "completed_domains": 13,
+  "active_domain": "ldm_200_cfg",
+  "select12_rank_pids": [1743925, 1743926, 1743927, 1743928],
+  "previous_external_gpu_processes": [
+    {
+      "pid": 1757598,
+      "ppid": 772040,
+      "started_at": "2026-08-03T15:58:15+08:00",
+      "present_at_2026_08_03_1952": true,
+      "present_at_2026_08_03_2122": false
+    },
+    {
+      "pid": 1757670,
+      "ppid": 798613,
+      "started_at": "2026-08-03T15:58:17+08:00",
+      "present_at_2026_08_03_1952": true,
+      "present_at_2026_08_03_2122": false
+    }
+  ],
+  "replacement_external_gpu_processes": [
+    {
+      "pid": 1837707,
+      "ppid": 772040,
+      "started_at": "2026-08-03T21:20:34+08:00",
+      "observed_gpu_memory_mib_at_2121": 1440,
+      "observed_children_at_2122": 8,
+      "command": "python3 train_sharepara_moe_0406_loss.py"
+    },
+    {
+      "pid": 1837786,
+      "ppid": 798613,
+      "started_at": "2026-08-03T21:20:37+08:00",
+      "observed_gpu_memory_mib_at_2121": 3104,
+      "observed_children_at_2122": 8,
+      "command": "python3 train_sharepara_moe_0406_loss.py"
+    }
+  ],
+  "gpu_monitor_transition": {
+    "old_external_plateau_mib_through": 43615,
+    "old_external_plateau_last_sample": "2026-08-03T21:20:31+08:00",
+    "clean_select12_plateau_mib": 37171,
+    "clean_interval_first_sample": "2026-08-03T21:20:38+08:00",
+    "clean_interval_last_sample": "2026-08-03T21:20:49+08:00",
+    "clean_interval_seconds": 12,
+    "replacement_allocation_first_sample": "2026-08-03T21:20:50+08:00",
+    "copied_monitor_last_sample": "2026-08-03T21:24:03+08:00",
+    "copied_monitor_last_memory_mib": 43499,
+    "whole_run_peak_at": "2026-08-03T16:50:41+08:00",
+    "whole_run_peak_memory_mib": 44657,
+    "monitor_artifact": "runtime_audit_20260803_2122_a6000_gpu_monitor.csv",
+    "monitor_line_count": 22022
+  },
+  "integrity": {
+    "all_eight_select12_ranks_alive": true,
+    "errors_detected": 0,
+    "3090_sshfs_read_only_and_readable": true,
+    "replacement_external_processes_modified": false,
+    "previous_external_processes_modified": false,
+    "prediction_metrics_valid": true,
+    "rank_local_memory_valid": true,
+    "ldm_200_cfg_timing_clean": false
+  },
+  "audit_failures_retained": [
+    "The first remote time-window awk command failed with a syntax error because $1 was not escaped through the nested shell; a grep-based timestamp query succeeded and is the basis of this audit."
+  ],
+  "decision": "Do not modify either generation of external jobs. The 12-second clean raw-memory interval is too short and occurs mid-domain, so it does not make ldm_200_cfg or any aggregate wall-time a clean measurement. Continue select12 and preserve predictions plus rank-local CUDA memory as valid."
+}

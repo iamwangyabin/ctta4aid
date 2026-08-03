@@ -1447,3 +1447,16 @@ read-only 3090 SSHFS, and the three-host logs remain healthy. Prediction
 metrics and the 8,437.36/8,776 MiB rank-local memory peak are valid, while
 ten-domain throughput 2.7595 images/s remains shared-platform contaminated.
 The ten-domain snapshot is archived; `steps3` remains blocked.
+
+At 21:22 select12 had completed 13 domains through `ldm_200` and entered
+`ldm_200_cfg`. The two external A6000 jobs from 15:58 exited during a process
+turnover, and replacement jobs with the same commands and parent owners
+started at 21:20:34/37. Raw memory briefly returned to the clean 37,171 MiB
+select12 plateau for only 12 samples from 21:20:38 through 21:20:49, then rose
+again as the replacements allocated CUDA memory. Neither generation was
+modified. This interval is mid-domain and far too short to make the
+`ldm_200_cfg` wall time clean. All eight ranks, the read-only 3090 SSHFS, and
+the three-host logs remain healthy; predictions and rank-local memory stay
+valid. The full A6000 monitor and turnover audit are archived. The first
+time-window `awk` query failed because `$1` was not escaped through the nested
+shell; the corrected timestamp query succeeded and the failure is retained.
