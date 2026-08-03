@@ -1513,6 +1513,12 @@ views、3 steps、精确选择 6 views、averaged entropy、OIS、seed100 均通
 A6000 为 6,498 MiB/99%。三机 `steps3` 输出仍不存在，3090 与 4090-2 空闲，
 SSHFS 仍只读。外部任务未修改，`steps3` 未启动，P5 继续受严格顺序约束。
 
+03:23 外部任务已运行 6:03，A6000 仍为 6,498 MiB/99%；3090、4090-2、只读
+SSHFS 和三机空输出路径均正常。首次 5 秒 Tailscale SSH 探测超时，LAN 地址
+能到 SSH 但本地 key 未授权，随后把 Tailscale 超时延长到 10 秒的重试在 0.6 秒
+成功。两个失败探测与成功重试均保存，不将瞬时连接故障误判成机器离线。外部任务
+未修改，`steps3` 和 P5 均未启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

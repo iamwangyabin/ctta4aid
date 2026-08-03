@@ -1523,3 +1523,11 @@ hold 2,088/4,380 MiB. A6000 is at 6,498 MiB and 99% utilization. The steps3
 output remains absent on every host, while 3090 and 4090-2 remain idle and
 the SSHFS remains read-only. Neither external process was modified, steps3
 was not launched, and P5 remains blocked by strict order.
+
+At 03:23 the same external jobs have run for 6:03 and A6000 remains at
+6,498 MiB/99%; 3090 and 4090-2 remain idle, the SSHFS is read-only, and every
+steps3 output path remains absent. The first five-second A6000 Tailscale SSH
+probe timed out. A fallback to the known LAN address reached SSH but rejected
+the local key, while a ten-second retry through the configured Tailscale host
+succeeded in 0.6 seconds. Both failed observations and the successful retry
+are preserved. No external process was modified and no experiment was started.

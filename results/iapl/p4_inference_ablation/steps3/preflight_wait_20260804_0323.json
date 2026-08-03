@@ -1,0 +1,59 @@
+{
+  "experiment": "P4 tuning-step ablation steps3",
+  "status": "waiting_for_clean_a6000",
+  "checked_at": "2026-08-04T03:23:34+08:00",
+  "preflight_reference": "results/iapl/p4_inference_ablation/steps3/preflight_wait_20260804_0011.json",
+  "master_port": 29670,
+  "remote_output_absent_on_all_hosts": true,
+  "host_state": {
+    "A6000": {
+      "memory_used_mib": 6498,
+      "utilization_percent": 99,
+      "clean_for_launch": false
+    },
+    "3090": {
+      "memory_used_mib": 107,
+      "utilization_percent": 0,
+      "sshfs_mounted_read_only": true,
+      "clean_for_launch": true
+    },
+    "4090-2": {
+      "memory_used_mib": 291,
+      "utilization_percent": 0,
+      "clean_for_launch": true
+    }
+  },
+  "blocking_external_processes": [
+    {
+      "pid": 1837707,
+      "parent_pid": 772040,
+      "elapsed": "06:03:00",
+      "used_memory_mib": 2088,
+      "command": "python3 train_sharepara_moe_0406_loss.py"
+    },
+    {
+      "pid": 1837786,
+      "parent_pid": 798613,
+      "elapsed": "06:02:57",
+      "used_memory_mib": 4380,
+      "command": "python3 train_sharepara_moe_0406_loss.py"
+    }
+  ],
+  "diagnostic_failures_preserved": [
+    {
+      "attempt": "A6000 configured Tailscale address with ConnectTimeout=5",
+      "result": "SSH port 22 timed out"
+    },
+    {
+      "attempt": "known A6000 LAN address 192.168.10.2",
+      "result": "Permission denied because the local SSH identity is not authorized for that endpoint"
+    },
+    {
+      "attempt": "A6000 configured Tailscale address retry with ConnectTimeout=10",
+      "result": "succeeded in 0.6 seconds and established the current state"
+    }
+  ],
+  "external_processes_modified": false,
+  "launch_started": false,
+  "decision": "The transient SSH observation does not change the launch decision. Keep steps3 output-free until the two external A6000 jobs exit and a fresh three-host clean preflight passes."
+}
