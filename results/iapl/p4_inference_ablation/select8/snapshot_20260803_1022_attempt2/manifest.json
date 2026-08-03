@@ -1,0 +1,82 @@
+{
+  "experiment": "P4 selection-count ablation select8",
+  "attempt": 2,
+  "status": "running",
+  "checked_through": "2026-08-03T10:22:52+08:00",
+  "completed_domains": [
+    "crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan",
+    "glide_50_27", "glide_100_10", "glide_100_27", "guided"
+  ],
+  "active_domain": "imle",
+  "protocol": {
+    "world_size": 8,
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 8,
+    "tta_entropy": "averaged",
+    "ois": true,
+    "seed": 100
+  },
+  "ten_domain_metrics": {
+    "unique_images": 44811,
+    "accuracy": 0.9507017117874236,
+    "average_precision": 0.9784367431355306,
+    "real_accuracy": 0.9760338776554429,
+    "fake_accuracy": 0.9253653595255745
+  },
+  "matched_baseline_delta": {
+    "accuracy": -0.0006416614638548035,
+    "average_precision": 0.0005893076067255976,
+    "real_accuracy": 0.0005639864543104389,
+    "fake_accuracy": -0.0018482579688657852
+  },
+  "matched_p1_delta": {
+    "accuracy": -0.00029630035397953947,
+    "average_precision": 0.0005603575458966725,
+    "real_accuracy": 0.0004918120483508037,
+    "fake_accuracy": -0.0010853224610822831
+  },
+  "baseline_prediction_comparison": {
+    "common_unique_indices": 44811,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 160,
+    "weighted_probability_mad": 0.00391737014292681
+  },
+  "ten_domain_profile": {
+    "sum_domain_wall_seconds": 15528.97339396819,
+    "unique_images_per_second": 2.8856382751873104,
+    "max_rank_peak_allocated_mib": 8437.3583984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "clean_timing": true
+  },
+  "runtime": {
+    "a6000_memory_mib": 37175,
+    "a6000_utilization_percent": 100,
+    "a6000_compute_processes_exactly_match_four_rank_pids": true,
+    "3090_memory_mib": 18652,
+    "4090_2_memory_mib": 19158,
+    "all_eight_rank_pids_alive": true,
+    "errors_detected_in_eight_rank_and_three_launcher_logs": 0,
+    "3090_sshfs_read_only_and_readable": true,
+    "arrow_source_3070x2_uptime": "22:49",
+    "arrow_source_state_bytes": 11585
+  },
+  "gpu_monitor_line_counts": {
+    "A6000": 15565,
+    "3090": 15935,
+    "4090-2": 15902
+  },
+  "diagnostic_failures_preserved": [
+    "The first local jq comparison summary requested a nonexistent probability_stats.overall.nonzero_count field and failed; the corrected summary omitted exact-match counts and succeeded."
+  ],
+  "artifacts": {
+    "metrics": "metrics.json",
+    "baseline_prediction_comparison": "baseline_prediction_comparison.json",
+    "predictions": "a6000/predictions/*.json",
+    "profile": "a6000/profile.json",
+    "rank_logs": "rank0.log through rank7.log across the three host directories",
+    "launcher_logs": "one per GPU host",
+    "gpu_monitors": "one per GPU host"
+  },
+  "decision": "Continue attempt 2 in order. Preserve the first ten domains as clean timing evidence and do not start select12 before the full select8 audit."
+}

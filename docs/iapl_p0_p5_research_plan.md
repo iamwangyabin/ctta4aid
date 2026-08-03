@@ -1383,6 +1383,14 @@ SSHFS 均健康，A6000 只有四个本实验 compute process，因此 `crn` 计
 JSON，但附加的远端 `jq` 汇总因命令不存在失败；文件复制后在本地成功汇总，
 失败同样保留。`select12` 仍等待 select8 attempt2 完整结束和审计。
 
+10:22 attempt2 已完成前十域并进入 `imle`。44,811 张唯一图像均值 Acc/AP 为
+95.0702%/97.8437%，相对匹配 baseline 为 -0.0642/+0.0589 点，相对匹配 P1
+为 -0.0296/+0.0560 点；十域干净吞吐为 2.8856 images/s。与 baseline 的索引、
+标签序列完全一致，160 个阈值分歧、加权概率 MAD 0.00392。A6000 仍只有四个
+本实验进程，八 ranks、只读 SSHFS、隔离驱动和 3070x2 源机均健康，日志无错误。
+首次本地 `jq` 汇总误取不存在的 exact-match 字段而失败，修正查询后成功，失败
+已保留。十域预测、三机日志、profile 与显存曲线已同步，后续项不越序。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

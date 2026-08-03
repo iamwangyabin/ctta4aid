@@ -1341,3 +1341,15 @@ errors. The remote comparison JSON succeeded, while its extra remote `jq`
 summary failed because the command is absent; the copied artifact was
 summarized locally and the failure is retained. `select12` remains blocked
 until the full select8 attempt 2 audit is complete.
+
+At 10:22 attempt 2 completed its first ten domains and entered `imle`. The
+44,811 unique images average 95.0702% Acc / 97.8437% AP at a clean 2.8856
+images/s. Relative to the matched baseline this is -0.0642/+0.0589 points;
+relative to matched P1 it is -0.0296/+0.0560 points. Indices and labels match
+the baseline exactly, with 160 threshold disagreements and a 0.00392 weighted
+probability MAD. A6000 still contains only the four experiment processes, all
+eight ranks and the read-only SSHFS remain healthy, and no log error is found.
+The first local `jq` summary queried a nonexistent exact-match field and
+failed; the corrected summary succeeded and the failure is retained. The ten
+predictions, all host logs, profile, and GPU curves are archived while later
+variants remain blocked by strict order.
