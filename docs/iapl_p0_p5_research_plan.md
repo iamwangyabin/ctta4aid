@@ -1421,6 +1421,15 @@ ranks 6-7，15:03:56 最后启动 ranks 0-3。八 ranks 已过 barrier，rank0 �
 `crn` 首批，三机满载且无日志错误。ordered variant 10 正在运行，`steps3`
 继续等待完整结束和审计。
 
+16:22 select12 完成首域 `crn` 并进入 `cyclegan`。`crn` Acc/AP 为
+93.2722%/93.6601%，较 select8 高 +0.4856/+0.6145 点，较 P1 selection6
+高 +0.7362/+0.8850 点；12,764 个索引和标签完全一致。15:58:15/17 起
+A6000 出现两个外部 `train_sharepara_moe_0406_loss.py` 进程，占用约
+2,112/4,342 MiB，使 raw host 显存从 37,171 升到 43,635 MiB。外部任务没有
+被修改；八 ranks、3090 SSHFS 和日志仍健康。首域预测、三机日志、profile、
+GPU 曲线和逐样本对比已保存。预测指标与 rank-local 显存有效，但从 `crn`
+后段开始的 wall-time 标记为共享平台污染，后续继续运行并周期复核。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

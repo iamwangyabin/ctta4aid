@@ -1394,3 +1394,15 @@ ranks 6-7 at 15:03:17, and ranks 0-3 at 15:03:56. All eight ranks crossed the
 barrier, rank0 entered the first `crn` batch, all three GPUs reached the expected
 plateau, and no error signature is present. Ordered variant 10 is running;
 `steps3` remains blocked until select12 completes and is audited.
+
+At 16:22 select12 completed `crn` and entered `cyclegan`. CRN reaches
+93.2722% Acc / 93.6601% AP, +0.4856/+0.6145 points over select8 and
++0.7362/+0.8850 points over the P1 selection6 reference, with all 12,764
+indices and labels identical. At 15:58:15/17 two external
+`train_sharepara_moe_0406_loss.py` processes appeared on A6000 and used about
+2,112/4,342 MiB, raising raw host memory from 37,171 to 43,635 MiB. They were
+not modified. All eight ranks, the 3090 SSHFS, and logs remain healthy. The
+first-domain prediction, three-host logs, profile, GPU curves, and pairwise
+comparisons are archived. Prediction metrics and rank-local memory remain
+valid, but wall time from late `crn` onward is marked shared-platform
+contaminated and will be re-audited while the run continues.
