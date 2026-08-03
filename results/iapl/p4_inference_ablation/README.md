@@ -1531,3 +1531,9 @@ probe timed out. A fallback to the known LAN address reached SSH but rejected
 the local key, while a ten-second retry through the configured Tailscale host
 succeeded in 0.6 seconds. Both failed observations and the successful retry
 are preserved. No external process was modified and no experiment was started.
+
+At 05:53 both external PIDs are unchanged after 8:32. They hold
+2,088/4,380 MiB and leave A6000 at 6,498 MiB/98%. The other two GPU hosts are
+idle, 3090's SSHFS remains read-only, and steps3 is still output-free on all
+three hosts. The external jobs were not modified; neither steps3 nor P5 was
+started.
