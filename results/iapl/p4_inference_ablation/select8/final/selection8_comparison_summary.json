@@ -1,0 +1,144 @@
+{
+  "selection8_metrics": {
+    "accuracy": 0.9553060490773042,
+    "average_precision": 0.9739040622391023,
+    "real_accuracy": 0.9644116301976343,
+    "fake_accuracy": 0.9461827118603805
+  },
+  "selection8_minus_profiled_baseline_selection6": {
+    "metrics": {
+      "accuracy": 0.9550230481923911,
+      "average_precision": 0.9724551843862761,
+      "real_accuracy": 0.9628141931631257,
+      "fake_accuracy": 0.9472169749648157
+    },
+    "delta": {
+      "accuracy": 0.00028300088491306497,
+      "average_precision": 0.0014488778528262136,
+      "real_accuracy": 0.001597437034508653,
+      "fake_accuracy": -0.001034263104435218
+    },
+    "largest_accuracy_regressions": {
+      "glide_100_27": -0.0040000000000000036,
+      "glide_50_27": -0.0030000000000000027,
+      "guided": -0.0014999999999999458,
+      "dalle": -0.0010000000000000009,
+      "biggan": -0.0007499999999999174
+    },
+    "largest_accuracy_improvements": {
+      "san": 0.004545454545454519,
+      "crn": 0.0031328320802004317,
+      "imle": 0.0030545112781955597,
+      "seeingdark": 0.002777777777777768,
+      "stargan": 0.0010000000000000009
+    },
+    "largest_ap_regressions": {
+      "glide_50_27": -0.0024466239079332652,
+      "biggan": -0.0009575915188265727,
+      "stylegan": -0.00021597946017815062,
+      "ldm_100": -5.682618103008963e-05,
+      "progan": 0.0
+    },
+    "largest_ap_improvements": {
+      "san": 0.009166963502279302,
+      "seeingdark": 0.0044361476309087156,
+      "imle": 0.004319538942349155,
+      "stargan": 0.0032111388631104187,
+      "crn": 0.002435395379579486
+    }
+  },
+  "selection8_minus_p1_selection6": {
+    "metrics": {
+      "accuracy": 0.9549230231997762,
+      "average_precision": 0.972173971158963,
+      "real_accuracy": 0.9627500452306087,
+      "fake_accuracy": 0.9470821121276849
+    },
+    "delta": {
+      "accuracy": 0.0003830258775280315,
+      "average_precision": 0.0017300910801393288,
+      "real_accuracy": 0.00166158496702562,
+      "fake_accuracy": -0.0008994002673043955
+    },
+    "largest_accuracy_regressions": {
+      "dalle": -0.0020000000000000018,
+      "glide_100_27": -0.0020000000000000018,
+      "guided": -0.0014999999999999458,
+      "deepfake": -0.0009245562130177909,
+      "stylegan": -0.0008344459279038263
+    },
+    "largest_accuracy_improvements": {
+      "imle": 0.003524436090225569,
+      "seeingdark": 0.002777777777777768,
+      "crn": 0.0025062656641603454,
+      "san": 0.002272727272727315,
+      "ldm_200": 0.0010000000000000009
+    },
+    "largest_ap_regressions": {
+      "glide_50_27": -0.0015478781759483695,
+      "guided": -0.0007788971515546583,
+      "stylegan": -0.0001140753963398966,
+      "progan": 0.0,
+      "glide_100_27": 9.728743998471678e-05
+    },
+    "largest_ap_improvements": {
+      "seeingdark": 0.009455151482101853,
+      "san": 0.008785144649751664,
+      "imle": 0.003916286876403663,
+      "crn": 0.0027052081254329563,
+      "stargan": 0.002295866567313176
+    }
+  },
+  "prediction_comparison_to_profiled_baseline": {
+    "samples": 88353,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 301,
+    "threshold_disagreement_rate": 0.003406788677237898,
+    "weighted_mean_absolute_probability_delta": 0.0036786392049638424,
+    "max_absolute_probability_delta": 0.9999299049377441,
+    "largest_disagreement_domains": {
+      "imle": 77,
+      "crn": 74,
+      "stylegan": 33,
+      "glide_100_10": 13,
+      "glide_100_27": 12,
+      "biggan": 11,
+      "guided": 11,
+      "dalle": 10
+    }
+  },
+  "prediction_comparison_to_p1": {
+    "samples": 88353,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 308,
+    "threshold_disagreement_rate": 0.0034860163208945932,
+    "weighted_mean_absolute_probability_delta": 0.0037598348826383484,
+    "max_absolute_probability_delta": 0.9999299049377441,
+    "largest_disagreement_domains": {
+      "crn": 94,
+      "imle": 85,
+      "stylegan": 38,
+      "ldm_200_cfg": 12,
+      "guided": 11,
+      "stargan": 10,
+      "gaugan": 8,
+      "san": 7
+    },
+    "exact_probability_matches": 50264
+  },
+  "profile": {
+    "sum_domain_wall_seconds": 30602.770820748177,
+    "overall_unique_images_per_second": 2.8870915159126085,
+    "weighted_bottleneck_rank_latency_ms_per_image": 2770.9547674214277,
+    "cluster_images_per_second_range": [
+      2.72932444790255,
+      2.903403278103633
+    ],
+    "max_rank_mean_image_latency_ms_range": [
+      2755.3871211529477,
+      2931.128252688278
+    ],
+    "max_rank_peak_allocated_mib": 8437.3583984375,
+    "max_rank_peak_reserved_mib": 8776.0
+  }
+}

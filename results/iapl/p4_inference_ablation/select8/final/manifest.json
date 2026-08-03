@@ -1,0 +1,195 @@
+{
+  "experiment": "P4 select8 full UFD ablation",
+  "variant": "select8",
+  "status": "completed_and_audited",
+  "attempt": 2,
+  "started_at": "2026-08-03T05:54:04+08:00",
+  "completed_at": "2026-08-03T14:25:43+08:00",
+  "elapsed_seconds": 30699,
+  "protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 8,
+    "tta_entropy": "averaged",
+    "ois": true,
+    "seed": 100,
+    "domains": 19,
+    "dataset_size": 88353,
+    "3090_data_backend": "read-only SSHFS mount of the verified 3070x2 UFD Arrow copy"
+  },
+  "metrics": {
+    "accuracy": 0.9553060490773042,
+    "average_precision": 0.9739040622391023,
+    "real_accuracy": 0.9644116301976343,
+    "fake_accuracy": 0.9461827118603805
+  },
+  "profiled_baseline_selection6": {
+    "accuracy": 0.9550230481923911,
+    "average_precision": 0.9724551843862761,
+    "real_accuracy": 0.9628141931631257,
+    "fake_accuracy": 0.9472169749648157,
+    "delta_accuracy": 0.00028300088491306497,
+    "delta_average_precision": 0.0014488778528262136,
+    "delta_real_accuracy": 0.001597437034508653,
+    "delta_fake_accuracy": -0.001034263104435218
+  },
+  "local_p1_selection6": {
+    "accuracy": 0.9549230231997762,
+    "average_precision": 0.972173971158963,
+    "real_accuracy": 0.9627500452306087,
+    "fake_accuracy": 0.9470821121276849,
+    "delta_accuracy": 0.0003830258775280315,
+    "delta_average_precision": 0.0017300910801393288,
+    "delta_real_accuracy": 0.00166158496702562,
+    "delta_fake_accuracy": -0.0008994002673043955
+  },
+  "prediction_comparison_to_profiled_baseline": {
+    "samples": 88353,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 301,
+    "threshold_disagreement_rate": 0.003406788677237898,
+    "weighted_mean_absolute_probability_delta": 0.0036786392049638424,
+    "max_absolute_probability_delta": 0.9999299049377441,
+    "largest_disagreement_domains": {
+      "imle": 77,
+      "crn": 74,
+      "stylegan": 33,
+      "glide_100_10": 13,
+      "glide_100_27": 12
+    }
+  },
+  "prediction_comparison_to_p1": {
+    "samples": 88353,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 308,
+    "threshold_disagreement_rate": 0.0034860163208945932,
+    "exact_probability_matches": 50264,
+    "weighted_mean_absolute_probability_delta": 0.0037598348826383484,
+    "max_absolute_probability_delta": 0.9999299049377441,
+    "largest_disagreement_domains": {
+      "crn": 94,
+      "imle": 85,
+      "stylegan": 38,
+      "ldm_200_cfg": 12,
+      "guided": 11
+    }
+  },
+  "profile": {
+    "sum_domain_wall_seconds": 30602.770820748177,
+    "overall_unique_images_per_second": 2.8870915159126085,
+    "weighted_bottleneck_rank_latency_ms_per_image": 2770.9547674214277,
+    "cluster_images_per_second_range": [2.72932444790255, 2.903403278103633],
+    "max_rank_mean_image_latency_ms_range": [2755.3871211529477, 2931.128252688278],
+    "max_rank_peak_allocated_mib": 8437.3583984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "raw_host_peak_memory_mib": {
+      "A6000": 37175,
+      "3090": 18652,
+      "4090-2": 19158
+    },
+    "timing_clean": true,
+    "external_compute_processes_observed": false
+  },
+  "notable_results_preserved": {
+    "imle": {
+      "accuracy": 0.9270833333333334,
+      "average_precision": 0.9303206997084548,
+      "delta_to_p1_accuracy": 0.003524436090225569,
+      "delta_to_p1_average_precision": 0.003916286876403663
+    },
+    "seeingdark": {
+      "accuracy": 0.9027777777777778,
+      "average_precision": 0.8838001534586827,
+      "delta_to_p1_accuracy": 0.002777777777777768,
+      "delta_to_p1_average_precision": 0.009455151482101853
+    },
+    "san": {
+      "accuracy": 0.9340909090909091,
+      "average_precision": 0.9653731297052824,
+      "delta_to_p1_accuracy": 0.002272727272727315,
+      "delta_to_p1_average_precision": 0.008785144649751664
+    },
+    "guided": {
+      "accuracy": 0.7225,
+      "average_precision": 0.9528382130448559,
+      "fake_accuracy": 0.457,
+      "delta_to_p1_accuracy": -0.0014999999999999458
+    },
+    "stylegan": {
+      "accuracy": 0.9468457943925234,
+      "average_precision": 0.9963478175858462,
+      "fake_accuracy": 0.8938407611417125,
+      "delta_to_p1_accuracy": -0.0008344459279038263
+    }
+  },
+  "failure_provenance": {
+    "attempt1_status": "failed_and_archived",
+    "attempt1_manifest": "results/iapl/p4_inference_ablation/select8/attempt1_failure_20260802_1220_3090_sshfs_sigbus/manifest.json",
+    "attempt1_domains_spliced": false,
+    "attempt2_reran_all_19_domains": true,
+    "final_summary_failure": "The first aggregate comparison query assumed exact_probability_matches existed in the remotely generated baseline report and raised KeyError; the corrected query treats that legacy field as optional and completed."
+  },
+  "audit": {
+    "prediction_files": 19,
+    "samples_after_distributed_padding": 88376,
+    "prediction_sample_counts_match_distributed_padding": true,
+    "unique_sampler_indices_match_dataset_sizes": true,
+    "errors_detected_in_eight_rank_logs": 0,
+    "errors_detected_in_three_launcher_logs": 0,
+    "all_three_gpu_monitors_preserved": true,
+    "gpu_monitor_line_counts": {
+      "A6000": 29550,
+      "3090": 30176,
+      "4090-2": 30082
+    },
+    "3090_sshfs_mounted_read_only_through_completion": true,
+    "3090_failed_data_device_accessed": false,
+    "4090_2_isolated_driver_used": true,
+    "arrow_source_3070x2_alive_after_completion": true,
+    "arrow_source_state_bytes": 11585,
+    "all_p4_rank_processes_exited": true,
+    "post_run_gpu_memory_mib": {
+      "A6000": 17,
+      "3090": 106,
+      "4090-2": 252
+    }
+  },
+  "artifacts": {
+    "metrics": "final_metrics.json",
+    "profiled_baseline_reference_metrics": "baseline_reference_metrics.json",
+    "p1_reference_metrics": "p1_reference_metrics.json",
+    "profile": "profile.json",
+    "selection8_comparison_summary": "selection8_comparison_summary.json",
+    "profiled_baseline_prediction_comparison": "baseline_prediction_comparison.json",
+    "p1_prediction_comparison": "p1_prediction_comparison.json",
+    "predictions": "predictions",
+    "rank_logs": "rank0.log through rank7.log",
+    "launcher_logs": [
+      "node_a6000_launcher.log",
+      "node_3090_launcher.log",
+      "node_4090_2_launcher.log"
+    ],
+    "gpu_monitors": [
+      "gpu_monitor_ubuntu.csv",
+      "gpu_monitor_yabin-B760M-POWER-DDR4.csv",
+      "gpu_monitor_yabin-local4090-yaohui.csv"
+    ]
+  },
+  "sha256": {
+    "final_metrics.json": "9d91796be7ddb619001eef1a747e1c782496b84eb2f104317c841ba2fd05c80f",
+    "baseline_reference_metrics.json": "ab53d51504dbdedacd3163e6cd72326ce71a6874d303e66a26115ffb4d5e7d74",
+    "p1_reference_metrics.json": "14319c65bcf1001cc440e31714a449c43e4776f44e7d773fb24c6659c4bc0d32",
+    "baseline_prediction_comparison.json": "4f65f38b3f0431e8abe94f53889671fcf3f7170afbcb8c8b22a4ee7bc039b4cf",
+    "p1_prediction_comparison.json": "5b40c5ef7d44b28ed19517906a88d1f887f4e089955c15e6bd02212f97c1dcb3",
+    "profile.json": "e7d77e210ee0b015a4c83311f75d35adffd879a6bfcb1c40c32beb37c76ecf26",
+    "selection8_comparison_summary.json": "b0261f8f3e86edd9f0e13436e0938210c4714c40c5c5cc5da68672ce97e67c6e",
+    "ordered_prediction_checksum_list": "fdc6c77c8d6c9c9486e4b97a7fb8b95b63caf742555c2d151d3143f67ebb25ae"
+  },
+  "conclusion": "Selecting eight of 32 views reaches 95.53% Accuracy and 97.39% AP. It improves the profiled six-view baseline by 0.03 Accuracy and 0.14 AP points, and the P1 six-view reference by 0.04 and 0.17 points, while clean throughput is 0.90% below the profiled baseline. The small gain is concentrated in imle, seeingdark, san, crn, and stargan; several Glide domains, guided, and stylegan do not improve. Continue to select12 before deciding whether the extra selected views justify their cost."
+}

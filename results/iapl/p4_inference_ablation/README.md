@@ -1368,3 +1368,18 @@ missing `numpy`, then succeeded in the established remote environment; a local
 inspection also failed after requesting the nonexistent `by_domain` key. Both
 failures are retained. `select12` remains blocked pending the full select8
 audit.
+
+Select8 attempt 2 completed all 19 domains at 14:25:43 CST after 8h31m39s;
+no result from the failed first attempt was spliced in. Final Acc/AP is
+95.5306%/97.3904%, +0.0283/+0.1449 points over the clean profiled selection6
+baseline and +0.0383/+0.1730 points over the P1 selection6 reference. Clean
+throughput is 2.8871 images/s, 0.90% below the profiled baseline, while the
+rank-local allocation/reservation peaks remain 8,437.36/8,776 MiB. All 88,353
+unique indices and labels match both selection6 controls; prediction comparisons
+contain 301/308 threshold disagreements versus baseline/P1. The gain is mainly
+in `imle`, `seeingdark`, `san`, `crn`, and `stargan`; some Glide domains,
+`guided`, and `stylegan` do not improve. All predictions, three-host logs,
+profile, GPU curves, and comparison reports are archived. An initial final
+summary assumed the remote legacy comparison contained exact-match counts and
+failed; the corrected optional-field query succeeded and the failure is kept.
+Ordered variant 9 is complete, making `select12` the next allowed run.

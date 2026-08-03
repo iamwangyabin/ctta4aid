@@ -1401,6 +1401,17 @@ Acc/AP 为 95.4969%/97.3448%，相对匹配 baseline 为 +0.0292/+0.1443 点，
 `numpy` 无法运行对比脚本，随后在既有远端环境成功执行；一次误用 `by_domain`
 字段的本地检查也失败，两项均记录在快照中。`select12` 继续等待完整审计。
 
+14:25 select8 attempt2 完成全部 19 域并通过最终审计；attempt1 的四域结果没有
+拼接。全量 Acc/AP 为 95.5306%/97.3904%，较干净复跑的 selection6 baseline
+高 +0.0283/+0.1449 点，较 P1 selection6 高 +0.0383/+0.1730 点；干净吞吐
+2.8871 images/s，比 profiled baseline 低 0.90%，rank-local 峰值仍为
+8,437.36/8,776 MiB。全部 88,353 唯一样本的索引、标签与两个 selection6
+参考一致，相对 baseline/P1 分别有 301/308 个阈值分歧。收益主要来自
+`imle`、`seeingdark`、`san`、`crn` 和 `stargan`，部分 Glide 域、`guided`
+及 `stylegan` 未改善。三机 logs、predictions、profile、GPU 曲线和逐样本对比
+均已归档；一次把远端 legacy 对比误当作含 exact-match 字段的汇总失败也被保留。
+ordered variant 9 完成，下一项严格为 `select12`。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
