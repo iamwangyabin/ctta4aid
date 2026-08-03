@@ -1480,6 +1480,26 @@ Acc/AP 为 95.5407%/97.4368%，较匹配 select8 高 +0.0438/+0.0920 点，
 17 域 2.7535 images/s 吞吐仍标记为共享平台污染。17 域快照已归档；
 `steps3` 继续等待 `stargan`、`stylegan` 和 select12 最终审计。
 
+8 月 4 日 00:00 select12 完成最后两个域并通过全量审计。19 域 88,353 张
+唯一图像的 Acc/AP 为 95.5799%/97.4657%，较 select8 高
++0.0493/+0.0753 点，较 P1 selection6 高 +0.0876/+0.2483 点；真实类
+准确率较 select8 高 0.1950 点，生成类准确率低 0.0966 点。与 select8/P1
+的索引和标签序列全部一致，分别有 307/437 个阈值分歧，加权概率 MAD 为
+0.00368/0.00520。收益主要出现在 `seeingdark`、`crn` 和 `imle`，但
+`san`、`guided`、`glide_100_10` 退化，故不把 select12 解释为所有域上的
+单调收益。
+
+rank-local 峰值仍为 8,437.36/8,776 MiB。全程观测的 2.7515 images/s 与
+2,906.71 ms 加权瓶颈延迟被保留但不进入干净耗时曲线：两个外部 A6000
+训练任务从 `crn` 后段共享四-rank 瓶颈并持续到实验结束，raw host 峰值
+44,657 MiB；任务换代及短暂 12 秒干净窗口均已归档，外部任务未修改。八个
+实验 ranks 与三 launcher 均无关键错误并正常退出，3090 SSHFS 全程只读，
+4090-2 回到 253 MiB。最终数据源审计先后误查三个不存在的 manifest 路径，
+随后以实际 `ForenSynths/val.json` 和 `Ojha/test.json` 验证 3070x2 源可读；
+本地最终聚合也先因 `python -c` 收到字面转义换行而失败，改用 heredoc 后
+成功。全部失败均写入 final manifest。ordered variant 10 完成，严格下一项为
+`steps3`，只能在 select12 最终提交推送且 A6000 恢复干净后启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

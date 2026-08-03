@@ -1,6 +1,6 @@
 {
   "experiment": "P4 selection-count ablation select12",
-  "status": "running",
+  "status": "completed_and_audited",
   "ordered_predecessor": {
     "variant": "select8",
     "status": "completed_and_audited",
@@ -104,5 +104,7 @@
     "errors_detected": 0
   },
   "diagnostic_failures_preserved": [],
-  "decision": "Run all 19 UFD domains at selection_count 12, monitor all three GPU hosts and the 3070x2 SSHFS source, and do not start steps3 before select12 completes and is audited."
+  "completed_at": "2026-08-04T00:00:07+08:00",
+  "final_manifest": "results/iapl/p4_inference_ablation/select12/final/manifest.json",
+  "decision": "All 19 UFD domains completed and were audited. Preserve the shared-A6000 timing contamination, then advance in order to steps3 only after the select12 final audit is committed and pushed."
 }

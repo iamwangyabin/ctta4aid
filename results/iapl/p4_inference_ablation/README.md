@@ -1472,3 +1472,35 @@ and all three-host logs remain healthy. Prediction metrics and the
 8,437.36/8,776 MiB rank-local memory peak are valid, while 17-domain throughput
 2.7535 images/s remains shared-platform contaminated. The 17-domain snapshot
 is archived; `steps3` remains blocked by `stargan`, `stylegan`, and final audit.
+
+`select12` completed `stargan` at 22:47 and the final `stylegan` domain at
+00:00:07 CST on August 4. All 19 prediction files cover the expected 88,353
+unique samples and 88,376 padded samples. Final macro Acc/AP are
+95.5799%/97.4657%, respectively +0.0493/+0.0753 percentage points over
+`select8` and +0.0876/+0.2483 points over the P1 selection6 reference. Real
+accuracy improves 0.1950 points over `select8`, while fake accuracy falls
+0.0966 points. The incremental benefit of four more selected views is small
+and nonuniform: `seeingdark`, `crn`, and `imle` improve most in Acc, while
+`san`, `guided`, and `glide_100_10` regress.
+
+All indices and labels match both controls. Relative to `select8`, the 88,353
+samples contain 307 threshold disagreements and weighted probability MAD
+0.00368; relative to P1 they contain 437 disagreements and MAD 0.00520. The
+rank-local CUDA peak remains 8,437.36/8,776 MiB, so selecting 12 rather than
+8 views does not increase the observed per-rank memory peak.
+
+The full-run 2.7515 images/s throughput and 2,906.71 ms weighted bottleneck
+latency are preserved but are not clean performance measurements. Two external
+A6000 training jobs shared the four-rank bottleneck from late `crn` through
+completion and remained active after the experiment exited; their process
+turnover and the raw 44,657 MiB A6000 peak are archived without modifying
+either job. All eight experiment ranks and all three launchers exited without
+a critical error, 3090's SSHFS remained read-only, and 4090-2 returned to
+253 MiB. The final source audit initially queried three nonexistent manifest
+paths before the actual `ForenSynths/val.json` and `Ojha/test.json` paths were
+verified; the failed probes are retained in the manifest. A final local
+aggregate command also first failed because escaped newlines were passed
+literally to `python -c`; the heredoc retry succeeded and both states are
+recorded. Ordered variant 10 is complete. The next and final P4 variant is
+`steps3`, which must wait for a clean A6000 platform after this audit is
+committed and pushed.
