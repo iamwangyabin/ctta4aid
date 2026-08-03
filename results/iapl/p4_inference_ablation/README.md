@@ -1435,3 +1435,15 @@ the read-only 3090 SSHFS, and the three-host logs remain healthy. Prediction
 metrics and the 8,437.36/8,776 MiB rank-local memory peak are valid, while
 five-domain throughput 2.7761 images/s remains shared-platform contaminated.
 The five-domain snapshot is archived and `steps3` remains blocked.
+
+At 19:53 select12 had completed ten domains through `guided` and reached
+batch 350/1596 of `imle`. The 44,811 unique images average 95.0900% Acc /
+97.9748% AP, +0.0198/+0.1311 points over matched select8 and
+-0.0098/+0.1872 points versus matched P1 selection6. All ten index and label
+sequences match both controls; the comparisons contain 154/218 threshold
+disagreements and weighted probability MAD 0.00366/0.00517. The two external
+A6000 jobs remain and were not modified. All eight experiment ranks, the
+read-only 3090 SSHFS, and the three-host logs remain healthy. Prediction
+metrics and the 8,437.36/8,776 MiB rank-local memory peak are valid, while
+ten-domain throughput 2.7595 images/s remains shared-platform contaminated.
+The ten-domain snapshot is archived; `steps3` remains blocked.

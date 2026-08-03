@@ -1452,6 +1452,15 @@ SSHFS 和三机日志均健康。预测指标及 rank-local 8,437.36/8,776 MiB �
 前五域 2.7761 images/s 吞吐仍标记为共享平台污染。五域快照已归档，`steps3`
 继续等待 select12 完整结束和审计。
 
+19:53 select12 已完成前十域并进入 `imle` 的 350/1596 batch。44,811 张
+唯一图像均值 Acc/AP 为 95.0900%/97.9748%，较匹配 select8 高
++0.0198/+0.1311 点，较匹配 P1 selection6 为 -0.0098/+0.1872 点。十域
+索引和标签序列全部一致，相对两个参考分别有 154/218 个阈值分歧、加权概率
+MAD 0.00366/0.00517。两个外部 A6000 训练任务仍在且未修改；八 ranks、3090
+只读 SSHFS 和三机日志均健康。预测指标及 rank-local 8,437.36/8,776 MiB 峰值
+有效，前十域 2.7595 images/s 吞吐仍标记为共享平台污染。十域快照已归档，
+`steps3` 继续等待 select12 完整结束和审计。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
