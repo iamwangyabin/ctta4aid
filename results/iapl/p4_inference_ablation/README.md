@@ -1460,3 +1460,15 @@ the three-host logs remain healthy; predictions and rank-local memory stay
 valid. The full A6000 monitor and turnover audit are archived. The first
 time-window `awk` query failed because `$1` was not escaped through the nested
 shell; the corrected timestamp query succeeded and the failure is retained.
+
+At 22:24 select12 had completed 17 domains through `seeingdark` and entered
+`stargan`. The 72,373 unique images average 95.5407% Acc / 97.4368% AP,
++0.0438/+0.0920 points over matched select8 and +0.0916/+0.2725 points over
+matched P1 selection6. All 17 index and label sequences match both controls;
+the comparisons contain 262/378 threshold disagreements and weighted
+probability MAD 0.00386/0.00553. The replacement external A6000 jobs remain
+and were not modified. All eight experiment ranks, the read-only 3090 SSHFS,
+and all three-host logs remain healthy. Prediction metrics and the
+8,437.36/8,776 MiB rank-local memory peak are valid, while 17-domain throughput
+2.7535 images/s remains shared-platform contaminated. The 17-domain snapshot
+is archived; `steps3` remains blocked by `stargan`, `stylegan`, and final audit.
