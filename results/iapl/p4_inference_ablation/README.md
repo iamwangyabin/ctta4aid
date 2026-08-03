@@ -1328,3 +1328,16 @@ only the four experiment compute processes, so `crn` remains clean timing
 evidence. The initial 3090 SCP timeout and two unavailable local `cl`
 environment invocations are retained; the copy retry and remote comparison in
 the verified experiment environment succeeded.
+
+At 08:51 attempt 2 completed the eight-rank `deepfake` gather and prediction,
+crossing the unrecoverable boundary from attempt 1, and entered `gaugan`. The
+first five domains contain 26,811 unique images and average 97.0223% Acc /
+97.2310% AP at a clean 2.8887 images/s. They are 0.0317/0.1064 points above
+the matched baseline and 0.0067/0.1286 points above matched P1. Across the four
+domains shared with attempt 1, all 21,406 indices and labels match, with 55
+threshold disagreements and a 0.00297 weighted probability MAD. All eight
+ranks, the read-only SSHFS, and the 3070x2 source remain healthy with no log
+errors. The remote comparison JSON succeeded, while its extra remote `jq`
+summary failed because the command is absent; the copied artifact was
+summarized locally and the failure is retained. `select12` remains blocked
+until the full select8 attempt 2 audit is complete.

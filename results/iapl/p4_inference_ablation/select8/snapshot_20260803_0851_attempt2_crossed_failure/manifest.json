@@ -1,0 +1,89 @@
+{
+  "experiment": "P4 selection-count ablation select8",
+  "attempt": 2,
+  "status": "running_past_attempt1_failure_boundary",
+  "checked_through": "2026-08-03T08:53:12+08:00",
+  "completed_domains": ["crn", "cyclegan", "dalle", "biggan", "deepfake"],
+  "active_domain": "gaugan",
+  "recovery_boundary": {
+    "attempt1_invalid_domain": "deepfake",
+    "attempt1_failure": "3090 ranks SIGBUS during the 3070x2 SSHFS source outage before the distributed gather completed",
+    "attempt2_deepfake_prediction_complete": true,
+    "attempt2_deepfake_unique_sampler_indices": 5405,
+    "attempt2_all_eight_rank_pids_alive_after_deepfake": true,
+    "attempt2_errors_after_deepfake": 0,
+    "boundary_crossed": true
+  },
+  "protocol": {
+    "world_size": 8,
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 8,
+    "tta_entropy": "averaged",
+    "ois": true,
+    "seed": 100
+  },
+  "five_domain_metrics": {
+    "unique_images": 26811,
+    "accuracy": 0.9702234235748474,
+    "average_precision": 0.9723104989281952,
+    "real_accuracy": 0.9590677553108857,
+    "fake_accuracy": 0.981370719051149
+  },
+  "matched_baseline_delta": {
+    "accuracy": 0.00031667707229054987,
+    "average_precision": 0.001064308499103106,
+    "real_accuracy": 0.0011279729086207668,
+    "fake_accuracy": -0.0004965159377317008
+  },
+  "matched_p1_delta": {
+    "accuracy": 0.00006739929204113704,
+    "average_precision": 0.0012857589646109169,
+    "real_accuracy": 0.0011036240967017275,
+    "fake_accuracy": -0.0009706449221645874
+  },
+  "four_domain_attempt1_comparison": {
+    "domains": ["biggan", "crn", "cyclegan", "dalle"],
+    "common_unique_indices": 21406,
+    "index_and_label_sequences_equal": true,
+    "threshold_disagreements": 55,
+    "weighted_probability_mad": 0.002966882474598657
+  },
+  "five_domain_profile": {
+    "sum_domain_wall_seconds": 9281.32729991211,
+    "unique_images_per_second": 2.8887032138446282,
+    "max_rank_peak_allocated_mib": 8437.3583984375,
+    "max_rank_peak_reserved_mib": 8776.0,
+    "clean_timing": true
+  },
+  "runtime": {
+    "a6000_memory_mib": 37175,
+    "a6000_utilization_percent": 100,
+    "a6000_compute_processes_exactly_match_four_rank_pids": true,
+    "3090_memory_mib": 18652,
+    "4090_2_memory_mib": 19158,
+    "all_eight_rank_pids_alive": true,
+    "errors_detected_in_eight_rank_and_three_launcher_logs": 0,
+    "3090_sshfs_read_only_and_readable": true,
+    "arrow_source_3070x2_uptime": "21:19",
+    "arrow_source_state_bytes": 11585
+  },
+  "gpu_monitor_line_counts": {
+    "A6000": 10369,
+    "3090": 10632,
+    "4090-2": 10616
+  },
+  "diagnostic_failures_preserved": [
+    "The remote comparison completed and wrote its JSON, but the requested remote jq summary failed because jq is not installed on A6000; the artifact was copied and summarized locally."
+  ],
+  "artifacts": {
+    "metrics": "metrics.json",
+    "attempt1_prediction_comparison": "attempt1_prediction_comparison.json",
+    "predictions": "a6000/predictions/*.json",
+    "profile": "a6000/profile.json",
+    "rank_logs": "rank0.log through rank7.log across the three host directories",
+    "launcher_logs": "one per GPU host",
+    "gpu_monitors": "one per GPU host"
+  },
+  "decision": "Continue attempt 2 in order. The original failure boundary is recovered, but select8 is not complete; keep monitoring the SSHFS source and do not start select12."
+}

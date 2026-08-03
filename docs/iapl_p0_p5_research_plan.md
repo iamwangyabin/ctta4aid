@@ -1374,6 +1374,15 @@ SSHFS 均健康，A6000 只有四个本实验 compute process，因此 `crn` 计
 干净证据。首次 3090 SCP 超时、本地 `conda run -n cl` 不可写和猜测的本地
 `cl` Python 路径不存在均已保留；重试及远端正式环境比较成功。
 
+08:51 attempt2 已完成 `deepfake` 的八 rank gather 和预测文件，正式跨过 attempt1
+的不可恢复故障边界，并进入 `gaugan`。前五域 26,811 张唯一图像均值 Acc/AP 为
+97.0223%/97.2310%，相对匹配 baseline 高 0.0317/0.1064 点，相对匹配 P1 高
+0.0067/0.1286 点；干净吞吐为 2.8887 images/s。与 attempt1 共有四域的 21,406
+个索引和标签完全一致，55 个阈值分歧、加权概率 MAD 0.00297。八个 ranks、
+只读 SSHFS 和 3070x2 源机均健康，三机日志无错误。远端正式环境比较已写出
+JSON，但附加的远端 `jq` 汇总因命令不存在失败；文件复制后在本地成功汇总，
+失败同样保留。`select12` 仍等待 select8 attempt2 完整结束和审计。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
