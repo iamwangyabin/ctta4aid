@@ -1,0 +1,126 @@
+{
+  "experiment": "P4 tuning-step ablation steps3",
+  "status": "running_clean_launch",
+  "ordered_predecessor": {
+    "variant": "select12",
+    "status": "completed_and_audited",
+    "final_manifest": "results/iapl/p4_inference_ablation/select12/final/manifest.json",
+    "final_commit": "a273ad96f9a6bb67e6b907d5f843c9405c787c40"
+  },
+  "clean_transition": {
+    "last_busy_observation": "2026-08-05T06:52:58+08:00",
+    "first_clean_observation": "2026-08-05T07:23:07+08:00",
+    "a6000_memory_used_mib": 17,
+    "a6000_utilization_percent": 0,
+    "external_compute_processes_observed": false,
+    "external_processes_modified": false
+  },
+  "protocol": {
+    "world_size": 8,
+    "rank_layout": {
+      "A6000": [0, 1, 2, 3],
+      "3090": [4, 5],
+      "4090-2": [6, 7]
+    },
+    "views": 32,
+    "tta_steps": 3,
+    "selection_count": 6,
+    "tta_entropy": "averaged",
+    "ois": true,
+    "seed": 100,
+    "master_addr": "192.168.10.2",
+    "master_port": 29670,
+    "distributed_timeout_seconds": 7200,
+    "domains": 19,
+    "dataset_size": 88353
+  },
+  "datasets": {
+    "A6000": "local hf_arrow:///home/yabin/ctta4aid_assets/data/df_arrow_20260717/ForenSynths|/home/yabin/ctta4aid_assets/data/df_arrow_20260717/Ojha",
+    "3090": "read-only SSHFS hf_arrow:///home/yabin/ctta4aid_assets/data/df_arrow_remote_3070/ForenSynths|/home/yabin/ctta4aid_assets/data/df_arrow_remote_3070/Ojha",
+    "4090-2": "local hf_arrow:///home/yabin/ctta4aid_assets/data/df_arrow_20260716/ForenSynths|/home/yabin/ctta4aid_assets/data/df_arrow_20260716/Ojha"
+  },
+  "preflight": {
+    "completed_before_first_launcher": true,
+    "checked_at": {
+      "A6000": "2026-08-05T07:24:44+08:00",
+      "3090": "2026-08-05T07:25:21+08:00",
+      "4090-2": "2026-08-05T07:25:48+08:00"
+    },
+    "hosts_passed": ["A6000", "3090", "4090-2"],
+    "remote_output_absent_on_all_hosts": true,
+    "master_port_free_on_all_hosts": true,
+    "external_compute_processes_observed": false,
+    "gpu_memory_mib": {
+      "A6000": 17,
+      "3090": 106,
+      "4090-2": 283
+    },
+    "gpu_utilization_percent": {
+      "A6000": 1,
+      "3090": 0,
+      "4090-2": 0
+    },
+    "nccl_version": 23007,
+    "real_crn_arrow_smoke_rows": 12764,
+    "views_verified": 32,
+    "tta_steps_verified": 3,
+    "selection_count_verified": 6,
+    "averaged_entropy_verified": true,
+    "ois_verified": true,
+    "checkpoint_and_clip_present": true,
+    "3090_sshfs_mounted_read_only_and_readable": true,
+    "3090_failed_data_device_accessed": false,
+    "4090_2_isolated_driver_verified": true
+  },
+  "code_sha256": {
+    "scripts/run_iapl_manual_ranks.sh": "4b009dc1e0dcce9b39a86c5204867ca1eb0ff9ecff44c92a4cb203a39f706e88",
+    "scripts/run_iapl_p4_ufd_ablation_node.sh": "7913234cd11002c721e0908f73be0ae9c985b727b90484f30a0935c1c42db86c",
+    "checkpoint_best_acc_progan.pth": "1e04047b74d287ba2f3682cde84246688dfa486354a5677b5147e677bc2a3f81",
+    "matched_on_all_hosts": true
+  },
+  "launch": {
+    "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/steps3",
+    "worker_first_order": ["3090", "4090-2", "A6000"],
+    "3090": {
+      "started_at": "2026-08-05T07:26:14+08:00",
+      "launcher_pid": 1458386,
+      "rank_pids": [1458438, 1458440]
+    },
+    "4090-2": {
+      "started_at": "2026-08-05T07:26:48+08:00",
+      "launcher_pid": 3025117,
+      "rank_pids": [3025179, 3025180]
+    },
+    "A6000": {
+      "clean_guard_memory_mib": 17,
+      "started_at": "2026-08-05T07:27:32+08:00",
+      "launcher_pid": 2082816,
+      "rank_pids": [2082946, 2082947, 2082948, 2082949]
+    }
+  },
+  "initial_runtime": {
+    "checked_through": "2026-08-05T07:30:24+08:00",
+    "all_eight_ranks_crossed_barrier": true,
+    "rank0_entered_crn": true,
+    "rank0_first_iteration_seconds": 5.9445,
+    "rank0_peak_allocated_mib": 8437,
+    "host_memory_mib": {
+      "A6000": 37167,
+      "3090": 18652,
+      "4090-2": 19184
+    },
+    "host_utilization_percent": {
+      "A6000": 100,
+      "3090": 100,
+      "4090-2": 100
+    },
+    "a6000_compute_processes_exactly_match_four_rank_pids": true,
+    "3090_sshfs_mounted_read_only": true,
+    "errors_detected": 0
+  },
+  "diagnostic_failures_preserved": [
+    "A delayed A6000 status command after launch completed with no captured output. The immediate read-only retry at 07:29:47 succeeded and showed the expected four rank processes, first crn iteration, and no runtime error.",
+    "The broad diagnostic grep matched NCCL environment variable names in the rank logs; these were configuration lines, not errors."
+  ],
+  "decision": "The final ordered P4 variant launched from an observed clean A6000 platform and is running across all eight ranks. Monitor it to completion and do not start P5 before the final P4 audit is committed and pushed."
+}

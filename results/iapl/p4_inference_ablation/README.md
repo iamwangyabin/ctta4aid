@@ -1596,6 +1596,18 @@ A6000 is 6,578 MiB/98%. The other hosts remain idle, the 3090 SSHFS is
 read-only, and steps3 output is absent everywhere. No external process was
 modified; steps3 and P5 remain unlaunched.
 
+At 07:23 on August 5 A6000 was directly observed at the 17 MiB/0% clean
+baseline with no compute process; the previous busy observation was 06:52.
+A fresh three-host preflight then passed: outputs absent, port 29670 free,
+matching code/checkpoint hashes, NCCL 23007, `crn` Arrow smoke at 12,764 rows,
+3090 SSHFS read-only, and the 4090-2 isolated driver healthy. Steps3 launched
+worker-first at 07:26-07:27 as ranks 4-5, 6-7, then 0-3. All eight ranks crossed
+the barrier, rank 0 entered `crn` with a 5.9445-second first iteration, and the
+three hosts reached 37,167/18,652/19,184 MiB at 100% utilization without an
+actual runtime error. One delayed status command returned no captured output;
+the immediate read-only retry succeeded. P5 remains unlaunched until steps3
+finishes and receives its final audit.
+
 At 01:24 on August 5 the same PIDs have run for 8:23 and still hold
 4,400/2,150 MiB; A6000 is 6,578 MiB/99%. The other hosts remain idle, the
 3090 SSHFS is read-only, and steps3 output is absent everywhere. No external

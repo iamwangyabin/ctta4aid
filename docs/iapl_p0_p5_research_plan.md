@@ -1578,6 +1578,16 @@ A6000 为 6,578 MiB/99%。其余两机空闲、3090 SSHFS 只读、三机 `steps
 6,578 MiB/99%。其余两机空闲、3090 SSHFS 只读、三机 `steps3` 输出为空。
 外部进程未修改，`steps3` 与 P5 继续不启动。
 
+07:23 直接观测到 A6000 恢复 17 MiB/0% 且无 compute process；上一次忙碌
+观测为 06:52。随后重新执行完整三机预检：输出路径均不存在、29670 端口空闲、
+代码和 checkpoint 哈希一致、NCCL 23007、`crn` Arrow smoke 为 12,764 行、
+3090 SSHFS 只读、4090-2 隔离驱动正常。07:26-07:27 按 worker-first 顺序启动
+3090 ranks 4-5、4090-2 ranks 6-7、A6000 ranks 0-3。八 ranks 全部跨过
+barrier，rank 0 已进入 `crn`，首 iter 5.9445 秒；三机达到
+37,167/18,652/19,184 MiB 和 100% 利用率，未见实际运行错误。一次延迟状态命令
+没有捕获到输出，立即只读重试成功，失败记录已保留。P5 继续等待 `steps3` 完成
+和最终审计。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
