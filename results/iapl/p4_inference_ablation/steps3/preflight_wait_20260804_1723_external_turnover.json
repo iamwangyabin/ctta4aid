@@ -1,0 +1,58 @@
+{
+  "experiment": "P4 tuning-step ablation steps3",
+  "status": "waiting_after_second_external_process_turnover",
+  "checked_at": "2026-08-04T17:23:51+08:00",
+  "preflight_reference": "results/iapl/p4_inference_ablation/steps3/preflight_wait_20260804_0011.json",
+  "previous_turnover_reference": "results/iapl/p4_inference_ablation/steps3/preflight_wait_20260804_1324_external_turnover.json",
+  "master_port": 29670,
+  "remote_output_absent_on_all_hosts": true,
+  "previous_external_generation": {
+    "pids": [1962366, 1962431],
+    "last_observed_alive_at": "2026-08-04T16:53:15+08:00",
+    "last_observed_memory_mib": [2090, 4398],
+    "last_observed_elapsed": ["03:49:20", "03:49:18"],
+    "absent_at_current_check": true
+  },
+  "replacement_external_generation": [
+    {
+      "pid": 1988891,
+      "parent_pid": 798613,
+      "started_at": "2026-08-04T17:00:10+08:00",
+      "elapsed_at_check": "00:23:40",
+      "used_memory_mib": 4398,
+      "child_processes": 8,
+      "command": "python3 train_sharepara_moe_0406_loss.py"
+    },
+    {
+      "pid": 1988960,
+      "parent_pid": 772040,
+      "started_at": "2026-08-04T17:00:13+08:00",
+      "elapsed_at_check": "00:23:37",
+      "used_memory_mib": 2148,
+      "child_processes": 8,
+      "command": "python3 train_sharepara_moe_0406_loss.py"
+    }
+  ],
+  "host_state": {
+    "A6000": {
+      "memory_used_mib": 6574,
+      "utilization_percent": 72,
+      "clean_for_launch": false
+    },
+    "3090": {
+      "memory_used_mib": 106,
+      "utilization_percent": 0,
+      "sshfs_mounted_read_only": true,
+      "clean_for_launch": true
+    },
+    "4090-2": {
+      "memory_used_mib": 283,
+      "utilization_percent": 0,
+      "clean_for_launch": true
+    }
+  },
+  "clean_window_observed": false,
+  "external_processes_modified": false,
+  "launch_started": false,
+  "decision": "The second replacement generation was already allocated before observation. Do not infer or race the at-most-seven-minute unobserved transition. Keep steps3 and P5 unlaunched."
+}

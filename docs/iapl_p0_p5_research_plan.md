@@ -1545,6 +1545,12 @@ SSHFS 和三机空输出路径均正常。首次 5 秒 Tailscale SSH 探测超�
 6,516 MiB/97%。其余两机空闲、SSHFS 只读、三机 `steps3` 输出为空。未修改
 replacement 任务，`steps3` 与 P5 均继续不启动。
 
+17:23 检测到第二次外部任务换代：PID 1962366/1962431 在 16:53 仍存活，
+下一次检查时已退出；同命令 replacement 1988891/1988960 已于
+17:00:10/13 在相同父进程属主下启动，各有 8 个子进程，占 4,398/2,148 MiB，
+A6000 为 6,574 MiB，复查利用率 72%。没有直接观测到干净间隔，不推断或抢跑
+至多七分钟的未观测转场。外部任务未修改，`steps3` 保持空输出，P5 继续等待。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

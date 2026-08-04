@@ -1567,3 +1567,12 @@ At 15:23 the replacement PIDs have run for 2:19 and hold 2,090/4,398 MiB;
 A6000 remains at 6,516 MiB/97%. The other hosts are idle, the SSHFS is still
 read-only, and steps3 remains output-free everywhere. Neither replacement job
 was modified; steps3 and P5 remain unlaunched.
+
+At 17:23 a second external turnover was detected. PIDs 1962366/1962431 were
+alive at 16:53 but absent at the next check; their same-command replacements
+1988891/1988960 had already started at 17:00:10/13 under the same two parent
+owners. Each has eight children. They hold 4,398/2,148 MiB and leave A6000 at
+6,574 MiB; the follow-up sample is 72% utilized. No clean interval was directly
+observed, and the at-most-seven-minute transition is not inferred or raced.
+No external process was modified, steps3 remains output-free, and P5 remains
+blocked.
