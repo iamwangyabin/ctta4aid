@@ -1549,3 +1549,8 @@ At 09:23 both external jobs pass 12:02 elapsed while retaining
 SSHFS remain healthy and every steps3 output path is absent. The long wait is
 not used to justify interfering with external work or accepting a contaminated
 final P4 latency run. Steps3 and P5 remain unlaunched.
+
+At 11:23 the same jobs have run for 14:02, still hold 2,088/4,380 MiB, and
+leave A6000 at 6,498 MiB/98%. The other two hosts remain idle, the 3090 SSHFS
+is read-only, and steps3 is output-free everywhere. No process was modified;
+steps3 and P5 remain unlaunched to protect the final P4 latency point.
