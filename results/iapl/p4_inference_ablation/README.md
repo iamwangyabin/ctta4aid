@@ -1576,3 +1576,10 @@ owners. Each has eight children. They hold 4,398/2,148 MiB and leave A6000 at
 observed, and the at-most-seven-minute transition is not inferred or raced.
 No external process was modified, steps3 remains output-free, and P5 remains
 blocked.
+
+At 19:23 the second replacement generation has run for 2:23. PIDs
+1988891/1988960 hold 4,400/2,148 MiB and leave A6000 at 6,576 MiB/99%.
+The other hosts are idle, the 3090 SSHFS is read-only, and steps3 output is
+absent everywhere. No external process was modified; steps3 and P5 remain
+unlaunched. The first documentation patch used a stale Chinese tail anchor and
+failed without changing files; the retry used the current tail.
