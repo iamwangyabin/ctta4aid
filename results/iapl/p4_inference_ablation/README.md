@@ -1590,3 +1590,8 @@ instantaneous utilization sample. The other hosts remain idle, the 3090 SSHFS
 is read-only, and steps3 output is absent everywhere. The low sample is not a
 clean launch window; no external process was modified, and steps3 and P5 remain
 unlaunched.
+
+At 23:23 the same PIDs have run for 6:23 and still hold 4,400/2,150 MiB;
+A6000 is 6,578 MiB/98%. The other hosts remain idle, the 3090 SSHFS is
+read-only, and steps3 output is absent everywhere. No external process was
+modified; steps3 and P5 remain unlaunched.

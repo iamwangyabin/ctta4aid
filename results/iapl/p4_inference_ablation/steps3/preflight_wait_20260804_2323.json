@@ -1,0 +1,48 @@
+{
+  "experiment": "P4 tuning-step ablation steps3",
+  "status": "waiting_for_clean_a6000",
+  "checked_at_start": "2026-08-04T23:23:13+08:00",
+  "checked_at_end": "2026-08-04T23:23:52+08:00",
+  "preflight_reference": "results/iapl/p4_inference_ablation/steps3/preflight_wait_20260804_0011.json",
+  "turnover_reference": "results/iapl/p4_inference_ablation/steps3/preflight_wait_20260804_1723_external_turnover.json",
+  "master_port": 29670,
+  "remote_output_absent_on_all_hosts": true,
+  "host_state": {
+    "A6000": {
+      "memory_used_mib": 6578,
+      "utilization_percent": 98,
+      "clean_for_launch": false
+    },
+    "3090": {
+      "memory_used_mib": 106,
+      "utilization_percent": 0,
+      "sshfs_mounted_read_only": true,
+      "clean_for_launch": true
+    },
+    "4090-2": {
+      "memory_used_mib": 283,
+      "utilization_percent": 0,
+      "isolated_driver_query_passed": true,
+      "clean_for_launch": true
+    }
+  },
+  "blocking_external_processes": [
+    {
+      "pid": 1988891,
+      "parent_pid": 798613,
+      "elapsed": "06:23:03",
+      "used_memory_mib": 4400,
+      "command": "python3 train_sharepara_moe_0406_loss.py"
+    },
+    {
+      "pid": 1988960,
+      "parent_pid": 772040,
+      "elapsed": "06:23:00",
+      "used_memory_mib": 2150,
+      "command": "python3 train_sharepara_moe_0406_loss.py"
+    }
+  ],
+  "external_processes_modified": false,
+  "launch_started": false,
+  "decision": "Continue the ordered clean-platform wait. Do not launch steps3 or P5 while the A6000 bottleneck remains occupied."
+}
