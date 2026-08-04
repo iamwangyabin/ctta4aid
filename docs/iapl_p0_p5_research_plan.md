@@ -1574,6 +1574,10 @@ A6000 为 6,578 MiB/99%。其余两机空闲、3090 SSHFS 只读、三机 `steps
 6,578 MiB，瞬时利用率为 75%。其余两机空闲、3090 SSHFS 只读、三机
 `steps3` 输出为空。外部进程未修改，`steps3` 与 P5 继续不启动。
 
+05:23 同一组外部 PID 已运行 12:22，仍占 4,400/2,150 MiB，A6000 为
+6,578 MiB/99%。其余两机空闲、3090 SSHFS 只读、三机 `steps3` 输出为空。
+外部进程未修改，`steps3` 与 P5 继续不启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
