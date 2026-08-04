@@ -1557,6 +1557,11 @@ A6000 为 6,574 MiB，复查利用率 72%。没有直接观测到干净间隔，
 启动。首次文档补丁使用了过期的中文尾部锚点，未产生任何修改即失败；重试已
 基于当前文件尾部完成。
 
+21:23 同一组 replacement PID 已运行 4:22，占 4,400/2,150 MiB。A6000
+仍分配 6,578 MiB；60% 只是瞬时利用率，不能在两个 compute process 仍在时
+视为干净窗口。其余两机空闲、3090 SSHFS 只读、三机 `steps3` 输出为空。
+外部任务未修改，`steps3` 与 P5 继续不启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

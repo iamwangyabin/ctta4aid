@@ -1583,3 +1583,10 @@ The other hosts are idle, the 3090 SSHFS is read-only, and steps3 output is
 absent everywhere. No external process was modified; steps3 and P5 remain
 unlaunched. The first documentation patch used a stale Chinese tail anchor and
 failed without changing files; the retry used the current tail.
+
+At 21:23 the same replacement PIDs have run for 4:22 and hold
+4,400/2,150 MiB. A6000 is still allocated at 6,578 MiB despite a 60%
+instantaneous utilization sample. The other hosts remain idle, the 3090 SSHFS
+is read-only, and steps3 output is absent everywhere. The low sample is not a
+clean launch window; no external process was modified, and steps3 and P5 remain
+unlaunched.
