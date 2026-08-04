@@ -1554,3 +1554,11 @@ At 11:23 the same jobs have run for 14:02, still hold 2,088/4,380 MiB, and
 leave A6000 at 6,498 MiB/98%. The other two hosts remain idle, the 3090 SSHFS
 is read-only, and steps3 is output-free everywhere. No process was modified;
 steps3 and P5 remain unlaunched to protect the final P4 latency point.
+
+At 13:24 the 14-hour external generation had turned over. The old PIDs were
+last alive at 12:53 and were absent at the next check, but same-command jobs
+from the same parent owners had already started at 13:03:55/57 as PIDs
+1962366/1962431. Each has eight children; they hold 2,088/4,396 MiB and leave
+A6000 at 6,512 MiB/90%. No clean interval was directly observed, so no clean
+window is inferred or raced. The replacement jobs were not modified, steps3
+remains output-free, and P5 remains blocked.
