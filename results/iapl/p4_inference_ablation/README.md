@@ -1543,3 +1543,9 @@ At 07:53 the two external jobs have run for 10:32 and still retain
 6,498 MiB allocation and both compute PIDs remain, so this is not treated as a
 clean launch window. The other hosts, read-only SSHFS, and empty steps3 output
 paths remain healthy; steps3 and P5 remain unlaunched.
+
+At 09:23 both external jobs pass 12:02 elapsed while retaining
+2,088/4,380 MiB; A6000 is still 6,498 MiB/94%. The other hosts and read-only
+SSHFS remain healthy and every steps3 output path is absent. The long wait is
+not used to justify interfering with external work or accepting a contaminated
+final P4 latency run. Steps3 and P5 remain unlaunched.

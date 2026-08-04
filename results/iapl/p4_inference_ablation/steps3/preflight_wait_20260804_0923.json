@@ -1,0 +1,45 @@
+{
+  "experiment": "P4 tuning-step ablation steps3",
+  "status": "waiting_for_clean_a6000",
+  "checked_at": "2026-08-04T09:23:19+08:00",
+  "preflight_reference": "results/iapl/p4_inference_ablation/steps3/preflight_wait_20260804_0011.json",
+  "master_port": 29670,
+  "remote_output_absent_on_all_hosts": true,
+  "host_state": {
+    "A6000": {
+      "memory_used_mib": 6498,
+      "utilization_percent": 94,
+      "clean_for_launch": false
+    },
+    "3090": {
+      "memory_used_mib": 106,
+      "utilization_percent": 0,
+      "sshfs_mounted_read_only": true,
+      "clean_for_launch": true
+    },
+    "4090-2": {
+      "memory_used_mib": 285,
+      "utilization_percent": 0,
+      "clean_for_launch": true
+    }
+  },
+  "blocking_external_processes": [
+    {
+      "pid": 1837707,
+      "parent_pid": 772040,
+      "elapsed": "12:02:34",
+      "used_memory_mib": 2088,
+      "command": "python3 train_sharepara_moe_0406_loss.py"
+    },
+    {
+      "pid": 1837786,
+      "parent_pid": 798613,
+      "elapsed": "12:02:31",
+      "used_memory_mib": 4380,
+      "command": "python3 train_sharepara_moe_0406_loss.py"
+    }
+  ],
+  "external_processes_modified": false,
+  "launch_started": false,
+  "decision": "Continue waiting. The 12-hour duration does not justify interfering with external work or accepting a contaminated final P4 latency run."
+}
