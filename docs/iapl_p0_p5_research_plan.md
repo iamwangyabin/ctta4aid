@@ -1541,6 +1541,10 @@ SSHFS 和三机空输出路径均正常。首次 5 秒 Tailscale SSH 探测超�
 干净间隔，因此不推断、更不抢跑一个未观测窗口。新旧任务均未修改，`steps3`
 保持空输出，P5 继续受严格顺序约束。
 
+15:23 换代后的 PID 已运行 2:19，占 2,090/4,398 MiB，A6000 仍为
+6,516 MiB/97%。其余两机空闲、SSHFS 只读、三机 `steps3` 输出为空。未修改
+replacement 任务，`steps3` 与 P5 均继续不启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

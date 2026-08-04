@@ -1562,3 +1562,8 @@ from the same parent owners had already started at 13:03:55/57 as PIDs
 A6000 at 6,512 MiB/90%. No clean interval was directly observed, so no clean
 window is inferred or raced. The replacement jobs were not modified, steps3
 remains output-free, and P5 remains blocked.
+
+At 15:23 the replacement PIDs have run for 2:19 and hold 2,090/4,398 MiB;
+A6000 remains at 6,516 MiB/97%. The other hosts are idle, the SSHFS is still
+read-only, and steps3 remains output-free everywhere. Neither replacement job
+was modified; steps3 and P5 remain unlaunched.
