@@ -1,0 +1,154 @@
+/home/yabin/miniconda3/envs/caid-gemini-compat/lib/python3.11/site-packages/pytorch_wavelets/dtcwt/coeffs.py:7: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream
+world size: 8, rank: 0, local rank: 0
+{
+  "SHELL": "/bin/bash",
+  "IAPL_DISTRIBUTED_TIMEOUT_SECONDS": "7200",
+  "PYTHONUNBUFFERED": "1",
+  "IAPL_GPU_MONITOR_PATH": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/steps3/gpu_monitor_ubuntu.csv",
+  "IAPL_TTA_STEPS": "3",
+  "MASTER_PORT": "29670",
+  "IAPL_TTA_ENTROPY": "averaged",
+  "LC_ADDRESS": "zh_CN.UTF-8",
+  "LC_NAME": "zh_CN.UTF-8",
+  "IAPL_SELECTION_COUNT": "6",
+  "LC_MONETARY": "zh_CN.UTF-8",
+  "NCCL_NVLS_ENABLE": "0",
+  "NCCL_MAX_CTAS": "2",
+  "PWD": "/home/yabin/ctta4aid_assets/external/IAPL",
+  "IAPL_PROFILE_PATH": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/steps3/profile.json",
+  "LOGNAME": "yabin",
+  "XDG_SESSION_TYPE": "tty",
+  "IAPL_DATASET_PATH": "hf_arrow:///home/yabin/ctta4aid_assets/data/df_arrow_20260717/ForenSynths|/home/yabin/ctta4aid_assets/data/df_arrow_20260717/Ojha",
+  "IAPL_OUTPUT_DIR": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/steps3",
+  "WORLD_SIZE": "8",
+  "MOTD_SHOWN": "pam",
+  "IAPL_SELECTION_P": "0.2",
+  "HOME": "/home/home/yabin",
+  "LC_PAPER": "zh_CN.UTF-8",
+  "LANG": "en_US.UTF-8",
+  "IAPL_VIEWS": "32",
+  "IAPL_OIS": "true",
+  "SSH_CONNECTION": "100.70.179.13 50833 100.86.243.3 22",
+  "MASTER_ADDR": "192.168.10.2",
+  "CUDA_VISIBLE_DEVICES": "0",
+  "XDG_SESSION_CLASS": "user",
+  "NCCL_MULTI_RANK_GPU_ENABLE": "1",
+  "PYTHONPATH": "/home/yabin/ctta4aid-arrow/src",
+  "LC_IDENTIFICATION": "zh_CN.UTF-8",
+  "USER": "yabin",
+  "SHLVL": "0",
+  "LC_TELEPHONE": "zh_CN.UTF-8",
+  "LC_MEASUREMENT": "zh_CN.UTF-8",
+  "XDG_SESSION_ID": "3560",
+  "LD_LIBRARY_PATH": "/home/yabin/miniconda3/envs/caid-gemini-compat/lib/python3.11/site-packages/cv2/../../lib64:/home/yabin/miniconda3/envs/caid-gemini-compat/lib/python3.11/site-packages/nvidia/nccl/lib",
+  "LC_CTYPE": "C.UTF-8",
+  "XDG_RUNTIME_DIR": "/run/user/1008",
+  "SSH_CLIENT": "100.70.179.13 50833 22",
+  "LC_TIME": "zh_CN.UTF-8",
+  "LC_ALL": "C.UTF-8",
+  "IAPL_PREDICTION_DIR": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/steps3/predictions",
+  "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+  "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1008/bus",
+  "LC_NUMERIC": "zh_CN.UTF-8",
+  "OLDPWD": "/home/yabin/ctta4aid-arrow",
+  "_": "/usr/bin/env",
+  "RANK": "0",
+  "LOCAL_RANK": "0",
+  "KMP_DUPLICATE_LIB_OK": "True",
+  "KMP_INIT_AT_FORK": "FALSE"
+}
+world_size:8 rank:0 local_rank:0
+| distributed init (rank 0): env://
+distributed collective timeout: 7200 seconds
+Before torch.distributed.barrier()
+End torch.distributed.barrier()
+-----------freezen TTA mode-----------
+-----------freezen TTA mode-----------
+[{'params': ['prompt_learner.ctx']}]
+Test:  [   0/1596]  eta: 2:38:07    time: 5.9445  data: 0.0653  max mem: 8437
+Test:  [  50/1596]  eta: 1:48:17    time: 4.1115  data: 0.0373  max mem: 8438
+Test:  [ 100/1596]  eta: 1:42:54    time: 4.0396  data: 0.0398  max mem: 8438
+Test:  [ 150/1596]  eta: 1:38:53    time: 4.0567  data: 0.0410  max mem: 8438
+Test:  [ 200/1596]  eta: 1:35:13    time: 4.0592  data: 0.0436  max mem: 8438
+Test:  [ 250/1596]  eta: 1:31:39    time: 4.0607  data: 0.0410  max mem: 8438
+Test:  [ 300/1596]  eta: 1:28:09    time: 4.0521  data: 0.0389  max mem: 8438
+Test:  [ 350/1596]  eta: 1:24:40    time: 4.0528  data: 0.0386  max mem: 8438
+Test:  [ 400/1596]  eta: 1:21:13    time: 4.0594  data: 0.0421  max mem: 8438
+Test:  [ 450/1596]  eta: 1:17:47    time: 4.0632  data: 0.0424  max mem: 8438
+Test:  [ 500/1596]  eta: 1:14:22    time: 4.0646  data: 0.0426  max mem: 8438
+Test:  [ 550/1596]  eta: 1:10:58    time: 4.0624  data: 0.0400  max mem: 8438
+Test:  [ 600/1596]  eta: 1:07:35    time: 4.0681  data: 0.0404  max mem: 8438
+Test:  [ 650/1596]  eta: 1:04:10    time: 4.0632  data: 0.0416  max mem: 8438
+Test:  [ 700/1596]  eta: 1:00:46    time: 4.0613  data: 0.0404  max mem: 8438
+Test:  [ 750/1596]  eta: 0:57:23    time: 4.0664  data: 0.0414  max mem: 8438
+Test:  [ 800/1596]  eta: 0:53:59    time: 4.0612  data: 0.0402  max mem: 8438
+Test:  [ 850/1596]  eta: 0:50:35    time: 4.0536  data: 0.0402  max mem: 8438
+Test:  [ 900/1596]  eta: 0:47:11    time: 4.0538  data: 0.0386  max mem: 8438
+Test:  [ 950/1596]  eta: 0:43:47    time: 4.0548  data: 0.0389  max mem: 8438
+Test:  [1000/1596]  eta: 0:40:23    time: 4.0555  data: 0.0387  max mem: 8438
+Test:  [1050/1596]  eta: 0:37:00    time: 4.0611  data: 0.0433  max mem: 8438
+Test:  [1100/1596]  eta: 0:33:36    time: 4.0631  data: 0.0431  max mem: 8438
+Test:  [1150/1596]  eta: 0:30:13    time: 4.0646  data: 0.0430  max mem: 8438
+Test:  [1200/1596]  eta: 0:26:49    time: 4.0523  data: 0.0397  max mem: 8438
+Test:  [1250/1596]  eta: 0:23:26    time: 4.0591  data: 0.0422  max mem: 8438
+Test:  [1300/1596]  eta: 0:20:03    time: 4.0600  data: 0.0419  max mem: 8438
+Test:  [1350/1596]  eta: 0:16:39    time: 4.0653  data: 0.0458  max mem: 8438
+Test:  [1400/1596]  eta: 0:13:16    time: 4.0509  data: 0.0397  max mem: 8438
+Test:  [1450/1596]  eta: 0:09:53    time: 4.0599  data: 0.0423  max mem: 8438
+Test:  [1500/1596]  eta: 0:06:30    time: 4.0660  data: 0.0419  max mem: 8438
+Test:  [1550/1596]  eta: 0:03:06    time: 4.0626  data: 0.0421  max mem: 8438
+Test:  [1595/1596]  eta: 0:00:04    time: 4.0490  data: 0.0394  max mem: 8438
+Test: Total time: 1:48:06 (4.0640 s / it)
+(crn) acc: 92.82; ap: 90.64; racc: 85.64; facc: 100.00;
+Test:  [  0/331]  eta: 0:39:45    time: 7.2058  data: 3.2545  max mem: 8435
+Test:  [ 50/331]  eta: 0:19:07    time: 4.0253  data: 0.0316  max mem: 8435
+Test:  [100/331]  eta: 0:15:38    time: 4.0445  data: 0.0357  max mem: 8435
+Test:  [150/331]  eta: 0:12:14    time: 4.0473  data: 0.0412  max mem: 8435
+Test:  [200/331]  eta: 0:08:51    time: 4.0507  data: 0.0372  max mem: 8435
+Test:  [250/331]  eta: 0:05:28    time: 4.0596  data: 0.0398  max mem: 8435
+Test:  [300/331]  eta: 0:02:05    time: 4.0578  data: 0.0371  max mem: 8435
+Test:  [330/331]  eta: 0:00:04    time: 4.0553  data: 0.0392  max mem: 8435
+Test: Total time: 0:22:22 (4.0553 s / it)
+(cyclegan) acc: 98.83; ap: 97.92; racc: 97.66; facc: 100.00;
+Test:  [  0/250]  eta: 0:25:14    time: 6.0565  data: 2.0612  max mem: 8435
+Test:  [ 50/250]  eta: 0:13:34    time: 4.0303  data: 0.0307  max mem: 8435
+Test:  [100/250]  eta: 0:10:07    time: 4.0374  data: 0.0341  max mem: 8435
+Test:  [150/250]  eta: 0:06:44    time: 4.0542  data: 0.0360  max mem: 8435
+Test:  [200/250]  eta: 0:03:22    time: 4.0530  data: 0.0367  max mem: 8435
+Test:  [249/250]  eta: 0:00:04    time: 4.0629  data: 0.0389  max mem: 8435
+Test: Total time: 0:16:53 (4.0526 s / it)
+(dalle) acc: 98.85; ap: 99.56; racc: 99.60; facc: 98.10;
+Test:  [  0/500]  eta: 0:58:37    time: 7.0350  data: 3.0444  max mem: 8435
+Test:  [ 50/500]  eta: 0:30:45    time: 4.0523  data: 0.0333  max mem: 8435
+Test:  [100/500]  eta: 0:27:12    time: 4.0607  data: 0.0365  max mem: 8435
+Test:  [150/500]  eta: 0:23:47    time: 4.0767  data: 0.0390  max mem: 8435
+Test:  [200/500]  eta: 0:20:22    time: 4.0675  data: 0.0372  max mem: 8435
+Test:  [250/500]  eta: 0:16:58    time: 4.0734  data: 0.0372  max mem: 8435
+Test:  [300/500]  eta: 0:13:34    time: 4.0593  data: 0.0360  max mem: 8435
+Test:  [350/500]  eta: 0:10:10    time: 4.0592  data: 0.0355  max mem: 8435
+Test:  [400/500]  eta: 0:06:46    time: 4.0604  data: 0.0365  max mem: 8435
+Test:  [450/500]  eta: 0:03:23    time: 4.0676  data: 0.0354  max mem: 8435
+Test:  [499/500]  eta: 0:00:04    time: 4.0722  data: 0.0392  max mem: 8435
+Test: Total time: 0:33:54 (4.0692 s / it)
+(biggan) acc: 98.78; ap: 97.95; racc: 97.80; facc: 99.75;
+Test:  [  0/676]  eta: 1:15:52    time: 6.7346  data: 2.9118  max mem: 8435
+Test:  [ 50/676]  eta: 0:42:35    time: 4.0333  data: 0.0300  max mem: 8435
+Test:  [100/676]  eta: 0:38:58    time: 4.0397  data: 0.0308  max mem: 8435
+Test:  [150/676]  eta: 0:35:32    time: 4.0416  data: 0.0313  max mem: 8435
+Test:  [200/676]  eta: 0:32:08    time: 4.0491  data: 0.0303  max mem: 8435
+Test:  [250/676]  eta: 0:28:46    time: 4.0702  data: 0.0357  max mem: 8435
+Test:  [300/676]  eta: 0:25:25    time: 4.0810  data: 0.0380  max mem: 8435
+Test:  [350/676]  eta: 0:22:03    time: 4.0795  data: 0.0363  max mem: 8435
+Test:  [400/676]  eta: 0:18:41    time: 4.0736  data: 0.0361  max mem: 8435
+Test:  [450/676]  eta: 0:15:18    time: 4.0676  data: 0.0364  max mem: 8435
+Test:  [500/676]  eta: 0:11:55    time: 4.0684  data: 0.0366  max mem: 8435
+Test:  [550/676]  eta: 0:08:32    time: 4.0709  data: 0.0363  max mem: 8435
+Test:  [600/676]  eta: 0:05:08    time: 4.0678  data: 0.0366  max mem: 8435
+Test:  [650/676]  eta: 0:01:45    time: 4.0685  data: 0.0365  max mem: 8435
+Test:  [675/676]  eta: 0:00:04    time: 4.0729  data: 0.0366  max mem: 8435
+Test: Total time: 0:45:48 (4.0653 s / it)
+(deepfake) acc: 95.95; ap: 97.11; racc: 98.89; facc: 92.99;
+Test:  [   0/1250]  eta: 2:35:16    time: 7.4529  data: 3.4661  max mem: 8435
+Test:  [  50/1250]  eta: 1:22:20    time: 4.0626  data: 0.0340  max mem: 8435
+Test:  [ 100/1250]  eta: 1:18:23    time: 4.0626  data: 0.0342  max mem: 8435

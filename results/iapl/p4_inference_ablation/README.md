@@ -1618,6 +1618,15 @@ match both predecessors exactly. Clean bottleneck latency is 4,063.99 ms/image,
 no actual runtime error. Snapshot-copy and local summary diagnostic failures
 are preserved in the manifest; none altered the running experiment.
 
+The 11:23 clean snapshot contains five domains and a 97.0445% Acc / 96.6370%
+AP mean. Relative to the same domains from steps2, Acc is +0.0539 point and AP
+is -0.4876 point; relative to steps1, Acc is +0.0951 point and AP is -1.2249
+points. All sampler index and label sequences match. Aggregate bottleneck
+latency is 4,064.40 ms/image, 1.490x steps2 and 2.761x steps1, with unchanged
+8,437.55 MiB peak allocation. All eight ranks remain healthy and clean while
+`gaugan` runs. The small Acc gain does not hide the AP regression; both are
+preserved and the full run continues.
+
 At 01:24 on August 5 the same PIDs have run for 8:23 and still hold
 4,400/2,150 MiB; A6000 is 6,578 MiB/99%. The other hosts remain idle, the
 3090 SSHFS is read-only, and steps3 output is absent everywhere. No external

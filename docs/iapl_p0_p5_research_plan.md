@@ -1598,6 +1598,14 @@ Acc +0.3446 点、AP -2.1616 点；相对 steps1，Acc +0.7832 点、AP -4.4287 
 `KeyError: labels` 三项诊断失败均已保留并修正，没有修改远端实验。结果不好也
 不跳过，继续跑完 19 域，P5 仍不启动。
 
+11:23 干净四小时快照包含 `crn`、`cyclegan`、`dalle`、`biggan`、
+`deepfake` 五域，均值为 97.0445% Acc / 96.6370% AP。相对 steps2 同域，
+Acc +0.0539 点、AP -0.4876 点；相对 steps1，Acc +0.0951 点、AP -1.2249
+点。所有 sampler 索引和标签序列一致。五域聚合瓶颈延迟 4,064.40 ms/image，
+为 steps2 的 1.490 倍、steps1 的 2.761 倍，峰值分配仍为 8,437.55 MiB。
+三机八 ranks 继续满载健康，当前运行 `gaugan`。小幅 Acc 增益不掩盖 AP 下降，
+正负结果均保留，继续跑全量且不启动 P5。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
