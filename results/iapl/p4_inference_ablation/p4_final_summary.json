@@ -1,0 +1,55 @@
+{
+  "experiment": "P4 IAPL inference ablations",
+  "status": "completed_and_audited",
+  "completed_at": "2026-08-05T20:24:49+08:00",
+  "variants_completed": 11,
+  "dataset": {
+    "name": "UniversalFakeDetect public release",
+    "domains": 19,
+    "unique_images": 88353,
+    "seed": 100,
+    "world_size": 8
+  },
+  "baseline": {
+    "variant": "baseline",
+    "views": 32,
+    "tta_steps": 2,
+    "selection_count": 6,
+    "entropy": "averaged",
+    "ois": true
+  },
+  "curve_columns": {
+    "metrics": "Full 19-domain macro means; valid for every row.",
+    "matched_fourteen_domain_latency": "Bottleneck-rank latency on the first 14 domains shared by every run.",
+    "timing_usable": "False when an external A6000 process overlapped any part of the matched timing interval.",
+    "rank_memory": "Maximum PyTorch CUDA allocation/reservation across ranks."
+  },
+  "variants": [
+    {"order": 1, "variant": "views8", "views": 8, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "accuracy": 0.9560065710654141, "average_precision": 0.9818846477566895, "real_accuracy": 0.9725291660012402, "fake_accuracy": 0.9394464375696654, "latency_ms": 892.0464171287562, "latency_ratio_to_baseline": 0.3269616121457577, "unique_images_per_second": 8.968143188949433, "peak_allocated_mib": 3533.837890625, "peak_reserved_mib": 3836.0, "timing_usable": true},
+    {"order": 2, "variant": "views16", "views": 16, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "accuracy": 0.9559990229165333, "average_precision": 0.9768852498856598, "real_accuracy": 0.9682490077658792, "fake_accuracy": 0.9437248776084016, "latency_ms": 1522.0372882151753, "latency_ratio_to_baseline": 0.557872052333978, "unique_images_per_second": 5.256113015063671, "peak_allocated_mib": 5168.45947265625, "peak_reserved_mib": 5504.0, "timing_usable": true},
+    {"order": 3, "variant": "steps1", "views": 32, "tta_steps": 1, "selection_count": 6, "entropy": "averaged", "ois": true, "accuracy": 0.9550639206133632, "average_precision": 0.9783912338521367, "real_accuracy": 0.9622341634004739, "fake_accuracy": 0.9478785948233699, "latency_ms": 1463.4250865343884, "latency_ratio_to_baseline": 0.5363889326386535, "unique_images_per_second": 5.466627621469308, "peak_allocated_mib": 8437.5458984375, "peak_reserved_mib": 8776.0, "timing_usable": true},
+    {"order": 4, "variant": "ois_off", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": false, "accuracy": 0.9466411639233027, "average_precision": 0.9828704053327227, "real_accuracy": 0.9684985534076054, "fake_accuracy": 0.9246800501159048, "latency_ms": 2680.549787107124, "latency_ratio_to_baseline": 0.9825014292983923, "unique_images_per_second": 2.9844623809929973, "peak_allocated_mib": 8437.54443359375, "peak_reserved_mib": 8776.0, "timing_usable": true, "qualification": "External A6000 allocation appeared only after the matched first-14-domain interval."},
+    {"order": 5, "variant": "select2", "views": 32, "tta_steps": 2, "selection_count": 2, "entropy": "averaged", "ois": true, "accuracy": 0.9511623337438609, "average_precision": 0.9682061659300476, "real_accuracy": 0.9508665349981028, "fake_accuracy": 0.9514509424172158, "latency_ms": 2713.8037102725148, "latency_ratio_to_baseline": 0.9946899837497668, "unique_images_per_second": 2.9478919089533773, "peak_allocated_mib": 8437.5458984375, "peak_reserved_mib": 8776.0, "timing_usable": true},
+    {"order": 6, "variant": "select4", "views": 32, "tta_steps": 2, "selection_count": 4, "entropy": "averaged", "ois": true, "accuracy": 0.9542303188703385, "average_precision": 0.9714247083709144, "real_accuracy": 0.9594662403238818, "fake_accuracy": 0.9489825905699805, "latency_ms": 2718.714569797443, "latency_ratio_to_baseline": 0.9964899602044227, "unique_images_per_second": 2.942567082573894, "peak_allocated_mib": 8437.5458984375, "peak_reserved_mib": 8776.0, "timing_usable": false, "qualification": "External A6000 overlap began at imle inside the matched interval."},
+    {"order": 7, "variant": "pointwise", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "pointwise", "ois": true, "accuracy": 0.950717587850045, "average_precision": 0.9674799274184949, "real_accuracy": 0.948853403886647, "fake_accuracy": 0.9525841732775386, "latency_ms": 2768.2991173522523, "latency_ratio_to_baseline": 1.0146641754635581, "unique_images_per_second": 2.8898611244191064, "peak_allocated_mib": 8437.5458984375, "peak_reserved_mib": 8776.0, "timing_usable": false, "qualification": "External A6000 overlap began during ldm_100 inside the matched interval."},
+    {"order": 8, "variant": "baseline", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "accuracy": 0.9550230481923911, "average_precision": 0.9724551843862761, "real_accuracy": 0.9628141931631257, "fake_accuracy": 0.9472169749648157, "latency_ms": 2728.29097971014, "latency_ratio_to_baseline": 1.0, "unique_images_per_second": 2.932238555012904, "peak_allocated_mib": 8437.5458984375, "peak_reserved_mib": 8776.0, "timing_usable": true, "qualification": "Only the first fourteen domains are used because external jobs overlapped the remaining five."},
+    {"order": 9, "variant": "select8", "views": 32, "tta_steps": 2, "selection_count": 8, "entropy": "averaged", "ois": true, "accuracy": 0.9553060490773042, "average_precision": 0.9739040622391023, "real_accuracy": 0.9644116301976343, "fake_accuracy": 0.9461827118603805, "latency_ms": 2774.096061290409, "latency_ratio_to_baseline": 1.016788928278147, "unique_images_per_second": 2.8838222697589964, "peak_allocated_mib": 8437.3583984375, "peak_reserved_mib": 8776.0, "timing_usable": true},
+    {"order": 10, "variant": "select12", "views": 32, "tta_steps": 2, "selection_count": 12, "entropy": "averaged", "ois": true, "accuracy": 0.9557991802968846, "average_precision": 0.9746573591889933, "real_accuracy": 0.9663614873903804, "fake_accuracy": 0.9452168136483161, "latency_ms": 2902.2856779839526, "latency_ratio_to_baseline": 1.0637742453307888, "unique_images_per_second": 2.756448154186231, "peak_allocated_mib": 8437.3583984375, "peak_reserved_mib": 8776.0, "timing_usable": false, "qualification": "External A6000 jobs overlapped from late crn through completion."},
+    {"order": 11, "variant": "steps3", "views": 32, "tta_steps": 3, "selection_count": 6, "entropy": "averaged", "ois": true, "accuracy": 0.9540992852937561, "average_precision": 0.9691510606049188, "real_accuracy": 0.9622955137806537, "fake_accuracy": 0.9458870284873708, "latency_ms": 4052.0367536154727, "latency_ratio_to_baseline": 1.4851922994100761, "unique_images_per_second": 1.9743157543825132, "peak_allocated_mib": 8437.5458984375, "peak_reserved_mib": 8772.0, "timing_usable": true}
+  ],
+  "findings": {
+    "views": "Eight views is the Pareto point in this seed: +0.10 Acc and +0.94 AP points versus baseline, 67.3% lower latency, and 58.1% lower rank allocation. The changed random-view stream prevents claiming a universal metric gain.",
+    "steps": "One step is effectively tied in Acc, improves AP by 0.59 point, and cuts latency 46.4% versus two steps. Three steps loses 0.09 Acc and 0.33 AP point while adding 48.5% latency. Extra tuning steps are not justified.",
+    "selection": "Two views is too aggressive. Four nearly matches six. Eight gives a clean +0.03 Acc/+0.14 AP point gain for +1.7% latency. Twelve gives only another +0.05/+0.08 point over eight and its timing is contaminated; eight is the practical selected-view setting.",
+    "entropy": "Averaged entropy beats pointwise by 0.43 Acc and 0.50 AP points, mainly through real-image Accuracy.",
+    "ois": "OIS improves Acc by 0.84 and fake Accuracy by 2.25 points but reduces AP by 1.04 points versus OIS-off. Keep it for balanced thresholded Accuracy, not as an AP-maximizing claim.",
+    "memory": "Rank allocation scales strongly with view count: 3.53/5.17/8.44 GiB for 8/16/32 views. Step and selection-count changes do not materially change the 32-view allocation peak."
+  },
+  "failures_preserved": {
+    "steps1": ["3090 NVMe failure", "4090-1 network outage"],
+    "select8": ["3070x2-backed SSHFS source reboot causing rank4/5 SIGBUS"],
+    "runtime_qualification": ["ois_off late allocation", "select4 shared GPU", "pointwise shared GPU", "baseline late shared GPU", "select12 shared GPU"],
+    "post_hoc_run_selection": false
+  },
+  "decision": "P4 completion standard is met. Use views8 for the best measured efficiency, steps1 for the strongest 32-view step setting, averaged entropy, OIS for balanced Accuracy, and selection8 as the practical selected-view count. P5 may begin only after this audit is committed and pushed."
+}

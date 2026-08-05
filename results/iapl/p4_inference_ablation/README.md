@@ -1646,6 +1646,42 @@ ranks, the read-only 3090 SSHFS, and the isolated 4090-2 driver remain healthy
 while `ldm_200` runs. The third step still does not offset its roughly 49%
 latency cost; the negative result is archived and the full run continues.
 
+Steps3 completed all 19 domains at 19:53 with 95.4099% Acc / 96.9151% AP and
+96.2296%/94.5887% real/fake Accuracy. It trails the profiled steps2 baseline
+by 0.0924 Acc and 0.3304 AP point, and steps1 by 0.0965 Acc and 0.9240 AP
+point. All 88,353 unique indices and labels match both references. The clean
+run reaches 1.9759 images/s, 4,048.73 ms/image, and 8,437.55 MiB peak rank
+allocation; on the matched first fourteen domains it takes 1.485x baseline
+latency and 2.769x steps1 latency. All ranks exited, no actual runtime error
+was found, 3090 SSHFS remained read-only, and post-run memory returned to
+17/106/283 MiB. The third step is therefore a preserved negative result.
+
+All eleven ordered P4 variants are now complete and audited. Full metrics are
+valid in every row; timing marked `excluded` was preserved but omitted from
+clean speed conclusions because an external A6000 process overlapped the
+matched first-fourteen-domain interval.
+
+| Variant | Acc | AP | Latency ms | vs baseline | Allocated MiB | Timing |
+|---|---:|---:|---:|---:|---:|---|
+| views8 | 95.6007 | 98.1885 | 892.05 | 0.327x | 3,533.84 | clean |
+| views16 | 95.5999 | 97.6885 | 1,522.04 | 0.558x | 5,168.46 | clean |
+| steps1 | 95.5064 | 97.8391 | 1,463.43 | 0.536x | 8,437.55 | clean |
+| ois_off | 94.6641 | 98.2870 | 2,680.55 | 0.983x | 8,437.54 | clean-14 |
+| select2 | 95.1162 | 96.8206 | 2,713.80 | 0.995x | 8,437.55 | clean |
+| select4 | 95.4230 | 97.1425 | 2,718.71 | 0.996x | 8,437.55 | excluded |
+| pointwise | 95.0718 | 96.7480 | 2,768.30 | 1.015x | 8,437.55 | excluded |
+| baseline | 95.5023 | 97.2455 | 2,728.29 | 1.000x | 8,437.55 | clean-14 |
+| select8 | 95.5306 | 97.3904 | 2,774.10 | 1.017x | 8,437.36 | clean |
+| select12 | 95.5799 | 97.4657 | 2,902.29 | 1.064x | 8,437.36 | excluded |
+| steps3 | 95.4099 | 96.9151 | 4,052.04 | 1.485x | 8,437.55 | clean |
+
+The practical choices are views8 for efficiency, steps1 for the strongest
+32-view step setting, averaged entropy, OIS when balanced thresholded Accuracy
+matters, and selection8 as the modest clean selected-view improvement. P4's
+completion standard is met; the consolidated machine-readable audit is
+`p4_final_summary.json`, and P5 is the next strict-order stage after this audit
+is committed and pushed.
+
 At 01:24 on August 5 the same PIDs have run for 8:23 and still hold
 4,400/2,150 MiB; A6000 is 6,578 MiB/99%. The other hosts remain idle, the
 3090 SSHFS is read-only, and steps3 output is absent everywhere. No external

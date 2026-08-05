@@ -1,6 +1,7 @@
 {
   "experiment": "P4 IAPL inference ablations",
-  "status": "running",
+  "status": "completed_and_audited",
+  "completed_at": "2026-08-05T20:24:49+08:00",
   "prepared_at": "2026-07-28T13:20:00+08:00",
   "dataset": "UniversalFakeDetect public 19-domain release",
   "checkpoint": "released ProGAN checkpoint",
@@ -129,9 +130,9 @@
     {"order": 6, "variant": "select4", "views": 32, "tta_steps": 2, "selection_count": 4, "entropy": "averaged", "ois": true, "status": "completed", "started_at": "2026-07-30T11:59:15+08:00", "completed_at": "2026-07-30T20:23:14+08:00", "preflight_status": "passed", "preflight_checked_at": "2026-07-30T11:58:32+08:00", "launch_audit": "results/iapl/p4_inference_ablation/select4/launch_20260730.json", "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/select4", "result": "results/iapl/p4_inference_ablation/select4/final", "profiling_note": "Predictions and rank-local memory are valid; raw A6000 memory and timing from imle onward are shared-process contaminated."},
     {"order": 7, "variant": "pointwise", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "pointwise", "ois": true, "status": "completed", "started_at": "2026-07-31T05:53:43+08:00", "completed_at": "2026-07-31T14:25:20+08:00", "preflight_status": "passed_after_clean_gpu_wait", "preflight_wait_audit": "results/iapl/p4_inference_ablation/pointwise/preflight_wait_20260730_2027.json", "launch_audit": "results/iapl/p4_inference_ablation/pointwise/launch_20260731.json", "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/pointwise", "result": "results/iapl/p4_inference_ablation/pointwise/final", "profiling_note": "Predictions and rank-local memory are valid; raw A6000 memory from 11:34 and timing from late ldm_100 onward are shared-process contaminated. Direct external SM use was observed during progan, and the process remained resident through stylegan."},
     {"order": 8, "variant": "baseline", "views": 32, "tta_steps": 2, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "completed", "started_at": "2026-08-01T04:22:13+08:00", "completed_at": "2026-08-01T12:49:12+08:00", "preflight_status": "passed_after_clean_gpu_wait", "preflight_checked_at": "2026-08-01T04:22:13+08:00", "prelaunch_wait_audit": "results/iapl/p4_inference_ablation/baseline/preflight_wait_20260801_0349.json", "launch_audit": "results/iapl/p4_inference_ablation/baseline/launch_20260801.json", "runtime_audit": "results/iapl/p4_inference_ablation/baseline/runtime_audit_20260801_1049_shared_a6000.json", "direct_contention_audit": "results/iapl/p4_inference_ablation/baseline/runtime_audit_20260801_1119_direct_a6000_contention.json", "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/baseline", "result": "results/iapl/p4_inference_ablation/baseline/final", "profiling_note": "Predictions and rank-local memory are valid. The first fourteen completed domains are clean. Two separate processes appeared during progan, and direct external SM use was observed during stargan and stylegan; use only the first fourteen domains as the clean timing boundary and qualify raw A6000 memory from 10:46:51."},
-    {"order": 9, "variant": "select8", "views": 32, "tta_steps": 2, "selection_count": 8, "entropy": "averaged", "ois": true, "status": "running", "started_at": "2026-08-02T09:26:14+08:00", "preflight_status": "passed_after_clean_gpu_wait", "preflight_checked_at": "2026-08-02T09:25:52+08:00", "prelaunch_wait_audit": "results/iapl/p4_inference_ablation/select8/preflight_wait_20260802_0922.json", "launch_audit": "results/iapl/p4_inference_ablation/select8/launch_20260802.json", "runtime_audit": "results/iapl/p4_inference_ablation/select8/runtime_audit_20260802_1124_shared_a6000.json", "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/select8", "profiling_note": "The first three domains are clean. Two external A6000 processes appeared during cyclegan; preserve predictions and rank-local memory, qualify raw A6000 memory from 11:21:25, and conservatively qualify timing from cyclegan onward."},
-    {"order": 10, "variant": "select12", "views": 32, "tta_steps": 2, "selection_count": 12, "entropy": "averaged", "ois": true, "status": "pending"},
-    {"order": 11, "variant": "steps3", "views": 32, "tta_steps": 3, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "pending"}
+    {"order": 9, "variant": "select8", "views": 32, "tta_steps": 2, "selection_count": 8, "entropy": "averaged", "ois": true, "status": "completed", "attempt": 2, "started_at": "2026-08-03T05:54:04+08:00", "completed_at": "2026-08-03T14:25:43+08:00", "preflight_status": "passed_after_clean_gpu_wait", "failed_attempt": "results/iapl/p4_inference_ablation/select8/attempt1_failure_20260802_1220_3090_sshfs_sigbus", "launch_audit": "results/iapl/p4_inference_ablation/select8/launch_attempt2_20260803.json", "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/select8_attempt2", "profiling_note": "Attempt 2 is a clean full rerun; no attempt-1 domains were spliced.", "result": "results/iapl/p4_inference_ablation/select8/final"},
+    {"order": 10, "variant": "select12", "views": 32, "tta_steps": 2, "selection_count": 12, "entropy": "averaged", "ois": true, "status": "completed", "started_at": "2026-08-03T15:03:56+08:00", "completed_at": "2026-08-04T00:00:07+08:00", "launch_audit": "results/iapl/p4_inference_ablation/select12/launch_20260803.json", "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/select12", "profiling_note": "Predictions and rank-local memory are valid; external A6000 jobs invalidate the full-run latency and raw host-memory curve.", "result": "results/iapl/p4_inference_ablation/select12/final"},
+    {"order": 11, "variant": "steps3", "views": 32, "tta_steps": 3, "selection_count": 6, "entropy": "averaged", "ois": true, "status": "completed", "started_at": "2026-08-05T07:26:14+08:00", "completed_at": "2026-08-05T19:53:47+08:00", "launch_audit": "results/iapl/p4_inference_ablation/steps3/launch_20260805.json", "remote_output": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation/steps3", "profiling_note": "The full run is clean; no external compute process was observed on the A6000 bottleneck.", "result": "results/iapl/p4_inference_ablation/steps3/final"}
   ],
   "paper_reference": {
     "url": "https://arxiv.org/pdf/2508.01603",
@@ -140,6 +141,7 @@
     "implementation_details": "Nv=32 views, m=6 selected views, T=2, and learning rate 5e-3."
   },
   "artifacts": {
+    "final_summary": "results/iapl/p4_inference_ablation/p4_final_summary.json",
     "runtime_patch": "patches/iapl-a173e77-p4-inference-ablation.patch",
     "base_launcher": "scripts/run_iapl_manual_ranks.sh",
     "variant_launcher": "scripts/run_iapl_p4_ufd_ablation_node.sh",
@@ -202,7 +204,8 @@
     "failure_snapshots": [
       "results/iapl/p4_inference_ablation/steps1/failure_20260729_0126_nvme",
       "results/iapl/p4_inference_ablation/steps1/attempt2/stall_20260729_0648_4090_1_unreachable",
-      "results/iapl/p4_inference_ablation/steps1/attempt2/failure_20260729_0809_4090_1_outage"
+      "results/iapl/p4_inference_ablation/steps1/attempt2/failure_20260729_0809_4090_1_outage",
+      "results/iapl/p4_inference_ablation/select8/attempt1_failure_20260802_1220_3090_sshfs_sigbus"
     ],
     "launch_audits": [
       "results/iapl/p4_inference_ablation/steps1/attempt2_launch_20260729.json",
@@ -211,7 +214,10 @@
       "results/iapl/p4_inference_ablation/select2/launch_20260730.json",
       "results/iapl/p4_inference_ablation/select4/launch_20260730.json",
       "results/iapl/p4_inference_ablation/pointwise/launch_20260731.json",
-      "results/iapl/p4_inference_ablation/baseline/launch_20260801.json"
+      "results/iapl/p4_inference_ablation/baseline/launch_20260801.json",
+      "results/iapl/p4_inference_ablation/select8/launch_attempt2_20260803.json",
+      "results/iapl/p4_inference_ablation/select12/launch_20260803.json",
+      "results/iapl/p4_inference_ablation/steps3/launch_20260805.json"
     ],
     "runtime_audits": [
       "results/iapl/p4_inference_ablation/ois_off/runtime_audit_20260729_2018.json",
@@ -250,9 +256,12 @@
       "results/iapl/p4_inference_ablation/select2/final",
       "results/iapl/p4_inference_ablation/select4/final",
       "results/iapl/p4_inference_ablation/pointwise/final",
-      "results/iapl/p4_inference_ablation/baseline/final"
+      "results/iapl/p4_inference_ablation/baseline/final",
+      "results/iapl/p4_inference_ablation/select8/final",
+      "results/iapl/p4_inference_ablation/select12/final",
+      "results/iapl/p4_inference_ablation/steps3/final"
     ],
     "remote_output_root": "/home/yabin/ctta4aid-arrow/outputs/iapl_official/p4_ufd_ablation"
   },
-  "completion": "All eleven runs are preserved, including failures. Produce performance, latency, throughput, per-rank peak allocation, and host peak VRAM curves against the profiled baseline."
+  "completion": "All eleven runs and all failed attempts are preserved and audited. The final performance, matched latency/throughput, rank-memory, timing-qualification, and conclusion table is stored in p4_final_summary.json. P5 is now the next strict-order stage."
 }

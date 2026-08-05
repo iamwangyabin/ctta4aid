@@ -1622,6 +1622,28 @@ Acc +0.0539 点、AP -0.4876 点；相对 steps1，Acc +0.0951 点、AP -1.2249
 `ldm_200`。第三步仍未带来可抵偿约 49% 延迟成本的指标收益；负结果已归档，
 继续完整 19 域且不启动 P5。
 
+19:53 `steps3` 完成全部 19 域，最终为 95.4099% Acc / 96.9151% AP，
+real/fake Accuracy 为 96.2296%/94.5887%。相对 profiled steps2，Acc/AP
+下降 0.0924/0.3304 点；相对 steps1 下降 0.0965/0.9240 点；相对论文 Table 9
+的 T=3 则 Acc 高 0.4699 点、AP 低 1.8849 点。19 个预测文件覆盖 88,353 个
+唯一索引，分布式 padding 后 88,376 项，索引和标签与 steps1/steps2 全部一致。
+三机八 ranks 与 launcher 均正常退出，日志无实际错误，3090 SSHFS 全程只读；
+运行后显存回落到 17/106/283 MiB。全程未观测到额外 A6000 compute process，
+因此 4,048.73 ms/image、1.9759 images/s 和 8,437.55 MiB rank-local 峰值均为
+干净结果。按共同前十四域比较，steps3 延迟为 steps2 的 1.485 倍、steps1 的
+2.769 倍，第三步没有收益。
+
+P4 的 11 个有序变体现已全部完成并审计，完整曲线写入
+`results/iapl/p4_inference_ablation/p4_final_summary.json`。主要结论是：8 views
+在本 seed 上同时获得最高效率和更高 AP，延迟仅为 32-view baseline 的 32.7%，
+rank 显存从 8.44 GiB 降到 3.53 GiB；32 views 下 steps1 比 steps2 快 46.4%，
+AP 高 0.5936 点，而 steps3 更慢且指标更差；selection 2 明显不足，4 近似 6，
+8 在干净计时下以 +1.7% 延迟换 +0.0283/+0.1449 Acc/AP 点，12 的额外收益很小
+且耗时受共享进程污染；averaged entropy 比 pointwise 高 0.4305/0.4975 点；OIS
+提高 0.8382 Acc 点和 2.2537 fake-Accuracy 点，但 OIS-off 的 AP 高 1.0415 点。
+所有硬件故障、SSHFS SIGBUS 和共享平台污染均保留，没有拼接失败 run 或事后筛选。
+P4 完成标准已经达到；最终审计提交推送后，严格顺序进入 P5。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
