@@ -1636,6 +1636,16 @@ eight ranks remain clean and healthy while the long `imle` domain runs. This
 mid-run result gives no evidence that the third adaptation step pays for its
 cost, but the full run continues unchanged.
 
+The 15:53 clean eight-hour snapshot contains twelve domains and a 95.2256%
+Acc / 97.0646% AP mean. Relative to the same domains from steps2, Acc is
+-0.0199 point and AP is -0.4257 point; relative to steps1, Acc is +0.0178
+point and AP is -1.0697 points. All sampler index and label sequences match.
+Aggregate bottleneck latency is 4,051.88 ms/image, 1.486x steps2 and 2.767x
+steps1, with unchanged 8,437.55 MiB rank-local peak allocation. All eight
+ranks, the read-only 3090 SSHFS, and the isolated 4090-2 driver remain healthy
+while `ldm_200` runs. The third step still does not offset its roughly 49%
+latency cost; the negative result is archived and the full run continues.
+
 At 01:24 on August 5 the same PIDs have run for 8:23 and still hold
 4,400/2,150 MiB; A6000 is 6,578 MiB/99%. The other hosts remain idle, the
 3090 SSHFS is read-only, and steps3 output is absent everywhere. No external
