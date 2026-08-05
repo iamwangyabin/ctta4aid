@@ -1750,3 +1750,27 @@ PID 为 2274275/1688238/3462617。首次健康检查主进程均存活、effecti
 均已写出，已完成方法数为 1/1/2；3090 SSHFS 仍只读且未访问 `/data`。全部三 seed
 七方法的 online/final-holdout/forgetting、manifest、checkpoint 与 exit 审计完成前，
 不做 P5 最终汇总。
+
+02:36:50--02:44:34，continual seed2/seed1/seed0 依次以 exit 0 完成，wall time
+为 7:16.16/11:55.63/15:53.47。每个 seed 的七方法均包含 12,000 online 样本、
+4,000 个互斥 final-holdout 样本和完整 36 行三角 holdout matrix。审计独立重算
+online/final 指标与 forgetting，逐项验证样本数、batch、有限数值、checkpoint，
+并确认每个 seed 内七方法的 online 与 final manifest 分别字节完全一致。
+
+三 seed continual 的 Source/TENT/EATA/CoTTA/RoTTA/LAME/T2A online pooled AUC
+为 84.162/79.217/81.766/59.507/80.779/82.532/77.940%，final pooled AUC 为
+84.214/78.478/82.295/52.456/83.898/82.502/77.918%，平均 forgetting 为
+0.000/1.745/0.000/5.296/2.881/0.000/2.003 点。Source 保持最佳 online/final
+排序指标；RoTTA 的 final AUC 接近 Source 但 A6000 峰值约 11 GiB；EATA 是最稳定
+的有更新方法；CoTTA 的明显崩溃和方差原样保留。
+
+最终环境复核第一次发现 runtime tar 从 macOS 带入了每机 212 个 `._*` AppleDouble
+文件，导致 YAML method 集合多出伪文件、compileall 报 null-byte 错误。三机均先
+按 SHA-256 归档再清理，剩余数为零；A6000 `cl` 随后 59 tests 与 compileall
+全部通过。3090 精简 runtime 不含 tests，首次 discovery 得到 0 tests/Can't list
+tests，该失败保留；随后按实际 src/scripts/config inventory 编译复核通过。4090-2
+任务 exit 0 且无项目进程，但 post-run NVML 因 userspace 580.173 与 kernel
+580.159.03 不匹配仍失败，此基础设施问题不隐藏。
+
+`results/p5_controlled_ctta/p5_final_summary.json` 汇总全部哈希、失败和结论。P0--P5
+至此严格按序全部完成并审计；周期监控应停止，后续研究从新的明确假设开始。

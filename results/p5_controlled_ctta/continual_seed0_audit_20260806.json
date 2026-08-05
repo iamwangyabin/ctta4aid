@@ -1,0 +1,518 @@
+{
+  "stage": "P5",
+  "experiment": "continual_stream_7_methods",
+  "seed": 0,
+  "status": "completed_and_audited",
+  "root": "/home/yabin/ctta4aid-arrow/outputs/p5/continual/seed0",
+  "methods": [
+    "source",
+    "tent",
+    "eata",
+    "cotta",
+    "rotta",
+    "lame",
+    "t2a"
+  ],
+  "stream": [
+    "biggan",
+    "cyclegan",
+    "stylegan",
+    "gaugan",
+    "guided",
+    "glide_100_27",
+    "ldm_200",
+    "dalle"
+  ],
+  "method_results": 7,
+  "expected_method_results": 7,
+  "online_samples_per_method": 12000,
+  "final_holdout_samples_per_method": 4000,
+  "holdout_matrix_rows_per_method": 36,
+  "checkpoint_sha256": "57d3e1ea43b914226449ecb5d4267d86324002f5b0210bad5a7667673acd3840",
+  "recorded_checkpoint_hashes": [
+    "57d3e1ea43b914226449ecb5d4267d86324002f5b0210bad5a7667673acd3840"
+  ],
+  "exact_online_manifest_equality": true,
+  "exact_final_holdout_manifest_equality": true,
+  "method_metrics": {
+    "source": {
+      "online_pooled_auc": 0.8407601805555556,
+      "online_pooled_accuracy": 0.7245833333333334,
+      "online_average_domain_auc": 0.8342943333333334,
+      "final_pooled_auc": 0.8431398750000001,
+      "final_pooled_accuracy": 0.7295,
+      "final_average_domain_auc": 0.833098,
+      "average_forgetting": 0.0,
+      "final_by_domain": {
+        "biggan": {
+          "auc": 0.826328,
+          "accuracy": 0.712,
+          "balanced_accuracy": 0.712,
+          "samples": 500
+        },
+        "cyclegan": {
+          "auc": 0.88776,
+          "accuracy": 0.76,
+          "balanced_accuracy": 0.76,
+          "samples": 500
+        },
+        "stylegan": {
+          "auc": 0.8902079999999999,
+          "accuracy": 0.838,
+          "balanced_accuracy": 0.8380000000000001,
+          "samples": 500
+        },
+        "gaugan": {
+          "auc": 0.586896,
+          "accuracy": 0.494,
+          "balanced_accuracy": 0.494,
+          "samples": 500
+        },
+        "guided": {
+          "auc": 0.8398000000000001,
+          "accuracy": 0.748,
+          "balanced_accuracy": 0.748,
+          "samples": 500
+        },
+        "glide_100_27": {
+          "auc": 0.9757120000000001,
+          "accuracy": 0.894,
+          "balanced_accuracy": 0.894,
+          "samples": 500
+        },
+        "ldm_200": {
+          "auc": 0.9645919999999999,
+          "accuracy": 0.836,
+          "balanced_accuracy": 0.8360000000000001,
+          "samples": 500
+        },
+        "dalle": {
+          "auc": 0.693488,
+          "accuracy": 0.554,
+          "balanced_accuracy": 0.554,
+          "samples": 500
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 12.955904245671341,
+        "mean_adapt_ms_per_batch": 0.0235928238637032,
+        "mean_total_ms_per_batch": 12.979497069535045,
+        "peak_memory_mb": 363.5830078125,
+        "batches": 752
+      }
+    },
+    "tent": {
+      "online_pooled_auc": 0.7955467083333333,
+      "online_pooled_accuracy": 0.7264166666666667,
+      "online_average_domain_auc": 0.783516,
+      "final_pooled_auc": 0.789091,
+      "final_pooled_accuracy": 0.703,
+      "final_average_domain_auc": 0.77574,
+      "average_forgetting": 0.020137142857142836,
+      "final_by_domain": {
+        "biggan": {
+          "auc": 0.720272,
+          "accuracy": 0.636,
+          "balanced_accuracy": 0.636,
+          "samples": 500
+        },
+        "cyclegan": {
+          "auc": 0.88736,
+          "accuracy": 0.756,
+          "balanced_accuracy": 0.756,
+          "samples": 500
+        },
+        "stylegan": {
+          "auc": 0.883552,
+          "accuracy": 0.842,
+          "balanced_accuracy": 0.842,
+          "samples": 500
+        },
+        "gaugan": {
+          "auc": 0.5265759999999999,
+          "accuracy": 0.53,
+          "balanced_accuracy": 0.53,
+          "samples": 500
+        },
+        "guided": {
+          "auc": 0.802536,
+          "accuracy": 0.724,
+          "balanced_accuracy": 0.724,
+          "samples": 500
+        },
+        "glide_100_27": {
+          "auc": 0.8937120000000001,
+          "accuracy": 0.762,
+          "balanced_accuracy": 0.762,
+          "samples": 500
+        },
+        "ldm_200": {
+          "auc": 0.87192,
+          "accuracy": 0.736,
+          "balanced_accuracy": 0.736,
+          "samples": 500
+        },
+        "dalle": {
+          "auc": 0.6199920000000001,
+          "accuracy": 0.638,
+          "balanced_accuracy": 0.638,
+          "samples": 500
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 13.05640635775412,
+        "mean_adapt_ms_per_batch": 30.06135369836789,
+        "mean_total_ms_per_batch": 43.11776005612201,
+        "peak_memory_mb": 1628.1171875,
+        "batches": 752
+      }
+    },
+    "eata": {
+      "online_pooled_auc": 0.8161470000000001,
+      "online_pooled_accuracy": 0.7484166666666666,
+      "online_average_domain_auc": 0.8024804444444444,
+      "final_pooled_auc": 0.820497375,
+      "final_pooled_accuracy": 0.74475,
+      "final_average_domain_auc": 0.806322,
+      "average_forgetting": 0.0,
+      "final_by_domain": {
+        "biggan": {
+          "auc": 0.7299680000000002,
+          "accuracy": 0.672,
+          "balanced_accuracy": 0.6719999999999999,
+          "samples": 500
+        },
+        "cyclegan": {
+          "auc": 0.920504,
+          "accuracy": 0.816,
+          "balanced_accuracy": 0.8160000000000001,
+          "samples": 500
+        },
+        "stylegan": {
+          "auc": 0.890016,
+          "accuracy": 0.864,
+          "balanced_accuracy": 0.864,
+          "samples": 500
+        },
+        "gaugan": {
+          "auc": 0.5238240000000001,
+          "accuracy": 0.508,
+          "balanced_accuracy": 0.508,
+          "samples": 500
+        },
+        "guided": {
+          "auc": 0.779792,
+          "accuracy": 0.698,
+          "balanced_accuracy": 0.698,
+          "samples": 500
+        },
+        "glide_100_27": {
+          "auc": 0.925112,
+          "accuracy": 0.852,
+          "balanced_accuracy": 0.8520000000000001,
+          "samples": 500
+        },
+        "ldm_200": {
+          "auc": 0.9470639999999999,
+          "accuracy": 0.862,
+          "balanced_accuracy": 0.8620000000000001,
+          "samples": 500
+        },
+        "dalle": {
+          "auc": 0.734296,
+          "accuracy": 0.686,
+          "balanced_accuracy": 0.686,
+          "samples": 500
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 12.878575209624808,
+        "mean_adapt_ms_per_batch": 21.980254803759422,
+        "mean_total_ms_per_batch": 34.85883001338423,
+        "peak_memory_mb": 1633.75634765625,
+        "batches": 752
+      }
+    },
+    "cotta": {
+      "online_pooled_auc": 0.5287069305555556,
+      "online_pooled_accuracy": 0.5075833333333334,
+      "online_average_domain_auc": 0.512634,
+      "final_pooled_auc": 0.44352175000000005,
+      "final_pooled_accuracy": 0.451,
+      "final_average_domain_auc": 0.445056,
+      "average_forgetting": 0.05641028571428574,
+      "final_by_domain": {
+        "biggan": {
+          "auc": 0.454248,
+          "accuracy": 0.446,
+          "balanced_accuracy": 0.44599999999999995,
+          "samples": 500
+        },
+        "cyclegan": {
+          "auc": 0.474296,
+          "accuracy": 0.476,
+          "balanced_accuracy": 0.476,
+          "samples": 500
+        },
+        "stylegan": {
+          "auc": 0.514544,
+          "accuracy": 0.53,
+          "balanced_accuracy": 0.53,
+          "samples": 500
+        },
+        "gaugan": {
+          "auc": 0.36027200000000004,
+          "accuracy": 0.384,
+          "balanced_accuracy": 0.384,
+          "samples": 500
+        },
+        "guided": {
+          "auc": 0.552752,
+          "accuracy": 0.536,
+          "balanced_accuracy": 0.536,
+          "samples": 500
+        },
+        "glide_100_27": {
+          "auc": 0.32672,
+          "accuracy": 0.356,
+          "balanced_accuracy": 0.356,
+          "samples": 500
+        },
+        "ldm_200": {
+          "auc": 0.44222399999999995,
+          "accuracy": 0.43,
+          "balanced_accuracy": 0.43,
+          "samples": 500
+        },
+        "dalle": {
+          "auc": 0.4353919999999999,
+          "accuracy": 0.45,
+          "balanced_accuracy": 0.45,
+          "samples": 500
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 25.264834325656572,
+        "mean_adapt_ms_per_batch": 65.30215623206459,
+        "mean_total_ms_per_batch": 90.56699055772116,
+        "peak_memory_mb": 1940.77294921875,
+        "batches": 752
+      }
+    },
+    "rotta": {
+      "online_pooled_auc": 0.8049171944444444,
+      "online_pooled_accuracy": 0.73375,
+      "online_average_domain_auc": 0.8046791111111111,
+      "final_pooled_auc": 0.83369775,
+      "final_pooled_accuracy": 0.772,
+      "final_average_domain_auc": 0.830584,
+      "average_forgetting": 0.03555771428571429,
+      "final_by_domain": {
+        "biggan": {
+          "auc": 0.7691439999999999,
+          "accuracy": 0.696,
+          "balanced_accuracy": 0.696,
+          "samples": 500
+        },
+        "cyclegan": {
+          "auc": 0.868352,
+          "accuracy": 0.764,
+          "balanced_accuracy": 0.764,
+          "samples": 500
+        },
+        "stylegan": {
+          "auc": 0.8801439999999999,
+          "accuracy": 0.856,
+          "balanced_accuracy": 0.856,
+          "samples": 500
+        },
+        "gaugan": {
+          "auc": 0.5956800000000001,
+          "accuracy": 0.592,
+          "balanced_accuracy": 0.5920000000000001,
+          "samples": 500
+        },
+        "guided": {
+          "auc": 0.764192,
+          "accuracy": 0.692,
+          "balanced_accuracy": 0.692,
+          "samples": 500
+        },
+        "glide_100_27": {
+          "auc": 0.984672,
+          "accuracy": 0.932,
+          "balanced_accuracy": 0.9319999999999999,
+          "samples": 500
+        },
+        "ldm_200": {
+          "auc": 0.965976,
+          "accuracy": 0.91,
+          "balanced_accuracy": 0.9099999999999999,
+          "samples": 500
+        },
+        "dalle": {
+          "auc": 0.816512,
+          "accuracy": 0.734,
+          "balanced_accuracy": 0.734,
+          "samples": 500
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 19.498975767303218,
+        "mean_adapt_ms_per_batch": 90.4981024957143,
+        "mean_total_ms_per_batch": 109.99707826301753,
+        "peak_memory_mb": 11000.1259765625,
+        "batches": 752
+      }
+    },
+    "lame": {
+      "online_pooled_auc": 0.8249404166666667,
+      "online_pooled_accuracy": 0.68425,
+      "online_average_domain_auc": 0.8240965555555555,
+      "final_pooled_auc": 0.8252621250000001,
+      "final_pooled_accuracy": 0.6885,
+      "final_average_domain_auc": 0.820496,
+      "average_forgetting": 0.0,
+      "final_by_domain": {
+        "biggan": {
+          "auc": 0.8206399999999999,
+          "accuracy": 0.622,
+          "balanced_accuracy": 0.622,
+          "samples": 500
+        },
+        "cyclegan": {
+          "auc": 0.873776,
+          "accuracy": 0.698,
+          "balanced_accuracy": 0.698,
+          "samples": 500
+        },
+        "stylegan": {
+          "auc": 0.8621439999999998,
+          "accuracy": 0.83,
+          "balanced_accuracy": 0.8300000000000001,
+          "samples": 500
+        },
+        "gaugan": {
+          "auc": 0.569472,
+          "accuracy": 0.502,
+          "balanced_accuracy": 0.502,
+          "samples": 500
+        },
+        "guided": {
+          "auc": 0.837168,
+          "accuracy": 0.704,
+          "balanced_accuracy": 0.704,
+          "samples": 500
+        },
+        "glide_100_27": {
+          "auc": 0.9706239999999999,
+          "accuracy": 0.88,
+          "balanced_accuracy": 0.88,
+          "samples": 500
+        },
+        "ldm_200": {
+          "auc": 0.9570719999999999,
+          "accuracy": 0.746,
+          "balanced_accuracy": 0.746,
+          "samples": 500
+        },
+        "dalle": {
+          "auc": 0.6730720000000001,
+          "accuracy": 0.526,
+          "balanced_accuracy": 0.526,
+          "samples": 500
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 14.331862108132981,
+        "mean_adapt_ms_per_batch": 0.017871739939746865,
+        "mean_total_ms_per_batch": 14.349733848072727,
+        "peak_memory_mb": 372.6455078125,
+        "batches": 752
+      }
+    },
+    "t2a": {
+      "online_pooled_auc": 0.7653576944444445,
+      "online_pooled_accuracy": 0.6951666666666667,
+      "online_average_domain_auc": 0.7461642222222222,
+      "final_pooled_auc": 0.779142875,
+      "final_pooled_accuracy": 0.70125,
+      "final_average_domain_auc": 0.764925,
+      "average_forgetting": 0.009393142857142893,
+      "final_by_domain": {
+        "biggan": {
+          "auc": 0.729576,
+          "accuracy": 0.652,
+          "balanced_accuracy": 0.652,
+          "samples": 500
+        },
+        "cyclegan": {
+          "auc": 0.9073279999999999,
+          "accuracy": 0.812,
+          "balanced_accuracy": 0.812,
+          "samples": 500
+        },
+        "stylegan": {
+          "auc": 0.878304,
+          "accuracy": 0.84,
+          "balanced_accuracy": 0.84,
+          "samples": 500
+        },
+        "gaugan": {
+          "auc": 0.590816,
+          "accuracy": 0.544,
+          "balanced_accuracy": 0.544,
+          "samples": 500
+        },
+        "guided": {
+          "auc": 0.7454799999999999,
+          "accuracy": 0.678,
+          "balanced_accuracy": 0.6779999999999999,
+          "samples": 500
+        },
+        "glide_100_27": {
+          "auc": 0.85304,
+          "accuracy": 0.758,
+          "balanced_accuracy": 0.758,
+          "samples": 500
+        },
+        "ldm_200": {
+          "auc": 0.839264,
+          "accuracy": 0.734,
+          "balanced_accuracy": 0.734,
+          "samples": 500
+        },
+        "dalle": {
+          "auc": 0.575592,
+          "accuracy": 0.592,
+          "balanced_accuracy": 0.5920000000000001,
+          "samples": 500
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 16.49152578481354,
+        "mean_adapt_ms_per_batch": 110.08345840363813,
+        "mean_total_ms_per_batch": 126.57498418845167,
+        "peak_memory_mb": 3229.43115234375,
+        "batches": 752
+      }
+    }
+  },
+  "artifact_hashes": {
+    "effective_config_json": "28842b5b3132f49e09f4ab9ffd570bfc33a5907cdaa9ee9a268156e18976dd37",
+    "continual_summary_json": "5003a2dae9a7b4fb50d671b0ae34ad79cd15fc5f593d2cbe749a6b8d547eb99f",
+    "metrics_tree": "6a171db7a59c78245346f4e97c9038448150da815197d998eb8a37d0c2879f3e",
+    "online_manifest": "2966f585753d0634121d9ee44c949e5e6fdf0bdd0a47212123655ca321a3f9e4",
+    "final_holdout_manifest": "4bc2abfa2d4ab4dbf99554be64adac96ce010f392a04fb8e88ecbb57c7c84cf2",
+    "run_log": "1842363cee839fba92a35ad5ac2203f0c41582f8c83f4b65197cb05e7671bf97"
+  },
+  "process_exit_status": 0,
+  "errors": []
+}

@@ -1,0 +1,106 @@
+{
+  "stage": "P5",
+  "title": "Controlled CTTA table",
+  "status": "completed_and_audited",
+  "completed_at": "2026-08-06T02:55:00+08:00",
+  "strict_order": {
+    "P0": "completed",
+    "P1": "completed",
+    "P2": "completed",
+    "P3": "completed",
+    "P4": "completed_and_audited",
+    "P5": "completed_and_audited"
+  },
+  "source_checkpoint": {
+    "architecture": "ResNet-50",
+    "training_seed": 0,
+    "selected_epoch": 2,
+    "validation_samples": 8000,
+    "validation_auc": 1.0,
+    "validation_accuracy": 1.0,
+    "fisher_parameter_tensors": 106,
+    "sha256": "57d3e1ea43b914226449ecb5d4267d86324002f5b0210bad5a7667673acd3840",
+    "replicated_read_only_to": ["A6000", "3090", "4090-2"]
+  },
+  "single_target": {
+    "status": "completed_and_audited",
+    "seeds": [0, 1, 2],
+    "target_domains": 18,
+    "method_target_results_per_seed": 126,
+    "samples_per_method_per_seed": 32798,
+    "exact_manifest_equality_within_every_seed": true,
+    "aggregation": "unweighted target-domain macro followed by mean and population standard deviation across seeds",
+    "metrics": {
+      "source": {"macro_auc": 0.8881951893050449, "macro_auc_std": 0.0004507059454675536, "macro_accuracy": 0.775243700321326, "macro_accuracy_std": 0.0002628716586403277},
+      "tent": {"macro_auc": 0.8722297909749288, "macro_auc_std": 0.0031159392072122832, "macro_accuracy": 0.8177843311347878, "macro_accuracy_std": 0.004003309899693467},
+      "eata": {"macro_auc": 0.866432504729816, "macro_auc_std": 0.0010427766252037482, "macro_accuracy": 0.8091146767010542, "macro_accuracy_std": 0.001798664819216702},
+      "cotta": {"macro_auc": 0.8389677821244593, "macro_auc_std": 0.005085466767192964, "macro_accuracy": 0.7827067337504933, "macro_accuracy_std": 0.006060893843935128},
+      "rotta": {"macro_auc": 0.8809376145148755, "macro_auc_std": 0.0006381058336164394, "macro_accuracy": 0.8205321044027285, "macro_accuracy_std": 0.0008384197148758447},
+      "lame": {"macro_auc": 0.8776930973282433, "macro_auc_std": 0.0007785117769146039, "macro_accuracy": 0.73225095834038, "macro_accuracy_std": 0.0012229249370931737},
+      "t2a": {"macro_auc": 0.8506485763392462, "macro_auc_std": 0.0022595286475049995, "macro_accuracy": 0.789715697051694, "macro_accuracy_std": 0.0013330959009381286}
+    },
+    "controlled_efficiency_host": "A6000 seed0",
+    "best_macro_auc": "source",
+    "best_macro_accuracy": "rotta"
+  },
+  "continual_stream": {
+    "status": "completed_and_audited",
+    "seeds": [0, 1, 2],
+    "stream_domains": ["biggan", "cyclegan", "stylegan", "gaugan", "guided", "glide_100_27", "ldm_200", "dalle"],
+    "online_samples_per_method_per_seed": 12000,
+    "final_holdout_samples_per_method_per_seed": 4000,
+    "holdout_matrix_rows_per_method": 36,
+    "exact_online_manifest_equality_within_every_seed": true,
+    "exact_final_holdout_manifest_equality_within_every_seed": true,
+    "aggregation": "mean and population standard deviation across seeds",
+    "metrics": {
+      "source": {"online_auc": 0.8416199305555555, "online_auc_std": 0.002120600547631056, "online_accuracy": 0.7263611111111111, "online_accuracy_std": 0.002813931391584219, "final_auc": 0.8421396250000001, "final_auc_std": 0.0025248587151066445, "average_forgetting": 0.0, "average_forgetting_std": 0.0},
+      "tent": {"online_auc": 0.792165, "online_auc_std": 0.01989596925261896, "online_accuracy": 0.7197222222222223, "online_accuracy_std": 0.021252487145662382, "final_auc": 0.7847777083333333, "final_auc_std": 0.02397317569969552, "average_forgetting": 0.01745409523809522, "average_forgetting_std": 0.008543900446989808},
+      "eata": {"online_auc": 0.8176644768518518, "online_auc_std": 0.0025677096669876275, "online_accuracy": 0.7464722222222222, "online_accuracy_std": 0.0032944491287206523, "final_auc": 0.82295375, "final_auc_std": 0.0036288107225944926, "average_forgetting": 0.0, "average_forgetting_std": 0.0},
+      "cotta": {"online_auc": 0.595074912037037, "online_auc_std": 0.0542463935236749, "online_accuracy": 0.5665, "online_accuracy_std": 0.04571140347230005, "final_auc": 0.524557375, "final_auc_std": 0.061673323355892026, "average_forgetting": 0.052961904761904766, "average_forgetting_std": 0.009904959822198408},
+      "rotta": {"online_auc": 0.8077851481481482, "online_auc_std": 0.002056214782971513, "online_accuracy": 0.73875, "online_accuracy_std": 0.004301162633521296, "final_auc": 0.8389803333333333, "final_auc_std": 0.004412478938020291, "average_forgetting": 0.028808761904761903, "average_forgetting_std": 0.0048305535820749425},
+      "lame": {"online_auc": 0.8253218935185186, "online_auc_std": 0.0016707825028570453, "online_accuracy": 0.6855555555555556, "online_accuracy_std": 0.003426701613887221, "final_auc": 0.8250176250000001, "final_auc_std": 0.0027869673781131684, "average_forgetting": 0.0, "average_forgetting_std": 0.0},
+      "t2a": {"online_auc": 0.7793995972222222, "online_auc_std": 0.01651066768219434, "online_accuracy": 0.7075555555555556, "online_accuracy_std": 0.014892412518369357, "final_auc": 0.7791806666666667, "final_auc_std": 0.01594400628512605, "average_forgetting": 0.020031619047619048, "average_forgetting_std": 0.010858711478998145}
+    },
+    "controlled_efficiency_host": "A6000 seed0",
+    "best_online_auc": "source",
+    "best_final_auc": "source",
+    "lowest_nontrivial_forgetting": "eata"
+  },
+  "audit": {
+    "all_method_outputs_complete": true,
+    "all_metrics_finite": true,
+    "all_sample_counts_exact": true,
+    "all_checkpoint_hashes_exact": true,
+    "all_process_exit_statuses_zero": true,
+    "a6000_final_tests": "59 passed; compileall passed",
+    "remote_runtime_appledouble_cleanup": {
+      "files_per_host": 212,
+      "a6000_archive_sha256": "9a645ef1125880e018a08530facd1c3a41c81e84c17a6b9c17d785c998d12533",
+      "3090_archive_sha256": "5bd8c16fba6cb96a4b2d42982deb5b793e5900c21bec2044d3ad24c30d5a4e4d",
+      "4090_2_archive_sha256": "9d025105ae4f4ac810d55b75aedfd96342a68e9e0c6fc50a5740ac668b1705d1",
+      "remaining_files_per_host": 0
+    },
+    "post_run_resources": {
+      "A6000": "no project process; 17 MiB / 0%",
+      "3090": "no project process; 106 MiB / 0%; SSHFS read-only",
+      "4090-2": "no project process; launcher exited; NVML unavailable after userspace package changed to 580.173 while kernel remains 580.159.03"
+    }
+  },
+  "preserved_failures": [
+    "Initial A6000 Conda path probe used the wrong non-login HOME.",
+    "Local bundled Python lacked PyYAML for a duplicate config test.",
+    "The first method-smoke audit assumed nonexistent path/label manifest columns and raised KeyError: path.",
+    "The first continual preflight assumed nonexistent dataset_dict.json metadata before correcting to mapping.json.",
+    "The first final A6000 test/compile audit exposed 212 AppleDouble files per runtime; all were archived before removal and the authoritative rerun passed.",
+    "A 3090 post-cleanup unittest discovery attempt found no tests directory in that reduced runtime; verification was rerun against the source/scripts/config inventory actually present.",
+    "4090-2 post-run NVML failed because userspace 580.173 no longer matches the loaded 580.159.03 kernel module; all experiment artifacts and the exit-0 process audit completed before finalization."
+  ],
+  "artifact_hashes": {
+    "source_train_final": "b534b3447615d739d532f5b6ef29b63e641e712ef23d04307d43910350f1375a",
+    "method_smoke_final": "b6c2774f6e413ea6de9e32755d5dfe2646a34ac2d07bbc234f863c80b78d7865",
+    "single_target_three_seed_summary": "54ffa17db6194957e185c927f8047f7464b1eda1bbd04425a4de5a47d1e599ff",
+    "continual_three_seed_summary": "323625e6b4afd5edc5450c4f85be01f5691c7f81dc3987943a29b7d2a6ca2615"
+  },
+  "conclusion": "The controlled table does not support a blanket claim that test-time adaptation improves detection. Source retains the best ranking metrics in both settings. RoTTA gives the strongest single-target threshold accuracy and competitive final holdout AUC at the highest memory cost; EATA is the most stable adaptive continual method. CoTTA collapses on this stream and must be reported rather than filtered."
+}

@@ -1,7 +1,7 @@
 {
   "stage": "P5",
   "action": "continual_stream_7_methods_x_3_seeds",
-  "status": "running",
+  "status": "completed_and_audited",
   "launched_after": {
     "single_target_status": "completed_and_audited",
     "single_target_commit": "c163a07",
@@ -28,7 +28,9 @@
       "launcher_pid": 2274275,
       "started_at": "2026-08-06T02:28:41+08:00",
       "initial_gpu": "17 MiB / 49140 MiB, 0%",
-      "status": "running"
+      "completed_at": "2026-08-06T02:44:34+08:00",
+      "wall_time": "15:53.47",
+      "status": "completed_and_audited"
     },
     "seed1": {
       "host": "3090",
@@ -37,7 +39,9 @@
       "started_at": "2026-08-06T02:29:03+08:00",
       "initial_gpu": "106 MiB / 24576 MiB, 0%",
       "data_mount": "read-only SSHFS under /home; broken /data not accessed",
-      "status": "running"
+      "completed_at": "2026-08-06T02:40:58+08:00",
+      "wall_time": "11:55.63",
+      "status": "completed_and_audited"
     },
     "seed2": {
       "host": "4090-2",
@@ -46,7 +50,9 @@
       "started_at": "2026-08-06T02:29:34+08:00",
       "initial_gpu": "283 MiB / 24564 MiB, 0%",
       "driver": "isolated nvidia-580.159.03 userspace library",
-      "status": "running"
+      "completed_at": "2026-08-06T02:36:50+08:00",
+      "wall_time": "7:16.16",
+      "status": "completed_and_audited"
     }
   },
   "preflight": {
@@ -69,5 +75,16 @@
     "3090_sshfs_read_only": true,
     "errors": []
   },
-  "completion_gate": "All seven methods for all three seeds must exit cleanly and pass online/final-holdout/forgetting/sample/checkpoint audits before P5 cross-seed finalization."
+  "completion_audit": {
+    "all_seeds_exit_status_zero": true,
+    "method_results_per_seed": 7,
+    "online_samples_per_method": 12000,
+    "final_holdout_samples_per_method": 4000,
+    "holdout_matrix_rows_per_method": 36,
+    "exact_online_manifest_equality_within_seed": true,
+    "exact_final_holdout_manifest_equality_within_seed": true,
+    "source_checkpoint_sha256": "57d3e1ea43b914226449ecb5d4267d86324002f5b0210bad5a7667673acd3840",
+    "aggregate": "continual_three_seed_summary_20260806.json",
+    "post_run_nvml_failure_4090_2": "Userspace NVML 580.173 mismatches loaded kernel module 580.159.03. The experiment exited 0, all artifacts passed audit, and no project process remains."
+  }
 }

@@ -1,15 +1,15 @@
 {
   "stage": "P5",
   "title": "Controlled CTTA table",
-  "status": "continual_running",
-  "updated_at": "2026-08-06T02:31:44+08:00",
+  "status": "completed_and_audited",
+  "updated_at": "2026-08-06T02:55:00+08:00",
   "strict_order": {
     "P0": "completed",
     "P1": "completed",
     "P2": "completed",
     "P3": "completed",
     "P4": "completed_and_audited",
-    "P5": "in_progress"
+    "P5": "completed_and_audited"
   },
   "target": {
     "methods": [
@@ -120,12 +120,12 @@
     {
       "step": 5,
       "name": "continual_stream_7_methods_x_3_seeds",
-      "status": "running"
+      "status": "completed_and_audited"
     },
     {
       "step": 6,
       "name": "cross_seed_aggregation_and_final_audit",
-      "status": "pending"
+      "status": "completed"
     }
   ],
   "table_preflight": {
@@ -155,9 +155,19 @@
     "aggregation_artifact": "single_target_three_seed_summary_20260806.json"
   },
   "continual_jobs": {
-    "seed0": {"host": "A6000", "launcher_pid": 2274275, "started_at": "2026-08-06T02:28:41+08:00", "status": "running"},
-    "seed1": {"host": "3090", "launcher_pid": 1688238, "started_at": "2026-08-06T02:29:03+08:00", "status": "running"},
-    "seed2": {"host": "4090-2", "launcher_pid": 3462617, "started_at": "2026-08-06T02:29:34+08:00", "status": "running"}
+    "seed0": {"host": "A6000", "launcher_pid": 2274275, "started_at": "2026-08-06T02:28:41+08:00", "completed_at": "2026-08-06T02:44:34+08:00", "wall_time": "15:53.47", "status": "completed_and_audited"},
+    "seed1": {"host": "3090", "launcher_pid": 1688238, "started_at": "2026-08-06T02:29:03+08:00", "completed_at": "2026-08-06T02:40:58+08:00", "wall_time": "11:55.63", "status": "completed_and_audited"},
+    "seed2": {"host": "4090-2", "launcher_pid": 3462617, "started_at": "2026-08-06T02:29:34+08:00", "completed_at": "2026-08-06T02:36:50+08:00", "wall_time": "7:16.16", "status": "completed_and_audited"}
+  },
+  "continual_summary": {
+    "status": "completed_and_audited",
+    "method_results_per_seed": 7,
+    "online_samples_per_method_per_seed": 12000,
+    "final_holdout_samples_per_method_per_seed": 4000,
+    "exact_online_and_final_manifest_equality_within_seed": true,
+    "best_online_auc": "source",
+    "best_final_auc": "source",
+    "aggregate": "continual_three_seed_summary_20260806.json"
   },
   "efficiency_policy": "Aggregate performance over all three seeds, but do not average raw latency across unlike GPUs. Use seed0 on A6000 for controlled efficiency and retain seed1/seed2 timings as hardware-qualified diagnostics.",
   "failures_are_preserved": true,
@@ -171,5 +181,6 @@
     "fisher_tensors": 106,
     "post_run": "no training process; A6000 17 MiB and 0% utilization"
   },
-  "next_action": "Monitor all three continual-stream jobs, preserve every weak result or failure, and audit online, final-holdout, forgetting, manifests, checkpoint identity, and clean exits before final aggregation."
+  "final_artifact": "p5_final_summary.json",
+  "next_action": "P0-P5 are complete and audited. Stop the recurring monitor; future work should begin from a new hypothesis rather than silently extending this finished matrix."
 }

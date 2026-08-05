@@ -143,3 +143,40 @@ The first health check found every launcher and worker alive, all effective
 configs written, and 1/1/2 completed methods respectively. The 3090 SSHFS
 remains read-only and broken `/data` was not accessed. Final aggregation stays
 blocked until all seven methods on all three seeds pass the continual audit.
+
+## Continual completion and P5 conclusion
+
+The continual jobs finished with exit status 0 in 15:53.47, 11:55.63, and
+7:16.16 for seeds 0, 1, and 2. Each seed has all seven methods, 12,000 online
+samples and 4,000 disjoint final-holdout samples per method, and the complete
+36-row triangular holdout matrix. The auditor independently recomputed online
+and final summaries and forgetting, verified every sample and batch count, and
+confirmed exact online/final manifest equality across methods within each seed.
+
+| Method | Online AUC (%) | Online Acc (%) | Final AUC (%) | Forgetting (pt) | A6000 ms/batch | Peak MiB |
+|---|---:|---:|---:|---:|---:|---:|
+| Source | 84.162 +/- 0.212 | 72.636 +/- 0.281 | 84.214 +/- 0.252 | 0.000 +/- 0.000 | 12.98 | 364 |
+| TENT | 79.217 +/- 1.990 | 71.972 +/- 2.125 | 78.478 +/- 2.397 | 1.745 +/- 0.854 | 43.12 | 1,628 |
+| EATA | 81.766 +/- 0.257 | 74.647 +/- 0.329 | 82.295 +/- 0.363 | 0.000 +/- 0.000 | 34.86 | 1,634 |
+| CoTTA | 59.507 +/- 5.425 | 56.650 +/- 4.571 | 52.456 +/- 6.167 | 5.296 +/- 0.990 | 90.57 | 1,941 |
+| RoTTA | 80.779 +/- 0.206 | 73.875 +/- 0.430 | 83.898 +/- 0.441 | 2.881 +/- 0.483 | 110.00 | 11,000 |
+| LAME | 82.532 +/- 0.167 | 68.556 +/- 0.343 | 82.502 +/- 0.279 | 0.000 +/- 0.000 | 14.35 | 373 |
+| T2A | 77.940 +/- 1.651 | 70.756 +/- 1.489 | 77.918 +/- 1.594 | 2.003 +/- 1.086 | 126.57 | 3,229 |
+
+Source retains the best online and final ranking metrics. RoTTA is competitive
+on final AUC and has the best single-target threshold accuracy, but uses about
+11 GiB at peak. EATA is the most stable adaptive continual method. CoTTA's
+large collapse and seed variance are retained as results, not filtered away.
+
+The final infrastructure audit initially failed because the macOS runtime tar
+had carried 212 `._*` AppleDouble files to every server; they appeared as extra
+YAML configs and null-byte Python sources. Each set was archived with a SHA-256
+before removal. The A6000 `cl` rerun then passed all 59 tests and compileall;
+the reduced 3090/4090-2 runtimes compile and contain no remaining AppleDouble
+files. The 4090-2 post-run NVML probe remains failed because userspace 580.173
+does not match its loaded 580.159.03 kernel module, although the job exited 0,
+all artifacts passed, and no project process remains.
+
+P5 and the complete P0-P5 sequence are now complete and audited. The compact
+final record is `p5_final_summary.json`; full per-domain values remain in the
+single-target and continual three-seed summaries.
