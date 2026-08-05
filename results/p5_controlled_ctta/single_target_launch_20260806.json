@@ -1,0 +1,61 @@
+{
+  "stage": "P5",
+  "action": "single_target_7_methods_x_3_seeds",
+  "status": "running",
+  "runtime_bundle": {
+    "sha256": "17add269b11dc20fa29d3e6bf1331b1e2fffa97965f3312b17172db2ffb6e9fd",
+    "launcher_sha256": "5ac1a2d70142939da5b139bfcdf6359ad482a8a6830c9090f1b12452a960ece7",
+    "entrypoint_sha256": "90e044f092d197f0f2f3d4afd71a920af51c5919731872ed23addf9b11787dad"
+  },
+  "checkpoint_sha256": "57d3e1ea43b914226449ecb5d4267d86324002f5b0210bad5a7667673acd3840",
+  "data_identity": {
+    "ForenSynths_state_json": "3efd851dd1a5a6e76cc0109d473ccbaae54f981c018c5900835f177c0baf9d91",
+    "ForenSynths_mapping_json": "a7cf28ea6e22da33bb008ce60a1ae54b106994ee6b7c209544e456f0555bac45",
+    "Ojha_state_json": "6e3c2da3310416358387a0c91c50cb55c8bb93cc991ea9f4175ac1a9abb172f2",
+    "Ojha_mapping_json": "eceb5efcb061024166920b19a836b64fe5a7669af6d941357482c8cab4f3bc90",
+    "cross_host_exact_match": true
+  },
+  "jobs": {
+    "seed0": {
+      "host": "A6000",
+      "started_at": "2026-08-06T01:48:36+08:00",
+      "launcher_pid": 2270106,
+      "config": "configs/p5/universalfake_arrow_single_target_seed0.yaml",
+      "config_sha256": "ec1113231b13779ac25723a91835d8eb49cbf9b2b18e22e4d3cc9dcea01e4926",
+      "data_root_version": "df_arrow_20260717",
+      "initial_gpu": "17 MiB, 0%",
+      "first_check": "healthy; source method had completed 14 of 18 domains; GPU 893 MiB"
+    },
+    "seed1": {
+      "host": "3090",
+      "started_at": "2026-08-06T01:48:59+08:00",
+      "launcher_pid": 1685017,
+      "config": "configs/p5/universalfake_arrow_single_target_seed1.yaml",
+      "config_sha256": "41a30580e507431978b33ace66c9068229d1aab81bab4aad51d209fe7f471fe9",
+      "data_root_version": "read-only SSHFS df_arrow_20260716",
+      "initial_gpu": "106 MiB, 0%",
+      "first_check": "healthy but I/O-bound; source method had completed 2 of 18 domains; SSHFS remained read-only",
+      "safety": "The broken /data mount was not accessed."
+    },
+    "seed2": {
+      "host": "4090-2",
+      "started_at": "2026-08-06T01:49:20+08:00",
+      "launcher_pid": 3452021,
+      "config": "configs/p5/universalfake_arrow_single_target_seed2.yaml",
+      "config_sha256": "3eea7534fcfc42a141c9926e38c05d7efdcb6ad4d208385b617de731de6ea292",
+      "data_root_version": "df_arrow_20260716",
+      "initial_gpu": "283 MiB, 0%",
+      "first_check": "healthy; source method had reached SAN; isolated 580.159.03 driver library active"
+    }
+  },
+  "protocol": {
+    "methods": ["source", "tent", "eata", "cotta", "rotta", "lame", "t2a"],
+    "targets": 18,
+    "samples_per_class_per_target": 1000,
+    "batch_size": 16,
+    "predict_then_adapt": true,
+    "fresh_checkpoint_per_method_target": true
+  },
+  "efficiency_policy": "Performance uses all three seeds. Do not average raw latency across unlike GPUs; use seed0/A6000 as the controlled hardware efficiency row and retain other-host timings as qualified diagnostics.",
+  "ordering_gate": "No continual job may launch until all three single-target jobs finish and their checkpoint/sample/output audits pass."
+}

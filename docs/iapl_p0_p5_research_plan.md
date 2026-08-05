@@ -1712,3 +1712,14 @@ batch 均确认 Fisher enabled，结束后 A6000 回到 17 MiB/0%。小样本数
 门槛，不能当性能结论。首次审计脚本误假设 manifest 有 `path`/`label` 列并报
 `KeyError: path`，失败已保留；按真实 `batch/domain/position/sample_id` 表头重审
 后全部通过。下一步冻结三个 seed 的 single-target 配置并跨三机启动。
+
+01:48:36--01:49:20，三个冻结的 all-method single-target 正式任务依次启动：
+seed0=A6000（PID 2270106）、seed1=3090（PID 1685017）、seed2=4090-2
+（PID 3452021）。三机启动前均确认空输出、无冲突进程、同一 checkpoint 和完全
+相同的 ForenSynths/Ojha state/mapping 哈希；3090 只用 `/home` 下只读 SSHFS，
+未触碰故障 `/data`，4090-2 使用隔离 580.159.03 driver library。首轮检查三机
+主进程和 workers 均存活并已产出域结果。
+
+三个 seed 的性能会聚合，但不同 GPU 的原始延迟不能直接平均；固定 seed0/A6000
+作为同硬件效率行，3090/4090-2 耗时只作带硬件标签的诊断。三份 single-target
+全部完成且逐 method/target manifest 审计通过前，continual 继续不启动。

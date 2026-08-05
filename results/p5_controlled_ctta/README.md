@@ -85,3 +85,15 @@ stored only as an execution gate, not as comparative evidence. The first audit
 script incorrectly expected `path`/`label` manifest columns and raised
 `KeyError: path`; that failure is retained. The corrected audit used the real
 `batch/domain/position/sample_id` schema and passed.
+
+At 01:48:36--01:49:20 the three frozen all-method single-target jobs launched:
+seed 0 on A6000, seed 1 on 3090, and seed 2 on 4090-2. Every host verified the
+same source checkpoint and the same ForenSynths/Ojha metadata hashes before
+launch. The 3090 uses only its read-only `/home` SSHFS and never touched broken
+`/data`; 4090-2 uses the isolated 580.159.03 driver library. Initial checks found
+all three main processes plus workers alive and producing domain results.
+
+Performance will aggregate all three seeds. Raw latency will not be averaged
+across unlike GPUs: seed 0/A6000 is the controlled efficiency row, while 3090
+and 4090-2 timing remains hardware-qualified diagnostic data. Continual jobs
+remain blocked until all single-target outputs and manifests are audited.
