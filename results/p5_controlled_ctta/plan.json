@@ -1,8 +1,8 @@
 {
   "stage": "P5",
   "title": "Controlled CTTA table",
-  "status": "continual_preflight",
-  "updated_at": "2026-08-06T02:22:00+08:00",
+  "status": "continual_running",
+  "updated_at": "2026-08-06T02:31:44+08:00",
   "strict_order": {
     "P0": "completed",
     "P1": "completed",
@@ -120,7 +120,7 @@
     {
       "step": 5,
       "name": "continual_stream_7_methods_x_3_seeds",
-      "status": "pending"
+      "status": "running"
     },
     {
       "step": 6,
@@ -154,6 +154,11 @@
     "macro_accuracy_percent": {"source": 77.5244, "tent": 81.7784, "eata": 80.9115, "cotta": 78.2707, "rotta": 82.0532, "lame": 73.2251, "t2a": 78.9716},
     "aggregation_artifact": "single_target_three_seed_summary_20260806.json"
   },
+  "continual_jobs": {
+    "seed0": {"host": "A6000", "launcher_pid": 2274275, "started_at": "2026-08-06T02:28:41+08:00", "status": "running"},
+    "seed1": {"host": "3090", "launcher_pid": 1688238, "started_at": "2026-08-06T02:29:03+08:00", "status": "running"},
+    "seed2": {"host": "4090-2", "launcher_pid": 3462617, "started_at": "2026-08-06T02:29:34+08:00", "status": "running"}
+  },
   "efficiency_policy": "Aggregate performance over all three seeds, but do not average raw latency across unlike GPUs. Use seed0 on A6000 for controlled efficiency and retain seed1/seed2 timings as hardware-qualified diagnostics.",
   "failures_are_preserved": true,
   "completed_source_run": {
@@ -166,5 +171,5 @@
     "fisher_tensors": 106,
     "post_run": "no training process; A6000 17 MiB and 0% utilization"
   },
-  "next_action": "Run a fresh three-host resource/data/output preflight, then launch the frozen seven-method continual-stream jobs for seeds 0, 1, and 2."
+  "next_action": "Monitor all three continual-stream jobs, preserve every weak result or failure, and audit online, final-holdout, forgetting, manifests, checkpoint identity, and clean exits before final aggregation."
 }

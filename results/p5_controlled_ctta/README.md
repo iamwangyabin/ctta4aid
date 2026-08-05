@@ -128,3 +128,18 @@ diagnostics are in `single_target_three_seed_summary_20260806.json`.
 
 The single-target gate is now complete. The next ordered step is a fresh
 three-host preflight followed by the frozen continual-stream matrix.
+
+## Continual-stream launch
+
+After commit `c163a07` was pushed, a fresh three-host preflight found no project
+job, no existing continual output/log path, and clean GPUs. Code, the read-only
+checkpoint, and all four Arrow state/mapping hashes matched. The first A6000
+metadata command incorrectly assumed `dataset_dict.json` and failed on both
+roots; inspection found the actual `mapping.json`, and the corrected identity
+check passed. This preflight error is preserved in `continual_launch_20260806.json`.
+
+Seeds 0, 1, and 2 launched at 02:28:41--02:29:34 on A6000, 3090, and 4090-2.
+The first health check found every launcher and worker alive, all effective
+configs written, and 1/1/2 completed methods respectively. The 3090 SSHFS
+remains read-only and broken `/data` was not accessed. Final aggregation stays
+blocked until all seven methods on all three seeds pass the continual audit.

@@ -1740,3 +1740,13 @@ seed0/A6000 的受控耗时依次为 12.57/44.98/33.79/89.63/108.90/14.39/
 诊断已写入 `results/p5_controlled_ctta/single_target_three_seed_summary_20260806.json`。
 single-target 门槛至此完成；下一步严格为三机新鲜 preflight 后启动 frozen continual
 stream，不改变方法或样本协议。
+
+single-target 审计提交 `c163a07` 推送后，三机重新检查无项目进程、GPU 空闲且
+continual 输出/log 路径不存在；代码、0444 checkpoint 与四个 Arrow metadata
+哈希一致。A6000 首次 metadata 命令误写成不存在的 `dataset_dict.json`，两个
+`sha256sum` 失败已保留；定位到真实 `mapping.json` 后重审通过。02:28:41--
+02:29:34 按 seed0=A6000、seed1=3090、seed2=4090-2 启动 continual 正式任务，
+PID 为 2274275/1688238/3462617。首次健康检查主进程均存活、effective config
+均已写出，已完成方法数为 1/1/2；3090 SSHFS 仍只读且未访问 `/data`。全部三 seed
+七方法的 online/final-holdout/forgetting、manifest、checkpoint 与 exit 审计完成前，
+不做 P5 最终汇总。

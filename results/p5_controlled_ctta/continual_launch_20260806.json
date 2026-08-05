@@ -1,0 +1,73 @@
+{
+  "stage": "P5",
+  "action": "continual_stream_7_methods_x_3_seeds",
+  "status": "running",
+  "launched_after": {
+    "single_target_status": "completed_and_audited",
+    "single_target_commit": "c163a07",
+    "single_target_push": "origin/main",
+    "ordering_gate_satisfied": true
+  },
+  "contract": {
+    "methods": ["source", "tent", "eata", "cotta", "rotta", "lame", "t2a"],
+    "stream": ["biggan", "cyclegan", "stylegan", "gaugan", "guided", "glide_100_27", "ldm_200", "dalle"],
+    "online_max_samples_per_class": 750,
+    "final_holdout_max_samples_per_class": 250,
+    "protocol": "predict_then_adapt",
+    "reset_between_domains": false,
+    "source_checkpoint_sha256": "57d3e1ea43b914226449ecb5d4267d86324002f5b0210bad5a7667673acd3840"
+  },
+  "code_identity": {
+    "launcher_sha256": "5ac1a2d70142939da5b139bfcdf6359ad482a8a6830c9090f1b12452a960ece7",
+    "entrypoint_sha256": "5927ecd735d45d87e2e2165105a629ab307c95867a76a421bbaf3832a33c848b"
+  },
+  "jobs": {
+    "seed0": {
+      "host": "A6000",
+      "config_sha256": "82b7078733730a7f05f5eed09db075bc7352caecbc90568d2dd6b1ba2c8a0f05",
+      "launcher_pid": 2274275,
+      "started_at": "2026-08-06T02:28:41+08:00",
+      "initial_gpu": "17 MiB / 49140 MiB, 0%",
+      "status": "running"
+    },
+    "seed1": {
+      "host": "3090",
+      "config_sha256": "96fa9e0a566b4c708f2315ff7e40920bc4b7d9f3749bfbb30e818351aa91dbb7",
+      "launcher_pid": 1688238,
+      "started_at": "2026-08-06T02:29:03+08:00",
+      "initial_gpu": "106 MiB / 24576 MiB, 0%",
+      "data_mount": "read-only SSHFS under /home; broken /data not accessed",
+      "status": "running"
+    },
+    "seed2": {
+      "host": "4090-2",
+      "config_sha256": "d2fc03b5c952ed482309cd6e2882a00fcee7a35e625777ee3727deb71aa08eae",
+      "launcher_pid": 3462617,
+      "started_at": "2026-08-06T02:29:34+08:00",
+      "initial_gpu": "283 MiB / 24564 MiB, 0%",
+      "driver": "isolated nvidia-580.159.03 userspace library",
+      "status": "running"
+    }
+  },
+  "preflight": {
+    "all_project_jobs_absent": true,
+    "all_output_and_log_paths_absent": true,
+    "checkpoint_mode": "0444",
+    "checkpoint_bytes": 94851517,
+    "arrow_metadata_identical_across_hosts": true,
+    "forensynths_state_sha256": "3efd851dd1a5a6e76cc0109d473ccbaae54f981c018c5900835f177c0baf9d91",
+    "forensynths_mapping_sha256": "a7cf28ea6e22da33bb008ce60a1ae54b106994ee6b7c209544e456f0555bac45",
+    "ojha_state_sha256": "6e3c2da3310416358387a0c91c50cb55c8bb93cc991ea9f4175ac1a9abb172f2",
+    "ojha_mapping_sha256": "eceb5efcb061024166920b19a836b64fe5a7669af6d941357482c8cab4f3bc90",
+    "preserved_failure": "The first A6000 preflight assumed dataset_dict.json mapping metadata and sha256sum reported both paths missing. Directory inspection showed the actual file is mapping.json; the corrected four-file identity check passed."
+  },
+  "initial_health": {
+    "checked_at": "2026-08-06T02:31:44+08:00",
+    "all_launchers_and_main_workers_alive": true,
+    "all_effective_configs_written": true,
+    "completed_methods": {"seed0": 1, "seed1": 1, "seed2": 2},
+    "3090_sshfs_read_only": true,
+    "errors": []
+  },
+  "completion_gate": "All seven methods for all three seeds must exit cleanly and pass online/final-holdout/forgetting/sample/checkpoint audits before P5 cross-seed finalization."
+}
