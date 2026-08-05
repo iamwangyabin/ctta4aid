@@ -97,3 +97,34 @@ Performance will aggregate all three seeds. Raw latency will not be averaged
 across unlike GPUs: seed 0/A6000 is the controlled efficiency row, while 3090
 and 4090-2 timing remains hardware-qualified diagnostic data. Continual jobs
 remain blocked until all single-target outputs and manifests are audited.
+
+## Single-target completion
+
+All three jobs exited with status 0: seed 2 on 4090-2 in 15:00.57, seed 0 on
+A6000 in 27:28.91, and seed 1 on the read-only 3090 SSHFS in 29:24.40. Each run
+contains all 126 method-target results, uses the same source checkpoint, and
+evaluates 32,798 samples per method. The formal auditor checked every metric,
+batch table, and ordered sample manifest. Within each seed, all seven method
+manifests are byte-identical for every target. No result was restarted or
+selected after inspection.
+
+The three-seed, unweighted 18-domain macro results are:
+
+| Method | mAUC (%) | mAcc (%) | A6000 ms/batch | Peak MiB |
+|---|---:|---:|---:|---:|
+| Source | 88.820 +/- 0.045 | 77.524 +/- 0.026 | 12.57 | 367 |
+| TENT | 87.223 +/- 0.312 | 81.778 +/- 0.400 | 44.98 | 1,645 |
+| EATA | 86.643 +/- 0.104 | 80.912 +/- 0.180 | 33.79 | 1,651 |
+| CoTTA | 83.897 +/- 0.509 | 78.271 +/- 0.606 | 89.63 | 1,945 |
+| RoTTA | 88.094 +/- 0.064 | 82.053 +/- 0.084 | 108.90 | 10,972 |
+| LAME | 87.769 +/- 0.078 | 73.225 +/- 0.122 | 14.39 | 378 |
+| T2A | 85.065 +/- 0.226 | 78.972 +/- 0.133 | 129.87 | 3,233 |
+
+The spread is the population standard deviation over seeds 0, 1, and 2. Source
+has the best mAUC, while RoTTA has the best thresholded mAcc; adapting does not
+uniformly improve ranking quality. The latency and memory columns are only the
+controlled seed-0/A6000 measurement. Full per-domain values and hardware-tagged
+diagnostics are in `single_target_three_seed_summary_20260806.json`.
+
+The single-target gate is now complete. The next ordered step is a fresh
+three-host preflight followed by the frozen continual-stream matrix.

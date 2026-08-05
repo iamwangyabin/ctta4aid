@@ -1,0 +1,3040 @@
+{
+  "source": {
+    "cyclegan": {
+      "overall": {
+        "auc": 0.886916,
+        "accuracy": 0.761,
+        "balanced_accuracy": 0.761,
+        "samples": 2000
+      },
+      "by_domain": {
+        "cyclegan": {
+          "auc": 0.886916,
+          "accuracy": 0.761,
+          "balanced_accuracy": 0.761,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 8.324510514736176,
+        "mean_adapt_ms_per_batch": 0.014086451381444931,
+        "mean_total_ms_per_batch": 8.33859696611762,
+        "peak_memory_mb": 362.58154296875,
+        "batches": 125
+      }
+    },
+    "biggan": {
+      "overall": {
+        "auc": 0.8449715000000001,
+        "accuracy": 0.7105,
+        "balanced_accuracy": 0.7105,
+        "samples": 2000
+      },
+      "by_domain": {
+        "biggan": {
+          "auc": 0.8449715000000001,
+          "accuracy": 0.7105,
+          "balanced_accuracy": 0.7105,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.826596397906542,
+        "mean_adapt_ms_per_batch": 0.015834391117095947,
+        "mean_total_ms_per_batch": 5.842430789023638,
+        "peak_memory_mb": 364.95654296875,
+        "batches": 125
+      }
+    },
+    "stylegan": {
+      "overall": {
+        "auc": 0.866183,
+        "accuracy": 0.827,
+        "balanced_accuracy": 0.827,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stylegan": {
+          "auc": 0.866183,
+          "accuracy": 0.827,
+          "balanced_accuracy": 0.827,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.751915909349918,
+        "mean_adapt_ms_per_batch": 0.0152980275452137,
+        "mean_total_ms_per_batch": 5.767213936895132,
+        "peak_memory_mb": 360.83154296875,
+        "batches": 125
+      }
+    },
+    "stargan": {
+      "overall": {
+        "auc": 1.0,
+        "accuracy": 1.0,
+        "balanced_accuracy": 1.0,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stargan": {
+          "auc": 1.0,
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.818950861692429,
+        "mean_adapt_ms_per_batch": 0.01514260470867157,
+        "mean_total_ms_per_batch": 5.8340934664011,
+        "peak_memory_mb": 363.20654296875,
+        "batches": 125
+      }
+    },
+    "gaugan": {
+      "overall": {
+        "auc": 0.59922,
+        "accuracy": 0.509,
+        "balanced_accuracy": 0.509,
+        "samples": 2000
+      },
+      "by_domain": {
+        "gaugan": {
+          "auc": 0.59922,
+          "accuracy": 0.509,
+          "balanced_accuracy": 0.509,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.813990216702223,
+        "mean_adapt_ms_per_batch": 0.015732556581497192,
+        "mean_total_ms_per_batch": 5.82972277328372,
+        "peak_memory_mb": 361.08154296875,
+        "batches": 125
+      }
+    },
+    "crn": {
+      "overall": {
+        "auc": 0.9922825,
+        "accuracy": 0.6685,
+        "balanced_accuracy": 0.6685,
+        "samples": 2000
+      },
+      "by_domain": {
+        "crn": {
+          "auc": 0.9922825,
+          "accuracy": 0.6685,
+          "balanced_accuracy": 0.6685,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.8139286786317825,
+        "mean_adapt_ms_per_batch": 0.015428408980369568,
+        "mean_total_ms_per_batch": 5.829357087612152,
+        "peak_memory_mb": 366.20654296875,
+        "batches": 125
+      }
+    },
+    "dalle": {
+      "overall": {
+        "auc": 0.7114855,
+        "accuracy": 0.554,
+        "balanced_accuracy": 0.554,
+        "samples": 2000
+      },
+      "by_domain": {
+        "dalle": {
+          "auc": 0.7114855,
+          "accuracy": 0.554,
+          "balanced_accuracy": 0.554,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.796681813895702,
+        "mean_adapt_ms_per_batch": 0.015975505113601685,
+        "mean_total_ms_per_batch": 5.812657319009304,
+        "peak_memory_mb": 361.83154296875,
+        "batches": 125
+      }
+    },
+    "deepfake": {
+      "overall": {
+        "auc": 0.9489359999999999,
+        "accuracy": 0.9215,
+        "balanced_accuracy": 0.9215,
+        "samples": 2000
+      },
+      "by_domain": {
+        "deepfake": {
+          "auc": 0.9489359999999999,
+          "accuracy": 0.9215,
+          "balanced_accuracy": 0.9215,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.8278479762375355,
+        "mean_adapt_ms_per_batch": 0.014564264565706253,
+        "mean_total_ms_per_batch": 5.842412240803242,
+        "peak_memory_mb": 365.20654296875,
+        "batches": 125
+      }
+    },
+    "glide_50_27": {
+      "overall": {
+        "auc": 0.9791945,
+        "accuracy": 0.9155,
+        "balanced_accuracy": 0.9155,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_50_27": {
+          "auc": 0.9791945,
+          "accuracy": 0.9155,
+          "balanced_accuracy": 0.9155,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.8195838667452335,
+        "mean_adapt_ms_per_batch": 0.013470835983753204,
+        "mean_total_ms_per_batch": 5.833054702728987,
+        "peak_memory_mb": 362.58154296875,
+        "batches": 125
+      }
+    },
+    "glide_100_10": {
+      "overall": {
+        "auc": 0.9874525,
+        "accuracy": 0.935,
+        "balanced_accuracy": 0.935,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_10": {
+          "auc": 0.9874525,
+          "accuracy": 0.935,
+          "balanced_accuracy": 0.935,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.803706020116806,
+        "mean_adapt_ms_per_batch": 0.016026336699724197,
+        "mean_total_ms_per_batch": 5.81973235681653,
+        "peak_memory_mb": 366.20654296875,
+        "batches": 125
+      }
+    },
+    "glide_100_27": {
+      "overall": {
+        "auc": 0.9804305,
+        "accuracy": 0.8945,
+        "balanced_accuracy": 0.8945000000000001,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_27": {
+          "auc": 0.9804305,
+          "accuracy": 0.8945,
+          "balanced_accuracy": 0.8945000000000001,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.806142035871744,
+        "mean_adapt_ms_per_batch": 0.014708973467350006,
+        "mean_total_ms_per_batch": 5.820851009339094,
+        "peak_memory_mb": 361.83154296875,
+        "batches": 125
+      }
+    },
+    "guided": {
+      "overall": {
+        "auc": 0.8266285,
+        "accuracy": 0.732,
+        "balanced_accuracy": 0.732,
+        "samples": 2000
+      },
+      "by_domain": {
+        "guided": {
+          "auc": 0.8266285,
+          "accuracy": 0.732,
+          "balanced_accuracy": 0.732,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.80291748046875,
+        "mean_adapt_ms_per_batch": 0.015243735164403915,
+        "mean_total_ms_per_batch": 5.818161215633154,
+        "peak_memory_mb": 365.95654296875,
+        "batches": 125
+      }
+    },
+    "imle": {
+      "overall": {
+        "auc": 0.9738315,
+        "accuracy": 0.6625,
+        "balanced_accuracy": 0.6625,
+        "samples": 2000
+      },
+      "by_domain": {
+        "imle": {
+          "auc": 0.9738315,
+          "accuracy": 0.6625,
+          "balanced_accuracy": 0.6625,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.813905328512192,
+        "mean_adapt_ms_per_batch": 0.015363004058599472,
+        "mean_total_ms_per_batch": 5.829268332570791,
+        "peak_memory_mb": 360.83154296875,
+        "batches": 125
+      }
+    },
+    "ldm_100": {
+      "overall": {
+        "auc": 0.96962,
+        "accuracy": 0.8285,
+        "balanced_accuracy": 0.8285,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_100": {
+          "auc": 0.96962,
+          "accuracy": 0.8285,
+          "balanced_accuracy": 0.8285,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.775741070508957,
+        "mean_adapt_ms_per_batch": 0.008832842111587524,
+        "mean_total_ms_per_batch": 5.784573912620544,
+        "peak_memory_mb": 362.95654296875,
+        "batches": 125
+      }
+    },
+    "ldm_200": {
+      "overall": {
+        "auc": 0.9705980000000001,
+        "accuracy": 0.8235,
+        "balanced_accuracy": 0.8235,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200": {
+          "auc": 0.9705980000000001,
+          "accuracy": 0.8235,
+          "balanced_accuracy": 0.8235,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.739308316260576,
+        "mean_adapt_ms_per_batch": 0.00925641879439354,
+        "mean_total_ms_per_batch": 5.74856473505497,
+        "peak_memory_mb": 361.08154296875,
+        "batches": 125
+      }
+    },
+    "ldm_200_cfg": {
+      "overall": {
+        "auc": 0.964657,
+        "accuracy": 0.8005,
+        "balanced_accuracy": 0.8005,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200_cfg": {
+          "auc": 0.964657,
+          "accuracy": 0.8005,
+          "balanced_accuracy": 0.8005,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 5.74743440002203,
+        "mean_adapt_ms_per_batch": 0.008085787296295166,
+        "mean_total_ms_per_batch": 5.755520187318325,
+        "peak_memory_mb": 364.95654296875,
+        "batches": 125
+      }
+    },
+    "san": {
+      "overall": {
+        "auc": 0.7161026667500678,
+        "accuracy": 0.6894977168949772,
+        "balanced_accuracy": 0.6894977168949772,
+        "samples": 438
+      },
+      "by_domain": {
+        "san": {
+          "auc": 0.7161026667500678,
+          "accuracy": 0.6894977168949772,
+          "balanced_accuracy": 0.6894977168949772,
+          "samples": 438
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 6.268807021634919,
+        "mean_adapt_ms_per_batch": 0.010978031371320997,
+        "mean_total_ms_per_batch": 6.279785053006241,
+        "peak_memory_mb": 361.08154296875,
+        "batches": 28
+      }
+    },
+    "seeingdark": {
+      "overall": {
+        "auc": 0.7682407407407408,
+        "accuracy": 0.7222222222222222,
+        "balanced_accuracy": 0.7222222222222222,
+        "samples": 360
+      },
+      "by_domain": {
+        "seeingdark": {
+          "auc": 0.7682407407407408,
+          "accuracy": 0.7222222222222222,
+          "balanced_accuracy": 0.7222222222222222,
+          "samples": 360
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 6.512373422636934,
+        "mean_adapt_ms_per_batch": 0.01597685901367146,
+        "mean_total_ms_per_batch": 6.528350281650606,
+        "peak_memory_mb": 364.45654296875,
+        "batches": 23
+      }
+    }
+  },
+  "tent": {
+    "cyclegan": {
+      "overall": {
+        "auc": 0.921915,
+        "accuracy": 0.8445,
+        "balanced_accuracy": 0.8445,
+        "samples": 2000
+      },
+      "by_domain": {
+        "cyclegan": {
+          "auc": 0.921915,
+          "accuracy": 0.8445,
+          "balanced_accuracy": 0.8445,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 6.117906227707863,
+        "mean_adapt_ms_per_batch": 15.708871014416218,
+        "mean_total_ms_per_batch": 21.82677724212408,
+        "peak_memory_mb": 1631.3046875,
+        "batches": 125
+      }
+    },
+    "biggan": {
+      "overall": {
+        "auc": 0.752205,
+        "accuracy": 0.6955,
+        "balanced_accuracy": 0.6955,
+        "samples": 2000
+      },
+      "by_domain": {
+        "biggan": {
+          "auc": 0.752205,
+          "accuracy": 0.6955,
+          "balanced_accuracy": 0.6955,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.770180698484182,
+        "mean_adapt_ms_per_batch": 14.168708998709917,
+        "mean_total_ms_per_batch": 19.9388896971941,
+        "peak_memory_mb": 1636.841796875,
+        "batches": 125
+      }
+    },
+    "stylegan": {
+      "overall": {
+        "auc": 0.864139,
+        "accuracy": 0.846,
+        "balanced_accuracy": 0.846,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stylegan": {
+          "auc": 0.864139,
+          "accuracy": 0.846,
+          "balanced_accuracy": 0.846,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.912329122424126,
+        "mean_adapt_ms_per_batch": 14.607912424951792,
+        "mean_total_ms_per_batch": 20.520241547375917,
+        "peak_memory_mb": 1638.216796875,
+        "batches": 125
+      }
+    },
+    "stargan": {
+      "overall": {
+        "auc": 1.0,
+        "accuracy": 0.9995,
+        "balanced_accuracy": 0.9995,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stargan": {
+          "auc": 1.0,
+          "accuracy": 0.9995,
+          "balanced_accuracy": 0.9995,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.971236500889063,
+        "mean_adapt_ms_per_batch": 14.621955841779709,
+        "mean_total_ms_per_batch": 20.59319234266877,
+        "peak_memory_mb": 1640.466796875,
+        "batches": 125
+      }
+    },
+    "gaugan": {
+      "overall": {
+        "auc": 0.512837,
+        "accuracy": 0.501,
+        "balanced_accuracy": 0.501,
+        "samples": 2000
+      },
+      "by_domain": {
+        "gaugan": {
+          "auc": 0.512837,
+          "accuracy": 0.501,
+          "balanced_accuracy": 0.501,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.802662994712591,
+        "mean_adapt_ms_per_batch": 14.229018494486809,
+        "mean_total_ms_per_batch": 20.0316814891994,
+        "peak_memory_mb": 1637.216796875,
+        "batches": 125
+      }
+    },
+    "crn": {
+      "overall": {
+        "auc": 0.9940570000000001,
+        "accuracy": 0.972,
+        "balanced_accuracy": 0.972,
+        "samples": 2000
+      },
+      "by_domain": {
+        "crn": {
+          "auc": 0.9940570000000001,
+          "accuracy": 0.972,
+          "balanced_accuracy": 0.972,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.98542919754982,
+        "mean_adapt_ms_per_batch": 14.607264030724764,
+        "mean_total_ms_per_batch": 20.592693228274584,
+        "peak_memory_mb": 1643.279296875,
+        "batches": 125
+      }
+    },
+    "dalle": {
+      "overall": {
+        "auc": 0.7154135000000001,
+        "accuracy": 0.665,
+        "balanced_accuracy": 0.665,
+        "samples": 2000
+      },
+      "by_domain": {
+        "dalle": {
+          "auc": 0.7154135000000001,
+          "accuracy": 0.665,
+          "balanced_accuracy": 0.665,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.701269958168268,
+        "mean_adapt_ms_per_batch": 13.934320293366909,
+        "mean_total_ms_per_batch": 19.635590251535177,
+        "peak_memory_mb": 1635.779296875,
+        "batches": 125
+      }
+    },
+    "deepfake": {
+      "overall": {
+        "auc": 0.9504929999999999,
+        "accuracy": 0.8825,
+        "balanced_accuracy": 0.8825000000000001,
+        "samples": 2000
+      },
+      "by_domain": {
+        "deepfake": {
+          "auc": 0.9504929999999999,
+          "accuracy": 0.8825,
+          "balanced_accuracy": 0.8825000000000001,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.879014790058136,
+        "mean_adapt_ms_per_batch": 14.460675444453955,
+        "mean_total_ms_per_batch": 20.33969023451209,
+        "peak_memory_mb": 1642.591796875,
+        "batches": 125
+      }
+    },
+    "glide_50_27": {
+      "overall": {
+        "auc": 0.9507774999999999,
+        "accuracy": 0.8905,
+        "balanced_accuracy": 0.8905,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_50_27": {
+          "auc": 0.9507774999999999,
+          "accuracy": 0.8905,
+          "balanced_accuracy": 0.8905,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.654562052339315,
+        "mean_adapt_ms_per_batch": 13.742151908576488,
+        "mean_total_ms_per_batch": 19.396713960915804,
+        "peak_memory_mb": 1636.279296875,
+        "batches": 125
+      }
+    },
+    "glide_100_10": {
+      "overall": {
+        "auc": 0.9552435,
+        "accuracy": 0.8855,
+        "balanced_accuracy": 0.8855,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_10": {
+          "auc": 0.9552435,
+          "accuracy": 0.8855,
+          "balanced_accuracy": 0.8855,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.648478921502829,
+        "mean_adapt_ms_per_batch": 13.695768896490335,
+        "mean_total_ms_per_batch": 19.344247817993164,
+        "peak_memory_mb": 1639.341796875,
+        "batches": 125
+      }
+    },
+    "glide_100_27": {
+      "overall": {
+        "auc": 0.9500339999999999,
+        "accuracy": 0.8725,
+        "balanced_accuracy": 0.8725,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_27": {
+          "auc": 0.9500339999999999,
+          "accuracy": 0.8725,
+          "balanced_accuracy": 0.8725,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.757467392832041,
+        "mean_adapt_ms_per_batch": 13.838837921619415,
+        "mean_total_ms_per_batch": 19.596305314451456,
+        "peak_memory_mb": 1636.216796875,
+        "batches": 125
+      }
+    },
+    "guided": {
+      "overall": {
+        "auc": 0.765593,
+        "accuracy": 0.6885,
+        "balanced_accuracy": 0.6885,
+        "samples": 2000
+      },
+      "by_domain": {
+        "guided": {
+          "auc": 0.765593,
+          "accuracy": 0.6885,
+          "balanced_accuracy": 0.6885,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.696065880358219,
+        "mean_adapt_ms_per_batch": 13.848008152097464,
+        "mean_total_ms_per_batch": 19.544074032455683,
+        "peak_memory_mb": 1640.966796875,
+        "batches": 125
+      }
+    },
+    "imle": {
+      "overall": {
+        "auc": 0.9688464999999999,
+        "accuracy": 0.911,
+        "balanced_accuracy": 0.911,
+        "samples": 2000
+      },
+      "by_domain": {
+        "imle": {
+          "auc": 0.9688464999999999,
+          "accuracy": 0.911,
+          "balanced_accuracy": 0.911,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.927401456981897,
+        "mean_adapt_ms_per_batch": 14.457588359713554,
+        "mean_total_ms_per_batch": 20.38498981669545,
+        "peak_memory_mb": 1640.904296875,
+        "batches": 125
+      }
+    },
+    "ldm_100": {
+      "overall": {
+        "auc": 0.9626129999999999,
+        "accuracy": 0.8915,
+        "balanced_accuracy": 0.8915,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_100": {
+          "auc": 0.9626129999999999,
+          "accuracy": 0.8915,
+          "balanced_accuracy": 0.8915,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.8285534009337425,
+        "mean_adapt_ms_per_batch": 14.775993902236223,
+        "mean_total_ms_per_batch": 20.604547303169966,
+        "peak_memory_mb": 1642.404296875,
+        "batches": 125
+      }
+    },
+    "ldm_200": {
+      "overall": {
+        "auc": 0.9583014999999999,
+        "accuracy": 0.894,
+        "balanced_accuracy": 0.8939999999999999,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200": {
+          "auc": 0.9583014999999999,
+          "accuracy": 0.894,
+          "balanced_accuracy": 0.8939999999999999,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.671133227646351,
+        "mean_adapt_ms_per_batch": 13.812490861862898,
+        "mean_total_ms_per_batch": 19.48362408950925,
+        "peak_memory_mb": 1640.904296875,
+        "batches": 125
+      }
+    },
+    "ldm_200_cfg": {
+      "overall": {
+        "auc": 0.9166859999999999,
+        "accuracy": 0.836,
+        "balanced_accuracy": 0.8360000000000001,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200_cfg": {
+          "auc": 0.9166859999999999,
+          "accuracy": 0.836,
+          "balanced_accuracy": 0.8360000000000001,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.6633860394358635,
+        "mean_adapt_ms_per_batch": 13.746059883385897,
+        "mean_total_ms_per_batch": 19.40944592282176,
+        "peak_memory_mb": 1640.216796875,
+        "batches": 125
+      }
+    },
+    "san": {
+      "overall": {
+        "auc": 0.7017055524280145,
+        "accuracy": 0.6529680365296804,
+        "balanced_accuracy": 0.6529680365296804,
+        "samples": 438
+      },
+      "by_domain": {
+        "san": {
+          "auc": 0.7017055524280145,
+          "accuracy": 0.6529680365296804,
+          "balanced_accuracy": 0.6529680365296804,
+          "samples": 438
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.822296437275197,
+        "mean_adapt_ms_per_batch": 13.998860310363982,
+        "mean_total_ms_per_batch": 19.82115674763918,
+        "peak_memory_mb": 1640.341796875,
+        "batches": 28
+      }
+    },
+    "seeingdark": {
+      "overall": {
+        "auc": 0.7822839506172841,
+        "accuracy": 0.6916666666666667,
+        "balanced_accuracy": 0.6916666666666667,
+        "samples": 360
+      },
+      "by_domain": {
+        "seeingdark": {
+          "auc": 0.7822839506172841,
+          "accuracy": 0.6916666666666667,
+          "balanced_accuracy": 0.6916666666666667,
+          "samples": 360
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.812730457957672,
+        "mean_adapt_ms_per_batch": 14.17882145260987,
+        "mean_total_ms_per_batch": 19.991551910567544,
+        "peak_memory_mb": 1639.779296875,
+        "batches": 23
+      }
+    }
+  },
+  "eata": {
+    "cyclegan": {
+      "overall": {
+        "auc": 0.9127310000000001,
+        "accuracy": 0.827,
+        "balanced_accuracy": 0.827,
+        "samples": 2000
+      },
+      "by_domain": {
+        "cyclegan": {
+          "auc": 0.9127310000000001,
+          "accuracy": 0.827,
+          "balanced_accuracy": 0.827,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.8062768168747425,
+        "mean_adapt_ms_per_batch": 11.504120022058487,
+        "mean_total_ms_per_batch": 17.31039683893323,
+        "peak_memory_mb": 1643.65478515625,
+        "batches": 125
+      }
+    },
+    "biggan": {
+      "overall": {
+        "auc": 0.7498049999999999,
+        "accuracy": 0.6905,
+        "balanced_accuracy": 0.6905,
+        "samples": 2000
+      },
+      "by_domain": {
+        "biggan": {
+          "auc": 0.7498049999999999,
+          "accuracy": 0.6905,
+          "balanced_accuracy": 0.6905,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.896753437817097,
+        "mean_adapt_ms_per_batch": 15.954601865261793,
+        "mean_total_ms_per_batch": 21.85135530307889,
+        "peak_memory_mb": 1640.8427734375,
+        "batches": 125
+      }
+    },
+    "stylegan": {
+      "overall": {
+        "auc": 0.863792,
+        "accuracy": 0.8485,
+        "balanced_accuracy": 0.8485,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stylegan": {
+          "auc": 0.863792,
+          "accuracy": 0.8485,
+          "balanced_accuracy": 0.8485,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.959034498780966,
+        "mean_adapt_ms_per_batch": 12.688531521707773,
+        "mean_total_ms_per_batch": 18.64756602048874,
+        "peak_memory_mb": 1644.8896484375,
+        "batches": 125
+      }
+    },
+    "stargan": {
+      "overall": {
+        "auc": 0.9999979999999999,
+        "accuracy": 0.9995,
+        "balanced_accuracy": 0.9995,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stargan": {
+          "auc": 0.9999979999999999,
+          "accuracy": 0.9995,
+          "balanced_accuracy": 0.9995,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.909380249679089,
+        "mean_adapt_ms_per_batch": 12.007193751633167,
+        "mean_total_ms_per_batch": 17.916574001312256,
+        "peak_memory_mb": 1644.7646484375,
+        "batches": 125
+      }
+    },
+    "gaugan": {
+      "overall": {
+        "auc": 0.52865,
+        "accuracy": 0.515,
+        "balanced_accuracy": 0.515,
+        "samples": 2000
+      },
+      "by_domain": {
+        "gaugan": {
+          "auc": 0.52865,
+          "accuracy": 0.515,
+          "balanced_accuracy": 0.515,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.850546795874834,
+        "mean_adapt_ms_per_batch": 11.498460471630096,
+        "mean_total_ms_per_batch": 17.34900726750493,
+        "peak_memory_mb": 1645.7412109375,
+        "batches": 125
+      }
+    },
+    "crn": {
+      "overall": {
+        "auc": 0.9839939999999998,
+        "accuracy": 0.956,
+        "balanced_accuracy": 0.956,
+        "samples": 2000
+      },
+      "by_domain": {
+        "crn": {
+          "auc": 0.9839939999999998,
+          "accuracy": 0.956,
+          "balanced_accuracy": 0.956,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.864717096090317,
+        "mean_adapt_ms_per_batch": 10.134067390114069,
+        "mean_total_ms_per_batch": 15.998784486204386,
+        "peak_memory_mb": 1643.7021484375,
+        "batches": 125
+      }
+    },
+    "dalle": {
+      "overall": {
+        "auc": 0.7395675000000002,
+        "accuracy": 0.684,
+        "balanced_accuracy": 0.6839999999999999,
+        "samples": 2000
+      },
+      "by_domain": {
+        "dalle": {
+          "auc": 0.7395675000000002,
+          "accuracy": 0.684,
+          "balanced_accuracy": 0.6839999999999999,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.832795448601246,
+        "mean_adapt_ms_per_batch": 9.745713219046593,
+        "mean_total_ms_per_batch": 15.578508667647839,
+        "peak_memory_mb": 1648.7021484375,
+        "batches": 125
+      }
+    },
+    "deepfake": {
+      "overall": {
+        "auc": 0.9511835,
+        "accuracy": 0.8835,
+        "balanced_accuracy": 0.8835,
+        "samples": 2000
+      },
+      "by_domain": {
+        "deepfake": {
+          "auc": 0.9511835,
+          "accuracy": 0.8835,
+          "balanced_accuracy": 0.8835,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.8569566160440445,
+        "mean_adapt_ms_per_batch": 13.099946349859238,
+        "mean_total_ms_per_batch": 18.956902965903282,
+        "peak_memory_mb": 1646.2802734375,
+        "batches": 125
+      }
+    },
+    "glide_50_27": {
+      "overall": {
+        "auc": 0.9349065,
+        "accuracy": 0.87,
+        "balanced_accuracy": 0.87,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_50_27": {
+          "auc": 0.9349065,
+          "accuracy": 0.87,
+          "balanced_accuracy": 0.87,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.863903570920229,
+        "mean_adapt_ms_per_batch": 10.285916101187468,
+        "mean_total_ms_per_batch": 16.149819672107697,
+        "peak_memory_mb": 1644.8427734375,
+        "batches": 125
+      }
+    },
+    "glide_100_10": {
+      "overall": {
+        "auc": 0.950196,
+        "accuracy": 0.882,
+        "balanced_accuracy": 0.882,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_10": {
+          "auc": 0.950196,
+          "accuracy": 0.882,
+          "balanced_accuracy": 0.882,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.878222852945328,
+        "mean_adapt_ms_per_batch": 10.0835883282125,
+        "mean_total_ms_per_batch": 15.961811181157827,
+        "peak_memory_mb": 1649.4287109375,
+        "batches": 125
+      }
+    },
+    "glide_100_27": {
+      "overall": {
+        "auc": 0.9375085,
+        "accuracy": 0.8565,
+        "balanced_accuracy": 0.8565,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_27": {
+          "auc": 0.9375085,
+          "accuracy": 0.8565,
+          "balanced_accuracy": 0.8565,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.844340525567532,
+        "mean_adapt_ms_per_batch": 10.962030336260796,
+        "mean_total_ms_per_batch": 16.806370861828327,
+        "peak_memory_mb": 1647.3427734375,
+        "batches": 125
+      }
+    },
+    "guided": {
+      "overall": {
+        "auc": 0.7621389999999999,
+        "accuracy": 0.685,
+        "balanced_accuracy": 0.685,
+        "samples": 2000
+      },
+      "by_domain": {
+        "guided": {
+          "auc": 0.7621389999999999,
+          "accuracy": 0.685,
+          "balanced_accuracy": 0.685,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.927148699760437,
+        "mean_adapt_ms_per_batch": 11.375874307006598,
+        "mean_total_ms_per_batch": 17.303023006767035,
+        "peak_memory_mb": 1647.5693359375,
+        "batches": 125
+      }
+    },
+    "imle": {
+      "overall": {
+        "auc": 0.9607865,
+        "accuracy": 0.898,
+        "balanced_accuracy": 0.898,
+        "samples": 2000
+      },
+      "by_domain": {
+        "imle": {
+          "auc": 0.9607865,
+          "accuracy": 0.898,
+          "balanced_accuracy": 0.898,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.885834634304047,
+        "mean_adapt_ms_per_batch": 10.171684965491295,
+        "mean_total_ms_per_batch": 16.05751959979534,
+        "peak_memory_mb": 1644.6943359375,
+        "batches": 125
+      }
+    },
+    "ldm_100": {
+      "overall": {
+        "auc": 0.9515395,
+        "accuracy": 0.8745,
+        "balanced_accuracy": 0.8745,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_100": {
+          "auc": 0.9515395,
+          "accuracy": 0.8745,
+          "balanced_accuracy": 0.8745,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.932649437338114,
+        "mean_adapt_ms_per_batch": 11.82815220206976,
+        "mean_total_ms_per_batch": 17.760801639407873,
+        "peak_memory_mb": 1646.6318359375,
+        "batches": 125
+      }
+    },
+    "ldm_200": {
+      "overall": {
+        "auc": 0.9428655,
+        "accuracy": 0.866,
+        "balanced_accuracy": 0.8660000000000001,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200": {
+          "auc": 0.9428655,
+          "accuracy": 0.866,
+          "balanced_accuracy": 0.8660000000000001,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.9340404868125916,
+        "mean_adapt_ms_per_batch": 10.5666334182024,
+        "mean_total_ms_per_batch": 16.50067390501499,
+        "peak_memory_mb": 1649.6162109375,
+        "batches": 125
+      }
+    },
+    "ldm_200_cfg": {
+      "overall": {
+        "auc": 0.9204519999999999,
+        "accuracy": 0.8415,
+        "balanced_accuracy": 0.8415,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200_cfg": {
+          "auc": 0.9204519999999999,
+          "accuracy": 0.8415,
+          "balanced_accuracy": 0.8415,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.974692113697529,
+        "mean_adapt_ms_per_batch": 10.92486922442913,
+        "mean_total_ms_per_batch": 16.89956133812666,
+        "peak_memory_mb": 1648.6318359375,
+        "batches": 125
+      }
+    },
+    "san": {
+      "overall": {
+        "auc": 0.7047392673213653,
+        "accuracy": 0.6575342465753424,
+        "balanced_accuracy": 0.6575342465753424,
+        "samples": 438
+      },
+      "by_domain": {
+        "san": {
+          "auc": 0.7047392673213653,
+          "accuracy": 0.6575342465753424,
+          "balanced_accuracy": 0.6575342465753424,
+          "samples": 438
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.833951407112181,
+        "mean_adapt_ms_per_batch": 10.849902356442596,
+        "mean_total_ms_per_batch": 16.683853763554776,
+        "peak_memory_mb": 1650.2021484375,
+        "batches": 28
+      }
+    },
+    "seeingdark": {
+      "overall": {
+        "auc": 0.7786419753086421,
+        "accuracy": 0.6833333333333333,
+        "balanced_accuracy": 0.6833333333333333,
+        "samples": 360
+      },
+      "by_domain": {
+        "seeingdark": {
+          "auc": 0.7786419753086421,
+          "accuracy": 0.6833333333333333,
+          "balanced_accuracy": 0.6833333333333333,
+          "samples": 360
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 5.8272478535123495,
+        "mean_adapt_ms_per_batch": 14.454826915069766,
+        "mean_total_ms_per_batch": 20.282074768582117,
+        "peak_memory_mb": 1650.3037109375,
+        "batches": 23
+      }
+    }
+  },
+  "cotta": {
+    "cyclegan": {
+      "overall": {
+        "auc": 0.8819505,
+        "accuracy": 0.7995,
+        "balanced_accuracy": 0.7995000000000001,
+        "samples": 2000
+      },
+      "by_domain": {
+        "cyclegan": {
+          "auc": 0.8819505,
+          "accuracy": 0.7995,
+          "balanced_accuracy": 0.7995000000000001,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.2115130238235,
+        "mean_adapt_ms_per_batch": 28.058473140001297,
+        "mean_total_ms_per_batch": 39.2699861638248,
+        "peak_memory_mb": 1959.9599609375,
+        "batches": 125
+      }
+    },
+    "biggan": {
+      "overall": {
+        "auc": 0.75173,
+        "accuracy": 0.6855,
+        "balanced_accuracy": 0.6855,
+        "samples": 2000
+      },
+      "by_domain": {
+        "biggan": {
+          "auc": 0.75173,
+          "accuracy": 0.6855,
+          "balanced_accuracy": 0.6855,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.124760545790195,
+        "mean_adapt_ms_per_batch": 27.61413987725973,
+        "mean_total_ms_per_batch": 38.73890042304993,
+        "peak_memory_mb": 1950.6474609375,
+        "batches": 125
+      }
+    },
+    "stylegan": {
+      "overall": {
+        "auc": 0.7832779999999999,
+        "accuracy": 0.755,
+        "balanced_accuracy": 0.755,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stylegan": {
+          "auc": 0.7832779999999999,
+          "accuracy": 0.755,
+          "balanced_accuracy": 0.755,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.123963546007872,
+        "mean_adapt_ms_per_batch": 29.68870745226741,
+        "mean_total_ms_per_batch": 40.81267099827528,
+        "peak_memory_mb": 1954.7099609375,
+        "batches": 125
+      }
+    },
+    "stargan": {
+      "overall": {
+        "auc": 0.99996,
+        "accuracy": 0.9975,
+        "balanced_accuracy": 0.9975,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stargan": {
+          "auc": 0.99996,
+          "accuracy": 0.9975,
+          "balanced_accuracy": 0.9975,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.124474439769983,
+        "mean_adapt_ms_per_batch": 27.423264019191265,
+        "mean_total_ms_per_batch": 38.54773845896125,
+        "peak_memory_mb": 1950.2099609375,
+        "batches": 125
+      }
+    },
+    "gaugan": {
+      "overall": {
+        "auc": 0.5485055000000001,
+        "accuracy": 0.534,
+        "balanced_accuracy": 0.534,
+        "samples": 2000
+      },
+      "by_domain": {
+        "gaugan": {
+          "auc": 0.5485055000000001,
+          "accuracy": 0.534,
+          "balanced_accuracy": 0.534,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.099458262324333,
+        "mean_adapt_ms_per_batch": 27.340807642787695,
+        "mean_total_ms_per_batch": 38.44026590511203,
+        "peak_memory_mb": 1953.9599609375,
+        "batches": 125
+      }
+    },
+    "crn": {
+      "overall": {
+        "auc": 0.9817639999999999,
+        "accuracy": 0.955,
+        "balanced_accuracy": 0.9550000000000001,
+        "samples": 2000
+      },
+      "by_domain": {
+        "crn": {
+          "auc": 0.9817639999999999,
+          "accuracy": 0.955,
+          "balanced_accuracy": 0.9550000000000001,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.073207769542933,
+        "mean_adapt_ms_per_batch": 27.422033425420523,
+        "mean_total_ms_per_batch": 38.495241194963455,
+        "peak_memory_mb": 1953.3974609375,
+        "batches": 125
+      }
+    },
+    "dalle": {
+      "overall": {
+        "auc": 0.578843,
+        "accuracy": 0.5505,
+        "balanced_accuracy": 0.5505,
+        "samples": 2000
+      },
+      "by_domain": {
+        "dalle": {
+          "auc": 0.578843,
+          "accuracy": 0.5505,
+          "balanced_accuracy": 0.5505,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.084525939077139,
+        "mean_adapt_ms_per_batch": 28.410393562167883,
+        "mean_total_ms_per_batch": 39.49491950124502,
+        "peak_memory_mb": 1953.7099609375,
+        "batches": 125
+      }
+    },
+    "deepfake": {
+      "overall": {
+        "auc": 0.897329,
+        "accuracy": 0.8125,
+        "balanced_accuracy": 0.8125,
+        "samples": 2000
+      },
+      "by_domain": {
+        "deepfake": {
+          "auc": 0.897329,
+          "accuracy": 0.8125,
+          "balanced_accuracy": 0.8125,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.15064413100481,
+        "mean_adapt_ms_per_batch": 27.290836293250322,
+        "mean_total_ms_per_batch": 38.44148042425513,
+        "peak_memory_mb": 1950.8349609375,
+        "batches": 125
+      }
+    },
+    "glide_50_27": {
+      "overall": {
+        "auc": 0.9565835,
+        "accuracy": 0.8935,
+        "balanced_accuracy": 0.8935,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_50_27": {
+          "auc": 0.9565835,
+          "accuracy": 0.8935,
+          "balanced_accuracy": 0.8935,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.104163479059935,
+        "mean_adapt_ms_per_batch": 28.39172462001443,
+        "mean_total_ms_per_batch": 39.495888099074364,
+        "peak_memory_mb": 1950.7724609375,
+        "batches": 125
+      }
+    },
+    "glide_100_10": {
+      "overall": {
+        "auc": 0.9409049999999999,
+        "accuracy": 0.8755,
+        "balanced_accuracy": 0.8755,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_10": {
+          "auc": 0.9409049999999999,
+          "accuracy": 0.8755,
+          "balanced_accuracy": 0.8755,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.06689490377903,
+        "mean_adapt_ms_per_batch": 28.36742854118347,
+        "mean_total_ms_per_batch": 39.4343234449625,
+        "peak_memory_mb": 1951.6474609375,
+        "batches": 125
+      }
+    },
+    "glide_100_27": {
+      "overall": {
+        "auc": 0.9314854999999999,
+        "accuracy": 0.8595,
+        "balanced_accuracy": 0.8594999999999999,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_27": {
+          "auc": 0.9314854999999999,
+          "accuracy": 0.8595,
+          "balanced_accuracy": 0.8594999999999999,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.075674068182707,
+        "mean_adapt_ms_per_batch": 28.464621029794216,
+        "mean_total_ms_per_batch": 39.54029509797692,
+        "peak_memory_mb": 1955.7724609375,
+        "batches": 125
+      }
+    },
+    "guided": {
+      "overall": {
+        "auc": 0.6419684999999999,
+        "accuracy": 0.601,
+        "balanced_accuracy": 0.601,
+        "samples": 2000
+      },
+      "by_domain": {
+        "guided": {
+          "auc": 0.6419684999999999,
+          "accuracy": 0.601,
+          "balanced_accuracy": 0.601,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.144964471459389,
+        "mean_adapt_ms_per_batch": 27.338898919522762,
+        "mean_total_ms_per_batch": 38.48386339098215,
+        "peak_memory_mb": 1952.2724609375,
+        "batches": 125
+      }
+    },
+    "imle": {
+      "overall": {
+        "auc": 0.9658165,
+        "accuracy": 0.905,
+        "balanced_accuracy": 0.905,
+        "samples": 2000
+      },
+      "by_domain": {
+        "imle": {
+          "auc": 0.9658165,
+          "accuracy": 0.905,
+          "balanced_accuracy": 0.905,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.103569637984037,
+        "mean_adapt_ms_per_batch": 27.36425567418337,
+        "mean_total_ms_per_batch": 38.467825312167406,
+        "peak_memory_mb": 1947.2724609375,
+        "batches": 125
+      }
+    },
+    "ldm_100": {
+      "overall": {
+        "auc": 0.9553525,
+        "accuracy": 0.879,
+        "balanced_accuracy": 0.879,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_100": {
+          "auc": 0.9553525,
+          "accuracy": 0.879,
+          "balanced_accuracy": 0.879,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.091421652585268,
+        "mean_adapt_ms_per_batch": 28.512655060738325,
+        "mean_total_ms_per_batch": 39.60407671332359,
+        "peak_memory_mb": 1952.1474609375,
+        "batches": 125
+      }
+    },
+    "ldm_200": {
+      "overall": {
+        "auc": 0.9148180000000001,
+        "accuracy": 0.8325,
+        "balanced_accuracy": 0.8325,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200": {
+          "auc": 0.9148180000000001,
+          "accuracy": 0.8325,
+          "balanced_accuracy": 0.8325,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.103537302464247,
+        "mean_adapt_ms_per_batch": 28.355920493602753,
+        "mean_total_ms_per_batch": 39.459457796067,
+        "peak_memory_mb": 1951.7724609375,
+        "batches": 125
+      }
+    },
+    "ldm_200_cfg": {
+      "overall": {
+        "auc": 0.8193425,
+        "accuracy": 0.751,
+        "balanced_accuracy": 0.751,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200_cfg": {
+          "auc": 0.8193425,
+          "accuracy": 0.751,
+          "balanced_accuracy": 0.751,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.11105988547206,
+        "mean_adapt_ms_per_batch": 28.43733163923025,
+        "mean_total_ms_per_batch": 39.54839152470231,
+        "peak_memory_mb": 1952.7724609375,
+        "batches": 125
+      }
+    },
+    "san": {
+      "overall": {
+        "auc": 0.7077312816663539,
+        "accuracy": 0.678082191780822,
+        "balanced_accuracy": 0.678082191780822,
+        "samples": 438
+      },
+      "by_domain": {
+        "san": {
+          "auc": 0.7077312816663539,
+          "accuracy": 0.678082191780822,
+          "balanced_accuracy": 0.678082191780822,
+          "samples": 438
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.119804378332836,
+        "mean_adapt_ms_per_batch": 27.596592404214398,
+        "mean_total_ms_per_batch": 38.716396782547235,
+        "peak_memory_mb": 1952.3974609375,
+        "batches": 28
+      }
+    },
+    "seeingdark": {
+      "overall": {
+        "auc": 0.7805246913580246,
+        "accuracy": 0.6833333333333333,
+        "balanced_accuracy": 0.6833333333333333,
+        "samples": 360
+      },
+      "by_domain": {
+        "seeingdark": {
+          "auc": 0.7805246913580246,
+          "accuracy": 0.6833333333333333,
+          "balanced_accuracy": 0.6833333333333333,
+          "samples": 360
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 11.339557863286007,
+        "mean_adapt_ms_per_batch": 46.35993731410607,
+        "mean_total_ms_per_batch": 57.69949517739208,
+        "peak_memory_mb": 1951.2099609375,
+        "batches": 23
+      }
+    }
+  },
+  "rotta": {
+    "cyclegan": {
+      "overall": {
+        "auc": 0.9445699999999999,
+        "accuracy": 0.876,
+        "balanced_accuracy": 0.876,
+        "samples": 2000
+      },
+      "by_domain": {
+        "cyclegan": {
+          "auc": 0.9445699999999999,
+          "accuracy": 0.876,
+          "balanced_accuracy": 0.876,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.149807076901197,
+        "mean_adapt_ms_per_batch": 54.4960926361382,
+        "mean_total_ms_per_batch": 62.6458997130394,
+        "peak_memory_mb": 10891.1884765625,
+        "batches": 125
+      }
+    },
+    "biggan": {
+      "overall": {
+        "auc": 0.773106,
+        "accuracy": 0.711,
+        "balanced_accuracy": 0.7110000000000001,
+        "samples": 2000
+      },
+      "by_domain": {
+        "biggan": {
+          "auc": 0.773106,
+          "accuracy": 0.711,
+          "balanced_accuracy": 0.7110000000000001,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.081966083496809,
+        "mean_adapt_ms_per_batch": 53.703320138156414,
+        "mean_total_ms_per_batch": 61.78528622165322,
+        "peak_memory_mb": 10942.2509765625,
+        "batches": 125
+      }
+    },
+    "stylegan": {
+      "overall": {
+        "auc": 0.864852,
+        "accuracy": 0.844,
+        "balanced_accuracy": 0.844,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stylegan": {
+          "auc": 0.864852,
+          "accuracy": 0.844,
+          "balanced_accuracy": 0.844,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.153361171483994,
+        "mean_adapt_ms_per_batch": 53.761750500649214,
+        "mean_total_ms_per_batch": 61.91511167213321,
+        "peak_memory_mb": 10894.3759765625,
+        "batches": 125
+      }
+    },
+    "stargan": {
+      "overall": {
+        "auc": 1.0,
+        "accuracy": 1.0,
+        "balanced_accuracy": 1.0,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stargan": {
+          "auc": 1.0,
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 7.9464661329984665,
+        "mean_adapt_ms_per_batch": 53.961424987763166,
+        "mean_total_ms_per_batch": 61.90789112076163,
+        "peak_memory_mb": 10875.0634765625,
+        "batches": 125
+      }
+    },
+    "gaugan": {
+      "overall": {
+        "auc": 0.5644005,
+        "accuracy": 0.5385,
+        "balanced_accuracy": 0.5385,
+        "samples": 2000
+      },
+      "by_domain": {
+        "gaugan": {
+          "auc": 0.5644005,
+          "accuracy": 0.5385,
+          "balanced_accuracy": 0.5385,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.139252707362175,
+        "mean_adapt_ms_per_batch": 53.42240198329091,
+        "mean_total_ms_per_batch": 61.561654690653086,
+        "peak_memory_mb": 10928.6259765625,
+        "batches": 125
+      }
+    },
+    "crn": {
+      "overall": {
+        "auc": 0.9695135,
+        "accuracy": 0.928,
+        "balanced_accuracy": 0.928,
+        "samples": 2000
+      },
+      "by_domain": {
+        "crn": {
+          "auc": 0.9695135,
+          "accuracy": 0.928,
+          "balanced_accuracy": 0.928,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.021882817149162,
+        "mean_adapt_ms_per_batch": 53.66256210952997,
+        "mean_total_ms_per_batch": 61.684444926679134,
+        "peak_memory_mb": 10917.8759765625,
+        "batches": 125
+      }
+    },
+    "dalle": {
+      "overall": {
+        "auc": 0.7939525,
+        "accuracy": 0.7125,
+        "balanced_accuracy": 0.7125,
+        "samples": 2000
+      },
+      "by_domain": {
+        "dalle": {
+          "auc": 0.7939525,
+          "accuracy": 0.7125,
+          "balanced_accuracy": 0.7125,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.184131111949682,
+        "mean_adapt_ms_per_batch": 52.5381770208478,
+        "mean_total_ms_per_batch": 60.72230813279748,
+        "peak_memory_mb": 10959.9384765625,
+        "batches": 125
+      }
+    },
+    "deepfake": {
+      "overall": {
+        "auc": 0.945438,
+        "accuracy": 0.8775,
+        "balanced_accuracy": 0.8775,
+        "samples": 2000
+      },
+      "by_domain": {
+        "deepfake": {
+          "auc": 0.945438,
+          "accuracy": 0.8775,
+          "balanced_accuracy": 0.8775,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.039852250367403,
+        "mean_adapt_ms_per_batch": 53.96377982571721,
+        "mean_total_ms_per_batch": 62.003632076084614,
+        "peak_memory_mb": 10980.3134765625,
+        "batches": 125
+      }
+    },
+    "glide_50_27": {
+      "overall": {
+        "auc": 0.9401044999999999,
+        "accuracy": 0.875,
+        "balanced_accuracy": 0.875,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_50_27": {
+          "auc": 0.9401044999999999,
+          "accuracy": 0.875,
+          "balanced_accuracy": 0.875,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.108827140182257,
+        "mean_adapt_ms_per_batch": 54.08298458904028,
+        "mean_total_ms_per_batch": 62.191811729222536,
+        "peak_memory_mb": 10905.0634765625,
+        "batches": 125
+      }
+    },
+    "glide_100_10": {
+      "overall": {
+        "auc": 0.9594189999999999,
+        "accuracy": 0.8955,
+        "balanced_accuracy": 0.8955,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_10": {
+          "auc": 0.9594189999999999,
+          "accuracy": 0.8955,
+          "balanced_accuracy": 0.8955,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.022530600428581,
+        "mean_adapt_ms_per_batch": 54.03558113798499,
+        "mean_total_ms_per_batch": 62.05811173841357,
+        "peak_memory_mb": 10907.6259765625,
+        "batches": 125
+      }
+    },
+    "glide_100_27": {
+      "overall": {
+        "auc": 0.9441064999999997,
+        "accuracy": 0.8675,
+        "balanced_accuracy": 0.8674999999999999,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_27": {
+          "auc": 0.9441064999999997,
+          "accuracy": 0.8675,
+          "balanced_accuracy": 0.8674999999999999,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.029391773045063,
+        "mean_adapt_ms_per_batch": 54.12705325707793,
+        "mean_total_ms_per_batch": 62.156445030122995,
+        "peak_memory_mb": 10907.3759765625,
+        "batches": 125
+      }
+    },
+    "guided": {
+      "overall": {
+        "auc": 0.762979,
+        "accuracy": 0.7,
+        "balanced_accuracy": 0.7,
+        "samples": 2000
+      },
+      "by_domain": {
+        "guided": {
+          "auc": 0.762979,
+          "accuracy": 0.7,
+          "balanced_accuracy": 0.7,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 7.997387032955885,
+        "mean_adapt_ms_per_batch": 53.631659135222435,
+        "mean_total_ms_per_batch": 61.62904616817832,
+        "peak_memory_mb": 10927.8134765625,
+        "batches": 125
+      }
+    },
+    "imle": {
+      "overall": {
+        "auc": 0.934195,
+        "accuracy": 0.871,
+        "balanced_accuracy": 0.871,
+        "samples": 2000
+      },
+      "by_domain": {
+        "imle": {
+          "auc": 0.934195,
+          "accuracy": 0.871,
+          "balanced_accuracy": 0.871,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 7.993826985359192,
+        "mean_adapt_ms_per_batch": 53.633719835430384,
+        "mean_total_ms_per_batch": 61.627546820789576,
+        "peak_memory_mb": 10927.5634765625,
+        "batches": 125
+      }
+    },
+    "ldm_100": {
+      "overall": {
+        "auc": 0.968671,
+        "accuracy": 0.892,
+        "balanced_accuracy": 0.8919999999999999,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_100": {
+          "auc": 0.968671,
+          "accuracy": 0.892,
+          "balanced_accuracy": 0.8919999999999999,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.074184361845255,
+        "mean_adapt_ms_per_batch": 54.006642393767834,
+        "mean_total_ms_per_batch": 62.08082675561309,
+        "peak_memory_mb": 10906.3134765625,
+        "batches": 125
+      }
+    },
+    "ldm_200": {
+      "overall": {
+        "auc": 0.9682084999999999,
+        "accuracy": 0.8945,
+        "balanced_accuracy": 0.8945,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200": {
+          "auc": 0.9682084999999999,
+          "accuracy": 0.8945,
+          "balanced_accuracy": 0.8945,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 7.965344049036503,
+        "mean_adapt_ms_per_batch": 53.70360701531172,
+        "mean_total_ms_per_batch": 61.66895106434822,
+        "peak_memory_mb": 10911.3759765625,
+        "batches": 125
+      }
+    },
+    "ldm_200_cfg": {
+      "overall": {
+        "auc": 0.952396,
+        "accuracy": 0.859,
+        "balanced_accuracy": 0.859,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200_cfg": {
+          "auc": 0.952396,
+          "accuracy": 0.859,
+          "balanced_accuracy": 0.859,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.171804241836071,
+        "mean_adapt_ms_per_batch": 53.95407768338919,
+        "mean_total_ms_per_batch": 62.12588192522526,
+        "peak_memory_mb": 10923.8759765625,
+        "batches": 125
+      }
+    },
+    "san": {
+      "overall": {
+        "auc": 0.7493067283834782,
+        "accuracy": 0.682648401826484,
+        "balanced_accuracy": 0.682648401826484,
+        "samples": 438
+      },
+      "by_domain": {
+        "san": {
+          "auc": 0.7493067283834782,
+          "accuracy": 0.682648401826484,
+          "balanced_accuracy": 0.682648401826484,
+          "samples": 438
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.194012866754617,
+        "mean_adapt_ms_per_batch": 46.16612573486886,
+        "mean_total_ms_per_batch": 54.360138601623476,
+        "peak_memory_mb": 10956.1259765625,
+        "batches": 28
+      }
+    },
+    "seeingdark": {
+      "overall": {
+        "auc": 0.8061419753086418,
+        "accuracy": 0.7388888888888889,
+        "balanced_accuracy": 0.7388888888888889,
+        "samples": 360
+      },
+      "by_domain": {
+        "seeingdark": {
+          "auc": 0.8061419753086418,
+          "accuracy": 0.7388888888888889,
+          "balanced_accuracy": 0.7388888888888889,
+          "samples": 360
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 53120,
+        "mean_predict_ms_per_batch": 8.809151067196026,
+        "mean_adapt_ms_per_batch": 50.2274138448031,
+        "mean_total_ms_per_batch": 59.03656491199913,
+        "peak_memory_mb": 10926.3134765625,
+        "batches": 23
+      }
+    }
+  },
+  "lame": {
+    "cyclegan": {
+      "overall": {
+        "auc": 0.8706554999999999,
+        "accuracy": 0.69,
+        "balanced_accuracy": 0.69,
+        "samples": 2000
+      },
+      "by_domain": {
+        "cyclegan": {
+          "auc": 0.8706554999999999,
+          "accuracy": 0.69,
+          "balanced_accuracy": 0.69,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 8.476047597825527,
+        "mean_adapt_ms_per_batch": 0.011437922716140747,
+        "mean_total_ms_per_batch": 8.487485520541668,
+        "peak_memory_mb": 372.95654296875,
+        "batches": 125
+      }
+    },
+    "biggan": {
+      "overall": {
+        "auc": 0.834448,
+        "accuracy": 0.626,
+        "balanced_accuracy": 0.626,
+        "samples": 2000
+      },
+      "by_domain": {
+        "biggan": {
+          "auc": 0.834448,
+          "accuracy": 0.626,
+          "balanced_accuracy": 0.626,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 6.794632058590651,
+        "mean_adapt_ms_per_batch": 0.007774960249662399,
+        "mean_total_ms_per_batch": 6.802407018840313,
+        "peak_memory_mb": 376.39404296875,
+        "batches": 125
+      }
+    },
+    "stylegan": {
+      "overall": {
+        "auc": 0.850908,
+        "accuracy": 0.8175,
+        "balanced_accuracy": 0.8175,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stylegan": {
+          "auc": 0.850908,
+          "accuracy": 0.8175,
+          "balanced_accuracy": 0.8175,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 6.988615117967129,
+        "mean_adapt_ms_per_batch": 0.01569315791130066,
+        "mean_total_ms_per_batch": 7.004308275878429,
+        "peak_memory_mb": 371.45654296875,
+        "batches": 125
+      }
+    },
+    "stargan": {
+      "overall": {
+        "auc": 1.0,
+        "accuracy": 1.0,
+        "balanced_accuracy": 1.0,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stargan": {
+          "auc": 1.0,
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 6.57691453397274,
+        "mean_adapt_ms_per_batch": 0.01599077880382538,
+        "mean_total_ms_per_batch": 6.5929053127765656,
+        "peak_memory_mb": 377.64404296875,
+        "batches": 125
+      }
+    },
+    "gaugan": {
+      "overall": {
+        "auc": 0.5877185,
+        "accuracy": 0.503,
+        "balanced_accuracy": 0.503,
+        "samples": 2000
+      },
+      "by_domain": {
+        "gaugan": {
+          "auc": 0.5877185,
+          "accuracy": 0.503,
+          "balanced_accuracy": 0.503,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 7.647483851760626,
+        "mean_adapt_ms_per_batch": 0.016266971826553345,
+        "mean_total_ms_per_batch": 7.663750823587179,
+        "peak_memory_mb": 372.64404296875,
+        "batches": 125
+      }
+    },
+    "crn": {
+      "overall": {
+        "auc": 0.942427,
+        "accuracy": 0.565,
+        "balanced_accuracy": 0.565,
+        "samples": 2000
+      },
+      "by_domain": {
+        "crn": {
+          "auc": 0.942427,
+          "accuracy": 0.565,
+          "balanced_accuracy": 0.565,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 8.54081828519702,
+        "mean_adapt_ms_per_batch": 0.021921947598457336,
+        "mean_total_ms_per_batch": 8.562740232795477,
+        "peak_memory_mb": 377.64404296875,
+        "batches": 125
+      }
+    },
+    "dalle": {
+      "overall": {
+        "auc": 0.694915,
+        "accuracy": 0.5235,
+        "balanced_accuracy": 0.5235,
+        "samples": 2000
+      },
+      "by_domain": {
+        "dalle": {
+          "auc": 0.694915,
+          "accuracy": 0.5235,
+          "balanced_accuracy": 0.5235,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 7.529630817472935,
+        "mean_adapt_ms_per_batch": 0.017030764371156693,
+        "mean_total_ms_per_batch": 7.546661581844091,
+        "peak_memory_mb": 373.83154296875,
+        "batches": 125
+      }
+    },
+    "deepfake": {
+      "overall": {
+        "auc": 0.955017,
+        "accuracy": 0.9185,
+        "balanced_accuracy": 0.9185,
+        "samples": 2000
+      },
+      "by_domain": {
+        "deepfake": {
+          "auc": 0.955017,
+          "accuracy": 0.9185,
+          "balanced_accuracy": 0.9185,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 7.551853787153959,
+        "mean_adapt_ms_per_batch": 0.01611616089940071,
+        "mean_total_ms_per_batch": 7.56796994805336,
+        "peak_memory_mb": 377.33154296875,
+        "batches": 125
+      }
+    },
+    "glide_50_27": {
+      "overall": {
+        "auc": 0.979077,
+        "accuracy": 0.9075,
+        "balanced_accuracy": 0.9075,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_50_27": {
+          "auc": 0.979077,
+          "accuracy": 0.9075,
+          "balanced_accuracy": 0.9075,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 7.78333954513073,
+        "mean_adapt_ms_per_batch": 0.016101043671369553,
+        "mean_total_ms_per_batch": 7.799440588802099,
+        "peak_memory_mb": 371.83154296875,
+        "batches": 125
+      }
+    },
+    "glide_100_10": {
+      "overall": {
+        "auc": 0.9872565,
+        "accuracy": 0.9295,
+        "balanced_accuracy": 0.9295,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_10": {
+          "auc": 0.9872565,
+          "accuracy": 0.9295,
+          "balanced_accuracy": 0.9295,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 7.840994991362095,
+        "mean_adapt_ms_per_batch": 0.017280984669923782,
+        "mean_total_ms_per_batch": 7.858275976032019,
+        "peak_memory_mb": 377.08154296875,
+        "batches": 125
+      }
+    },
+    "glide_100_27": {
+      "overall": {
+        "auc": 0.9788765,
+        "accuracy": 0.8785,
+        "balanced_accuracy": 0.8785000000000001,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_27": {
+          "auc": 0.9788765,
+          "accuracy": 0.8785,
+          "balanced_accuracy": 0.8785000000000001,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 7.151938747614622,
+        "mean_adapt_ms_per_batch": 0.012179572135210037,
+        "mean_total_ms_per_batch": 7.164118319749832,
+        "peak_memory_mb": 371.58154296875,
+        "batches": 125
+      }
+    },
+    "guided": {
+      "overall": {
+        "auc": 0.8194205000000001,
+        "accuracy": 0.6805,
+        "balanced_accuracy": 0.6805,
+        "samples": 2000
+      },
+      "by_domain": {
+        "guided": {
+          "auc": 0.8194205000000001,
+          "accuracy": 0.6805,
+          "balanced_accuracy": 0.6805,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 7.337949514389038,
+        "mean_adapt_ms_per_batch": 0.009462583810091019,
+        "mean_total_ms_per_batch": 7.347412098199129,
+        "peak_memory_mb": 377.08154296875,
+        "batches": 125
+      }
+    },
+    "imle": {
+      "overall": {
+        "auc": 0.9265185,
+        "accuracy": 0.551,
+        "balanced_accuracy": 0.551,
+        "samples": 2000
+      },
+      "by_domain": {
+        "imle": {
+          "auc": 0.9265185,
+          "accuracy": 0.551,
+          "balanced_accuracy": 0.551,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 7.017514701932669,
+        "mean_adapt_ms_per_batch": 0.009714372456073761,
+        "mean_total_ms_per_batch": 7.0272290743887424,
+        "peak_memory_mb": 371.08154296875,
+        "batches": 125
+      }
+    },
+    "ldm_100": {
+      "overall": {
+        "auc": 0.966568,
+        "accuracy": 0.7565,
+        "balanced_accuracy": 0.7565,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_100": {
+          "auc": 0.966568,
+          "accuracy": 0.7565,
+          "balanced_accuracy": 0.7565,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 8.666163433343172,
+        "mean_adapt_ms_per_batch": 0.014796581119298935,
+        "mean_total_ms_per_batch": 8.680960014462471,
+        "peak_memory_mb": 377.89404296875,
+        "batches": 125
+      }
+    },
+    "ldm_200": {
+      "overall": {
+        "auc": 0.9662215,
+        "accuracy": 0.747,
+        "balanced_accuracy": 0.747,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200": {
+          "auc": 0.9662215,
+          "accuracy": 0.747,
+          "balanced_accuracy": 0.747,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 7.3907459154725075,
+        "mean_adapt_ms_per_batch": 0.010027308017015457,
+        "mean_total_ms_per_batch": 7.400773223489523,
+        "peak_memory_mb": 370.70654296875,
+        "batches": 125
+      }
+    },
+    "ldm_200_cfg": {
+      "overall": {
+        "auc": 0.9598829999999998,
+        "accuracy": 0.752,
+        "balanced_accuracy": 0.752,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200_cfg": {
+          "auc": 0.9598829999999998,
+          "accuracy": 0.752,
+          "balanced_accuracy": 0.752,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 6.895394127815962,
+        "mean_adapt_ms_per_batch": 0.008458741009235382,
+        "mean_total_ms_per_batch": 6.903852868825197,
+        "peak_memory_mb": 377.95654296875,
+        "batches": 125
+      }
+    },
+    "san": {
+      "overall": {
+        "auc": 0.717311982652572,
+        "accuracy": 0.636986301369863,
+        "balanced_accuracy": 0.636986301369863,
+        "samples": 438
+      },
+      "by_domain": {
+        "san": {
+          "auc": 0.717311982652572,
+          "accuracy": 0.636986301369863,
+          "balanced_accuracy": 0.636986301369863,
+          "samples": 438
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 8.3579638241125,
+        "mean_adapt_ms_per_batch": 0.014247788515474116,
+        "mean_total_ms_per_batch": 8.372211612627975,
+        "peak_memory_mb": 370.45654296875,
+        "batches": 28
+      }
+    },
+    "seeingdark": {
+      "overall": {
+        "auc": 0.7799074074074075,
+        "accuracy": 0.7027777777777777,
+        "balanced_accuracy": 0.7027777777777777,
+        "samples": 360
+      },
+      "by_domain": {
+        "seeingdark": {
+          "auc": 0.7799074074074075,
+          "accuracy": 0.7027777777777777,
+          "balanced_accuracy": 0.7027777777777777,
+          "samples": 360
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 0,
+        "mean_predict_ms_per_batch": 7.442910426660724,
+        "mean_adapt_ms_per_batch": 0.010290750018928362,
+        "mean_total_ms_per_batch": 7.453201176679653,
+        "peak_memory_mb": 376.45654296875,
+        "batches": 23
+      }
+    }
+  },
+  "t2a": {
+    "cyclegan": {
+      "overall": {
+        "auc": 0.8817539999999999,
+        "accuracy": 0.7905,
+        "balanced_accuracy": 0.7905,
+        "samples": 2000
+      },
+      "by_domain": {
+        "cyclegan": {
+          "auc": 0.8817539999999999,
+          "accuracy": 0.7905,
+          "balanced_accuracy": 0.7905,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.157201237976551,
+        "mean_adapt_ms_per_batch": 45.217414651066065,
+        "mean_total_ms_per_batch": 52.374615889042616,
+        "peak_memory_mb": 3237.80615234375,
+        "batches": 125
+      }
+    },
+    "biggan": {
+      "overall": {
+        "auc": 0.743949,
+        "accuracy": 0.6815,
+        "balanced_accuracy": 0.6815,
+        "samples": 2000
+      },
+      "by_domain": {
+        "biggan": {
+          "auc": 0.743949,
+          "accuracy": 0.6815,
+          "balanced_accuracy": 0.6815,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.17440528050065,
+        "mean_adapt_ms_per_batch": 44.98791213706136,
+        "mean_total_ms_per_batch": 52.16231741756201,
+        "peak_memory_mb": 3234.0556640625,
+        "batches": 125
+      }
+    },
+    "stylegan": {
+      "overall": {
+        "auc": 0.8504590000000001,
+        "accuracy": 0.8455,
+        "balanced_accuracy": 0.8454999999999999,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stylegan": {
+          "auc": 0.8504590000000001,
+          "accuracy": 0.8455,
+          "balanced_accuracy": 0.8454999999999999,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.335438065230846,
+        "mean_adapt_ms_per_batch": 47.846181992441416,
+        "mean_total_ms_per_batch": 55.18162005767226,
+        "peak_memory_mb": 3235.43115234375,
+        "batches": 125
+      }
+    },
+    "stargan": {
+      "overall": {
+        "auc": 0.9998739999999999,
+        "accuracy": 0.994,
+        "balanced_accuracy": 0.994,
+        "samples": 2000
+      },
+      "by_domain": {
+        "stargan": {
+          "auc": 0.9998739999999999,
+          "accuracy": 0.994,
+          "balanced_accuracy": 0.994,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.257480472326279,
+        "mean_adapt_ms_per_batch": 45.77342339977622,
+        "mean_total_ms_per_batch": 53.0309038721025,
+        "peak_memory_mb": 3233.11865234375,
+        "batches": 125
+      }
+    },
+    "gaugan": {
+      "overall": {
+        "auc": 0.537017,
+        "accuracy": 0.5245,
+        "balanced_accuracy": 0.5245,
+        "samples": 2000
+      },
+      "by_domain": {
+        "gaugan": {
+          "auc": 0.537017,
+          "accuracy": 0.5245,
+          "balanced_accuracy": 0.5245,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.240020975470543,
+        "mean_adapt_ms_per_batch": 45.57894944772124,
+        "mean_total_ms_per_batch": 52.818970423191786,
+        "peak_memory_mb": 3237.80615234375,
+        "batches": 125
+      }
+    },
+    "crn": {
+      "overall": {
+        "auc": 0.9745155000000001,
+        "accuracy": 0.9355,
+        "balanced_accuracy": 0.9355,
+        "samples": 2000
+      },
+      "by_domain": {
+        "crn": {
+          "auc": 0.9745155000000001,
+          "accuracy": 0.9355,
+          "balanced_accuracy": 0.9355,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.082436073571444,
+        "mean_adapt_ms_per_batch": 44.61708538979292,
+        "mean_total_ms_per_batch": 51.69952146336436,
+        "peak_memory_mb": 3234.99365234375,
+        "batches": 125
+      }
+    },
+    "dalle": {
+      "overall": {
+        "auc": 0.7255425,
+        "accuracy": 0.672,
+        "balanced_accuracy": 0.672,
+        "samples": 2000
+      },
+      "by_domain": {
+        "dalle": {
+          "auc": 0.7255425,
+          "accuracy": 0.672,
+          "balanced_accuracy": 0.672,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.134475477039814,
+        "mean_adapt_ms_per_batch": 44.74144098162651,
+        "mean_total_ms_per_batch": 51.875916458666325,
+        "peak_memory_mb": 3236.9931640625,
+        "batches": 125
+      }
+    },
+    "deepfake": {
+      "overall": {
+        "auc": 0.9394870000000001,
+        "accuracy": 0.871,
+        "balanced_accuracy": 0.871,
+        "samples": 2000
+      },
+      "by_domain": {
+        "deepfake": {
+          "auc": 0.9394870000000001,
+          "accuracy": 0.871,
+          "balanced_accuracy": 0.871,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.326311822980642,
+        "mean_adapt_ms_per_batch": 45.302957497537136,
+        "mean_total_ms_per_batch": 52.62926932051778,
+        "peak_memory_mb": 3227.49365234375,
+        "batches": 125
+      }
+    },
+    "glide_50_27": {
+      "overall": {
+        "auc": 0.9235470000000001,
+        "accuracy": 0.857,
+        "balanced_accuracy": 0.857,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_50_27": {
+          "auc": 0.9235470000000001,
+          "accuracy": 0.857,
+          "balanced_accuracy": 0.857,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.132876977324486,
+        "mean_adapt_ms_per_batch": 44.500387988984585,
+        "mean_total_ms_per_batch": 51.63326496630907,
+        "peak_memory_mb": 3243.5556640625,
+        "batches": 125
+      }
+    },
+    "glide_100_10": {
+      "overall": {
+        "auc": 0.9127705,
+        "accuracy": 0.827,
+        "balanced_accuracy": 0.827,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_10": {
+          "auc": 0.9127705,
+          "accuracy": 0.827,
+          "balanced_accuracy": 0.827,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.183989934623241,
+        "mean_adapt_ms_per_batch": 44.71515763178468,
+        "mean_total_ms_per_batch": 51.89914756640792,
+        "peak_memory_mb": 3233.43115234375,
+        "batches": 125
+      }
+    },
+    "glide_100_27": {
+      "overall": {
+        "auc": 0.928649,
+        "accuracy": 0.846,
+        "balanced_accuracy": 0.8460000000000001,
+        "samples": 2000
+      },
+      "by_domain": {
+        "glide_100_27": {
+          "auc": 0.928649,
+          "accuracy": 0.846,
+          "balanced_accuracy": 0.8460000000000001,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.213465549051762,
+        "mean_adapt_ms_per_batch": 44.5443557202816,
+        "mean_total_ms_per_batch": 51.75782126933336,
+        "peak_memory_mb": 3236.11865234375,
+        "batches": 125
+      }
+    },
+    "guided": {
+      "overall": {
+        "auc": 0.7585824999999999,
+        "accuracy": 0.682,
+        "balanced_accuracy": 0.6819999999999999,
+        "samples": 2000
+      },
+      "by_domain": {
+        "guided": {
+          "auc": 0.7585824999999999,
+          "accuracy": 0.682,
+          "balanced_accuracy": 0.6819999999999999,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 8.036205239593983,
+        "mean_adapt_ms_per_batch": 46.511620845645666,
+        "mean_total_ms_per_batch": 54.54782608523965,
+        "peak_memory_mb": 3238.0556640625,
+        "batches": 125
+      }
+    },
+    "imle": {
+      "overall": {
+        "auc": 0.9196044999999999,
+        "accuracy": 0.853,
+        "balanced_accuracy": 0.853,
+        "samples": 2000
+      },
+      "by_domain": {
+        "imle": {
+          "auc": 0.9196044999999999,
+          "accuracy": 0.853,
+          "balanced_accuracy": 0.853,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.535274848341942,
+        "mean_adapt_ms_per_batch": 49.63786765187979,
+        "mean_total_ms_per_batch": 57.17314250022173,
+        "peak_memory_mb": 3234.0556640625,
+        "batches": 125
+      }
+    },
+    "ldm_100": {
+      "overall": {
+        "auc": 0.941505,
+        "accuracy": 0.857,
+        "balanced_accuracy": 0.857,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_100": {
+          "auc": 0.941505,
+          "accuracy": 0.857,
+          "balanced_accuracy": 0.857,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.310133934020996,
+        "mean_adapt_ms_per_batch": 44.75843806192279,
+        "mean_total_ms_per_batch": 52.068571995943785,
+        "peak_memory_mb": 3225.86865234375,
+        "batches": 125
+      }
+    },
+    "ldm_200": {
+      "overall": {
+        "auc": 0.9091184999999999,
+        "accuracy": 0.821,
+        "balanced_accuracy": 0.821,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200": {
+          "auc": 0.9091184999999999,
+          "accuracy": 0.821,
+          "balanced_accuracy": 0.821,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.195910107344389,
+        "mean_adapt_ms_per_batch": 44.562414944171906,
+        "mean_total_ms_per_batch": 51.758325051516294,
+        "peak_memory_mb": 3238.5595703125,
+        "batches": 125
+      }
+    },
+    "ldm_200_cfg": {
+      "overall": {
+        "auc": 0.9064395000000001,
+        "accuracy": 0.8195,
+        "balanced_accuracy": 0.8195,
+        "samples": 2000
+      },
+      "by_domain": {
+        "ldm_200_cfg": {
+          "auc": 0.9064395000000001,
+          "accuracy": 0.8195,
+          "balanced_accuracy": 0.8195,
+          "samples": 2000
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 7.230508159846067,
+        "mean_adapt_ms_per_batch": 45.985654566437006,
+        "mean_total_ms_per_batch": 53.21616272628307,
+        "peak_memory_mb": 3229.6181640625,
+        "batches": 125
+      }
+    },
+    "san": {
+      "overall": {
+        "auc": 0.7068764204249286,
+        "accuracy": 0.6666666666666666,
+        "balanced_accuracy": 0.6666666666666667,
+        "samples": 438
+      },
+      "by_domain": {
+        "san": {
+          "auc": 0.7068764204249286,
+          "accuracy": 0.6666666666666666,
+          "balanced_accuracy": 0.6666666666666667,
+          "samples": 438
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 9.062518665034856,
+        "mean_adapt_ms_per_batch": 60.12133971255805,
+        "mean_total_ms_per_batch": 69.1838583775929,
+        "peak_memory_mb": 3238.5556640625,
+        "batches": 28
+      }
+    },
+    "seeingdark": {
+      "overall": {
+        "auc": 0.7811265432098765,
+        "accuracy": 0.6888888888888889,
+        "balanced_accuracy": 0.6888888888888889,
+        "samples": 360
+      },
+      "by_domain": {
+        "seeingdark": {
+          "auc": 0.7811265432098765,
+          "accuracy": 0.6888888888888889,
+          "balanced_accuracy": 0.6888888888888889,
+          "samples": 360
+        }
+      },
+      "efficiency": {
+        "trainable_parameters": 23512130,
+        "mean_predict_ms_per_batch": 9.797547376998093,
+        "mean_adapt_ms_per_batch": 61.96150058151587,
+        "mean_total_ms_per_batch": 71.75904795851396,
+        "peak_memory_mb": 3231.30615234375,
+        "batches": 23
+      }
+    }
+  }
+}

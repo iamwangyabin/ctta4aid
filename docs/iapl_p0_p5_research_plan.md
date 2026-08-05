@@ -1723,3 +1723,20 @@ seed0=A6000（PID 2270106）、seed1=3090（PID 1685017）、seed2=4090-2
 三个 seed 的性能会聚合，但不同 GPU 的原始延迟不能直接平均；固定 seed0/A6000
 作为同硬件效率行，3090/4090-2 耗时只作带硬件标签的诊断。三份 single-target
 全部完成且逐 method/target manifest 审计通过前，continual 继续不启动。
+
+02:04:20--02:18:23，三份 single-target 均以 exit 0 完成：4090-2 seed2
+15:00.57、A6000 seed0 27:28.91、3090 seed1 29:24.40。每个 seed 都有完整的
+7x18=126 份结果，每种方法实际覆盖 32,798 样本；全部记录同一 source checkpoint。
+正式审计逐一检查 metrics、batch stats、有限数值、样本数、连续 position、唯一
+sample ID 和运行日志，并确认同一 seed/target 的七方法 manifest 字节完全一致。
+三个 seed 均通过，没有重启、丢弃或事后挑选。
+
+18 域非加权 macro 再跨 seed 聚合后，Source/TENT/EATA/CoTTA/RoTTA/LAME/T2A
+的 mAUC 分别为 88.820/87.223/86.643/83.897/88.094/87.769/85.065%，mAcc
+分别为 77.524/81.778/80.912/78.271/82.053/73.225/78.972%。Source 获得
+最高 mAUC，RoTTA 获得最高固定阈值 mAcc，说明在线适配并不统一提高排序质量。
+seed0/A6000 的受控耗时依次为 12.57/44.98/33.79/89.63/108.90/14.39/
+129.87 ms/batch；不同 GPU 的延迟没有混合平均。完整逐域、三 seed 方差和硬件
+诊断已写入 `results/p5_controlled_ctta/single_target_three_seed_summary_20260806.json`。
+single-target 门槛至此完成；下一步严格为三机新鲜 preflight 后启动 frozen continual
+stream，不改变方法或样本协议。

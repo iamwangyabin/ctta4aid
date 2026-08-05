@@ -1,8 +1,8 @@
 {
   "stage": "P5",
   "title": "Controlled CTTA table",
-  "status": "single_target_running",
-  "updated_at": "2026-08-06T01:50:40+08:00",
+  "status": "continual_preflight",
+  "updated_at": "2026-08-06T02:22:00+08:00",
   "strict_order": {
     "P0": "completed",
     "P1": "completed",
@@ -115,7 +115,7 @@
     {
       "step": 4,
       "name": "single_target_7_methods_x_3_seeds",
-      "status": "running"
+      "status": "completed_and_audited"
     },
     {
       "step": 5,
@@ -140,9 +140,19 @@
     "preserved_failure": "First audit script used nonexistent path/label columns and raised KeyError: path; corrected audit used the actual sample_id manifest schema."
   },
   "single_target_jobs": {
-    "seed0": {"host": "A6000", "launcher_pid": 2270106, "started_at": "2026-08-06T01:48:36+08:00", "status": "running"},
-    "seed1": {"host": "3090", "launcher_pid": 1685017, "started_at": "2026-08-06T01:48:59+08:00", "status": "running"},
-    "seed2": {"host": "4090-2", "launcher_pid": 3452021, "started_at": "2026-08-06T01:49:20+08:00", "status": "running"}
+    "seed0": {"host": "A6000", "launcher_pid": 2270106, "started_at": "2026-08-06T01:48:36+08:00", "completed_at": "2026-08-06T02:16:05+08:00", "wall_time": "27:28.91", "status": "completed_and_audited"},
+    "seed1": {"host": "3090", "launcher_pid": 1685017, "started_at": "2026-08-06T01:48:59+08:00", "completed_at": "2026-08-06T02:18:23+08:00", "wall_time": "29:24.40", "status": "completed_and_audited"},
+    "seed2": {"host": "4090-2", "launcher_pid": 3452021, "started_at": "2026-08-06T01:49:20+08:00", "completed_at": "2026-08-06T02:04:20+08:00", "wall_time": "15:00.57", "status": "completed_and_audited"}
+  },
+  "single_target_summary": {
+    "status": "completed_and_audited",
+    "method_target_results_per_seed": 126,
+    "samples_per_method_per_seed": 32798,
+    "all_exact_manifest_equality_within_seed": true,
+    "source_checkpoint_sha256": "57d3e1ea43b914226449ecb5d4267d86324002f5b0210bad5a7667673acd3840",
+    "macro_auc_percent": {"source": 88.8195, "tent": 87.2230, "eata": 86.6433, "cotta": 83.8968, "rotta": 88.0938, "lame": 87.7693, "t2a": 85.0649},
+    "macro_accuracy_percent": {"source": 77.5244, "tent": 81.7784, "eata": 80.9115, "cotta": 78.2707, "rotta": 82.0532, "lame": 73.2251, "t2a": 78.9716},
+    "aggregation_artifact": "single_target_three_seed_summary_20260806.json"
   },
   "efficiency_policy": "Aggregate performance over all three seeds, but do not average raw latency across unlike GPUs. Use seed0 on A6000 for controlled efficiency and retain seed1/seed2 timings as hardware-qualified diagnostics.",
   "failures_are_preserved": true,
@@ -156,5 +166,5 @@
     "fisher_tensors": 106,
     "post_run": "no training process; A6000 17 MiB and 0% utilization"
   },
-  "next_action": "Monitor all three single-target jobs, preserve failures and partial outputs, and audit every method-target manifest before launching any continual job."
+  "next_action": "Run a fresh three-host resource/data/output preflight, then launch the frozen seven-method continual-stream jobs for seeds 0, 1, and 2."
 }
