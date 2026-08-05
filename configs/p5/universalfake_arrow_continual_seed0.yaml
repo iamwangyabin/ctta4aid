@@ -1,0 +1,8 @@
+extends: ../universalfake_arrow_continual_stream.yaml
+
+seed: 0
+
+model:
+  checkpoint: ${UFD_SOURCE_CHECKPOINT}
+
+output_dir: outputs/p5/continual/seed0

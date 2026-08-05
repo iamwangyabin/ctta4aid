@@ -1692,3 +1692,23 @@ recipe 继续训练，不因首轮高指标提前停止；十 epochs、Fisher �
 第 4 轮降至 0.99325 外均为 1.0，该固定阈值波动原样保留。实现只在 AUC 严格
 增大时更新 best state，因此当前 best 是 AUC/Accuracy 均为 1.0 的 epoch 2，
 而不是事后选择任意并列轮次。五个 Python 进程和 GPU 保持健康，继续完成后五轮。
+
+2026-08-06 01:27:53，全量源训练以 exit 0 完成，wall time 4:31:57。十轮 loss
+从 0.00978 降到 0.00114；所有逐轮 AUC/Accuracy（含第 4、6--10 轮阈值波动）
+已写入最终清单。严格 AUC 大于规则选择第 2 轮，8,000 个 validation 样本上的
+AUC/Accuracy/balanced-Accuracy 均为 1.0。正式 checkpoint 为 94,851,517 bytes，
+SHA-256 `57d3e1ea...d3840`；320 个模型 tensor 全有限，106 个 Fisher tensor
+全有限且全部非零。训练进程和 worker 全部退出，A6000 回到 17 MiB/0%。
+
+相同哈希 checkpoint 已复制为 0444 到 A6000、3090、4090-2；3090 全程仅使用
+`/home`，未访问故障 `/data`。P5 源模型与 EATA Fisher 门槛完成，下一步严格为
+checkpoint-backed 单域方法冒烟和三个 seed 配置冻结；single-target 全部完成前
+仍不启动 continual stream。
+
+随后用正式 checkpoint 在同一组 32 个 SAN Arrow 样本上完成七方法冒烟。Source、
+TENT、EATA、CoTTA、RoTTA、LAME、T2A 均生成有限指标和完整 artifacts；每份
+结果记录同一 `57d3e1ea...d3840` 哈希，七份有序 manifest 完全相等，EATA 每个
+batch 均确认 Fisher enabled，结束后 A6000 回到 17 MiB/0%。小样本数值只作执行
+门槛，不能当性能结论。首次审计脚本误假设 manifest 有 `path`/`label` 列并报
+`KeyError: path`，失败已保留；按真实 `batch/domain/position/sample_id` 表头重审
+后全部通过。下一步冻结三个 seed 的 single-target 配置并跨三机启动。

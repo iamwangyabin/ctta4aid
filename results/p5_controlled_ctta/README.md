@@ -58,3 +58,30 @@ Accuracy was 1.0 except for a retained epoch-4 dip to 0.99325. Since checkpoint
 selection updates only on a strictly greater AUC, the current in-memory best is
 epoch 2, whose AUC and Accuracy are both 1.0. The GPU and five Python processes
 remain healthy, so the same run continues without early stopping.
+
+## Full source completion
+
+The formal run exited cleanly after 4:31:57. All ten epochs are preserved in
+`source_train_final_20260806.json`, including threshold-Accuracy dips in epochs
+4, 6, 7, 8, 9, and 10. The strict AUC selection rule chose epoch 2 at 1.0 AUC
+and 1.0 Accuracy on all 8,000 validation rows.
+
+The final 94,851,517-byte checkpoint has SHA-256
+`57d3e1ea43b914226449ecb5d4267d86324002f5b0210bad5a7667673acd3840`.
+All 320 model tensors are finite. All 106 Fisher tensors are finite and nonzero.
+The process exited with status 0, no worker survived, and A6000 returned to
+17 MiB / 0%. Identical read-only copies were verified on A6000, 3090, and
+4090-2; the 3090 copy stayed entirely under `/home` and did not touch its broken
+`/data` mount.
+
+The next ordered work is checkpoint-backed method smoke testing and freezing
+three-seed configs. Single-target jobs must finish before continual-stream jobs.
+
+The formal-checkpoint smoke then ran all seven methods on the same 32 real SAN
+samples. All methods emitted finite metrics and complete artifacts, every result
+recorded checkpoint `57d3e1ea...d3840`, all ordered manifests were exactly
+equal, and EATA reported Fisher enabled on every batch. The tiny metrics are
+stored only as an execution gate, not as comparative evidence. The first audit
+script incorrectly expected `path`/`label` manifest columns and raised
+`KeyError: path`; that failure is retained. The corrected audit used the real
+`batch/domain/position/sample_id` schema and passed.

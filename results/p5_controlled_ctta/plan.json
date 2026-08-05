@@ -1,8 +1,8 @@
 {
   "stage": "P5",
   "title": "Controlled CTTA table",
-  "status": "full_source_training_running",
-  "updated_at": "2026-08-05T23:27:51+08:00",
+  "status": "single_target_ready",
+  "updated_at": "2026-08-06T01:38:00+08:00",
   "strict_order": {
     "P0": "completed",
     "P1": "completed",
@@ -37,7 +37,7 @@
     ]
   },
   "source_checkpoint": {
-    "status": "missing_requires_training",
+    "status": "completed_audited_and_replicated",
     "recipe": "configs/train/universalfake_progan_resnet50_arrow.yaml",
     "architecture": "ResNet-50",
     "initialization": "torchvision IMAGENET1K_V2",
@@ -46,7 +46,13 @@
     "train_examples": 720119,
     "validation_examples": 8000,
     "eata_fisher_samples": 2000,
-    "fairness_note": "Train one frozen source checkpoint and reuse its exact SHA-256 for every method and evaluation seed."
+    "fairness_note": "Train one frozen source checkpoint and reuse its exact SHA-256 for every method and evaluation seed.",
+    "checkpoint_sha256": "57d3e1ea43b914226449ecb5d4267d86324002f5b0210bad5a7667673acd3840",
+    "selected_epoch": 2,
+    "selected_validation_auc": 1.0,
+    "selected_validation_accuracy": 1.0,
+    "fisher_parameter_tensors": 106,
+    "replicated_read_only_to": ["A6000", "3090", "4090-2"]
   },
   "preflight": {
     "host": "A6000",
@@ -99,12 +105,12 @@
     {
       "step": 2,
       "name": "full_shared_source_training_and_fisher",
-      "status": "running"
+      "status": "completed"
     },
     {
       "step": 3,
       "name": "checkpoint_audit_and_replication",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "step": 4,
@@ -122,25 +128,27 @@
       "status": "pending"
     }
   ],
+  "table_preflight": {
+    "method_smoke_config": "configs/p5/universalfake_arrow_method_smoke.yaml",
+    "target": "san",
+    "samples_per_class": 16,
+    "methods": ["source", "tent", "eata", "cotta", "rotta", "lame", "t2a"],
+    "status": "completed_and_audited",
+    "checkpoint_sha256": "57d3e1ea43b914226449ecb5d4267d86324002f5b0210bad5a7667673acd3840",
+    "exact_manifest_equality": true,
+    "eata_fisher_enabled": true,
+    "preserved_failure": "First audit script used nonexistent path/label columns and raised KeyError: path; corrected audit used the actual sample_id manifest schema."
+  },
   "failures_are_preserved": true,
-  "active_run": {
+  "completed_source_run": {
     "host": "A6000",
     "started_at": "2026-08-05T20:52:55+08:00",
-    "launcher_pid": 2265579,
-    "log": "outputs/source_train/p5_ufd_arrow_full_20260805.log",
-    "first_check": "GPU 3647 MiB and 100% utilization at 60 seconds; four data workers alive; no startup error",
-    "last_observation": {
-      "observed_at": "2026-08-05T23:27:51+08:00",
-      "elapsed": "02:34:56",
-      "completed_epochs": 5,
-      "latest_train_loss": 0.00177,
-      "latest_validation_auc": 1.0,
-      "latest_validation_accuracy": 1.0,
-      "current_best_epoch": 2,
-      "epoch4_threshold_accuracy_dip": 0.99325,
-      "gpu": "3665 MiB, 99%, 85 C, 296.88 W",
-      "processes": "main plus four data workers alive; no error"
-    }
+    "wall_time": "04:31:57",
+    "exit_status": 0,
+    "selected_epoch": 2,
+    "checkpoint_sha256": "57d3e1ea43b914226449ecb5d4267d86324002f5b0210bad5a7667673acd3840",
+    "fisher_tensors": 106,
+    "post_run": "no training process; A6000 17 MiB and 0% utilization"
   },
-  "next_action": "Monitor all ten epochs, then audit validation metrics, 2,000-sample Fisher tensors, source.pt identity, process exit, and GPU release before launching table jobs."
+  "next_action": "Validate and sync the frozen seed-specific configs, then launch the three all-method single-target jobs. Do not launch continual jobs before all three single-target jobs finish and are audited."
 }

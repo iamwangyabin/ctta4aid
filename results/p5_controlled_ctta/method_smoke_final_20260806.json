@@ -1,0 +1,44 @@
+{
+  "stage": "P5",
+  "action": "formal_checkpoint_seven_method_smoke",
+  "status": "completed_and_audited",
+  "observed_at": "2026-08-06T01:37:42+08:00",
+  "host": "A6000",
+  "config": "configs/p5/universalfake_arrow_method_smoke.yaml",
+  "target": "san",
+  "samples": 32,
+  "batch_size": 8,
+  "source_checkpoint_sha256": "57d3e1ea43b914226449ecb5d4267d86324002f5b0210bad5a7667673acd3840",
+  "methods": {
+    "source": {"auc": 0.7265625, "accuracy": 0.71875, "mean_total_ms_per_batch": 476.25157242873684, "peak_memory_mb": 276.36279296875},
+    "tent": {"auc": 0.71484375, "accuracy": 0.5625, "mean_total_ms_per_batch": 361.00817669648677, "peak_memory_mb": 964.154296875},
+    "eata": {"auc": 0.71484375, "accuracy": 0.5625, "mean_total_ms_per_batch": 394.0121214254759, "peak_memory_mb": 962.57666015625, "fisher_enabled_for_all_batches": true},
+    "cotta": {"auc": 0.71484375, "accuracy": 0.5625, "mean_total_ms_per_batch": 398.8695976440795, "peak_memory_mb": 1285.36669921875},
+    "rotta": {"auc": 0.7265625, "accuracy": 0.71875, "mean_total_ms_per_batch": 44.67352892970666, "peak_memory_mb": 539.623046875},
+    "lame": {"auc": 0.73828125, "accuracy": 0.6875, "mean_total_ms_per_batch": 47.2616032930091, "peak_memory_mb": 290.23779296875},
+    "t2a": {"auc": 0.71484375, "accuracy": 0.5625, "mean_total_ms_per_batch": 191.80983072146773, "peak_memory_mb": 1908.77490234375}
+  },
+  "checks": {
+    "all_seven_methods_present": true,
+    "all_metrics_finite": true,
+    "all_sample_counts_32": true,
+    "exact_manifest_equality": true,
+    "all_recorded_checkpoint_hashes_equal": true,
+    "eata_fisher_enabled": true,
+    "post_run_gpu": "17 MiB, 0% utilization",
+    "surviving_project_processes": 0
+  },
+  "artifact_hashes": {
+    "single_target_summary_json": "15a4cc4db2dbd0b43be3f2e212b51da7ad0e09dfc62d935693187ce65648244d",
+    "effective_config_json": "cd293ad3e11d9f68e1893e187bad95ca6c848bf2447f91ee56edfa0fa65f5d38"
+  },
+  "preserved_failures": [
+    {
+      "stage": "post_run_audit_attempt_1",
+      "error": "KeyError: path",
+      "cause": "The audit assumed path/label columns, while sample_manifest.csv uses batch/domain/position/sample_id.",
+      "resolution": "Retried against the actual header and compared the complete ordered manifest tuples; all seven were exactly equal."
+    }
+  ],
+  "interpretation": "The tiny sample is only an execution gate, not a performance comparison. Every method completed on identical real samples and the formal Fisher-bearing checkpoint."
+}

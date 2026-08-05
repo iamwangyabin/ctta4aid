@@ -1,0 +1,15 @@
+# One tiny real-data target through every P5 method and the frozen formal checkpoint.
+extends: ../universalfake_arrow_single_target.yaml
+
+seed: 0
+
+model:
+  checkpoint: ${UFD_SOURCE_CHECKPOINT}
+
+data:
+  batch_size: 8
+  num_workers: 2
+  max_samples_per_class: 16
+  targets: [san]
+
+output_dir: outputs/p5/method_smoke_seed0
