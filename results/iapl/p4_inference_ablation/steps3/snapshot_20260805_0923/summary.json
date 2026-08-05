@@ -1,0 +1,22 @@
+{
+  "by_domain": {
+    "crn": {
+      "domain": "crn",
+      "dataset_size": 12764,
+      "samples_with_distributed_padding": 12768,
+      "unique_sampler_indices": 12764,
+      "duplicate_sampler_indices": 4,
+      "accuracy": 0.9281798245614035,
+      "average_precision": 0.9064053401505467,
+      "real_accuracy": 0.8564046351393674,
+      "fake_accuracy": 1.0,
+      "world_size": 8
+    }
+  },
+  "mean": {
+    "accuracy": 0.9281798245614035,
+    "average_precision": 0.9064053401505467,
+    "real_accuracy": 0.8564046351393674,
+    "fake_accuracy": 1.0
+  }
+}

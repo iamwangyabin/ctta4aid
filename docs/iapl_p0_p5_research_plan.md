@@ -1588,6 +1588,16 @@ barrier，rank 0 已进入 `crn`，首 iter 5.9445 秒；三机达到
 没有捕获到输出，立即只读重试成功，失败记录已保留。P5 继续等待 `steps3` 完成
 和最终审计。
 
+09:23 干净快照已归档首个完成域 `crn`，此时 `cyclegan` 已到 100/331。
+`steps3` 的 `crn` 为 92.8180% Acc / 90.6405% AP；相对 steps2 baseline，
+Acc +0.3446 点、AP -2.1616 点；相对 steps1，Acc +0.7832 点、AP -4.4287 点。
+两组对比的 sampler 索引和标签完全一致。干净瓶颈延迟为 4,063.99 ms/image，
+是 steps2 的 1.490 倍、steps1 的 2.761 倍，rank-local 峰值分配仍为
+8,437.55 MiB。三机八 ranks 满载健康且无实际运行错误。3090 worker 无
+`profile.json`、macOS `find -printf` 不兼容、首次 summary 目录包含 profile 导致
+`KeyError: labels` 三项诊断失败均已保留并修正，没有修改远端实验。结果不好也
+不跳过，继续跑完 19 域，P5 仍不启动。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、

@@ -1608,6 +1608,16 @@ actual runtime error. One delayed status command returned no captured output;
 the immediate read-only retry succeeded. P5 remains unlaunched until steps3
 finishes and receives its final audit.
 
+The 09:23 clean snapshot preserves completed `crn` while `cyclegan` is in
+progress. Steps3 obtains 92.8180% Acc / 90.6405% AP on `crn`: versus the
+steps2 baseline, Acc is +0.3446 point but AP is -2.1616 points; versus steps1,
+Acc is +0.7832 point but AP is -4.4287 points. The sampler indices and labels
+match both predecessors exactly. Clean bottleneck latency is 4,063.99 ms/image,
+1.490x steps2 and 2.761x steps1, while rank-local peak allocation remains
+8,437.55 MiB. All launchers and ranks remain healthy at 100% utilization with
+no actual runtime error. Snapshot-copy and local summary diagnostic failures
+are preserved in the manifest; none altered the running experiment.
+
 At 01:24 on August 5 the same PIDs have run for 8:23 and still hold
 4,400/2,150 MiB; A6000 is 6,578 MiB/99%. The other hosts remain idle, the
 3090 SSHFS is read-only, and steps3 output is absent everywhere. No external

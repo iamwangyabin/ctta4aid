@@ -1,0 +1,88 @@
+{
+  "experiment": "P4 tuning-step ablation steps3",
+  "status": "running_first_domain_archived",
+  "captured_at_start": "2026-08-05T09:23:25+08:00",
+  "captured_at_end": "2026-08-05T09:30:00+08:00",
+  "launch_audit": "../launch_20260805.json",
+  "completed_domains": ["crn"],
+  "current_domain": {
+    "name": "cyclegan",
+    "rank0_iteration_at_start": 100,
+    "rank0_total_iterations": 331
+  },
+  "crn_metrics": {
+    "accuracy": 0.9281798245614035,
+    "average_precision": 0.9064053401505467,
+    "real_accuracy": 0.8564046351393674,
+    "fake_accuracy": 1.0,
+    "dataset_size": 12764,
+    "samples_with_distributed_padding": 12768,
+    "duplicate_sampler_indices": 4
+  },
+  "crn_delta_percentage_points": {
+    "versus_baseline_steps2": {
+      "accuracy": 0.3446115288220488,
+      "average_precision": -2.161559921254768
+    },
+    "versus_steps1": {
+      "accuracy": 0.7832080200501198,
+      "average_precision": -4.42873456829108
+    }
+  },
+  "crn_prediction_comparison": {
+    "versus_baseline_steps2": {
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "mean_absolute_probability_delta": 0.01131629286347344,
+      "threshold_disagreements": 124,
+      "comparison": "baseline_prediction_comparison.json"
+    },
+    "versus_steps1": {
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "mean_absolute_probability_delta": 0.015842391121391217,
+      "threshold_disagreements": 166,
+      "comparison": "steps1_prediction_comparison.json"
+    }
+  },
+  "crn_profile": {
+    "wall_seconds": 6486.136005508015,
+    "cluster_images_per_second": 1.9678896633004357,
+    "max_rank_mean_image_latency_ms": 4063.9949909198085,
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8772.0,
+    "latency_ratio_versus_baseline_steps2": 1.490,
+    "latency_ratio_versus_steps1": 2.761
+  },
+  "runtime": {
+    "launchers_alive": true,
+    "all_eight_ranks_alive": true,
+    "actual_errors_detected": 0,
+    "a6000_compute_processes_exactly_match_four_rank_pids": true,
+    "gpu_memory_mib": {
+      "A6000": 37167,
+      "3090": 18652,
+      "4090-2": 19184
+    },
+    "gpu_utilization_percent": {
+      "A6000": 100,
+      "3090": 100,
+      "4090-2": 100
+    },
+    "3090_sshfs_mounted_read_only": true
+  },
+  "artifacts": {
+    "prediction": "a6000/predictions/crn.json",
+    "summary": "summary.json",
+    "profile": "a6000/profile.json",
+    "rank_logs": "a6000/rank0.log through rank3.log, 3090/rank4.log through rank5.log, and 4090_2/rank6.log through rank7.log",
+    "launcher_logs": "node launcher log under each host directory",
+    "gpu_monitors": "one CSV under each host directory"
+  },
+  "diagnostic_failures_preserved": [
+    "The first 3090 snapshot scp requested profile.json, which does not exist on worker-only ranks; scp reported the missing file but copied the launcher, rank logs, and GPU monitor. The authoritative profile exists on rank 0 and was archived from A6000.",
+    "A local GNU-style find -printf inventory command failed because macOS find does not support -printf; inventory was repeated with rg --files.",
+    "The first summary command pointed at the A6000 directory containing profile.json and failed with KeyError: labels. The prediction was moved into a predictions subdirectory and the same summarizer then passed."
+  ],
+  "decision": "Preserve the first clean steps3 domain even though AP is lower than steps1 and steps2. Continue the same run through all 19 domains; do not start P5."
+}

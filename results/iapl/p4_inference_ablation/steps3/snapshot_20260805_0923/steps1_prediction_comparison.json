@@ -1,0 +1,114 @@
+{
+  "left": "results/iapl/p4_inference_ablation/steps3/snapshot_20260805_0923/a6000/predictions",
+  "right": "results/iapl/p4_inference_ablation/steps1/attempt3/final/predictions",
+  "domains": {
+    "crn": {
+      "domain": "crn",
+      "left_world_size": 8,
+      "right_world_size": 8,
+      "left_samples_with_padding": 12768,
+      "right_samples_with_padding": 12768,
+      "left_duplicate_indices": 4,
+      "right_duplicate_indices": 4,
+      "common_unique_indices": 12764,
+      "index_sequence_equal": true,
+      "label_sequence_equal": true,
+      "samples": 12764,
+      "mean_absolute_probability_delta": 0.015842391121391217,
+      "max_absolute_probability_delta": 0.95751953125,
+      "probability_correlation": 0.9774150574499144,
+      "threshold_disagreements": 166,
+      "exact_probability_matches": 6915,
+      "by_label": {
+        "0": {
+          "samples": 6382,
+          "mean_absolute_probability_delta": 0.031684782242782435,
+          "max_absolute_probability_delta": 0.95751953125,
+          "probability_correlation": 0.9134731913845195,
+          "threshold_disagreements": 166,
+          "exact_probability_matches": 533
+        },
+        "1": {
+          "samples": 6382,
+          "mean_absolute_probability_delta": 0.0,
+          "max_absolute_probability_delta": 0.0,
+          "probability_correlation": null,
+          "threshold_disagreements": 0,
+          "exact_probability_matches": 6382
+        }
+      },
+      "largest_probability_deltas": [
+        {
+          "index": 1307,
+          "label": 0,
+          "left_probability": 0.03857421875,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.95751953125
+        },
+        {
+          "index": 6248,
+          "label": 0,
+          "left_probability": 0.033203125,
+          "right_probability": 0.98828125,
+          "absolute_delta": 0.955078125
+        },
+        {
+          "index": 1112,
+          "label": 0,
+          "left_probability": 0.010986328125,
+          "right_probability": 0.96484375,
+          "absolute_delta": 0.953857421875
+        },
+        {
+          "index": 430,
+          "label": 0,
+          "left_probability": 0.0439453125,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.9521484375
+        },
+        {
+          "index": 1766,
+          "label": 0,
+          "left_probability": 1.0,
+          "right_probability": 0.048095703125,
+          "absolute_delta": 0.951904296875
+        },
+        {
+          "index": 161,
+          "label": 0,
+          "left_probability": 0.03369140625,
+          "right_probability": 0.984375,
+          "absolute_delta": 0.95068359375
+        },
+        {
+          "index": 3178,
+          "label": 0,
+          "left_probability": 0.04345703125,
+          "right_probability": 0.9921875,
+          "absolute_delta": 0.94873046875
+        },
+        {
+          "index": 1205,
+          "label": 0,
+          "left_probability": 0.048095703125,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.947998046875
+        },
+        {
+          "index": 86,
+          "label": 0,
+          "left_probability": 0.9921875,
+          "right_probability": 0.044677734375,
+          "absolute_delta": 0.947509765625
+        },
+        {
+          "index": 1361,
+          "label": 0,
+          "left_probability": 0.048828125,
+          "right_probability": 0.99609375,
+          "absolute_delta": 0.947265625
+        }
+      ]
+    }
+  }
+}
