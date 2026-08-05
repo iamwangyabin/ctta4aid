@@ -2,7 +2,7 @@
   "stage": "P5",
   "title": "Controlled CTTA table",
   "status": "full_source_training_running",
-  "updated_at": "2026-08-05T20:53:55+08:00",
+  "updated_at": "2026-08-05T21:27:40+08:00",
   "strict_order": {
     "P0": "completed",
     "P1": "completed",
@@ -128,7 +128,17 @@
     "started_at": "2026-08-05T20:52:55+08:00",
     "launcher_pid": 2265579,
     "log": "outputs/source_train/p5_ufd_arrow_full_20260805.log",
-    "first_check": "GPU 3647 MiB and 100% utilization at 60 seconds; four data workers alive; no startup error"
+    "first_check": "GPU 3647 MiB and 100% utilization at 60 seconds; four data workers alive; no startup error",
+    "last_observation": {
+      "observed_at": "2026-08-05T21:27:40+08:00",
+      "elapsed": "00:34:45",
+      "completed_epochs": 1,
+      "latest_train_loss": 0.00978,
+      "latest_validation_auc": 0.99983,
+      "latest_validation_accuracy": 0.998,
+      "gpu": "3665 MiB, 89%, 85 C, 284.87 W",
+      "processes": "main plus four data workers alive; no error"
+    }
   },
   "next_action": "Monitor all ten epochs, then audit validation metrics, 2,000-sample Fisher tensors, source.pt identity, process exit, and GPU release before launching table jobs."
 }

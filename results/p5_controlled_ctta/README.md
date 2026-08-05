@@ -45,3 +45,9 @@ workers were alive, the GPU held 3,647 MiB at 100% utilization, and no startup
 error was present. The log is intentionally expected to remain empty until the
 first epoch summary. No seven-method table job will start before this run exits
 cleanly and its full Fisher-bearing checkpoint is audited.
+
+At 21:27:40 the first full epoch completed after 34:45 elapsed time. Training
+loss was 0.00978 and the disjoint 8,000-row validation result was 0.99983 AUC /
+0.998 Accuracy. The main process and four workers remained alive; the A6000 was
+at 3,665 MiB, 89% utilization, 85 C, and 284.87 W with no logged error. The
+recipe is unchanged and training continues toward the ten-epoch/Fisher gate.

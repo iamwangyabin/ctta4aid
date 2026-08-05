@@ -1680,3 +1680,9 @@ SHA-256 `8867bf2d...14f7`，包含 106 个全有限 Fisher tensor；进程退出
 DataLoader worker 均存活，GPU 为 3,647 MiB/100%，无启动错误；首个 epoch
 汇总前日志为空是当前入口的预期行为。完成十 epochs、2,000 样本 Fisher、
 checkpoint 审计和资源释放前，七方法表继续不启动。
+
+21:27:40，全量训练在 34:45 内完成第一个 720,119 样本 epoch；loss 0.00978，
+互斥 8,000 样本 validation AUC/Accuracy 为 0.99983/0.998。主进程和四个
+worker 均存活，A6000 为 3,665 MiB、89%、85 C、284.87 W，无错误。保持同一
+recipe 继续训练，不因首轮高指标提前停止；十 epochs、Fisher 与最终 checkpoint
+审计门槛仍然有效。
