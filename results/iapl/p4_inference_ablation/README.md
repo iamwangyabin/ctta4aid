@@ -1627,6 +1627,15 @@ latency is 4,064.40 ms/image, 1.490x steps2 and 2.761x steps1, with unchanged
 `gaugan` runs. The small Acc gain does not hide the AP regression; both are
 preserved and the full run continues.
 
+The 13:53 clean snapshot contains ten domains and a 95.0823% Acc / 97.5151%
+AP mean. Steps3 now trails the same domains from steps2 by 0.0521 Acc point and
+0.2696 AP point, and steps1 by 0.0564 Acc point and 0.7901 AP point. All index
+and label sequences still match. Aggregate latency is 4,057.69 ms/image,
+1.487x steps2 and 2.763x steps1, with unchanged 8,437.55 MiB allocation. All
+eight ranks remain clean and healthy while the long `imle` domain runs. This
+mid-run result gives no evidence that the third adaptation step pays for its
+cost, but the full run continues unchanged.
+
 At 01:24 on August 5 the same PIDs have run for 8:23 and still hold
 4,400/2,150 MiB; A6000 is 6,578 MiB/99%. The other hosts remain idle, the
 3090 SSHFS is read-only, and steps3 output is absent everywhere. No external

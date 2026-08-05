@@ -1,0 +1,85 @@
+{
+  "experiment": "P4 tuning-step ablation steps3",
+  "status": "running_ten_domains_archived",
+  "captured_at_start": "2026-08-05T13:53:23+08:00",
+  "captured_at_end": "2026-08-05T13:57:50+08:00",
+  "launch_audit": "../launch_20260805.json",
+  "completed_domains": [
+    "crn", "cyclegan", "dalle", "biggan", "deepfake", "gaugan",
+    "glide_50_27", "glide_100_10", "glide_100_27", "guided"
+  ],
+  "current_domain": {
+    "name": "imle",
+    "rank0_iteration_at_start": 50,
+    "rank0_total_iterations": 1596
+  },
+  "ten_domain_mean": {
+    "accuracy": 0.9508227313790742,
+    "average_precision": 0.9751512021440117,
+    "real_accuracy": 0.9759173559856498,
+    "fake_accuracy": 0.9257248109710897
+  },
+  "delta_percentage_points": {
+    "versus_baseline_steps2": {
+      "accuracy": -0.05206418722042,
+      "average_precision": -0.26962333847933
+    },
+    "versus_steps1": {
+      "accuracy": -0.05643582575024,
+      "average_precision": -0.7900729308065
+    }
+  },
+  "prediction_comparison": {
+    "versus_baseline_steps2": {
+      "all_index_sequences_equal": true,
+      "all_label_sequences_equal": true,
+      "weighted_mean_absolute_probability_delta": 0.005578256886947829,
+      "threshold_disagreements": 214,
+      "comparison": "baseline_prediction_comparison.json"
+    },
+    "versus_steps1": {
+      "all_index_sequences_equal": true,
+      "all_label_sequences_equal": true,
+      "weighted_mean_absolute_probability_delta": 0.006788960151960098,
+      "threshold_disagreements": 239,
+      "comparison": "steps1_prediction_comparison.json"
+    }
+  },
+  "ten_domain_profile": {
+    "wall_seconds": 22735.231220760033,
+    "samples_after_distributed_padding": 44824,
+    "cluster_images_per_second": 1.9715656095492107,
+    "max_rank_mean_image_latency_ms": 4057.688956052121,
+    "max_rank_peak_allocated_mib": 8437.5458984375,
+    "max_rank_peak_reserved_mib": 8772.0,
+    "latency_ratio_versus_baseline_steps2": 1.487,
+    "latency_ratio_versus_steps1": 2.763
+  },
+  "runtime": {
+    "launchers_alive": true,
+    "all_eight_ranks_alive": true,
+    "actual_errors_detected": 0,
+    "a6000_compute_processes_exactly_match_four_rank_pids": true,
+    "gpu_memory_mib": {
+      "A6000": 37167,
+      "3090": 18652,
+      "4090-2": 19184
+    },
+    "gpu_utilization_percent": {
+      "A6000": 100,
+      "3090": 100,
+      "4090-2": 100
+    },
+    "3090_sshfs_mounted_read_only": true
+  },
+  "artifacts": {
+    "predictions": "a6000/predictions/*.json",
+    "summary": "summary.json",
+    "profile": "a6000/profile.json",
+    "rank_logs": "a6000/rank0.log through rank3.log, 3090/rank4.log through rank5.log, and 4090_2/rank6.log through rank7.log",
+    "launcher_logs": "node launcher log under each host directory",
+    "gpu_monitors": "one CSV under each host directory"
+  },
+  "diagnostic_failures_preserved": [],
+  "decision": "At ten domains steps3 is slower and now trails both steps1 and steps2 on Acc and AP. Preserve the negative result and continue through all 19 domains; do not start P5."
+}

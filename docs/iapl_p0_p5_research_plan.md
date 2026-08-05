@@ -1606,6 +1606,13 @@ Acc +0.0539 点、AP -0.4876 点；相对 steps1，Acc +0.0951 点、AP -1.2249
 三机八 ranks 继续满载健康，当前运行 `gaugan`。小幅 Acc 增益不掩盖 AP 下降，
 正负结果均保留，继续跑全量且不启动 P5。
 
+13:53 干净快照已完成前十域，均值 95.0823% Acc / 97.5151% AP。`steps3`
+相对 steps2 同域落后 0.0521 Acc 点和 0.2696 AP 点，相对 steps1 落后
+0.0564 Acc 点和 0.7901 AP 点；全部索引和标签序列仍一致。十域聚合瓶颈延迟
+4,057.69 ms/image，是 steps2 的 1.487 倍、steps1 的 2.763 倍，峰值分配仍为
+8,437.55 MiB。三机八 ranks 干净健康，当前进入长域 `imle`。中途结果没有显示
+第三步适配足以抵偿成本，但不提前终止，继续跑完 19 域且不启动 P5。
+
 ## P5: controlled CTTA table
 
 在相同 CNN checkpoint、样本、顺序和 Predict-Then-Adapt 协议下运行 Source、TENT、
