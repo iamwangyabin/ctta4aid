@@ -1650,3 +1650,33 @@ P4 完成标准已经达到；最终审计提交推送后，严格顺序进入 P
 EATA、CoTTA、RoTTA、LAME、T2A。包含 independent single-target 与 continual stream，
 每项三个 seeds，报告 online、final、forgetting、延迟和显存。IAPL 继续作为不同
 backbone/协议的端到端参考，不能混入控制变量排名。
+
+2026-08-05 20:45，P4 最终审计提交并推送后，P5 严格按序启动源模型预检。
+A6000/3090/4090-2 均未发现本项目需要的、含 EATA Fisher 的公共 CNN checkpoint，
+因此没有拿其他项目或 IAPL 权重冒充公平主表起点。A6000 当前干净，实际 `cl`
+环境位于 `/home/home/yabin/miniconda3/envs/cl`；首次按非登录 HOME 猜测
+`/home/yabin/miniconda3/envs/cl` 失败，该路径失败已保留。真实环境 CUDA 正常，
+57 项测试与 compileall 全部通过。
+本地 bundled Python 的重复配置测试因缺少 PyYAML 报
+`ModuleNotFoundError: yaml`；该环境失败原样保留，正式验证以用户指定的服务器
+`cl` 全量测试为准。
+
+ForenSynths Arrow bundle 为 90 GiB，互斥清单实际构造出 720,119 个训练样本和
+8,000 个 validation/Fisher 样本，四个边界样本均成功解码为 `3x224x224`。
+已新增 Arrow 源训练正式/冒烟配置，并下载校验 torchvision ResNet-50
+IMAGENET1K_V2 初始化（SHA-256 `11ad3fa6...79ca`）。下一步先完成 64+64 样本的
+端到端训练/Fisher/checkpoint 冒烟，再启动 10 epochs 全量源训练；在共享源
+checkpoint 哈希确定之前，不启动任何七方法比较，避免不同方法混用起点。
+
+20:50，64 个训练样本加 64 个互斥验证样本的完整冒烟在 18.18 秒内成功结束：
+validation AUC/Accuracy 为 0.722656/0.625，checkpoint 为 94,851,517 bytes、
+SHA-256 `8867bf2d...14f7`，包含 106 个全有限 Fisher tensor；进程退出后 GPU
+回到 17 MiB。该结果只验证 Arrow 解码、训练、验证、Fisher、保存和资源释放
+全链路，不作为性能结果。下一步严格为十 epochs 全量源训练。
+
+20:52:55，在 GPU 17 MiB/0%、无冲突进程、正式输出/log/PID 路径均不存在的
+条件下，A6000 启动全量训练（launcher PID 2265579）。正式 config 与 launcher
+哈希为 `c315aead...e7641` / `ae180c88...032e`。一分钟检查时主进程和四个
+DataLoader worker 均存活，GPU 为 3,647 MiB/100%，无启动错误；首个 epoch
+汇总前日志为空是当前入口的预期行为。完成十 epochs、2,000 样本 Fisher、
+checkpoint 审计和资源释放前，七方法表继续不启动。

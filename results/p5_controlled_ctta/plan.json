@@ -1,0 +1,134 @@
+{
+  "stage": "P5",
+  "title": "Controlled CTTA table",
+  "status": "full_source_training_running",
+  "updated_at": "2026-08-05T20:53:55+08:00",
+  "strict_order": {
+    "P0": "completed",
+    "P1": "completed",
+    "P2": "completed",
+    "P3": "completed",
+    "P4": "completed_and_audited",
+    "P5": "in_progress"
+  },
+  "target": {
+    "methods": [
+      "source",
+      "tent",
+      "eata",
+      "cotta",
+      "rotta",
+      "lame",
+      "t2a"
+    ],
+    "seeds": [0, 1, 2],
+    "settings": [
+      "independent_single_target",
+      "continual_stream"
+    ],
+    "dataset": "UniversalFakeDetect full 19-domain Arrow bundle",
+    "protocol": "shared CNN checkpoint, sample sets, order, batch size, seeds, and Predict-Then-Adapt",
+    "reported_metrics": [
+      "online",
+      "final_holdout",
+      "forgetting",
+      "latency",
+      "peak_gpu_memory"
+    ]
+  },
+  "source_checkpoint": {
+    "status": "missing_requires_training",
+    "recipe": "configs/train/universalfake_progan_resnet50_arrow.yaml",
+    "architecture": "ResNet-50",
+    "initialization": "torchvision IMAGENET1K_V2",
+    "initialization_sha256": "11ad3fa62ca79e40addfd354a8ec4b7c75143b3038b8d2a807fbc68deab379ca",
+    "training_seed": 0,
+    "train_examples": 720119,
+    "validation_examples": 8000,
+    "eata_fisher_samples": 2000,
+    "fairness_note": "Train one frozen source checkpoint and reuse its exact SHA-256 for every method and evaluation seed."
+  },
+  "preflight": {
+    "host": "A6000",
+    "gpu": "NVIDIA RTX A6000 49140 MiB",
+    "conda_environment": "cl",
+    "python": "3.12.12",
+    "torch": "2.9.1+cu128",
+    "torchvision": "0.24.1+cu128",
+    "datasets": "4.4.2",
+    "unit_tests": "57 passed",
+    "compileall": "passed",
+    "local_validation_failure": "The bundled local Python lacks PyYAML, so the attempted local config unit-test import failed with ModuleNotFoundError: yaml; authoritative validation uses the requested server cl environment, where all 57 tests passed.",
+    "arrow_decode": "train and val first/last samples decoded at 3x224x224",
+    "gpu_before_launch": "17 MiB, 0% utilization",
+    "initial_path_probe_failure": "The first non-login probe used /home/yabin/miniconda3/envs/cl, but A6000 login HOME is /home/home/yabin; the actual cl environment was found and validated there.",
+    "source_training_smoke": {
+      "status": "completed",
+      "wall_seconds": 18.18,
+      "train_samples": 64,
+      "validation_samples": 64,
+      "validation_auc": 0.72265625,
+      "validation_accuracy": 0.625,
+      "checkpoint_sha256": "8867bf2de51104bcd8852899f492a46e96f6c8b4fca566eff7259c8fa2f614f7",
+      "checkpoint_bytes": 94851517,
+      "fisher_parameter_tensors": 106,
+      "fisher_finite": true,
+      "post_run_gpu": "17 MiB, 0% utilization"
+    }
+  },
+  "arrow_identity": {
+    "root": "/home/yabin/ctta4aid_assets/data/df_arrow_20260717/ForenSynths",
+    "size": "90G",
+    "state_json_sha256": "3efd851dd1a5a6e76cc0109d473ccbaae54f981c018c5900835f177c0baf9d91",
+    "mapping_json_sha256": "a7cf28ea6e22da33bb008ce60a1ae54b106994ee6b7c209544e456f0555bac45",
+    "train_binary_json_sha256": "493307c7849609fe8def4c6f5fdc070adda104725d30ae2b0e42c4372d4703a4",
+    "val_json_sha256": "c8891f98acb268f819ea22684af7c6d88c56b99706ac19dc9eb90631d39f9032",
+    "test_json_sha256": "4144ed7e8e5b49854c48e8478bd49a28f2cfb9de7ded48fd2155cc8bd8483e0b"
+  },
+  "execution_order": [
+    {
+      "step": 0,
+      "name": "environment_data_and_code_preflight",
+      "status": "completed"
+    },
+    {
+      "step": 1,
+      "name": "arrow_source_training_smoke",
+      "status": "completed"
+    },
+    {
+      "step": 2,
+      "name": "full_shared_source_training_and_fisher",
+      "status": "running"
+    },
+    {
+      "step": 3,
+      "name": "checkpoint_audit_and_replication",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "single_target_7_methods_x_3_seeds",
+      "status": "pending"
+    },
+    {
+      "step": 5,
+      "name": "continual_stream_7_methods_x_3_seeds",
+      "status": "pending"
+    },
+    {
+      "step": 6,
+      "name": "cross_seed_aggregation_and_final_audit",
+      "status": "pending"
+    }
+  ],
+  "failures_are_preserved": true,
+  "active_run": {
+    "host": "A6000",
+    "started_at": "2026-08-05T20:52:55+08:00",
+    "launcher_pid": 2265579,
+    "log": "outputs/source_train/p5_ufd_arrow_full_20260805.log",
+    "first_check": "GPU 3647 MiB and 100% utilization at 60 seconds; four data workers alive; no startup error"
+  },
+  "next_action": "Monitor all ten epochs, then audit validation metrics, 2,000-sample Fisher tensors, source.pt identity, process exit, and GPU release before launching table jobs."
+}

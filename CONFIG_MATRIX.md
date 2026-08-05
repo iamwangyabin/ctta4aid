@@ -20,6 +20,8 @@ CNN 公平主轨道共有 `2 datasets × 2 settings × 7 methods = 28` 个可直
 - `configs/iapl_official_ufd_arrow_1gpu.yaml`：直接读取 UFD Arrow、按单 GPU 独立域运行的已披露工程协议；
 - `configs/train/genimage_sd14_resnet50.yaml`：公共 CNN 源模型训练；
 - `configs/train/universalfake_progan_resnet50.yaml`：公共 CNN 源模型训练；
+- `configs/train/universalfake_progan_resnet50_arrow.yaml`：直接从原始 UFD Arrow
+  的互斥 `train_binary.json` / `val.json` 切分训练同一公共 CNN 源模型；
 - `configs/single_target.yaml`、`configs/continual_stream.yaml`：一次运行 GenImage 七个 CNN 方法的便利配置；
 - `configs/universalfake_single_target.yaml`、`configs/universalfake_continual_stream.yaml`：对应的 UniversalFakeDetect 便利配置。
 
@@ -85,6 +87,16 @@ export UFD_SOURCE_VAL_ROOT=/data/UniversalFakeDetect/source_val
 ```
 
 两个 UFD root 都应以 `progan/` 作为下一层目录；训练与 Fisher/validation root 必须互不重叠。
+
+若不解包 UFD，使用 Arrow 训练配置时只需设置
+`UFD_FORENSYNTHS_ARROW_ROOT`。该配置从同一个 bundle 的互斥
+`train_binary.json` 与 `val.json` 清单取样，不会把 validation/Fisher 样本放入
+训练集：
+
+```bash
+python train_source.py \
+  --config configs/train/universalfake_progan_resnet50_arrow.yaml
+```
 
 IAPL 原生轨道使用独立的数据布局和变量：
 

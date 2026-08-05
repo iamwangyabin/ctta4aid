@@ -135,6 +135,7 @@ ImageFolder，不能把缺少 BigGAN/glide 的 Arrow 子集写成完整 GenImage
 ```bash
 python train_source.py --config configs/train/genimage_sd14_resnet50.yaml
 python train_source.py --config configs/train/universalfake_progan_resnet50.yaml
+python train_source.py --config configs/train/universalfake_progan_resnet50_arrow.yaml
 ```
 
 实验配置已按数据、设定和方法拆开，例如：

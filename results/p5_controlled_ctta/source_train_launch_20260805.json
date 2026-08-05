@@ -1,0 +1,40 @@
+{
+  "stage": "P5",
+  "action": "full_shared_source_training",
+  "status": "running",
+  "host": "A6000",
+  "started_at": "2026-08-05T20:52:55+08:00",
+  "launcher_pid": 2265579,
+  "python_pid_at_first_check": 2265580,
+  "project_root": "/home/yabin/ctta4aid-arrow",
+  "conda_environment": "/home/home/yabin/miniconda3/envs/cl",
+  "config": "configs/train/universalfake_progan_resnet50_arrow.yaml",
+  "config_sha256": "c315aead0b318241c28f5e5aa3de856f09ad586fba3000fb7f5b82a0611e7641",
+  "launcher": "scripts/run_p5_source_train_a6000.sh",
+  "launcher_sha256": "ae180c8866e2bac90391042221474e37547df4899c06e55938b404af4b16032e",
+  "log": "outputs/source_train/p5_ufd_arrow_full_20260805.log",
+  "pid_file": "outputs/source_train/p5_ufd_arrow_full_20260805.pid",
+  "output_dir": "outputs/source_train/universalfake_progan_resnet50_arrow",
+  "initial_gpu": {
+    "memory_used_mib": 17,
+    "utilization_percent": 0
+  },
+  "first_running_check": {
+    "checked_at": "2026-08-05T20:53:55+08:00",
+    "elapsed_seconds": 60,
+    "memory_used_mib": 3647,
+    "utilization_percent": 100,
+    "data_workers": 4,
+    "log_bytes": 0,
+    "interpretation": "Training is actively consuming the GPU; the log remains empty until the first epoch summary."
+  },
+  "preconditions": {
+    "gpu_clean": true,
+    "conflicting_project_processes": false,
+    "output_absent": true,
+    "log_absent": true,
+    "pid_file_absent": true,
+    "smoke_checkpoint_audited": true
+  },
+  "completion_gate": "All ten epoch summaries, validation metrics, 2,000-sample Fisher tensors, source.pt SHA-256, effective config, clean process exit, and post-run GPU release must be audited before any P5 table job starts."
+}

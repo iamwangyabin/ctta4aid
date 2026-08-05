@@ -1,0 +1,11 @@
+# Train the shared P5 CNN source detector directly from the original UFD Arrow bundle.
+extends: universalfake_progan_resnet50.yaml
+
+data:
+  format: hf_arrow
+  # train_binary.json and val.json are disjoint split manifests inside this root.
+  train_root: ${UFD_FORENSYNTHS_ARROW_ROOT}
+  val_root: ${UFD_FORENSYNTHS_ARROW_ROOT}
+  root: ${UFD_FORENSYNTHS_ARROW_ROOT}
+
+output_dir: outputs/source_train/universalfake_progan_resnet50_arrow

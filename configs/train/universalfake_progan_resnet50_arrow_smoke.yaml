@@ -1,0 +1,15 @@
+# End-to-end decode, optimization, validation, Fisher, and checkpoint smoke test.
+extends: universalfake_progan_resnet50_arrow.yaml
+
+data:
+  batch_size: 8
+  num_workers: 2
+  max_train_samples_per_class: 32
+  max_val_samples_per_class: 32
+
+training:
+  epochs: 1
+  fisher_samples: 32
+  fisher_batch_size: 8
+
+output_dir: outputs/source_train/universalfake_progan_resnet50_arrow_smoke
