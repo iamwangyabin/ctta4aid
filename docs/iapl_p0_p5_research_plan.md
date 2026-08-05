@@ -1686,3 +1686,9 @@ checkpoint 审计和资源释放前，七方法表继续不启动。
 worker 均存活，A6000 为 3,665 MiB、89%、85 C、284.87 W，无错误。保持同一
 recipe 继续训练，不因首轮高指标提前停止；十 epochs、Fisher 与最终 checkpoint
 审计门槛仍然有效。
+
+23:27:51，全量训练用 2:34:56 到达 5/10 epochs。第 2--5 轮 loss 依次为
+0.00327/0.00255/0.00217/0.00177，validation AUC 均为 1.0；Accuracy 除
+第 4 轮降至 0.99325 外均为 1.0，该固定阈值波动原样保留。实现只在 AUC 严格
+增大时更新 best state，因此当前 best 是 AUC/Accuracy 均为 1.0 的 epoch 2，
+而不是事后选择任意并列轮次。五个 Python 进程和 GPU 保持健康，继续完成后五轮。

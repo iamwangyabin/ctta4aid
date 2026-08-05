@@ -51,3 +51,10 @@ loss was 0.00978 and the disjoint 8,000-row validation result was 0.99983 AUC /
 0.998 Accuracy. The main process and four workers remained alive; the A6000 was
 at 3,665 MiB, 89% utilization, 85 C, and 284.87 W with no logged error. The
 recipe is unchanged and training continues toward the ten-epoch/Fisher gate.
+
+At 23:27:51 the run reached 5/10 epochs after 2:34:56. Loss fell through
+0.00327, 0.00255, 0.00217, and 0.00177. Validation AUC was 1.0 in epochs 2-5;
+Accuracy was 1.0 except for a retained epoch-4 dip to 0.99325. Since checkpoint
+selection updates only on a strictly greater AUC, the current in-memory best is
+epoch 2, whose AUC and Accuracy are both 1.0. The GPU and five Python processes
+remain healthy, so the same run continues without early stopping.

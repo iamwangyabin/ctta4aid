@@ -2,7 +2,7 @@
   "stage": "P5",
   "title": "Controlled CTTA table",
   "status": "full_source_training_running",
-  "updated_at": "2026-08-05T21:27:40+08:00",
+  "updated_at": "2026-08-05T23:27:51+08:00",
   "strict_order": {
     "P0": "completed",
     "P1": "completed",
@@ -130,13 +130,15 @@
     "log": "outputs/source_train/p5_ufd_arrow_full_20260805.log",
     "first_check": "GPU 3647 MiB and 100% utilization at 60 seconds; four data workers alive; no startup error",
     "last_observation": {
-      "observed_at": "2026-08-05T21:27:40+08:00",
-      "elapsed": "00:34:45",
-      "completed_epochs": 1,
-      "latest_train_loss": 0.00978,
-      "latest_validation_auc": 0.99983,
-      "latest_validation_accuracy": 0.998,
-      "gpu": "3665 MiB, 89%, 85 C, 284.87 W",
+      "observed_at": "2026-08-05T23:27:51+08:00",
+      "elapsed": "02:34:56",
+      "completed_epochs": 5,
+      "latest_train_loss": 0.00177,
+      "latest_validation_auc": 1.0,
+      "latest_validation_accuracy": 1.0,
+      "current_best_epoch": 2,
+      "epoch4_threshold_accuracy_dip": 0.99325,
+      "gpu": "3665 MiB, 99%, 85 C, 296.88 W",
       "processes": "main plus four data workers alive; no error"
     }
   },
