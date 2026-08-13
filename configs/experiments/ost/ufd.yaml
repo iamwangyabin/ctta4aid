@@ -1,0 +1,18 @@
+extends:
+  - ../../datasets/universalfake.yaml
+  - ../../protocols/ost_single_target.yaml
+  - ../../methods/ost.yaml
+
+seed: 100
+device: auto
+methods: [ost]
+output_dir: outputs/ost/universalfake
+
+data:
+  source_root: ${UFD_FORENSYNTHS_ARROW_ROOT}
+  source_domain: progan
+  source_split: train
+  batch_size: 1
+  num_workers: 0
+  shuffle: false
+  max_samples_per_class: null

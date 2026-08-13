@@ -1,0 +1,15 @@
+extends: ost_ufd_meta.yaml
+
+output_dir: outputs/source_train/ost_ufd_progan_meta_smoke
+
+data:
+  batch_size: 2
+  num_workers: 0
+  max_train_samples_per_class: 2
+  max_val_samples_per_class: 2
+
+training:
+  epochs: 1
+  second_order: false
+  max_steps_per_epoch: 1
+  validation_batches: 2

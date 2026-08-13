@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from online_aig_tta.config import deep_merge, load_config, method_config
+from src.config import deep_merge, load_config, method_config
 
 
 class ConfigTest(unittest.TestCase):

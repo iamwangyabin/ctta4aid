@@ -1,0 +1,4 @@
+extends: continual.yaml
+
+seed: 0
+output_dir: outputs/controlled_ctta/continual/seed0

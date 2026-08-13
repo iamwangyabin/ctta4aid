@@ -1,9 +1,0 @@
-domain	expected	checked	raw	exact_bytes	byte_mismatch	missing	extra	checked_exact	full_exact
-guided	2000	2000	2000	2000	0	0	0	True	True
-ldm_200	2000	2000	2000	2000	0	0	0	True	True
-ldm_200_cfg	2000	2000	2000	2000	0	0	0	True	True
-ldm_100	2000	2000	2000	2000	0	0	0	True	True
-glide_100_27	2000	2000	2000	2000	0	0	0	True	True
-glide_50_27	2000	2000	2000	2000	0	0	0	True	True
-glide_100_10	2000	2000	2000	2000	0	0	0	True	True
-dalle	2000	2000	2000	2000	0	0	0	True	True

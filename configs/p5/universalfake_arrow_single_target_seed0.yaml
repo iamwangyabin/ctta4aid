@@ -1,8 +1,0 @@
-extends: ../universalfake_arrow_single_target.yaml
-
-seed: 0
-
-model:
-  checkpoint: ${UFD_SOURCE_CHECKPOINT}
-
-output_dir: outputs/p5/single_target/seed0

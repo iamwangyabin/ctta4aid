@@ -3,12 +3,13 @@ from unittest.mock import patch
 
 import numpy as np
 
-from online_aig_tta.evaluation.online_evaluator import (
+from src.evaluation.online_evaluator import (
     OnlineEvaluator,
     evaluate_without_adaptation,
 )
-from online_aig_tta.types import AdaptationStats, PredictionBatch, StreamBatch
-from run_continual_stream import final_holdout_stream
+from src.types import AdaptationStats, PredictionBatch, StreamBatch
+from run_continual_stream import final_holdout_stream, holdout_matrix_rows
+from run_single_target import pairwise_transfer_rows, summarize_pairwise_transfer
 
 
 class SpyMethod:
@@ -125,6 +126,91 @@ class OnlineProtocolTest(unittest.TestCase):
         evaluate_without_adaptation(method, stream, evaluation_seed=999)
 
         self.assertEqual(np.random.random(), expected_next)
+
+    def test_holdout_matrix_marks_initial_current_past_and_future(self):
+        initial = {
+            "by_domain": {
+                "A": {"auc": 0.5},
+                "B": {"auc": 0.6},
+            }
+        }
+        checkpoints = [
+            {
+                "after_domain": "A",
+                "evaluation": {
+                    "by_domain": {
+                        "A": {"auc": 0.7},
+                        "B": {"auc": 0.65},
+                    }
+                },
+            },
+            {
+                "after_domain": "B",
+                "evaluation": {
+                    "by_domain": {
+                        "A": {"auc": 0.68},
+                        "B": {"auc": 0.72},
+                    }
+                },
+            },
+        ]
+
+        rows = holdout_matrix_rows(
+            checkpoints, ["A", "B"], initial_evaluation=initial
+        )
+
+        self.assertEqual(
+            [row["temporal_relation"] for row in rows],
+            ["initial", "initial", "current", "future", "past", "current"],
+        )
+
+    def test_pairwise_transfer_separates_current_and_cross_generator_gain(self):
+        initial = {
+            "by_domain": {
+                "A": {
+                    "auc": 0.60,
+                    "accuracy": 0.55,
+                    "balanced_accuracy": 0.55,
+                    "samples": 10,
+                },
+                "B": {
+                    "auc": 0.70,
+                    "accuracy": 0.65,
+                    "balanced_accuracy": 0.65,
+                    "samples": 10,
+                },
+            }
+        }
+        adapted = {
+            "by_domain": {
+                "A": {
+                    "auc": 0.65,
+                    "accuracy": 0.60,
+                    "balanced_accuracy": 0.60,
+                    "samples": 10,
+                },
+                "B": {
+                    "auc": 0.68,
+                    "accuracy": 0.64,
+                    "balanced_accuracy": 0.64,
+                    "samples": 10,
+                },
+            }
+        }
+
+        rows = pairwise_transfer_rows(
+            method="tent",
+            seed=0,
+            adapted_on="A",
+            initial=initial,
+            adapted=adapted,
+        )
+        summary = summarize_pairwise_transfer(rows)
+
+        self.assertEqual([row["relation"] for row in rows], ["current", "cross_generator"])
+        self.assertAlmostEqual(summary["mean_current_auc_delta"], 0.05)
+        self.assertAlmostEqual(summary["mean_cross_generator_auc_delta"], -0.02)
+        self.assertEqual(summary["cross_generator_negative_transfer_rate"], 1.0)
 
 
 if __name__ == "__main__":

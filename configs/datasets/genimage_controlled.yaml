@@ -1,0 +1,30 @@
+extends: genimage.yaml
+
+# SD v1.4 is the source domain and is excluded from every target stream.
+model:
+  architecture: resnet50
+  pretrained: false
+  num_classes: 2
+  checkpoint: ${GENIMAGE_SOURCE_CHECKPOINT}
+
+data:
+  source_domain: stable_diffusion_v_1_4
+  batch_size: 16
+  num_workers: 4
+  shuffle: true
+  targets:
+    - Midjourney
+    - stable_diffusion_v_1_5
+    - ADM
+    - glide
+    - wukong
+    - VQDM
+    - BigGAN
+  stream:
+    - BigGAN
+    - ADM
+    - glide
+    - stable_diffusion_v_1_5
+    - VQDM
+    - wukong
+    - Midjourney

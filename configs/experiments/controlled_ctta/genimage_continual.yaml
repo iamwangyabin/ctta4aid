@@ -1,0 +1,16 @@
+# GenImage continual stream with SD v1.4 as the shared CNN source domain.
+extends:
+  - ../../datasets/genimage_controlled.yaml
+  - ../../protocols/continual.yaml
+  - ../../methods/source.yaml
+  - ../../methods/tent.yaml
+  - ../../methods/eata.yaml
+  - ../../methods/cotta.yaml
+  - ../../methods/rotta.yaml
+  - ../../methods/lame.yaml
+  - ../../methods/t2a.yaml
+
+seed: 0
+device: auto
+methods: [source, tent, eata, cotta, rotta, lame, t2a]
+output_dir: outputs/controlled_ctta/genimage_sd14/continual/seed0

@@ -4,8 +4,8 @@ tent:
   upstream_files: [tent.py]
   upstream_config: cfgs/tent.yaml
   project_profile: configs/methods/tent.yaml
-  official_core: src/online_aig_tta/official/tent.py
-  wrapper: src/online_aig_tta/methods/tent.py
+  official_core: src/official/tent.py
+  wrapper: src/methods/tent.py
   status: vendored_official_core_with_protocol_wrapper
   numerical_validation: not_run_requires_official_data_and_weights
 
@@ -15,8 +15,8 @@ eata:
   upstream_files: [eata.py]
   upstream_config: main.py
   project_profile: configs/methods/eata.yaml
-  official_core: src/online_aig_tta/official/eata.py
-  wrapper: src/online_aig_tta/methods/eata.py
+  official_core: src/official/eata.py
+  wrapper: src/methods/eata.py
   status: vendored_official_core_with_binary_protocol_wrapper
   numerical_validation: not_run_requires_official_data_and_weights
 
@@ -26,8 +26,8 @@ cotta:
   upstream_files: [imagenet/cotta.py, imagenet/my_transforms.py]
   upstream_config: imagenet/cfgs/10orders/cotta/cotta0.yaml
   project_profile: configs/methods/cotta.yaml
-  official_core: src/online_aig_tta/official/cotta.py
-  wrapper: src/online_aig_tta/methods/cotta.py
+  official_core: src/official/cotta.py
+  wrapper: src/methods/cotta.py
   status: patched_vendored_official_imagenet_core
   numerical_validation: not_run_requires_official_data_and_weights
 
@@ -37,8 +37,8 @@ rotta:
   upstream_files: [core/adapter/rotta.py, core/adapter/base_adapter.py, core/utils/memory.py, core/utils/bn_layers.py, core/utils/custom_transforms.py]
   upstream_config: configs/adapter/rotta.yaml
   project_profile: configs/methods/rotta.yaml
-  official_core: src/online_aig_tta/official/rotta.py
-  wrapper: src/online_aig_tta/methods/rotta.py
+  official_core: src/official/rotta.py
+  wrapper: src/methods/rotta.py
   status: patched_vendored_official_core_with_binary_protocol_wrapper
   numerical_validation: not_run_requires_official_data_and_weights
 
@@ -48,8 +48,8 @@ lame:
   upstream_files: [src/adaptation/lame.py]
   upstream_config: configs/method/best/LAME/overall_best.yaml
   project_profile: configs/methods/lame.yaml
-  official_core: src/online_aig_tta/official/lame.py
-  wrapper: src/online_aig_tta/methods/lame.py
+  official_core: src/official/lame.py
+  wrapper: src/methods/lame.py
   status: vendored_official_core_with_feature_io_wrapper
   numerical_validation: not_run_requires_official_data_and_weights
   license: CC-BY-NC-SA-4.0
@@ -60,17 +60,72 @@ t2a:
   upstream_files: [adapters/base_adapter.py, adapters/T2A.py, losses/__init__.py, utils.py]
   upstream_config: configs/T2A.yaml
   project_profile: configs/methods/t2a.yaml
-  official_core: src/online_aig_tta/official/t2a.py
-  wrapper: src/online_aig_tta/methods/t2a.py
+  official_core: src/official/t2a.py
+  wrapper: src/methods/t2a.py
+  source_detector_training_entrypoints:
+    - configs/train/t2a_ufd_source.yaml
+    - configs/train/t2a_genimage_source.yaml
+  source_detector_training_note: The public T2A repository releases only the test-time adapter; these entries train the shared Controlled CTTA source detector and do not introduce a T2A-only checkpoint.
   status: patched_vendored_public_official_core
   numerical_validation: not_run_requires_official_data_and_weights
+
+ost:
+  repository: https://github.com/liangchen527/OST.git
+  commit: 1e4518b9e560baf9c5693f13a402fa5d7104190f
+  upstream_files:
+    - trainer/meta_xception.py
+    - trainer/inner_loop_optimizers.py
+    - trainer/whole_model.py
+    - utils/am_softmax.py
+  upstream_config: [README.md, train.py, utils/parser_params.py]
+  checkpoint_url: https://drive.google.com/file/d/1A2EHgj7EW2RsfiqvtbnQSIvLkbVgDFlZ/view
+  checkpoint_filename: xception_meta.pth
+  checkpoint_size_bytes: 83476109
+  project_profile: configs/methods/ost.yaml
+  experiment_profiles: [configs/experiments/ost/genimage.yaml, configs/experiments/ost/ufd.yaml]
+  official_core: src/official/ost
+  model_loader: src/models/ost.py
+  wrapper: src/methods/ost.py
+  status: patched_vendored_official_core_with_cross_task_data_adapter
+  source_distribution: vendored_at_explicit_user_direction
+  upstream_license: none_declared
+  local_changes:
+    - provenance headers added to vendored Python files
+    - line endings and trailing whitespace normalized without changing code semantics
+    - AM-Softmax uint8 conditions changed to bool for current PyTorch
+    - single-device inference core extracted from trainer/whole_model.py
+    - single-device meta-training core extracted from Model.optimize in trainer/whole_model.py
+    - official support/query second-order objective consumes canonical Arrow episodes
+    - released SimSwap and landmark synthesis replaced by disclosed full-frame alpha blending
+    - labeled source templates are read from the canonical Arrow source split
+  training_entrypoints: [configs/train/ost_ufd_meta.yaml, configs/train/ost_genimage_meta.yaml]
+  numerical_validation: not_equivalent_to_official_face_benchmark
 
 iapl:
   repository: https://github.com/liyih/IAPL.git
   commit: a173e7783bbafaa00d60e6e31774a0bc14411a23
-  upstream_config: [tta_genimage.sh, tta_universalfake.sh, main.py]
-  project_profiles: [configs/iapl_official_genimage.yaml, configs/iapl_official_ufd.yaml, configs/iapl_official_ufd_arrow_1gpu.yaml]
-  wrapper: run_iapl_official.py
-  status: pinned_official_checkout
-  patch: patches/iapl-a173e77-compat.patch
-  numerical_validation: enforced_by_runner_when_executed
+  upstream_files:
+    - models/__init__.py
+    - models/clip_models.py
+    - models/dct.py
+    - models/freq_stem.py
+    - models/srm.py
+    - models/clip/__init__.py
+    - models/clip/clip.py
+    - models/clip/model.py
+    - models/clip/simple_tokenizer.py
+    - models/clip/bpe_simple_vocab_16e6.txt.gz
+  upstream_config: [tta_genimage.sh, tta_universalfake.sh, main.py, test_time.py]
+  project_profile: configs/methods/iapl.yaml
+  experiment_profiles: [configs/experiments/iapl/genimage.yaml, configs/experiments/iapl/ufd.yaml]
+  official_core: src/official/iapl
+  model_loader: src/models/iapl.py
+  wrapper: src/methods/iapl.py
+  status: vendored_upstream_model_core_with_framework_wrapper
+  source_distribution: vendored_at_explicit_user_direction
+  upstream_license: none_declared
+  local_changes:
+    - provenance headers added to Python files
+    - trailing whitespace normalized without changing code semantics
+    - CLIP checkpoint path injected by src/models/iapl.py
+  numerical_validation: requires_framework_native_benchmark_run

@@ -1,0 +1,12 @@
+extends: genimage_sd14_source.yaml
+
+output_dir: outputs/source_train/genimage_sd14_resnet50_arrow_smoke
+
+data:
+  max_train_samples_per_class: 32
+  max_val_samples_per_class: 16
+
+training:
+  epochs: 1
+  fisher_samples: 32
+  fisher_batch_size: 16

@@ -1,0 +1,8 @@
+# Explicit T2A source-detector training entry. The resulting checkpoint must
+# still be shared by every Controlled CTTA method.
+extends: source.yaml
+
+output_dir: outputs/source_train/t2a_ufd_progan_resnet50_arrow
+
+training:
+  requested_for: t2a

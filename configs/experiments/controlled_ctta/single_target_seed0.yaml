@@ -1,0 +1,4 @@
+extends: single_target.yaml
+
+seed: 0
+output_dir: outputs/controlled_ctta/single_target/seed0

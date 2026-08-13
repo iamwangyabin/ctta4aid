@@ -1,0 +1,15 @@
+extends:
+  - ../../datasets/genimage.yaml
+  - ../../protocols/iapl_single_target.yaml
+  - ../../methods/iapl.yaml
+
+seed: 100
+device: auto
+output_dir: outputs/iapl/genimage
+
+method_configs:
+  iapl:
+    checkpoint: ${IAPL_GENIMAGE_CHECKPOINT}
+    normalization_mean: [0.481, 0.458, 0.408]
+    normalization_std: [0.269, 0.261, 0.276]
+    smooth: true

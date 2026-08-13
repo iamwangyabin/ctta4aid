@@ -6,12 +6,13 @@
 
 ## 1. 项目范围
 
-项目必须同时保留两条实验轨道：
+项目必须同时保留三条实验轨道：
 
 1. **Controlled CTTA 主实验**：公共 ResNet-50 checkpoint 下的 Source、TENT、EATA、CoTTA、RoTTA、LAME 和 T2A。
 2. **IAPL 补充实验**：CLIP ViT-L/14、逐图 Adapt-Then-Predict 的独立方法轨道。
+3. **OST 补充实验**：MetaXception、源训练模板、逐图一次 fast-weight 更新的独立方法轨道。
 
-IAPL 是正式项目能力。不得因为当前机器缺少权重或当前没有 IAPL 结果，就把 IAPL 的配置、核心、loader、方法、测试、依赖或说明判定为垃圾。
+IAPL 和 OST 都是正式项目能力。不得因为当前机器缺少权重或当前没有结果，就把其配置、核心、loader、方法、测试、依赖或说明判定为垃圾。论文专项方法只加入有作者公开实现且来源可固定的 OST、T2A 和 IAPL；没有作者公开实现的方法不得用项目自写实现冒充复现。
 
 ## 2. 冻结目录结构
 
@@ -34,7 +35,7 @@ src/
 
 - `src/official/`：固定上游 commit 的第三方算法核心。
 - `src/methods/`：公共框架 wrapper，只负责协议适配、配置翻译和统计。
-- `src/models/`：模型构建、checkpoint 和 IAPL 上游模型加载。
+- `src/models/`：模型构建、checkpoint 及 IAPL、OST 上游模型加载。
 - `src/data/`：数据集、预处理和 stream。
 - `src/evaluation/`：指标、在线评估和结果写入。
 - `configs/datasets/`：数据、checkpoint 和目标域。
@@ -75,6 +76,16 @@ src/
 - 同一 target 内允许 Conditional Information Learner 的 BatchNorm buffers 跨图片保留。
 - IAPL 固定版本的最小运行核心位于 `src/official/iapl/`，模型加载必须使用仓库内包导入。
 - 上游没有声明软件许可证；必须保留源码头、`configs/official_sources.yaml` 和 `THIRD_PARTY_NOTICES.md` 中的来源及未授权状态，不得将其描述为 MIT 或其他开源许可证代码。
+
+### OST
+
+- 固定上游 commit 为 `1e4518b9e560baf9c5693f13a402fa5d7104190f`。
+- 保留 MetaXception、AM-Softmax、每张测试图一次 fast-weight 更新和 Adapt-Then-Predict 顺序。
+- OST 在测试时读取源训练集随机模板及其标签，但不得读取 target hidden labels。
+- 每个 target 必须重新加载模型；不同 target 不得继承模型或 BatchNorm 状态，fast weights 不得跨测试图保留。
+- 通用图像轨道使用明确披露的 full-frame alpha blending 数据适配，不得描述为作者人脸合成管线或论文原数值复现。
+- OST 固定版本核心位于 `src/official/ost/`，数据输入仍只允许项目标准 Arrow。
+- 上游没有声明软件许可证；必须保留源码头、`configs/official_sources.yaml` 和 `THIRD_PARTY_NOTICES.md` 中的来源及未授权状态。
 
 任何协议变化都必须由用户明确批准，并同步修改配置、测试和 README。不得只改代码而保留旧协议说明。
 

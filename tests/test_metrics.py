@@ -3,10 +3,11 @@ import unittest
 
 import numpy as np
 
-from online_aig_tta.evaluation.metrics import (
+from src.evaluation.metrics import (
     MetricAccumulator,
     binary_metrics,
     continual_forgetting,
+    temporal_generalization,
 )
 
 
@@ -47,6 +48,49 @@ class MetricsTest(unittest.TestCase):
         self.assertAlmostEqual(result["by_domain"]["B"]["forgetting"], 0.0)
         self.assertAlmostEqual(result["by_domain"]["C"]["forgetting"], 0.0)
         self.assertAlmostEqual(result["average"], 0.10)
+
+    def test_temporal_generalization_separates_current_and_future_domains(self):
+        initial = {
+            "by_domain": {
+                "A": {"auc": 0.60},
+                "B": {"auc": 0.70},
+                "C": {"auc": 0.80},
+            }
+        }
+        checkpoints = [
+            {
+                "by_domain": {
+                    "A": {"auc": 0.70},
+                    "B": {"auc": 0.65},
+                    "C": {"auc": 0.90},
+                }
+            },
+            {
+                "by_domain": {
+                    "A": {"auc": 0.68},
+                    "B": {"auc": 0.75},
+                    "C": {"auc": 0.85},
+                }
+            },
+            {
+                "by_domain": {
+                    "A": {"auc": 0.66},
+                    "B": {"auc": 0.72},
+                    "C": {"auc": 0.82},
+                }
+            },
+        ]
+
+        result = temporal_generalization(initial, checkpoints, ["A", "B", "C"])
+
+        self.assertAlmostEqual(
+            result["mean_current_auc_delta"], (0.10 + 0.05 + 0.02) / 3
+        )
+        self.assertAlmostEqual(
+            result["mean_future_auc_delta"], (-0.05 + 0.10 + 0.05) / 3
+        )
+        self.assertAlmostEqual(result["future_negative_transfer_rate"], 1 / 3)
+        self.assertEqual(result["future_by_checkpoint"][-1]["future_domains"], 0)
 
 
 if __name__ == "__main__":

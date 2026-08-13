@@ -1,0 +1,16 @@
+# Controlled single-target comparison: dataset + protocol + all CNN methods.
+extends:
+  - ../../datasets/universalfake.yaml
+  - ../../protocols/single_target.yaml
+  - ../../methods/source.yaml
+  - ../../methods/tent.yaml
+  - ../../methods/eata.yaml
+  - ../../methods/cotta.yaml
+  - ../../methods/rotta.yaml
+  - ../../methods/lame.yaml
+  - ../../methods/t2a.yaml
+
+seed: 0
+device: auto
+methods: [source, tent, eata, cotta, rotta, lame, t2a]
+output_dir: outputs/controlled_ctta/single_target/seed0

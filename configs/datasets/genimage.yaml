@@ -1,0 +1,19 @@
+# GenImage evaluation data in the project's canonical Arrow bundle.
+data:
+  format: arrow
+  root: ${GENIMAGE_ARROW_ROOT}
+  split: test
+  image_size: 224
+  batch_size: 1
+  num_workers: 8
+  shuffle: false
+  max_samples_per_class: null
+  targets:
+    - ADM
+    - BigGAN
+    - glide
+    - Midjourney
+    - stable_diffusion_v_1_4
+    - stable_diffusion_v_1_5
+    - VQDM
+    - wukong

@@ -1,0 +1,10 @@
+# Tiny execution gate for all seven CNN methods on a GenImage target.
+extends: genimage_single_target.yaml
+
+data:
+  batch_size: 8
+  num_workers: 2
+  max_samples_per_class: 16
+  targets: [ADM]
+
+output_dir: outputs/controlled_ctta/genimage_sd14/method_smoke_seed0

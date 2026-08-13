@@ -1,0 +1,49 @@
+# UniversalFakeDetect test data in the project's canonical Arrow bundle.
+model:
+  architecture: resnet50
+  pretrained: false
+  num_classes: 2
+  checkpoint: ${UFD_SOURCE_CHECKPOINT}
+
+data:
+  format: arrow
+  root:
+    - ${UFD_FORENSYNTHS_ARROW_ROOT}
+    - ${UFD_OJHA_ARROW_ROOT}
+  split: test
+  image_size: 224
+  batch_size: 16
+  num_workers: 4
+  shuffle: true
+
+  # ProGAN is the source domain and is excluded.
+  targets:
+    - cyclegan
+    - biggan
+    - stylegan
+    - stargan
+    - gaugan
+    - crn
+    - dalle
+    - deepfake
+    - glide_50_27
+    - glide_100_10
+    - glide_100_27
+    - guided
+    - imle
+    - ldm_100
+    - ldm_200
+    - ldm_200_cfg
+    - san
+    - seeingdark
+
+  # Fixed GAN-to-diffusion order used by the continual experiment.
+  stream:
+    - biggan
+    - cyclegan
+    - stylegan
+    - gaugan
+    - guided
+    - glide_100_27
+    - ldm_200
+    - dalle

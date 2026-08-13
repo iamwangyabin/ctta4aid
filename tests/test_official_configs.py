@@ -4,7 +4,7 @@ import math
 import unittest
 from pathlib import Path
 
-from online_aig_tta.config import load_config
+from src.config import load_config
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -15,7 +15,10 @@ class OfficialConfigTests(unittest.TestCase):
         return load_config(PROJECT_ROOT / relative_path)
 
     def test_cnn_configs_pin_official_method_defaults(self) -> None:
-        for filename in ("configs/single_target.yaml", "configs/continual_stream.yaml"):
+        for filename in (
+            "configs/experiments/controlled_ctta/single_target.yaml",
+            "configs/experiments/controlled_ctta/continual.yaml",
+        ):
             with self.subTest(filename=filename):
                 methods = self.load(filename)["method_configs"]
                 self.assertEqual(methods["tent"]["optimizer"], "Adam")
@@ -60,10 +63,31 @@ class OfficialConfigTests(unittest.TestCase):
                 self.assertIn("release_repairs", methods["t2a"])
 
     def test_eata_fisher_config_matches_official_preparation_size(self) -> None:
-        training = self.load("configs/train_source.yaml")["training"]
+        training = self.load("configs/train/source.yaml")["training"]
         self.assertTrue(training["compute_fisher"])
         self.assertEqual(training["fisher_samples"], 2000)
         self.assertEqual(training["fisher_batch_size"], 64)
+        self.assertIn("t2a", training["intended_methods"])
+        self.assertEqual(
+            training["checkpoint_role"], "shared_source_detector_including_t2a"
+        )
+
+    def test_t2a_has_explicit_shared_source_training_entries(self) -> None:
+        expected = {
+            "configs/train/t2a_ufd_source.yaml": "progan",
+            "configs/train/t2a_genimage_source.yaml": "stable_diffusion_v_1_4",
+        }
+        for filename, generator in expected.items():
+            with self.subTest(filename=filename):
+                config = self.load(filename)
+                self.assertEqual(config["model"]["architecture"], "resnet50")
+                self.assertEqual(config["data"]["format"], "arrow")
+                self.assertEqual(config["data"]["generator"], generator)
+                self.assertEqual(config["training"]["requested_for"], "t2a")
+                self.assertIn("t2a", config["training"]["intended_methods"])
+                self.assertIn(
+                    "shared_source_detector", config["training"]["checkpoint_role"]
+                )
 
     def test_official_source_commits_are_fully_pinned(self) -> None:
         sources = self.load("configs/official_sources.yaml")
@@ -74,6 +98,7 @@ class OfficialConfigTests(unittest.TestCase):
             "rotta": "67e34c900cdd355fc07e55edd4c577ea7b8ebcc9",
             "lame": "d2e5f63090bc1c8129bf7cbd781029a5955e1a67",
             "t2a": "33c8ccc64afdda260564123d6c790d030a89ff81",
+            "ost": "1e4518b9e560baf9c5693f13a402fa5d7104190f",
             "iapl": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
         }
         self.assertEqual(
@@ -94,43 +119,181 @@ class OfficialConfigTests(unittest.TestCase):
                 self.assertTrue(core.is_file())
                 self.assertTrue(wrapper.is_file())
                 wrapper_text = wrapper.read_text(encoding="utf-8")
-                self.assertIn(f"online_aig_tta.official import {method}", wrapper_text)
+                self.assertIn(f"src.official import {method}", wrapper_text)
 
-    def test_iapl_configs_match_released_worker_settings(self) -> None:
-        genimage = self.load("configs/iapl_official_genimage.yaml")
-        universal = self.load("configs/iapl_official_ufd.yaml")
-        self.assertEqual(genimage["num_workers"], 8)
-        self.assertEqual(universal["num_workers"], 0)
+    def test_iapl_configs_define_independent_single_target_runs(self) -> None:
+        genimage = self.load("configs/experiments/iapl/genimage.yaml")
+        universal = self.load("configs/experiments/iapl/ufd.yaml")
+        self.assertEqual(genimage["data"]["format"], "arrow")
+        self.assertEqual(universal["data"]["format"], "arrow")
+        self.assertEqual(genimage["data"]["num_workers"], 8)
+        self.assertEqual(universal["data"]["num_workers"], 0)
         for config in (genimage, universal):
-            self.assertEqual(config["nproc_per_node"], 8)
-            self.assertEqual(config["evalbatchsize"], 32)
-            self.assertEqual(config["tta_steps"], 2)
-            self.assertEqual(config["selection_p"], 0.2)
-            self.assertEqual(config["lr"], 0.005)
-            self.assertEqual(config["epoch"], 1)
-            self.assertEqual(config["lr_drop"], 10)
-            self.assertTrue(config["gate"])
-            self.assertTrue(config["condition"])
-            self.assertTrue(config["tta"])
-            self.assertTrue(config["eval"])
-            self.assertTrue(config["require_reference_match"])
+            method = config["method_configs"]["iapl"]
+            self.assertEqual(config["methods"], ["iapl"])
+            self.assertEqual(config["data"]["batch_size"], 1)
+            self.assertEqual(config["protocol"]["name"], "episodic_adapt_then_predict")
+            self.assertEqual(method["views"], 32)
+            self.assertEqual(method["steps"], 2)
+            self.assertEqual(method["selection_fraction"], 0.2)
+            self.assertEqual(method["lr"], 0.005)
+            self.assertTrue(method["gate"])
+            self.assertTrue(method["condition"])
+            self.assertTrue(method["optimal_input_selection"])
+            self.assertFalse(config["protocol"]["batchnorm_buffers_accumulate_across_targets"])
 
-    def test_complete_dataset_setting_method_matrix_exists(self) -> None:
+    def test_ost_configs_define_source_template_adapt_then_predict(self) -> None:
+        for filename in (
+            "configs/experiments/ost/genimage.yaml",
+            "configs/experiments/ost/ufd.yaml",
+        ):
+            with self.subTest(filename=filename):
+                config = self.load(filename)
+                method = config["method_configs"]["ost"]
+                self.assertEqual(config["methods"], ["ost"])
+                self.assertEqual(config["data"]["format"], "arrow")
+                self.assertEqual(config["data"]["batch_size"], 1)
+                self.assertEqual(
+                    config["protocol"]["name"], "episodic_adapt_then_predict"
+                )
+                self.assertFalse(config["protocol"]["source_free_during_test"])
+                self.assertFalse(
+                    config["protocol"]["target_labels_available_to_method"]
+                )
+                self.assertTrue(
+                    config["protocol"]["source_labels_available_to_method"]
+                )
+                self.assertEqual(method["steps"], 1)
+                self.assertEqual(method["task_learning_rate"], 0.0005)
+                self.assertEqual(method["synthesis"], "full_frame_alpha")
+
+    def test_ost_training_configs_preserve_the_official_meta_objective(self) -> None:
+        expected_sources = {
+            "configs/train/ost_ufd_meta.yaml": "progan",
+            "configs/train/ost_genimage_meta.yaml": "stable_diffusion_v_1_4",
+        }
+        for filename, generator in expected_sources.items():
+            with self.subTest(filename=filename):
+                config = self.load(filename)
+                self.assertEqual(config["model"]["architecture"], "meta_xception")
+                self.assertEqual(config["data"]["format"], "arrow")
+                self.assertEqual(config["data"]["generator"], generator)
+                self.assertEqual(config["training"]["epochs"], 30)
+                self.assertEqual(config["training"]["task_learning_rate"], 0.0005)
+                self.assertEqual(config["training"]["outer_learning_rate"], 0.0002)
+                self.assertTrue(config["training"]["second_order"])
+                self.assertEqual(config["training"]["am_softmax_margin"], 0.45)
+
+        smoke = self.load("configs/train/ost_ufd_meta_smoke.yaml")
+        self.assertEqual(smoke["training"]["epochs"], 1)
+        self.assertFalse(smoke["training"]["second_order"])
+        self.assertEqual(smoke["training"]["max_steps_per_epoch"], 1)
+
+    def test_ost_is_a_registered_vendored_official_core(self) -> None:
+        sources = self.load("configs/official_sources.yaml")
+        source = sources["ost"]
+        core = PROJECT_ROOT / source["official_core"]
+        self.assertTrue((core / "meta_xception.py").is_file())
+        self.assertTrue((core / "inner_loop_optimizers.py").is_file())
+        self.assertTrue((core / "am_softmax.py").is_file())
+        self.assertTrue((core / "runtime.py").is_file())
+        self.assertTrue((core / "training.py").is_file())
+        self.assertTrue((PROJECT_ROOT / source["model_loader"]).is_file())
+        self.assertTrue((PROJECT_ROOT / source["wrapper"]).is_file())
+        self.assertEqual(source["upstream_license"], "none_declared")
+        self.assertEqual(
+            source["numerical_validation"],
+            "not_equivalent_to_official_face_benchmark",
+        )
+
+    def test_iapl_is_a_registered_framework_wrapper(self) -> None:
+        sources = self.load("configs/official_sources.yaml")
+        wrapper = PROJECT_ROOT / sources["iapl"]["wrapper"]
+        core = PROJECT_ROOT / sources["iapl"]["official_core"]
+        method = self.load("configs/methods/iapl.yaml")["method_configs"]["iapl"]
+        self.assertTrue(wrapper.is_file())
+        self.assertTrue((core / "clip_models.py").is_file())
+        self.assertTrue((core / "clip" / "bpe_simple_vocab_16e6.txt.gz").is_file())
+        self.assertNotIn("repo_path", method)
+        loader_text = (PROJECT_ROOT / sources["iapl"]["model_loader"]).read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("from src.official.iapl import CLIPModel", loader_text)
+        self.assertNotIn("verify_iapl_checkout", loader_text)
+        self.assertNotIn("patch", sources["iapl"])
+        self.assertEqual(
+            sources["iapl"]["status"],
+            "vendored_upstream_model_core_with_framework_wrapper",
+        )
+
+    def test_controlled_experiments_compose_dataset_protocol_and_methods(self) -> None:
         methods = {"source", "tent", "eata", "cotta", "rotta", "lame", "t2a"}
-        for dataset in ("genimage", "universalfake"):
-            for setting in ("single_target", "continual"):
-                directory = PROJECT_ROOT / "configs" / "experiments" / dataset / setting
-                self.assertEqual({path.stem for path in directory.glob("*.yaml")}, methods)
-                for method in methods:
-                    with self.subTest(dataset=dataset, setting=setting, method=method):
-                        config = load_config(directory / f"{method}.yaml")
-                        self.assertEqual(config["methods"], [method])
-                        self.assertEqual(config["data"]["format"], dataset)
-                        self.assertEqual(config["data"]["batch_size"], 16)
-                        self.assertEqual(config["protocol"]["name"], "predict_then_adapt")
-                        self.assertEqual(
-                            config["output_dir"], f"outputs/{dataset}/{setting}"
-                        )
+        directory = PROJECT_ROOT / "configs" / "experiments" / "controlled_ctta"
+        for setting in ("single_target", "continual"):
+            base = load_config(directory / f"{setting}.yaml")
+            self.assertEqual(set(base["methods"]), methods)
+            self.assertEqual(base["data"]["format"], "arrow")
+            self.assertEqual(base["data"]["batch_size"], 16)
+            self.assertEqual(base["protocol"]["name"], "predict_then_adapt")
+            for seed in (0, 1, 2):
+                with self.subTest(setting=setting, seed=seed):
+                    config = load_config(directory / f"{setting}_seed{seed}.yaml")
+                    self.assertEqual(config["seed"], seed)
+                    self.assertEqual(
+                        config["output_dir"],
+                        f"outputs/controlled_ctta/{setting}/seed{seed}",
+                    )
+
+    def test_genimage_controlled_experiments_use_sd14_as_source(self) -> None:
+        methods = {"source", "tent", "eata", "cotta", "rotta", "lame", "t2a"}
+        targets = [
+            "Midjourney",
+            "stable_diffusion_v_1_5",
+            "ADM",
+            "glide",
+            "wukong",
+            "VQDM",
+            "BigGAN",
+        ]
+        stream = [
+            "BigGAN",
+            "ADM",
+            "glide",
+            "stable_diffusion_v_1_5",
+            "VQDM",
+            "wukong",
+            "Midjourney",
+        ]
+        directory = PROJECT_ROOT / "configs" / "experiments" / "controlled_ctta"
+        for setting in ("single_target", "continual"):
+            base = load_config(directory / f"genimage_{setting}.yaml")
+            self.assertEqual(set(base["methods"]), methods)
+            self.assertEqual(base["data"]["source_domain"], "stable_diffusion_v_1_4")
+            self.assertNotIn(base["data"]["source_domain"], base["data"]["targets"])
+            self.assertEqual(base["data"]["targets"], targets)
+            self.assertEqual(base["data"]["stream"], stream)
+            self.assertEqual(base["data"]["batch_size"], 16)
+            self.assertEqual(base["protocol"]["name"], "predict_then_adapt")
+            for seed in (0, 1, 2):
+                config = load_config(
+                    directory / f"genimage_{setting}_seed{seed}.yaml"
+                )
+                self.assertEqual(config["seed"], seed)
+                self.assertEqual(
+                    config["output_dir"],
+                    f"outputs/controlled_ctta/genimage_sd14/{setting}/seed{seed}",
+                )
+
+    def test_genimage_source_training_uses_the_unified_arrow_root(self) -> None:
+        config = self.load("configs/train/genimage_sd14_source.yaml")
+        self.assertEqual(config["data"]["generator"], "stable_diffusion_v_1_4")
+        self.assertEqual(
+            config["data"]["train_generator"], "stable_diffusion_v_1_4"
+        )
+        self.assertEqual(config["data"]["val_generator"], "stable_diffusion_v_1_4")
+        self.assertEqual(config["data"]["train_split"], "train")
+        self.assertEqual(config["data"]["val_split"], "test")
+        self.assertTrue(config["training"]["compute_fisher"])
 
     def test_t2a_unreported_release_values_are_isolated(self) -> None:
         config = self.load("configs/methods/t2a.yaml")["method_configs"]["t2a"]

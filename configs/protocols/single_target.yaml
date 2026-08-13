@@ -1,0 +1,14 @@
+protocol:
+  name: predict_then_adapt
+  source_free_during_test: true
+  target_labels_available_to_method: false
+  generator_id_available_to_method: false
+  passes: 1
+  updates_per_batch: 1
+
+data:
+  max_samples_per_class: 1000
+
+evaluation:
+  threshold: 0.5
+  curve_window_batches: 20

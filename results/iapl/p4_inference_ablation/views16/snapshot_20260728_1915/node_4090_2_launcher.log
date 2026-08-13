@@ -1,2 +1,0 @@
-Using NCCL 23007 from /home/yabin/miniconda3/envs/caid-gemini-compat/lib/python3.11/site-packages/nvidia/nccl/lib
-UFD Arrow runtime smoke passed: crn (12764 rows, 16 views)

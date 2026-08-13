@@ -1,0 +1,12 @@
+# Tiny real-data execution gate for all seven CNN methods.
+extends: single_target.yaml
+
+seed: 0
+
+data:
+  batch_size: 8
+  num_workers: 2
+  max_samples_per_class: 16
+  targets: [san]
+
+output_dir: outputs/controlled_ctta/method_smoke_seed0

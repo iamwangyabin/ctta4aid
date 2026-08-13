@@ -1,0 +1,26 @@
+extends:
+  - ../../datasets/genimage.yaml
+  - ../../protocols/ost_single_target.yaml
+  - ../../methods/ost.yaml
+
+seed: 100
+device: auto
+methods: [ost]
+output_dir: outputs/ost/genimage
+
+data:
+  source_root: ${GENIMAGE_ARROW_ROOT}
+  source_domain: stable_diffusion_v_1_4
+  source_split: train
+  batch_size: 1
+  num_workers: 0
+  shuffle: false
+  max_samples_per_class: null
+  targets:
+    - ADM
+    - BigGAN
+    - glide
+    - Midjourney
+    - stable_diffusion_v_1_5
+    - VQDM
+    - wukong

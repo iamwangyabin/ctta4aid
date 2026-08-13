@@ -1,0 +1,29 @@
+methods: [iapl]
+
+method_configs:
+  iapl:
+    clip_path: ${CLIP_VIT_L14_CHECKPOINT}
+    views: 32
+    steps: 2
+    selection_fraction: 0.2
+    selection_count: null
+    optimal_input_selection: true
+    optimizer: AdamW
+    lr: 0.005
+    weight_decay: 0.01
+    amp: true
+    image_size: 224
+    resize_size: 256
+    n_ctx: 2
+    prompt_depth: 9
+    vision_width: 1024
+    vit_adapter_list: [3, 7, 11, 15, 19, 23]
+    text_adapter_list: []
+    gate: true
+    condition: true
+    reference:
+      profile: vendored_iapl_core_with_framework_adapter
+      repository: https://github.com/liyih/IAPL
+      commit: a173e7783bbafaa00d60e6e31774a0bc14411a23
+      protocol: episodic_adapt_then_predict
+      transfer_note: The pinned model core is vendored under src/official/iapl; the framework owns views, per-image adaptation, OIS, metrics, and serialization.

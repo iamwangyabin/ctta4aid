@@ -1,81 +1,51 @@
 # Online TTA for AI-Generated Image Detection
 
-这是一个先固定实验协议、再逐步补齐方法的最小 Python 工程。项目包含两条不能混为一谈的实验轨道：
+这是一个用于 AI 生成图像检测的在线测试时适应项目。论文专项只纳入有作者公开实现的方法，当前保留三条实验轨道：
 
-1. **CNN Online TTA 主轨道**：同一 ResNet-50 源 checkpoint，严格执行 Predict-Then-Adapt，支持单目标生成器与连续生成器流。
-2. **IAPL 官方轨道**：运行作者的 CLIP ViT-L/14 代码，保留逐图重置、先适应再预测的原始协议，用于任务专用补充比较。
+- **Controlled CTTA 主实验**：Source、TENT、EATA、CoTTA、RoTTA、LAME 和 T2A 共用同一个 ResNet-50 源模型，比较独立 Single-target 与 Continual stream。
+- **IAPL 补充实验**：使用 CLIP ViT-L/14，按逐图 Adapt-Then-Predict 协议运行，不与公共 CNN 控制实验混为一谈。
+- **OST 补充实验**：使用作者的 MetaXception、AM-Softmax 和单步 fast weights；每张测试图从源训练集抽取带标签模板，合成伪样本后 Adapt-Then-Predict。
 
-第一条轨道实现 Source、TENT、EATA、CoTTA、RoTTA、LAME、T²A；第二条轨道运行固定版本的官方 IAPL，并用参考值门禁判断是否达到论文数值。IAPL 可以作为完整方法进入端到端主比较，但表格必须同时披露 backbone、checkpoint、评价指标和 Adapt/Predict 顺序；只有“控制变量比较适应算法”时才要求另列公共 CNN 轨道。
+旧阶段实验和结果已经移除。新的正式实验需要重新运行，确认完成后再将最终结果写入 `results/`。
 
-## 1. 方法实现状态
-
-| 方法 | 当前实现 | 可以如何表述 |
-| --- | --- | --- |
-| Source-only | 本项目统一实现 | 静态源模型基线 |
-| TENT | 包内 vendored 作者核心＋薄 wrapper | wrapper 只拆分 predict/adapt，不重写算法 |
-| EATA | 包内 vendored 作者核心＋二分类 wrapper | 官方筛选、EMA、熵加权和 Fisher/EWC 均由作者核心执行 |
-| CoTTA | 包内 vendored 官方 ImageNet 核心＋兼容 wrapper | 官方 teacher、anchor、32-view、EMA、恢复和 loss |
-| RoTTA | 包内 vendored 官方核心＋二分类/protocol wrapper | 官方 RobustBN、CSTU、timeliness/uncertainty、EMA teacher 和更新频率 |
-| LAME | 包内 vendored 官方核心＋feature I/O wrapper | 官方 parameter-free affinity 与 Laplacian output adaptation；不更新模型 |
-| T²A | 包内 vendored 作者公开核心＋必要修复 | 公开代码无法原样运行；补丁逐项列出 |
-| IAPL | 固定作者官方仓库与 commit 直接运行 | 官方代码轨道；只应用路径、checkpoint 加载与 Arrow 输入兼容补丁 |
-
-CNN 方法现在采用严格的两层结构：`src/online_aig_tta/official/` 保存固定 commit 中抽取的作者算法核心，`src/online_aig_tta/methods/` 只负责框架接口、张量搬运、配置翻译和统计。TENT/EATA wrapper 直接调用作者的 `configure_model`、`collect_params` 和官方 forward-and-adapt；CoTTA/T²A 也调用包内作者核心，不再在 wrapper 里重新写方法公式。
-
-EATA 固定到作者仓库 commit `f739b3668cc7617e9b9f1979c1a358497a3472c3`。作者核心原代码面向 ImageNet；wrapper 只把类别相关阈值从 `log(1000) × 0.4` 改成二分类对应值 `log(2) × 0.4`，从共同 checkpoint 提供 Fisher，并将作者一次 forward 内的预测与更新拆开。两级筛选、概率 EMA、重加权熵和 Fisher 正则均在 vendored 作者核心中执行。
-
-完整 EATA 必须有源域 Fisher。`train_source.py` 会和作者代码一样，在干净源验证图像及 evaluation transform 上，以 batch size 64、伪标签交叉熵和梯度平方，用最多 2,000 个样本计算并写入 checkpoint；缺少 Fisher 时默认报错。只有显式设置 `require_fisher: false` 才会运行作者所称的 ETA 消融，不能继续标成完整 EATA。
-
-IAPL 固定到作者仓库 commit `a173e7783bbafaa00d60e6e31774a0bc14411a23`。作者仓库目前未附软件许可证，因此本项目不重新分发其源码，而是在运行前从官方仓库抓取精确 commit。批准的兼容补丁把写死的 CLIP 路径换成已有的 `--clip_path` 参数，为新版 PyTorch 显式关闭 `weights_only`，并接入不重编码图片的 Arrow dataset adapter；模型、变换、标签、优化器和适应协议不改。
-
-CoTTA 固定到 commit `c212a204b32be4005092e4323105a24a29ad2952`，直接使用 vendored 的作者 ImageNet 分支：32 次增强、`AP=0.1`、`MT=0.999`、`RST=0.001`、对称一致性损失和 SGD `0.01`。兼容补丁仅处理新版 torchvision 参数、硬编码 CUDA、归一化输入桥接，以及为 Predict-Then-Adapt 抽出并缓存作者的 teacher prediction。
-
-RoTTA 固定到 commit `67e34c900cdd355fc07e55edd4c577ea7b8ebcc9`。项目保留作者 RobustBN、CSTU memory、类别平衡淘汰、uncertainty/timeliness 打分、强增强、EMA teacher 和每 64 个样本更新一次的路径。任务迁移把类别数改为 2、分辨率改为公共 224，并把 EMA prediction 缓存到 `adapt` 前；官方像素空间强增强外包有与 CoTTA 相同的 ImageNet 反归一化/再归一化桥接。Adam `1e-3`、`NU=.001`、memory/update frequency 64、`ALPHA=.05` 均保留官方 release 值。
-
-LAME 固定到 commit `d2e5f63090bc1c8129bf7cbd781029a5955e1a67`。它是 parameter-free online inference：每个 batch 使用公共 CNN 的 penultimate features 和 source logits，执行作者 RBF affinity（`k=5`）与最多 100 步 Laplacian optimization，直接返回校准概率；`adapt()` 不修改任何参数或跨 batch 状态。单样本 batch 的官方 RBF bandwidth 为零，wrapper 明确退回 source probability。LAME 源码是 CC BY-NC-SA 4.0，仅限非商业并要求相同方式共享；详见 `THIRD_PARTY_NOTICES.md`。
-
-T²A 固定对照 commit `33c8ccc64afdda260564123d6c790d030a89ff81`，vendored 其 `BaseAdapter`、`T2AAdapter`、loss 和 cosine utility。公开版本不能原样运行：adapter 使用了未初始化属性，Bernoulli 分支产生错误 target 形状，并把概率再次送入 `log_softmax`。包内核心保留作者类结构和控制流，修补为每样本一个且不等于伪标签的 complementary target，并在公共协议的 `predict` 阶段恢复 BN running buffers；因此仍必须表述为“patched authors' public core”，不能声称未经修改。
-
-逐方法的固定来源、官方组件、协议包装和有意差异见 `REPRODUCIBILITY.md`，逐文件上游来源及补丁见 `src/online_aig_tta/official/PROVENANCE.md`，本轮逐项核查结果见 `AUDIT_REPORT.md`。完整配置入口见 `CONFIG_MATRIX.md`，baseline 取舍和风险等级见 `BASELINE_AUDIT.md`。每次 CNN 实验也会把同一份复现等级与差异写进结果 JSON。
-
-## 2. 目录
+## 项目结构
 
 ```text
-online-aig-tta/
-├── configs/
-│   ├── base/             # 数据与协议
-│   ├── methods/          # 官方含义的方法参数
-│   ├── experiments/      # 2 数据 × 2 设定 × 7 CNN 方法
-│   ├── train/            # 两个源模型训练入口
-│   ├── single_target.yaml
-│   ├── continual_stream.yaml
-│   ├── official_sources.yaml
-│   ├── iapl_official_genimage.yaml
-│   └── iapl_official_ufd.yaml
-├── envs/iapl-official.yaml
-├── patches/iapl-a173e77-compat.patch
-├── src/online_aig_tta/
-│   ├── official/         # 固定作者核心及补丁来源
-│   └── methods/          # 项目 predict/adapt/reset wrapper
-├── tests/
-├── AUDIT_REPORT.md
-├── BASELINE_AUDIT.md
-├── CONFIG_MATRIX.md
-├── REPRODUCIBILITY.md
-├── fetch_official_baselines.py
-├── train_source.py
-├── run_single_target.py
-├── run_continual_stream.py
-└── run_iapl_official.py
+configs/
+  datasets/       数据集、checkpoint 和目标域
+  protocols/      Single-target 与 Continual 协议
+  methods/        各方法参数
+  experiments/    Controlled CTTA、IAPL 与 OST 实验入口
+  train/          公共源模型训练配置
+src/
+  cli/            公共命令行辅助逻辑
+  data/           数据集、变换和数据流
+  evaluation/     指标与在线评估
+  methods/        统一 TTA 方法接口
+  models/         检测器及 IAPL、OST loader
+  official/       固定版本的第三方算法核心
+results/          仅保存重新完成后的最终实验结果
+scripts/          数据检查和必要下载脚本
+tests/            配置、协议、数据与方法测试
 ```
 
-`external/` 和 `weights/` 已加入 `.gitignore`，不会把第三方源码或大模型权重打进项目包。
+配置采用组合方式：`datasets/`、`protocols/` 和 `methods/` 分别描述独立职责，`experiments/` 只负责组合它们并指定 seed 与输出目录。固定的第三方来源和 commit 记录在 `configs/official_sources.yaml`。
 
-## 3. CNN Online TTA 主轨道
+## 数据格式
 
-### 安装
+框架只接受 `data.format: arrow`，不直接读取 ImageFolder、ZIP、Parquet 或其他 Arrow 组织方式。这里的 `arrow` 是本项目固定的数据契约，而不是任意 Apache Arrow 文件：
 
-建议 Python 3.10+、PyTorch 2.2+：
+- 根目录可以是一个 Hugging Face `Dataset.save_to_disk` bundle，也可以按
+  `data/<split>/<generator>/` 递归包含多个 bundle；
+- 必须包含 `mapping.json`，记录 `image_path -> row index`；
+- 数据列必须包含原始编码字节 `image` 和逻辑路径 `image_path`；
+- 逻辑路径必须包含 generator 和 `0_real`/`1_fake` 或 `nature`/`ai` 标签目录；split 由路径组件或 `<split>.json` 索引明确给出。
+
+原始数据只作为离线转换输入，不进入训练、适应或评估调用链。所有数据集都必须先转换并校验为上述统一 Arrow bundle。
+
+## 安装
+
+需要 Python 3.10+ 和 PyTorch 2.2+：
 
 ```bash
 python -m venv .venv
@@ -83,177 +53,153 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-### 数据布局
+## Controlled CTTA 主实验
 
-GenImage：
-
-```text
-/data/GenImage/
-├── ADM/
-│   ├── train/
-│   │   ├── nature/
-│   │   └── ai/
-│   └── val/
-│       ├── nature/
-│       └── ai/
-└── GLIDE/...
-```
-
-UniversalFakeDetect：
-
-```text
-/data/UFD/
-├── train/progan/<object-class>/{0_real,1_fake}/...
-└── test/biggan/{0_real,1_fake}/...
-```
-
-索引器会递归查找 `0_real`、`1_fake`，可兼容 ProGAN 的类别子目录。
-
-也可以直接读取 Hugging Face `Dataset.save_to_disk` 生成的 Arrow 数据，图片不会
-解包或重编码。DF-Arrow 数据根需要包含 `state.json`、`mapping.json` 和 Arrow
-分片；UFD 的 19 个域可以跨多个根组合：
+主实验读取符合项目数据契约的 UniversalFakeDetect Arrow bundle。运行前设置：
 
 ```bash
 export UFD_FORENSYNTHS_ARROW_ROOT=/data/DF-arrow-data/ForenSynths
 export UFD_OJHA_ARROW_ROOT=/data/DF-arrow-data/Ojha
-# The local GenImage Arrow bundle is useful for six-domain diagnostics only.
-export GENIMAGE_TEST_ARROW_ROOT=/data/DF-arrow-data/GenImage_test
-
-python run_single_target.py --config configs/universalfake_arrow_single_target.yaml
-python run_continual_stream.py --config configs/universalfake_arrow_continual_stream.yaml
+export UFD_SOURCE_CHECKPOINT=/weights/ufd_progan_resnet50.pt
 ```
 
-Arrow 后端使用 `mapping.json` 做原始路径到全局行号的校验，并按需内存映射图片
-字节；`ForenSynths/test.json` 与 `Ojha/test.json` 提供 UFD 域和二分类标签。
-当前 `GenImage_test` Arrow 只含 6 域；完整 8 域复现仍使用官方 ZIP 或已整理的
-ImageFolder，不能把缺少 BigGAN/glide 的 Arrow 子集写成完整 GenImage 结果。
-
-### 运行
-
-先选择数据对应的源模型配置并设置环境变量，然后训练共同源模型：
+训练共同源模型：
 
 ```bash
-python train_source.py --config configs/train/genimage_sd14_resnet50.yaml
-python train_source.py --config configs/train/universalfake_progan_resnet50.yaml
-python train_source.py --config configs/train/universalfake_progan_resnet50_arrow.yaml
+python train_source.py --config configs/train/source.yaml
 ```
 
-实验配置已按数据、设定和方法拆开，例如：
+这一步也就是 **T2A 的离线训练阶段**：训练 T2A 随后要适应的源检测器。
+T2A 官方发布只包含测试时 adapter，没有另一个可训练的 T2A 专属网络；因此这里不能
+为 T2A 私自训练更强 checkpoint。Source、TENT、EATA、CoTTA、RoTTA、LAME 和
+T2A 必须读取这次训练产生的同一个 `source.pt`，否则 Controlled CTTA 比较失去公平性。
+为了让调度任务可以明确写成 T2A 训练，也提供了不改变训练算法的显式入口：
+
+```bash
+python train_source.py --config configs/train/t2a_ufd_source.yaml
+python train_source.py --config configs/train/t2a_genimage_source.yaml
+```
+
+使用其中任一产物时，必须让对应数据轨道的全部七种方法共享该 `source.pt`，不能只给
+T2A 使用。
+
+运行 seed 0：
 
 ```bash
 python run_single_target.py \
-  --config configs/experiments/genimage/single_target/eata.yaml
+  --config configs/experiments/controlled_ctta/single_target_seed0.yaml
 python run_continual_stream.py \
-  --config configs/experiments/universalfake/continual/cotta.yaml
+  --config configs/experiments/controlled_ctta/continual_seed0.yaml
 ```
 
-全部 28 个 CNN 入口、路径变量和方法原始参数来源见 `CONFIG_MATRIX.md`。`configs/single_target.yaml` 与 `configs/continual_stream.yaml` 可用于一次运行 GenImage 七个 CNN 方法。
+将配置名中的 `seed0` 换成 `seed1` 或 `seed2` 可运行其余 seed。
 
-单目标入口会对每个 `method × target` 重新加载同一个 checkpoint。连续流入口只在每个方法开始前重置一次，生成器切换时保留参数。
+Single-target 会为每个 `method x target` 重新加载源 checkpoint。Continual stream 只在每个方法开始时加载一次，域切换时保留方法状态；每个域结束后会在与适应样本不重叠的固定 holdout 上计算当前域收益、过去域 forgetting，以及尚未进入适应流的 future-generator transfer。未来域样本仅用于 evaluator 的只读预测，标签只进入指标计算；二者都不进入方法的适应调用。
 
-每次实验输出 `metrics.json`、`online_curve.csv`、`batch_stats.csv`、`sample_manifest.csv` 和汇总 JSON。连续流额外输出 `holdout_matrix.csv` 与 `final_holdout_manifest.csv`：每个域结束后都在相同、与适应流不重叠的固定 holdout 上重评已见域，forgetting 由同一域历史最好 holdout AUC 与最终 holdout AUC 的差计算，平均值排除尚无后续阶段可发生遗忘的最后一个域。online 与 holdout 都使用独立、固定 seed 的全局 shuffle，避免类别目录排序形成全 real 后全 fake 的伪在线流；阶段性评估会恢复随机数状态，不改变后续适应轨迹。
-
-## 4. IAPL 官方代码轨道
-
-IAPL 不是 CNN 主轨道里的可插拔方法。作者代码使用 CLIP ViT-L/14 和作者训练的 prompt/adapter checkpoint；对每张测试图生成 32 个视图，恢复初始 prompt 和优化器，做 2 步适应，然后在选定视图上预测。也就是说它是 **episodic、per-image、Adapt-Then-Predict**，可训练参数不会在图像之间累积。需要注意，作者实现会在适应时进入 train mode，但没有恢复 Conditional Information Learner 的 BatchNorm running buffers；这些 buffers 会跨图片保留，并在 DDP 中广播。因此按域启停独立进程不是严格等价的官方执行轨迹。
-
-### 获取固定版本
+GenImage Controlled CTTA 使用 SD v1.4 训练公共 ResNet-50 源模型，并将其从
+目标域中排除。七个方法共享该 checkpoint、Fisher、样本顺序和
+Predict-Then-Adapt 协议；IAPL 仍作为独立的 CLIP 补充轨道汇报。设置：
 
 ```bash
-python fetch_official_baselines.py iapl
+export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage-arrow
+export GENIMAGE_SOURCE_CHECKPOINT=/outputs/source_train/genimage_sd14_resnet50_arrow/source.pt
 ```
 
-脚本会检查精确 commit 并应用路径补丁。也可以用 `all` 同时取回 EATA 官方仓库用于人工对照：
+依次训练源模型并运行 seed 0：
 
 ```bash
-python fetch_official_baselines.py all
+python train_source.py --config configs/train/genimage_sd14_source.yaml
+python run_single_target.py \
+  --config configs/experiments/controlled_ctta/genimage_single_target_seed0.yaml
+python run_continual_stream.py \
+  --config configs/experiments/controlled_ctta/genimage_continual_seed0.yaml
 ```
 
-### 环境和权重
+实验输出包括 `metrics.json`、`online_curve.csv`、`batch_stats.csv`、`sample_manifest.csv` 和汇总 JSON；Continual 额外输出完整的 `holdout_matrix.csv` 与 `final_holdout_manifest.csv`。完整矩阵将每个 checkpoint 的评估标记为 `past`、`current` 或 `future`，并在 summary 中报告相对同一方法适应前初始状态的 current gain、future transfer 和 future negative-transfer rate。
+
+## IAPL
+
+IAPL 是独立的补充协议。它对每张图生成 32 个视图，重置 prompt 和优化器，执行 2 步适应后再预测。BatchNorm buffers 只在同一个目标域内部跨图片保留；切换目标域时重新加载模型，因此各目标结果相互独立。
+
+IAPL 与 Controlled CTTA 共用 `src.data` 中的 dataset factory、domain loader 和样本三元组接口。两条轨道只在输入变换和适应协议上不同：IAPL 使用全局/局部多视图变换，Controlled CTTA 使用公共单视图评估变换。
+
+安装额外依赖：
 
 ```bash
-conda env create -f envs/iapl-official.yaml
-conda activate iapl-official
+pip install -e ".[iapl]"
 ```
 
-还需要：
+重新运行 IAPL 还需要：
 
-- 作者发布的 IAPL checkpoint：[ModelScope IAPL_pretrain](https://modelscope.cn/models/yihengli/IAPL_pretrain)；
-- OpenAI CLIP ViT-L/14 的 `.pt` checkpoint；
-- 与作者 `ImageFolder` 一致的数据目录，或保留原始路径和标签的 DF-Arrow 数据。
+- 作者发布的 IAPL checkpoint；
+- OpenAI CLIP ViT-L/14 checkpoint；
+- GenImage 或 UniversalFakeDetect 的项目标准 Arrow bundle。
 
-IAPL 的数据根目录与 CNN 主轨道不同，必须整理为：
+固定 commit `a173e7783bbafaa00d60e6e31774a0bc14411a23` 的 IAPL 模型核心已内置在 `src/official/iapl/`。上游未声明软件许可证，相关来源和再分发状态记录在 `THIRD_PARTY_NOTICES.md`。
 
-```text
-/data/IAPL-layout/GenImage/
-├── train/SDv14/{0_real,1_fake}/...
-└── test/
-    ├── ADM/{0_real,1_fake}/...
-    ├── BigGAN/{0_real,1_fake}/...
-    └── ...
-
-/data/IAPL-layout/UniversalFakeDetect/
-├── train/{car,cat,chair,horse}/.../{0_real,1_fake}/...
-└── test/{crn,cyclegan,dalle,...}/{0_real,1_fake}/...
-```
-
-修改对应 YAML 的三条路径：`dataset_path`、`pretrained_model`、`clip_path`，然后运行：
+GenImage 使用统一的数据级环境变量，不再读取 IAPL 专用原始图片目录：
 
 ```bash
-python run_iapl_official.py --config configs/iapl_official_genimage.yaml
-python run_iapl_official.py --config configs/iapl_official_ufd.yaml
+export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage-arrow
 ```
 
-UFD 不需要导出成图片目录。设置 Arrow 根、IAPL checkout 和权重后可直接运行：
+设置对应配置中的环境变量后运行：
 
 ```bash
-export IAPL_REPO_PATH=/path/to/IAPL
+python run_single_target.py --config configs/experiments/iapl/genimage.yaml
+python run_single_target.py --config configs/experiments/iapl/ufd.yaml
+```
+
+## OST
+
+OST 是独立的逐样本 Adapt-Then-Predict 协议，不加入公共 ResNet-50 的 Controlled CTTA 表。它对每张测试图执行作者论文 Algorithm 1 的核心步骤：从源训练集随机抽取一个带标签模板，生成已知为假的伪样本，用 `{伪样本, 模板}` 的 AM-Softmax loss 做一次 fast-weight 更新，再预测原图。目标 hidden label 始终只进入 evaluator。
+
+固定 commit `1e4518b9e560baf9c5693f13a402fa5d7104190f` 的 MetaXception、内循环优化器和 AM-Softmax 已内置在 `src/official/ost/`。作者发布的推理代码依赖未随仓库提供的 SimSwap 运行时和人脸 landmarks；为让相同目标可用于通用伪造图像，本框架明确改用 full-frame alpha blending。该设置是公开核心的跨任务数据适配，不能当作论文人脸 benchmark 的原数值复现。上游 OST 仓库未声明软件许可证，来源和再分发状态记录在 `THIRD_PARTY_NOTICES.md`。
+
+OST 需要区分两个 checkpoint：作者发布的 `xception_meta.pth` 是元训练初始化，
+`train_source.py` 运行作者的一步二阶 support/query 目标后产出本数据轨道的
+`ost_meta.pt`。通用图像轨道的合成仍使用前述明确披露的 full-frame alpha blending，
+所以它是 OST 目标在本任务上的训练与迁移，不是 FF++ 人脸数值复现。
+
+先设置初始化权重和 Arrow 数据，在 ProGAN 或 SD v1.4 源域上训练：
+
+```bash
+export OST_XCEPTION_INITIALIZATION=/weights/xception_meta.pth
+export UFD_FORENSYNTHS_ARROW_ROOT=/data/DF-arrow-data/ForenSynths
+python train_source.py --config configs/train/ost_ufd_meta.yaml
+
+export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage-arrow
+python train_source.py --config configs/train/ost_genimage_meta.yaml
+```
+
+再把训练产物作为 OST 测试 checkpoint：
+
+```bash
+export OST_CHECKPOINT=outputs/source_train/ost_ufd_progan_meta/ost_meta.pt
 export UFD_FORENSYNTHS_ARROW_ROOT=/data/DF-arrow-data/ForenSynths
 export UFD_OJHA_ARROW_ROOT=/data/DF-arrow-data/Ojha
-python run_iapl_official.py --config configs/iapl_official_ufd_arrow_1gpu.yaml
+python run_single_target.py --config configs/experiments/ost/ufd.yaml
+
+export OST_CHECKPOINT=outputs/source_train/ost_genimage_sd14_meta/ost_meta.pt
+export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage-arrow
+python run_single_target.py --config configs/experiments/ost/genimage.yaml
 ```
 
-此配置使用 `hf_arrow://root1|root2` 数据 URI，并保留作者的图像变换、32 视图、
-2 个 TTA step 和逐图重置逻辑。配置名中的 `1gpu` 明确表示它不是作者发布的
-8 进程执行形态。
+## 实验边界
 
-两个配置逐项对齐作者发布的 `tta_genimage.sh` 与 `tta_universalfake.sh`：8 个进程、32 个视图、学习率 0.005、2 个 TTA step、OIS 开启；GenImage 额外开启 smooth。GPU 少于 8 张时可调整 `nproc_per_node` 做工程测试，但这已经偏离作者发布设置，正式复现必须记录。
+- Controlled CTTA 方法共享 backbone、源 checkpoint、输入顺序、batch size 和 Predict-Then-Adapt 协议。
+- EATA checkpoint 必须包含源域 Fisher；缺少 Fisher 时默认拒绝运行。
+- IAPL 使用不同 backbone 和 Adapt-Then-Predict 协议，只能作为单独披露设置的补充比较。
+- OST 使用自己的 MetaXception checkpoint、源训练模板和 Adapt-Then-Predict 协议，只能单独披露；当前通用 alpha 合成结果不等价于作者的人脸实验。
+- T2A 使用经过必要运行修复的作者公开核心，不能描述为未经修改的官方实现。
+- LAME 核心采用 CC BY-NC-SA 4.0，仅限非商业使用；完整第三方授权见 `THIRD_PARTY_NOTICES.md`。
 
-运行器保存原始日志和 `official_iapl_metrics.json`。配置内含作者 README 报告的参考均值与容差；缺域、缺 mean 或偏差超过容差都会失败，防止“代码跑通”被误写成复现成功。作者代码报告的是 Accuracy、AP、real accuracy 和 fake accuracy，不是 AUC。不要把 AP 写成 AUC。
-
-## 5. 协议与公平性边界
-
-1. CNN 主表只使用 Predict-Then-Adapt，并共享 backbone、源 checkpoint、batch size、图像顺序与随机种子。
-2. EATA 的 Fisher 只在源训练结束时计算；部署测试期间仍然 source-free。
-3. IAPL 可以作为官方 AIGC-specific baseline 进入端到端方法表；同时标明其 CLIP、per-image reset、Adapt-Then-Predict 和 Accuracy/AP 协议。若另做“相同 checkpoint 的适应算法消融表”，再将它与公共 CNN 轨道分列。
-4. CoTTA 使用官方 ImageNet/ResNet-50 算法分支，但统一二分类源 checkpoint 和 batch size 16 属于 AIGC 任务协议；原始 ImageNet-C 数值 sanity check 与 AIGC 公平主表是两项不同验证。
-5. T²A 是作者公开代码的必要修复版；必须在原 Deepfake 数据与 checkpoint 上通过 sanity check 后，才可声称数值复现一致。
-6. RoTTA 的 CSTU 按伪标签做类别平衡，不读取隐藏标签；二分类 memory 行为必须报告。LAME 没有连续状态，因此其 final/forgetting 结果不能解释成参数记忆或遗忘。
-7. BatchNorm TTA 对 batch size 和类别组成敏感；不能使用按隐藏标签平衡的 batch 而不披露。
-8. 超参数只能在独立 development generator 上选择。
-
-## 6. 测试
-
-无 PyTorch 环境也能验证配置、数据索引、官方核心路径、指标、协议顺序和 IAPL 命令；方法张量测试会明确标记为 skip：
+## 测试
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests -v
+python -m unittest discover -s tests -v
 python -m compileall -q src tests train_source.py run_single_target.py \
-  run_continual_stream.py run_iapl_official.py fetch_official_baselines.py
+  run_continual_stream.py scripts
 ```
 
-此前审计曾在临时 PyTorch 2.5.1 环境中完成 34 项测试。本轮又加入 RoTTA 归一化桥接、T²A predict 状态不变、真实 complementary target、固定 holdout 顺序和阶段性 forgetting 矩阵测试；当前缺少完整 PyTorch/torchvision 依赖的环境只能执行轻量测试与字节码编译。有 CUDA、数据和权重后，仍须完成 `REPRODUCIBILITY.md` 的论文数值门槛；代码执行通过不等于论文数值已经复现。
-
-## 7. 官方来源
-
-- [EATA 论文](https://arxiv.org/abs/2204.02610) / [官方代码](https://github.com/mr-eggplant/EATA)
-- [IAPL 论文](https://arxiv.org/abs/2508.01603) / [官方代码](https://github.com/liyih/IAPL)
-- [T²A 论文](https://arxiv.org/abs/2505.18787) / [官方代码](https://github.com/HongHanh2104/T2A-Think-Twice-Before-Adaptation)
-- [TENT 官方代码](https://github.com/DequanWang/tent)
-- [CoTTA 官方代码](https://github.com/qinenergy/cotta)
-- [RoTTA 论文](https://arxiv.org/abs/2303.13899) / [官方代码](https://github.com/BIT-DA/RoTTA)
-- [LAME 论文](https://arxiv.org/abs/2201.05718) / [官方代码](https://github.com/fiveai/LAME)
-- [GenImage 官方仓库](https://github.com/GenImage-Dataset/GenImage)
-- [UniversalFakeDetect 官方仓库](https://github.com/WisconsinAIVision/UniversalFakeDetect)
-
-第三方授权和固定 commit 见 `THIRD_PARTY_NOTICES.md`。
+代码测试通过只说明实现能够执行，不等同于已经复现论文中的全部官方数值。

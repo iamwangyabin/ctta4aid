@@ -1,0 +1,12 @@
+protocol:
+  name: episodic_adapt_then_predict
+  source_free_during_test: true
+  target_labels_available_to_method: false
+  reset: per_image_prompt_and_optimizer
+  parameter_accumulation_between_images: false
+  batchnorm_buffers_may_accumulate_between_images: true
+  batchnorm_buffers_accumulate_across_targets: false
+
+evaluation:
+  threshold: 0.5
+  curve_window_batches: 20

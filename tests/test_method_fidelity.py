@@ -44,14 +44,14 @@ class MethodFidelityTests(unittest.TestCase):
         return TinyDetector()
 
     def test_tent_updates_only_batch_norm_affine_parameters(self) -> None:
-        from online_aig_tta.methods.tent import Tent
+        from src.methods.tent import Tent
 
         method = Tent(
             self.detector(),
             "cpu",
             {"optimizer": "sgd", "learning_rate": 0.001, "momentum": 0.9},
         )
-        self.assertEqual(method.core.__class__.__module__, "online_aig_tta.official.tent")
+        self.assertEqual(method.core.__class__.__module__, "src.official.tent")
         self.assertTrue(method.model.bn.weight.requires_grad)
         self.assertTrue(method.model.bn.bias.requires_grad)
         self.assertFalse(method.model.conv.weight.requires_grad)
@@ -70,13 +70,13 @@ class MethodFidelityTests(unittest.TestCase):
         self.assertIsNone(method.model.bn.running_mean)
 
     def test_full_eata_rejects_missing_fisher_information(self) -> None:
-        from online_aig_tta.methods.eata import EATA
+        from src.methods.eata import EATA
 
         with self.assertRaisesRegex(RuntimeError, "Fisher"):
             EATA(self.detector(), "cpu", {"optimizer": "sgd"})
 
     def test_eata_binary_port_adapts_without_labels(self) -> None:
-        from online_aig_tta.methods.eata import EATA
+        from src.methods.eata import EATA
 
         method = EATA(
             self.detector(),
@@ -88,13 +88,13 @@ class MethodFidelityTests(unittest.TestCase):
                 "entropy_margin": 10.0,
             },
         )
-        self.assertEqual(method.core.__class__.__module__, "online_aig_tta.official.eata")
+        self.assertEqual(method.core.__class__.__module__, "src.official.eata")
         stats = method.adapt(self.torch.randn(4, 3, 8, 8))
         self.assertEqual(stats.selected, 4)
         self.assertFalse(stats.extra["fisher_enabled"])
 
     def test_cotta_runs_official_teacher_augmentation_update(self) -> None:
-        from online_aig_tta.methods.cotta import CoTTA
+        from src.methods.cotta import CoTTA
 
         method = CoTTA(
             self.detector(),
@@ -108,7 +108,7 @@ class MethodFidelityTests(unittest.TestCase):
                 "anchor_confidence": 2.0,
             },
         )
-        self.assertEqual(method.core.__class__.__module__, "online_aig_tta.official.cotta")
+        self.assertEqual(method.core.__class__.__module__, "src.official.cotta")
         images = self.torch.randn(2, 3, 8, 8)
         augmented = method._augment(images)
         self.assertEqual(tuple(augmented.shape), tuple(images.shape))
@@ -121,8 +121,8 @@ class MethodFidelityTests(unittest.TestCase):
         self.assertEqual(stats.selected, 2)
 
     def test_t2a_repaired_losses_and_bernoulli_labels_are_well_formed(self) -> None:
-        from online_aig_tta.methods.t2a import T2A
-        from online_aig_tta.official.t2a_losses import (
+        from src.methods.t2a import T2A
+        from src.official.t2a_losses import (
             complementary_labels,
             compute_noise_tolerant_negative_loss,
         )
@@ -137,7 +137,7 @@ class MethodFidelityTests(unittest.TestCase):
                 "gradient_masking": True,
             },
         )
-        self.assertEqual(method.core.__class__.__module__, "online_aig_tta.official.t2a")
+        self.assertEqual(method.core.__class__.__module__, "src.official.t2a")
         images = self.torch.randn(4, 3, 8, 8)
         logits = method.model(images)
         pseudo_labels = logits.argmax(dim=1)
@@ -162,8 +162,8 @@ class MethodFidelityTests(unittest.TestCase):
         self.assertTrue(self.torch.isfinite(self.torch.tensor(stats.loss)))
 
     def test_normalized_input_transform_round_trips_identity_pixels(self) -> None:
-        from online_aig_tta.data.transforms import IMAGENET_MEAN, IMAGENET_STD
-        from online_aig_tta.methods.utils import NormalizedInputTransform
+        from src.data.transforms import IMAGENET_MEAN, IMAGENET_STD
+        from src.methods.utils import NormalizedInputTransform
 
         class RecordingIdentity:
             seen = None
@@ -183,8 +183,8 @@ class MethodFidelityTests(unittest.TestCase):
         self.assertTrue(self.torch.allclose(transformed, normalized, atol=1e-6))
 
     def test_rotta_runs_robust_bn_cstu_and_teacher_student_update(self) -> None:
-        from online_aig_tta.methods.rotta import RoTTA
-        from online_aig_tta.official.rotta import RobustBN2d
+        from src.methods.rotta import RoTTA
+        from src.official.rotta import RobustBN2d
 
         method = RoTTA(
             self.detector(),
@@ -198,7 +198,7 @@ class MethodFidelityTests(unittest.TestCase):
                 "image_size": 8,
             },
         )
-        self.assertEqual(method.core.__class__.__module__, "online_aig_tta.official.rotta")
+        self.assertEqual(method.core.__class__.__module__, "src.official.rotta")
         self.assertIsInstance(method.model.bn, RobustBN2d)
         self.assertEqual(
             set(method.official_parameter_names), {"bn.weight", "bn.bias"}
@@ -219,7 +219,7 @@ class MethodFidelityTests(unittest.TestCase):
         )
 
     def test_lame_runs_official_parameter_free_laplacian_output_update(self) -> None:
-        from online_aig_tta.methods.lame import LAME
+        from src.methods.lame import LAME
 
         method = LAME(
             self.detector(),

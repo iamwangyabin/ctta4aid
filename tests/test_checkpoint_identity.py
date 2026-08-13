@@ -5,7 +5,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from online_aig_tta.cli.common import checkpoint_sha256
+from src.cli.common import checkpoint_sha256
+from src.models.iapl import _resolve_path
 
 
 class CheckpointIdentityTests(unittest.TestCase):
@@ -17,6 +18,10 @@ class CheckpointIdentityTests(unittest.TestCase):
             self.assertEqual(
                 checkpoint_sha256(str(path)), hashlib.sha256(payload).hexdigest()
             )
+
+    def test_iapl_asset_paths_resolve_from_project_root(self) -> None:
+        project_root = Path(__file__).resolve().parents[1]
+        self.assertEqual(_resolve_path("weights/iapl.pt"), project_root / "weights/iapl.pt")
 
 
 if __name__ == "__main__":

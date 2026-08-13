@@ -1,0 +1,40 @@
+# Meta-train OST on the SD v1.4 source split using canonical Arrow data.
+seed: 0
+device: auto
+output_dir: outputs/source_train/ost_genimage_sd14_meta
+
+model:
+  architecture: meta_xception
+  initialization_checkpoint: ${OST_XCEPTION_INITIALIZATION}
+  strict_initialization: false
+  num_classes: 2
+  steps: 1
+  learnable_bn_beta: true
+  learnable_bn_gamma: true
+  enable_inner_loop_optimizable_bn_params: true
+  per_step_bn_statistics: false
+
+data:
+  format: arrow
+  train_root: ${GENIMAGE_ARROW_ROOT}
+  val_root: ${GENIMAGE_ARROW_ROOT}
+  generator: stable_diffusion_v_1_4
+  train_generator: stable_diffusion_v_1_4
+  val_generator: stable_diffusion_v_1_4
+  train_split: train
+  val_split: test
+  image_size: 256
+  batch_size: 4
+  num_workers: 4
+
+training:
+  profile: ost_official_meta_objective_with_full_frame_alpha_cross_task_adapter
+  epochs: 30
+  task_learning_rate: 0.0005
+  outer_learning_rate: 0.0002
+  second_order: true
+  am_softmax_margin: 0.45
+  am_softmax_scale: 30.0
+  alpha_min: 0.65
+  alpha_max: 0.90
+  validation_batches: null

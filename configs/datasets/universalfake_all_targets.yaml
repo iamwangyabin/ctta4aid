@@ -1,0 +1,28 @@
+extends: universalfake.yaml
+
+# IAPL evaluates every UniversalFakeDetect domain, including the source domain.
+data:
+  batch_size: 1
+  num_workers: 0
+  shuffle: false
+  max_samples_per_class: null
+  targets:
+    - crn
+    - cyclegan
+    - dalle
+    - biggan
+    - deepfake
+    - gaugan
+    - glide_50_27
+    - glide_100_10
+    - glide_100_27
+    - guided
+    - imle
+    - ldm_100
+    - ldm_200
+    - ldm_200_cfg
+    - progan
+    - san
+    - seeingdark
+    - stargan
+    - stylegan

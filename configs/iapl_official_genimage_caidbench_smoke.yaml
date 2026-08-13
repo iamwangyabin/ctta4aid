@@ -1,7 +1,0 @@
-extends: iapl_official_genimage_caidbench_1gpu.yaml
-dataset_path: ${IAPL_GENIMAGE_SMOKE_ROOT}
-test_selected_subsets: [ADM]
-output_dir: outputs/smoke/iapl_official/caidbench_genimage_1gpu
-num_workers: 2
-reference_metrics: null
-require_reference_match: false

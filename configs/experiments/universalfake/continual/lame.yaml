@@ -1,1 +1,0 @@
-extends: [../../../base/universalfake_continual.yaml, ../../../methods/lame.yaml]

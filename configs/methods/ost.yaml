@@ -1,0 +1,21 @@
+method_configs:
+  ost:
+    checkpoint: ${OST_CHECKPOINT}
+    image_size: 256
+    steps: 1
+    task_learning_rate: 0.0005
+    second_order: true
+    learnable_bn_beta: true
+    learnable_bn_gamma: true
+    enable_inner_loop_optimizable_bn_params: true
+    per_step_bn_statistics: false
+    strict_checkpoint: false
+    synthesis: full_frame_alpha
+    alpha_min: 0.65
+    alpha_max: 0.90
+    reference:
+      profile: patched_vendored_ost_core_with_cross_task_data_adapter
+      repository: https://github.com/liangchen527/OST
+      commit: 1e4518b9e560baf9c5693f13a402fa5d7104190f
+      protocol: episodic_adapt_then_predict
+      transfer_note: The official face-specific landmark and SimSwap synthesis is replaced by disclosed full-frame alpha blending so the same one-step OST objective can run on canonical Arrow images.

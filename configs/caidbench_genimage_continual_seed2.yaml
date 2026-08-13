@@ -1,3 +1,0 @@
-extends: caidbench_genimage_continual.yaml
-seed: 2
-output_dir: outputs/caidbench/genimage/continual/seed2

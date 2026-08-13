@@ -1,0 +1,15 @@
+extends:
+  - ../../datasets/universalfake_all_targets.yaml
+  - ../../protocols/iapl_single_target.yaml
+  - ../../methods/iapl.yaml
+
+seed: 100
+device: auto
+output_dir: outputs/iapl/universalfake
+
+method_configs:
+  iapl:
+    checkpoint: ${IAPL_UFD_CHECKPOINT}
+    normalization_mean: [0.485, 0.456, 0.406]
+    normalization_std: [0.229, 0.224, 0.225]
+    smooth: false

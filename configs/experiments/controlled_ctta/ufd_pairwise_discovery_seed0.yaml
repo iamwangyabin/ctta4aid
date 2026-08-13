@@ -1,0 +1,25 @@
+# Bounded discovery run for current-versus-cross-generator transfer.
+extends:
+  - ../../datasets/universalfake.yaml
+  - ../../protocols/single_target.yaml
+  - ../../methods/tent.yaml
+  - ../../methods/eata.yaml
+
+seed: 0
+device: auto
+methods: [tent, eata]
+
+data:
+  batch_size: 16
+  num_workers: 4
+  max_samples_per_class: 200
+  cross_eval_max_samples_per_class: 100
+  targets: [biggan, cyclegan, guided, ldm_200]
+
+evaluation:
+  threshold: 0.5
+  curve_window_batches: 20
+  evaluate_cross_generators: true
+  cross_generator_targets: [biggan, cyclegan, guided, ldm_200]
+
+output_dir: outputs/research_discovery/ufd_pairwise_4domain_seed0

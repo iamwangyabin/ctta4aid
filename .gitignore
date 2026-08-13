@@ -5,4 +5,18 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.venv/
+outputs/
+weights/
+
+# Runtime and experiment-process artifacts. Curated final JSON/CSV results stay tracked.
 *.lock
+*.log
+*.pid
+gpu_monitor*.csv
+results/**/snapshot_*/
+results/**/running_snapshot_*/
+results/**/preflight_*/
+results/**/resource_monitor_*/
+results/**/*partial*.json
+results/**/*progress*.json

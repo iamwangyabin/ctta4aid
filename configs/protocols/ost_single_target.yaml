@@ -1,0 +1,9 @@
+protocol:
+  name: episodic_adapt_then_predict
+  source_free_during_test: false
+  source_labels_available_to_method: true
+  target_labels_available_to_method: false
+  reset: per_target_model_and_per_sample_fast_weights
+  parameter_accumulation_between_images: false
+  batchnorm_buffers_may_accumulate_between_images: true
+  batchnorm_buffers_accumulate_across_targets: false

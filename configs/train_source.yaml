@@ -1,2 +1,0 @@
-# Backward-compatible default source-training entry.
-extends: train/genimage_sd14_resnet50.yaml

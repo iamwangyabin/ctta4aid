@@ -1,3 +1,0 @@
-extends: caidbench_genimage_single_target.yaml
-seed: 2
-output_dir: outputs/caidbench/genimage/single_target/seed2
