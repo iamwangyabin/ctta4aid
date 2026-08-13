@@ -7,6 +7,7 @@ from src.evaluation.metrics import (
     MetricAccumulator,
     binary_metrics,
     continual_forgetting,
+    expected_calibration_error,
     temporal_generalization,
 )
 
@@ -15,8 +16,21 @@ class MetricsTest(unittest.TestCase):
     def test_binary_metrics(self):
         result = binary_metrics([0, 0, 1, 1], [0.1, 0.4, 0.7, 0.9])
         self.assertEqual(result["auc"], 1.0)
+        self.assertEqual(result["average_precision"], 1.0)
         self.assertEqual(result["accuracy"], 1.0)
         self.assertEqual(result["balanced_accuracy"], 1.0)
+        self.assertEqual(result["real_accuracy"], 1.0)
+        self.assertEqual(result["fake_accuracy"], 1.0)
+        self.assertEqual(result["predicted_fake_rate"], 0.5)
+        self.assertAlmostEqual(result["brier_score"], 0.0675)
+        self.assertGreater(result["nll"], 0.0)
+        self.assertGreaterEqual(result["ece"], 0.0)
+
+    def test_binary_ece_is_zero_for_binwise_calibrated_predictions(self):
+        result = expected_calibration_error(
+            [0, 1, 0, 1], [0.5, 0.5, 0.5, 0.5], bins=1
+        )
+        self.assertEqual(result, 0.0)
 
     def test_auc_is_nan_for_single_class_batch(self):
         result = binary_metrics([1, 1], [0.8, 0.9])

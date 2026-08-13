@@ -141,6 +141,8 @@ class OnlineEvaluator:
         predict_times = [item["predict_ms"] for item in batch_stats]
         adapt_times = [item["adapt_ms"] for item in batch_stats]
         total_times = [item["total_ms"] for item in batch_stats]
+        total_samples = sum(int(item["samples"]) for item in batch_stats)
+        total_elapsed_ms = float(np.sum(total_times)) if total_times else 0.0
         summary["efficiency"] = {
             "trainable_parameters": int(method.trainable_parameters),
             "mean_predict_ms_per_batch": (
@@ -150,8 +152,23 @@ class OnlineEvaluator:
             "mean_total_ms_per_batch": (
                 float(np.mean(total_times)) if total_times else 0.0
             ),
+            "mean_predict_ms_per_sample": (
+                float(np.sum(predict_times)) / total_samples if total_samples else 0.0
+            ),
+            "mean_adapt_ms_per_sample": (
+                float(np.sum(adapt_times)) / total_samples if total_samples else 0.0
+            ),
+            "mean_total_ms_per_sample": (
+                total_elapsed_ms / total_samples if total_samples else 0.0
+            ),
+            "samples_per_second": (
+                total_samples / (total_elapsed_ms / 1000.0)
+                if total_elapsed_ms > 0.0
+                else 0.0
+            ),
             "peak_memory_mb": _peak_memory_mb(method.device),
             "batches": len(batch_stats),
+            "samples": total_samples,
         }
         reproduction = dict(
             getattr(

@@ -108,6 +108,29 @@ class OSTMethodTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "source template"):
             method.predict(self.torch.randn(1, 3, 4, 4))
 
+    def test_ost_static_mode_uses_the_same_checkpoint_without_fast_weights(self) -> None:
+        from src.methods.ost import OST
+
+        method = OST(
+            self.tiny_meta_detector(),
+            "cpu",
+            {
+                "adaptation_mode": "static",
+                "image_size": 4,
+                "steps": 1,
+                "second_order": False,
+            },
+        )
+        prediction = method.predict(self.torch.randn(2, 3, 4, 4))
+        stats = method.adapt(None)
+
+        self.assertEqual(tuple(prediction.logits.shape), (2, 2))
+        self.assertEqual(method.protocol_name, "predict_only")
+        self.assertIsNone(method.core)
+        self.assertEqual(method.trainable_parameters, 0)
+        self.assertEqual(stats.selected, 0)
+        self.assertEqual(stats.extra["optimizer_updates"], 0)
+
     def test_ost_meta_training_updates_the_initialization_through_fast_weights(self) -> None:
         from src.official.ost import OSTMetaTrainingCore
 

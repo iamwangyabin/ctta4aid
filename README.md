@@ -101,7 +101,8 @@ GenImage Controlled CTTA 使用 SD v1.4 训练公共 ResNet-50 源模型，并�
 Predict-Then-Adapt 协议；IAPL 仍作为独立的 CLIP 补充轨道汇报。设置：
 
 ```bash
-export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage-arrow
+export GENIMAGE_SD14_TRAIN_ARROW_ROOT=/data/DF-arrow/SDv14_train
+export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage_test
 export GENIMAGE_SOURCE_CHECKPOINT=/outputs/source_train/genimage_sd14_resnet50_arrow/source.pt
 ```
 
@@ -140,15 +141,22 @@ pip install -e ".[iapl]"
 GenImage 使用统一的数据级环境变量，不再读取 IAPL 专用原始图片目录：
 
 ```bash
-export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage-arrow
+export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage_test
 ```
 
 设置对应配置中的环境变量后运行：
 
 ```bash
+python run_single_target.py --config configs/experiments/iapl/genimage_static.yaml
+python run_single_target.py --config configs/experiments/iapl/genimage_views_only.yaml
 python run_single_target.py --config configs/experiments/iapl/genimage.yaml
 python run_single_target.py --config configs/experiments/iapl/ufd.yaml
 ```
+
+GenImage 的三个入口读取同一个作者 checkpoint。`static` 只预测标准全局视图，
+`views_only` 使用 32 views 和 OIS 但不更新 prompt，默认入口再加入两步 prompt
+adaptation。三者用于拆分多视图选择和参数更新各自带来的收益，不用于与其他 backbone
+比较绝对分数。
 
 ## OST
 
@@ -168,7 +176,8 @@ export OST_XCEPTION_INITIALIZATION=/weights/xception_meta.pth
 export UFD_FORENSYNTHS_ARROW_ROOT=/data/DF-arrow-data/ForenSynths
 python train_source.py --config configs/train/ost_ufd_meta.yaml
 
-export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage-arrow
+export GENIMAGE_SD14_TRAIN_ARROW_ROOT=/data/DF-arrow/SDv14_train
+export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage_test
 python train_source.py --config configs/train/ost_genimage_meta.yaml
 ```
 
@@ -181,9 +190,45 @@ export UFD_OJHA_ARROW_ROOT=/data/DF-arrow-data/Ojha
 python run_single_target.py --config configs/experiments/ost/ufd.yaml
 
 export OST_CHECKPOINT=outputs/source_train/ost_genimage_sd14_meta/ost_meta.pt
-export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage-arrow
+export GENIMAGE_SD14_TEMPLATE_ARROW_ROOT=/data/DF-arrow/SDv14_train_templates_seed0
+export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage_test
+python run_single_target.py --config configs/experiments/ost/genimage_static.yaml
 python run_single_target.py --config configs/experiments/ost/genimage.yaml
 ```
+
+OST 的 `static` 与默认入口加载同一个 MetaXception checkpoint；前者不抽取源模板、
+不构造 fast weights，后者执行完整的一步 OST 适应。二者的配对差值才是 OST 的 TTA
+收益。
+
+## TTA 动机实验
+
+GenImage 动机实验固定 SD v1.4 为各方法自己的训练来源，并在其余七个生成器上做
+逐目标独立评估。T2A 使用公共 ResNet-50 的 Source 作为关闭 TTA 的配对对照；IAPL
+比较 `static -> views_only -> full`；OST 比较 `static -> full`。每组内部固定 checkpoint、
+目标样本、顺序、seed 和阈值，但不要求不同方法共享 backbone，也不把跨方法绝对分数
+解释为公平排名。
+
+本轮 OST 动机配对直接加载作者发布的 `xception_meta.pth`，不把额外 SD v1.4
+meta-training 混入 TTA 收益。完整 OST 模式仍按方法要求读取带标签的源训练模板；为
+避免复制整个 87GB 训练集，离线固定 seed 0、每类 1000 张的标准 Arrow 子集。Static
+模式不读取这些模板。该设置验证的是公开 OST 初始化在通用伪造检测数据上的配对变化，
+不是作者人脸 benchmark 的数值复现。
+
+最终报告 AUC、AP、Balanced Accuracy、real/fake accuracy、ECE、Brier score、NLL、
+负迁移目标比例以及每样本时间、吞吐和峰值显存。这个实验只回答专用 TTA 是否有效、
+收益是否稳定以及代价是什么；公共 checkpoint 下的公平排名仍只由 Controlled CTTA
+主实验回答。
+
+公共 ResNet-50 配对组的 seed 0 入口为：
+
+```bash
+export CTTA4AID_EXPERIMENT_ROOT=/data/experiments/tta_motivation_genimage_sd14_seed0
+python run_single_target.py \
+  --config configs/experiments/controlled_ctta/genimage_tta_motivation_seed0.yaml
+```
+
+三个方法轨道的正式输出都写入这个仓库外目录；仓库中的 `outputs/`、日志和 PID 不作为
+正式结果保存。实验确认后只将汇总表、复现身份和结论导入新的 `results/` 目录。
 
 ## 实验边界
 

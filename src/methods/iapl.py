@@ -28,6 +28,14 @@ class IAPL(TTAMethod):
         self.model = model.to(device)
         self.device = device
         self.config = config or {}
+        self.adaptation_mode = str(self.config.get("adaptation_mode", "full")).lower()
+        if self.adaptation_mode not in {"static", "views_only", "full"}:
+            raise ValueError("IAPL adaptation_mode must be static, views_only, or full")
+        self.protocol_name = {
+            "static": "predict_only",
+            "views_only": "multiview_predict_only",
+            "full": "episodic_adapt_then_predict",
+        }[self.adaptation_mode]
         if not hasattr(self.model, "prompt_learner") or not hasattr(
             self.model.prompt_learner, "ctx"
         ):
@@ -39,8 +47,10 @@ class IAPL(TTAMethod):
             self.model.requires_grad_(False)
             self.model.prompt_learner.ctx.requires_grad_(True)
 
-        parameters = [parameter for parameter in self.model.parameters() if parameter.requires_grad]
-        if not parameters:
+        parameters = [
+            parameter for parameter in self.model.parameters() if parameter.requires_grad
+        ]
+        if self.adaptation_mode == "full" and not parameters:
             raise RuntimeError("IAPL did not expose any trainable prompt parameters")
 
         self.views = int(self.config.get("views", 32))
@@ -59,13 +69,19 @@ class IAPL(TTAMethod):
         ):
             raise ValueError("IAPL selection_count must be between 1 and views")
 
-        self.optimizer = torch.optim.AdamW(
-            parameters,
-            lr=float(self.config.get("lr", 0.005)),
-            weight_decay=float(self.config.get("weight_decay", 0.01)),
-        )
+        self.optimizer = None
+        if self.adaptation_mode == "full":
+            self.optimizer = torch.optim.AdamW(
+                parameters,
+                lr=float(self.config.get("lr", 0.005)),
+                weight_decay=float(self.config.get("weight_decay", 0.01)),
+            )
+        else:
+            self.model.requires_grad_(False)
         self._initial_prompt = self.model.prompt_learner.ctx.detach().clone()
-        self._initial_optimizer_state = deepcopy(self.optimizer.state_dict())
+        self._initial_optimizer_state = (
+            deepcopy(self.optimizer.state_dict()) if self.optimizer is not None else None
+        )
         self._initial_buffers = {
             name: value.detach().clone() for name, value in self.model.named_buffers()
         }
@@ -101,7 +117,8 @@ class IAPL(TTAMethod):
 
         with torch.no_grad():
             self.model.prompt_learner.ctx.copy_(self._initial_prompt)
-        self.optimizer.load_state_dict(deepcopy(self._initial_optimizer_state))
+        if self.optimizer is not None and self._initial_optimizer_state is not None:
+            self.optimizer.load_state_dict(deepcopy(self._initial_optimizer_state))
 
     @staticmethod
     def _binary_logits(output: Any) -> Any:
@@ -130,6 +147,8 @@ class IAPL(TTAMethod):
         import torch
 
         self._restore_prompt()
+        if self.optimizer is None:
+            raise RuntimeError("IAPL adaptation requires the full adaptation mode")
         final_indices = None
         final_loss = None
         started = time.perf_counter()
@@ -165,6 +184,22 @@ class IAPL(TTAMethod):
             elapsed_ms,
         )
 
+    def _predict_without_adaptation(self, views: Any) -> Any:
+        import torch
+
+        self._restore_prompt()
+        self.model.eval()
+        with torch.no_grad(), self._autocast():
+            if self.adaptation_mode == "static":
+                return self._binary_logits(self.model(views[:1]))[0].detach()
+            logits = self._binary_logits(self.model(views))
+            if not self.optimal_input_selection:
+                return logits[0].detach()
+            selected = self._selected_indices(logits)
+            selected_logits = logits[selected]
+            confidence = (torch.sigmoid(selected_logits) - 0.5).abs()
+            return selected_logits[confidence.argmax()].detach()
+
     def predict(self, images: Any) -> PredictionBatch:
         import torch
 
@@ -180,23 +215,26 @@ class IAPL(TTAMethod):
         selected = 0
         adaptation_ms = 0.0
         for sample_views in images:
-            logit, loss, sample_selected, sample_ms = self._adapt_one(
-                sample_views.to(self.device, non_blocking=True)
-            )
+            sample_views = sample_views.to(self.device, non_blocking=True)
+            if self.adaptation_mode == "full":
+                logit, loss, sample_selected, sample_ms = self._adapt_one(sample_views)
+                losses.append(loss)
+                selected += sample_selected
+                adaptation_ms += sample_ms
+            else:
+                logit = self._predict_without_adaptation(sample_views)
             prediction_logits.append(logit)
-            losses.append(loss)
-            selected += sample_selected
-            adaptation_ms += sample_ms
 
         fake_logits = torch.stack(prediction_logits).float()
         logits = torch.stack([torch.zeros_like(fake_logits), fake_logits], dim=1)
         probabilities = logits.softmax(dim=1)
         self._last_adaptation = AdaptationStats(
-            loss=sum(losses) / len(losses),
+            loss=sum(losses) / len(losses) if losses else None,
             selected=selected,
-            elapsed_ms=adaptation_ms,
+            elapsed_ms=adaptation_ms if self.adaptation_mode == "full" else 0.0,
             extra={
-                "adaptation_inside_predict": True,
+                "adaptation_mode": self.adaptation_mode,
+                "adaptation_inside_predict": self.adaptation_mode == "full",
                 "adaptation_inside_predict_ms": adaptation_ms,
                 "optimizer_updates": len(losses) * self.steps,
                 "views_per_image": int(images.shape[1]),
@@ -240,7 +278,8 @@ class IAPL(TTAMethod):
         return {
             "level": "framework_adapter_over_vendored_upstream_core",
             "official_commit": IAPL_COMMIT,
-            "protocol_wrapper": "episodic_adapt_then_predict_inside_predict",
+            "protocol_wrapper": self.protocol_name,
+            "adaptation_mode": self.adaptation_mode,
             "numerical_validation": "requires_framework_native_benchmark_run",
             "intentional_changes": [
                 "framework owns dataset loading, metrics, and result serialization",

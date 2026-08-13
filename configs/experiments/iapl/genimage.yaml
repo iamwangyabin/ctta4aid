@@ -3,13 +3,25 @@ extends:
   - ../../protocols/iapl_single_target.yaml
   - ../../methods/iapl.yaml
 
-seed: 100
+seed: 0
 device: auto
-output_dir: outputs/iapl/genimage
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/iapl_full_seed0
+
+data:
+  # SD v1.4 trained the released checkpoint and is not a target shift.
+  targets:
+    - ADM
+    - BigGAN
+    - glide
+    - Midjourney
+    - stable_diffusion_v_1_5
+    - VQDM
+    - wukong
 
 method_configs:
   iapl:
     checkpoint: ${IAPL_GENIMAGE_CHECKPOINT}
+    adaptation_mode: full
     normalization_mean: [0.481, 0.458, 0.408]
     normalization_std: [0.269, 0.261, 0.276]
     smooth: true

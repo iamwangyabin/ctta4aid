@@ -92,6 +92,31 @@ class IAPLMethodTests(unittest.TestCase):
             self.torch.equal(method.model.prompt_learner.ctx, initial_prompt)
         )
 
+    def test_static_and_views_only_modes_do_not_update_the_prompt(self) -> None:
+        from src.methods.iapl import IAPL
+
+        images = self.torch.randn(2, 4, 3, 8, 8)
+        for mode, protocol in (
+            ("static", "predict_only"),
+            ("views_only", "multiview_predict_only"),
+        ):
+            with self.subTest(mode=mode):
+                config = {**self.config(), "adaptation_mode": mode}
+                method = IAPL(self.model(), "cpu", config)
+                initial_prompt = method._initial_prompt.clone()
+                prediction = method.predict(images)
+                stats = method.adapt(images)
+
+                self.assertEqual(tuple(prediction.logits.shape), (2, 2))
+                self.assertEqual(method.protocol_name, protocol)
+                self.assertEqual(method.trainable_parameters, 0)
+                self.assertEqual(stats.selected, 0)
+                self.assertEqual(stats.extra["optimizer_updates"], 0)
+                self.assertFalse(stats.extra["adaptation_inside_predict"])
+                self.assertTrue(
+                    self.torch.equal(method.model.prompt_learner.ctx, initial_prompt)
+                )
+
     def test_view_transform_returns_global_plus_local_views(self) -> None:
         from PIL import Image
 

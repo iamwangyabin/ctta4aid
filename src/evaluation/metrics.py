@@ -5,7 +5,12 @@ from collections import defaultdict
 from typing import Any
 
 import numpy as np
-from sklearn.metrics import accuracy_score, balanced_accuracy_score, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    average_precision_score,
+    balanced_accuracy_score,
+    roc_auc_score,
+)
 
 
 def to_numpy(value: Any) -> np.ndarray:
@@ -19,7 +24,11 @@ def to_numpy(value: Any) -> np.ndarray:
 
 
 def binary_metrics(
-    labels: Any, prob_fake: Any, *, threshold: float = 0.5
+    labels: Any,
+    prob_fake: Any,
+    *,
+    threshold: float = 0.5,
+    calibration_bins: int = 15,
 ) -> dict[str, float | int]:
     labels_array = to_numpy(labels).astype(np.int64).reshape(-1)
     probability_array = to_numpy(prob_fake).astype(np.float64).reshape(-1)
@@ -29,18 +38,76 @@ def binary_metrics(
         )
     predictions = (probability_array >= threshold).astype(np.int64)
     accuracy = float(accuracy_score(labels_array, predictions))
+    real_mask = labels_array == 0
+    fake_mask = labels_array == 1
+    real_accuracy = (
+        float(np.mean(predictions[real_mask] == 0)) if np.any(real_mask) else math.nan
+    )
+    fake_accuracy = (
+        float(np.mean(predictions[fake_mask] == 1)) if np.any(fake_mask) else math.nan
+    )
+    clipped = np.clip(probability_array, 1e-7, 1.0 - 1e-7)
+    nll_terms = labels_array * np.log(clipped) + (1 - labels_array) * np.log(
+        1 - clipped
+    )
+    nll = float(-np.mean(nll_terms))
     if np.unique(labels_array).size < 2:
         auc = math.nan
+        average_precision = math.nan
         balanced_accuracy = accuracy
     else:
         auc = float(roc_auc_score(labels_array, probability_array))
+        average_precision = float(
+            average_precision_score(labels_array, probability_array)
+        )
         balanced_accuracy = float(balanced_accuracy_score(labels_array, predictions))
     return {
         "auc": auc,
+        "average_precision": average_precision,
         "accuracy": accuracy,
         "balanced_accuracy": balanced_accuracy,
+        "real_accuracy": real_accuracy,
+        "fake_accuracy": fake_accuracy,
+        "predicted_fake_rate": float(np.mean(predictions)),
+        "brier_score": float(np.mean((probability_array - labels_array) ** 2)),
+        "nll": nll,
+        "ece": expected_calibration_error(
+            labels_array, probability_array, bins=calibration_bins
+        ),
         "samples": int(labels_array.size),
     }
+
+
+def expected_calibration_error(
+    labels: Any, probabilities: Any, *, bins: int = 15
+) -> float:
+    """Return equal-width binary ECE for the predicted fake probability."""
+    if bins < 1:
+        raise ValueError("bins must be positive")
+    labels_array = to_numpy(labels).astype(np.float64).reshape(-1)
+    probability_array = to_numpy(probabilities).astype(np.float64).reshape(-1)
+    if labels_array.shape != probability_array.shape:
+        raise ValueError(
+            "Labels and probabilities must contain the same number of samples"
+        )
+    if labels_array.size == 0:
+        return math.nan
+
+    boundaries = np.linspace(0.0, 1.0, bins + 1)
+    bin_ids = np.minimum(
+        np.searchsorted(boundaries, probability_array, side="right") - 1,
+        bins - 1,
+    )
+    bin_ids = np.maximum(bin_ids, 0)
+    error = 0.0
+    for bin_index in range(bins):
+        mask = bin_ids == bin_index
+        if not np.any(mask):
+            continue
+        error += float(np.mean(mask)) * abs(
+            float(np.mean(probability_array[mask])) - float(np.mean(labels_array[mask]))
+        )
+    return error
 
 
 class MetricAccumulator:

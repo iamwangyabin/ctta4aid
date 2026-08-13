@@ -10,7 +10,7 @@ model:
 
 data:
   format: arrow
-  train_root: ${GENIMAGE_ARROW_ROOT}
+  train_root: ${GENIMAGE_SD14_TRAIN_ARROW_ROOT}
   val_root: ${GENIMAGE_ARROW_ROOT}
   generator: stable_diffusion_v_1_4
   train_generator: stable_diffusion_v_1_4

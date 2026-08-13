@@ -23,6 +23,13 @@ class OST(TTAMethod):
         self.model = model.to(device)
         self.device = device
         self.config = config or {}
+        self.adaptation_mode = str(self.config.get("adaptation_mode", "full")).lower()
+        if self.adaptation_mode not in {"static", "full"}:
+            raise ValueError("OST adaptation_mode must be static or full")
+        self.protocol_name = {
+            "static": "predict_only",
+            "full": "episodic_adapt_then_predict",
+        }[self.adaptation_mode]
         self._initial_model_state = {
             name: value.detach().cpu().clone()
             for name, value in self.model.state_dict().items()
@@ -36,16 +43,20 @@ class OST(TTAMethod):
         self.input_transform = build_ost_transform(
             int(self.config.get("image_size", 256))
         )
-        self.core = OSTInferenceCore(
-            self.model,
-            self.device,
-            learning_rate=float(self.config.get("task_learning_rate", 0.0005)),
-            steps=self.steps,
-            second_order=bool(self.config.get("second_order", True)),
-            enable_inner_loop_optimizable_bn_params=bool(
-                self.config.get("enable_inner_loop_optimizable_bn_params", True)
-            ),
-        )
+        self.core = None
+        if self.adaptation_mode == "full":
+            self.core = OSTInferenceCore(
+                self.model,
+                self.device,
+                learning_rate=float(self.config.get("task_learning_rate", 0.0005)),
+                steps=self.steps,
+                second_order=bool(self.config.get("second_order", True)),
+                enable_inner_loop_optimizable_bn_params=bool(
+                    self.config.get("enable_inner_loop_optimizable_bn_params", True)
+                ),
+            )
+        else:
+            self.model.requires_grad_(False)
         self.template_sampler: Any = None
         self._last_adaptation = AdaptationStats(selected=0)
 
@@ -59,8 +70,36 @@ class OST(TTAMethod):
     def predict(self, images: Any) -> PredictionBatch:
         import torch
 
+        if self.adaptation_mode == "static":
+            self.model.eval()
+            with torch.no_grad():
+                logits, _ = self.model.forward(
+                    x=images.to(self.device, non_blocking=True),
+                    params=None,
+                    training=False,
+                    backup_running_statistics=False,
+                    num_step=0,
+                )
+            probabilities = logits.softmax(dim=1)
+            self._last_adaptation = AdaptationStats(
+                selected=0,
+                elapsed_ms=0.0,
+                extra={
+                    "adaptation_mode": "static",
+                    "adaptation_inside_predict": False,
+                    "optimizer_updates": 0,
+                },
+            )
+            return PredictionBatch(
+                logits=logits.detach(),
+                prob_fake=probabilities[:, 1].detach(),
+                pred_label=probabilities.argmax(dim=1).detach(),
+            )
+
         if self.template_sampler is None:
             raise RuntimeError("OST requires a labeled source template sampler")
+        if self.core is None:
+            raise RuntimeError("OST full adaptation core is unavailable")
         prediction_logits = []
         losses = []
         alphas = []
@@ -90,6 +129,7 @@ class OST(TTAMethod):
             selected=2 * len(losses),
             elapsed_ms=elapsed_ms,
             extra={
+                "adaptation_mode": "full",
                 "adaptation_inside_predict": True,
                 "adaptation_inside_predict_ms": elapsed_ms,
                 "optimizer_updates": len(losses) * self.steps,
@@ -134,7 +174,8 @@ class OST(TTAMethod):
             "level": "patched_vendored_official_core_with_cross_task_data_adapter",
             "official_commit": OST_COMMIT,
             "official_core": "src.official.ost",
-            "protocol_wrapper": "episodic_adapt_then_predict_inside_predict",
+            "protocol_wrapper": self.protocol_name,
+            "adaptation_mode": self.adaptation_mode,
             "numerical_validation": "not_equivalent_to_official_face_benchmark",
             "source_free_during_test": False,
             "intentional_changes": [

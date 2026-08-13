@@ -126,6 +126,9 @@ class OfficialConfigTests(unittest.TestCase):
         universal = self.load("configs/experiments/iapl/ufd.yaml")
         self.assertEqual(genimage["data"]["format"], "arrow")
         self.assertEqual(universal["data"]["format"], "arrow")
+        self.assertNotIn("stable_diffusion_v_1_4", genimage["data"]["targets"])
+        self.assertEqual(len(genimage["data"]["targets"]), 7)
+        self.assertEqual(genimage["seed"], 0)
         self.assertEqual(genimage["data"]["num_workers"], 8)
         self.assertEqual(universal["data"]["num_workers"], 0)
         for config in (genimage, universal):
@@ -141,6 +144,18 @@ class OfficialConfigTests(unittest.TestCase):
             self.assertTrue(method["condition"])
             self.assertTrue(method["optimal_input_selection"])
             self.assertFalse(config["protocol"]["batchnorm_buffers_accumulate_across_targets"])
+
+        for filename, mode in (
+            ("configs/experiments/iapl/genimage_static.yaml", "static"),
+            ("configs/experiments/iapl/genimage_views_only.yaml", "views_only"),
+        ):
+            with self.subTest(filename=filename):
+                config = self.load(filename)
+                self.assertEqual(config["method_configs"]["iapl"]["adaptation_mode"], mode)
+                self.assertEqual(config["data"]["targets"], genimage["data"]["targets"])
+                self.assertNotEqual(
+                    config["protocol"]["name"], "episodic_adapt_then_predict"
+                )
 
     def test_ost_configs_define_source_template_adapt_then_predict(self) -> None:
         for filename in (
@@ -167,6 +182,17 @@ class OfficialConfigTests(unittest.TestCase):
                 self.assertEqual(method["task_learning_rate"], 0.0005)
                 self.assertEqual(method["synthesis"], "full_frame_alpha")
 
+        static = self.load("configs/experiments/ost/genimage_static.yaml")
+        self.assertEqual(static["method_configs"]["ost"]["adaptation_mode"], "static")
+        self.assertEqual(static["seed"], 0)
+        self.assertEqual(static["protocol"]["name"], "predict_only")
+        self.assertEqual(
+            static["data"]["source_root"],
+            "${GENIMAGE_SD14_TEMPLATE_ARROW_ROOT}",
+        )
+        self.assertEqual(static["data"]["source_split"], "train")
+        self.assertEqual(static["data"]["source_max_samples_per_class"], 1000)
+
     def test_ost_training_configs_preserve_the_official_meta_objective(self) -> None:
         expected_sources = {
             "configs/train/ost_ufd_meta.yaml": "progan",
@@ -183,6 +209,18 @@ class OfficialConfigTests(unittest.TestCase):
                 self.assertEqual(config["training"]["outer_learning_rate"], 0.0002)
                 self.assertTrue(config["training"]["second_order"])
                 self.assertEqual(config["training"]["am_softmax_margin"], 0.45)
+
+        for filename in (
+            "configs/train/genimage_sd14_source.yaml",
+            "configs/train/ost_genimage_meta.yaml",
+        ):
+            with self.subTest(filename=filename):
+                config = self.load(filename)
+                self.assertEqual(
+                    config["data"]["train_root"],
+                    "${GENIMAGE_SD14_TRAIN_ARROW_ROOT}",
+                )
+                self.assertEqual(config["data"]["val_root"], "${GENIMAGE_ARROW_ROOT}")
 
         smoke = self.load("configs/train/ost_ufd_meta_smoke.yaml")
         self.assertEqual(smoke["training"]["epochs"], 1)
@@ -201,6 +239,11 @@ class OfficialConfigTests(unittest.TestCase):
         self.assertTrue((PROJECT_ROOT / source["model_loader"]).is_file())
         self.assertTrue((PROJECT_ROOT / source["wrapper"]).is_file())
         self.assertEqual(source["upstream_license"], "none_declared")
+        self.assertEqual(source["checkpoint_size_bytes"], 83476109)
+        self.assertEqual(
+            source["checkpoint_sha256"],
+            "056c311b778a9e777bf3255a5a8f4e509c38190deb3bd14ba82668eadb789f8c",
+        )
         self.assertEqual(
             source["numerical_validation"],
             "not_equivalent_to_official_face_benchmark",
@@ -243,6 +286,16 @@ class OfficialConfigTests(unittest.TestCase):
                         config["output_dir"],
                         f"outputs/controlled_ctta/{setting}/seed{seed}",
                     )
+
+        motivation = self.load(
+            "configs/experiments/controlled_ctta/genimage_tta_motivation_seed0.yaml"
+        )
+        self.assertEqual(motivation["methods"], ["source", "tent", "eata", "t2a"])
+        self.assertEqual(motivation["seed"], 0)
+        self.assertEqual(motivation["data"]["format"], "arrow")
+        self.assertNotIn(
+            "stable_diffusion_v_1_4", motivation["data"]["targets"]
+        )
 
     def test_genimage_controlled_experiments_use_sd14_as_source(self) -> None:
         methods = {"source", "tent", "eata", "cotta", "rotta", "lame", "t2a"}

@@ -1,0 +1,6 @@
+extends: genimage_single_target.yaml
+
+# Paired motivation study only; the full Controlled CTTA method set is unchanged.
+seed: 0
+methods: [source, tent, eata, t2a]
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/controlled_seed0

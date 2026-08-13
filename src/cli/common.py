@@ -69,13 +69,17 @@ def build_fresh_method(
         )
         model, metadata = build_ost_detector(effective_method_config, device=device)
         method = build_method(name, model, device, effective_method_config)
-        method.set_template_sampler(
-            OSTTemplateSampler.from_data_config(
-                experiment_config["data"],
-                transform=method.input_transform,
-                seed=int(experiment_config.get("seed", 0)),
+        if (
+            str(effective_method_config.get("adaptation_mode", "full")).lower()
+            == "full"
+        ):
+            method.set_template_sampler(
+                OSTTemplateSampler.from_data_config(
+                    experiment_config["data"],
+                    transform=method.input_transform,
+                    seed=int(experiment_config.get("seed", 0)),
+                )
             )
-        )
         checkpoint_path = str(
             Path(effective_method_config["checkpoint"]).expanduser().resolve()
         )

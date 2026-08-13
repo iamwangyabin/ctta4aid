@@ -81,8 +81,12 @@ ost:
   checkpoint_url: https://drive.google.com/file/d/1A2EHgj7EW2RsfiqvtbnQSIvLkbVgDFlZ/view
   checkpoint_filename: xception_meta.pth
   checkpoint_size_bytes: 83476109
+  checkpoint_sha256: 056c311b778a9e777bf3255a5a8f4e509c38190deb3bd14ba82668eadb789f8c
   project_profile: configs/methods/ost.yaml
-  experiment_profiles: [configs/experiments/ost/genimage.yaml, configs/experiments/ost/ufd.yaml]
+  experiment_profiles:
+    - configs/experiments/ost/genimage.yaml
+    - configs/experiments/ost/genimage_static.yaml
+    - configs/experiments/ost/ufd.yaml
   official_core: src/official/ost
   model_loader: src/models/ost.py
   wrapper: src/methods/ost.py
@@ -117,7 +121,11 @@ iapl:
     - models/clip/bpe_simple_vocab_16e6.txt.gz
   upstream_config: [tta_genimage.sh, tta_universalfake.sh, main.py, test_time.py]
   project_profile: configs/methods/iapl.yaml
-  experiment_profiles: [configs/experiments/iapl/genimage.yaml, configs/experiments/iapl/ufd.yaml]
+  experiment_profiles:
+    - configs/experiments/iapl/genimage.yaml
+    - configs/experiments/iapl/genimage_static.yaml
+    - configs/experiments/iapl/genimage_views_only.yaml
+    - configs/experiments/iapl/ufd.yaml
   official_core: src/official/iapl
   model_loader: src/models/iapl.py
   wrapper: src/methods/iapl.py

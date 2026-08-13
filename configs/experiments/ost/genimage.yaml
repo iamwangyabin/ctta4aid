@@ -3,15 +3,17 @@ extends:
   - ../../protocols/ost_single_target.yaml
   - ../../methods/ost.yaml
 
-seed: 100
+seed: 0
 device: auto
 methods: [ost]
-output_dir: outputs/ost/genimage
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/ost_full_seed0
 
 data:
-  source_root: ${GENIMAGE_ARROW_ROOT}
+  source_root: ${GENIMAGE_SD14_TEMPLATE_ARROW_ROOT}
   source_domain: stable_diffusion_v_1_4
   source_split: train
+  # Fixed offline subset of the labeled SD v1.4 source training split.
+  source_max_samples_per_class: 1000
   batch_size: 1
   num_workers: 0
   shuffle: false
@@ -24,3 +26,7 @@ data:
     - stable_diffusion_v_1_5
     - VQDM
     - wukong
+
+method_configs:
+  ost:
+    adaptation_mode: full

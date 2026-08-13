@@ -1,0 +1,17 @@
+extends: genimage.yaml
+
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/ost_static_seed0
+
+protocol:
+  name: predict_only
+  source_free_during_test: true
+  source_labels_available_to_method: false
+  target_labels_available_to_method: false
+  reset: per_target_model
+  parameter_accumulation_between_images: false
+  batchnorm_buffers_may_accumulate_between_images: false
+  batchnorm_buffers_accumulate_across_targets: false
+
+method_configs:
+  ost:
+    adaptation_mode: static
