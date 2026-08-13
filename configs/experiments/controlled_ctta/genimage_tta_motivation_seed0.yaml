@@ -4,3 +4,8 @@ extends: genimage_single_target.yaml
 seed: 0
 methods: [source, tent, eata, t2a]
 output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/controlled_seed0
+
+data:
+  # Motivation table uses every available test image, not the 1k/class
+  # development cap inherited from the generic single-target protocol.
+  max_samples_per_class: null

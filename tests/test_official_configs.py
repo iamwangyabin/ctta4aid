@@ -293,6 +293,7 @@ class OfficialConfigTests(unittest.TestCase):
         self.assertEqual(motivation["methods"], ["source", "tent", "eata", "t2a"])
         self.assertEqual(motivation["seed"], 0)
         self.assertEqual(motivation["data"]["format"], "arrow")
+        self.assertIsNone(motivation["data"]["max_samples_per_class"])
         self.assertNotIn(
             "stable_diffusion_v_1_4", motivation["data"]["targets"]
         )
