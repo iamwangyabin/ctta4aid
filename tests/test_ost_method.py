@@ -24,6 +24,7 @@ class OSTMethodTests(unittest.TestCase):
                 super().__init__()
                 self.weight = nn.Parameter(self_outer.torch.randn(2, 3) * 0.1)
                 self.bias = nn.Parameter(self_outer.torch.zeros(2))
+                self.last_forward_params = None
                 self.running_mean = nn.Parameter(
                     self_outer.torch.zeros(3), requires_grad=False
                 )
@@ -37,6 +38,7 @@ class OSTMethodTests(unittest.TestCase):
                 backup_running_statistics=False,
             ):
                 del num_step, training, backup_running_statistics
+                self.last_forward_params = params
                 parameters = params or dict(self.named_parameters())
                 features = x.mean(dim=(2, 3))
                 logits = functional.linear(
@@ -128,6 +130,10 @@ class OSTMethodTests(unittest.TestCase):
         self.assertEqual(method.protocol_name, "predict_only")
         self.assertIsNone(method.core)
         self.assertEqual(method.trainable_parameters, 0)
+        self.assertEqual(
+            set(method.model.last_forward_params),
+            {"weight", "bias", "running_mean"},
+        )
         self.assertEqual(stats.selected, 0)
         self.assertEqual(stats.extra["optimizer_updates"], 0)
 

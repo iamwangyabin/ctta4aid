@@ -75,7 +75,9 @@ class OST(TTAMethod):
             with torch.no_grad():
                 logits, _ = self.model.forward(
                     x=images.to(self.device, non_blocking=True),
-                    params=None,
+                    # The official MetaXception forward expects the full
+                    # top-level parameter mapping even without fast weights.
+                    params=dict(self.model.named_parameters()),
                     training=False,
                     backup_running_statistics=False,
                     num_step=0,
