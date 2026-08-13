@@ -10,7 +10,8 @@ output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/ost_full_seed0
 
 data:
   source_root: ${GENIMAGE_SD14_TEMPLATE_ARROW_ROOT}
-  source_domain: stable_diffusion_v_1_4
+  # Canonical generator ID stored by the fixed source-template Arrow bundle.
+  source_domain: SDv14
   source_split: train
   # Fixed offline subset of the labeled SD v1.4 source training split.
   source_max_samples_per_class: 1000

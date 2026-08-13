@@ -190,6 +190,7 @@ class OfficialConfigTests(unittest.TestCase):
             static["data"]["source_root"],
             "${GENIMAGE_SD14_TEMPLATE_ARROW_ROOT}",
         )
+        self.assertEqual(static["data"]["source_domain"], "SDv14")
         self.assertEqual(static["data"]["source_split"], "train")
         self.assertEqual(static["data"]["source_max_samples_per_class"], 1000)
 
