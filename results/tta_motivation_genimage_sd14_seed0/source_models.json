@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "experiment": "tta_motivation_genimage_sd14_seed0",
+  "code_commit": "1a1add0cbcb9d455a24a632bc38991f57f67d746",
+  "dataset": {
+    "name": "GenImage",
+    "format": "ctta4aid_arrow",
+    "total_test_rows": 100000,
+    "evaluated_rows_per_variant": 88000,
+    "source_generator": "SDv14",
+    "excluded_source_rows": 12000,
+    "target_rows": {
+      "ADM": 12000,
+      "BigGAN": 12000,
+      "glide": 12000,
+      "Midjourney": 12000,
+      "stable_diffusion_v_1_5": 16000,
+      "VQDM": 12000,
+      "wukong": 12000
+    },
+    "plan_sha256": "277ccab46de309f5eb87f34e61acab396f0c854f75820a32f5621dc342101142",
+    "inventory_sha256": "561a00d816609cc7b73e4102d5313eaca96a1b530d64bb3b7b01d83220d54e5b"
+  },
+  "controlled_resnet50": {
+    "role": "shared source detector for Source, TENT, EATA, and T2A",
+    "source_generator": "SDv14",
+    "checkpoint_sha256": "5678f9f33bad7a162a8fa2119c5838a9050bbd391e37a1e75ca4586e878b7686",
+    "source_fisher_included": true,
+    "official_sources": {
+      "tent_commit": "e9e926a668d85244c66a6d5c006efbd2b82e83e8",
+      "eata_commit": "f739b3668cc7617e9b9f1979c1a358497a3472c3",
+      "t2a_commit": "33c8ccc64afdda260564123d6c790d030a89ff81"
+    }
+  },
+  "iapl": {
+    "backbone": "CLIP ViT-L/14",
+    "source_generator": "SDv14",
+    "official_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
+    "detector_checkpoint_sha256": "4f86a1e3e93bfa8c0cf1099413f872dccd34b6ec3f26dec2162bcf2430552018",
+    "clip_checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+    "full_protocol": {
+      "views_per_image": 32,
+      "adaptation_steps": 2,
+      "prompt_and_optimizer_reset_per_image": true,
+      "target_reset": true,
+      "ois_enabled": true
+    },
+    "upstream_license": "none_declared"
+  },
+  "ost": {
+    "backbone": "MetaXception",
+    "official_commit": "1e4518b9e560baf9c5693f13a402fa5d7104190f",
+    "released_checkpoint_sha256": "056c311b778a9e777bf3255a5a8f4e509c38190deb3bd14ba82668eadb789f8c",
+    "released_checkpoint_size_bytes": 83476109,
+    "source_template_arrow": {
+      "source_generator": "SDv14",
+      "rows": 2000,
+      "real_rows": 1000,
+      "fake_rows": 1000,
+      "arrow_shard_sha256": "fc22c4264e283143343274cbdac1d6a9f21a1603029f4f02077d3278614bfde1"
+    },
+    "cross_task_data_adapter": "full_frame_alpha_blending",
+    "numerical_scope": "not_equivalent_to_official_face_benchmark",
+    "upstream_license": "none_declared"
+  }
+}

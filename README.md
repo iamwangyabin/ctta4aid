@@ -6,7 +6,7 @@
 - **IAPL 补充实验**：使用 CLIP ViT-L/14，按逐图 Adapt-Then-Predict 协议运行，不与公共 CNN 控制实验混为一谈。
 - **OST 补充实验**：使用作者的 MetaXception、AM-Softmax 和单步 fast weights；每张测试图从源训练集抽取带标签模板，合成伪样本后 Adapt-Then-Predict。
 
-旧阶段实验和结果已经移除。新的正式实验需要重新运行，确认完成后再将最终结果写入 `results/`。
+旧阶段实验和结果已经移除。当前完成的正式实验按独立目录保存在 `results/`，只提交最终汇总、复现身份和结论，不提交运行日志或中间产物。
 
 ## 项目结构
 
@@ -229,6 +229,11 @@ python run_single_target.py \
 
 三个方法轨道的正式输出都写入这个仓库外目录；仓库中的 `outputs/`、日志和 PID 不作为
 正式结果保存。实验确认后只将汇总表、复现身份和结论导入新的 `results/` 目录。
+
+已完成的 GenImage SD v1.4 seed 0 动机实验见
+[`results/tta_motivation_genimage_sd14_seed0/`](results/tta_motivation_genimage_sd14_seed0/README.md)。
+该结果显示 IAPL 的主要提升来自多视图与 OIS，而不是两步 prompt 参数更新；TENT、
+EATA、T2A 和 OST 的参数适应在这轮配对实验中均未提高宏平均 AUC。
 
 ## 实验边界
 
