@@ -222,6 +222,7 @@ class OfficialConfigTests(unittest.TestCase):
                     "${GENIMAGE_SD14_TRAIN_ARROW_ROOT}",
                 )
                 self.assertEqual(config["data"]["val_root"], "${GENIMAGE_ARROW_ROOT}")
+                self.assertEqual(config["data"]["train_generator"], "SDv14")
 
         smoke = self.load("configs/train/ost_ufd_meta_smoke.yaml")
         self.assertEqual(smoke["training"]["epochs"], 1)
@@ -342,9 +343,7 @@ class OfficialConfigTests(unittest.TestCase):
     def test_genimage_source_training_uses_the_unified_arrow_root(self) -> None:
         config = self.load("configs/train/genimage_sd14_source.yaml")
         self.assertEqual(config["data"]["generator"], "stable_diffusion_v_1_4")
-        self.assertEqual(
-            config["data"]["train_generator"], "stable_diffusion_v_1_4"
-        )
+        self.assertEqual(config["data"]["train_generator"], "SDv14")
         self.assertEqual(config["data"]["val_generator"], "stable_diffusion_v_1_4")
         self.assertEqual(config["data"]["train_split"], "train")
         self.assertEqual(config["data"]["val_split"], "test")
