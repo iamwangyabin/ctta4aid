@@ -29,7 +29,7 @@ TREE_SUITES: dict[str, tuple[tuple[str, str], ...]] = {
         ("VQDM", "VQDM"),
         ("Wukong", "wukong"),
         ("DALL-E2", "DALLE2"),
-        ("SDXL", "SDXL"),
+        ("SDXL", "sd_xl"),
     ),
     "aigi_holmes_p3": (
         ("Janus", "Janus"),

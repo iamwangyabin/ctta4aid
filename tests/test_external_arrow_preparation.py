@@ -36,6 +36,14 @@ class ExternalArrowPreparationTests(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, completed.stderr)
         self.assertIn("opensdid_global", completed.stdout)
 
+    def test_aigc_raw_directory_aliases_match_the_official_archive(self) -> None:
+        aliases = dict(PREPARE_SCRIPT.TREE_SUITES["aigc_detection_benchmark"])
+
+        self.assertEqual(aliases["GLIDE"], "Glide")
+        self.assertEqual(aliases["DALL-E2"], "DALLE2")
+        self.assertEqual(aliases["SDXL"], "sd_xl")
+        self.assertEqual(aliases["WFIR"], "whichfaceisreal")
+
     @unittest.skipUnless(DATASETS_AVAILABLE, "datasets and pyarrow are required")
     def test_tree_records_write_a_project_arrow_bundle(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
