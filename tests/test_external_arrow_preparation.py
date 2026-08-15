@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import io
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -22,8 +23,20 @@ sys.modules[SPEC.name] = PREPARE_SCRIPT
 SPEC.loader.exec_module(PREPARE_SCRIPT)
 
 
-@unittest.skipUnless(DATASETS_AVAILABLE, "datasets and pyarrow are required")
 class ExternalArrowPreparationTests(unittest.TestCase):
+    def test_arrow_checker_runs_as_a_script(self) -> None:
+        completed = subprocess.run(
+            [sys.executable, str(PROJECT_ROOT / "scripts" / "check_arrow_datasets.py"), "--help"],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn("opensdid_global", completed.stdout)
+
+    @unittest.skipUnless(DATASETS_AVAILABLE, "datasets and pyarrow are required")
     def test_tree_records_write_a_project_arrow_bundle(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
