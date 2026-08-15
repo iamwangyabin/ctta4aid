@@ -118,6 +118,49 @@ python run_continual_stream.py \
 
 实验输出包括 `metrics.json`、`online_curve.csv`、`batch_stats.csv`、`sample_manifest.csv` 和汇总 JSON；Continual 额外输出完整的 `holdout_matrix.csv` 与 `final_holdout_manifest.csv`。完整矩阵将每个 checkpoint 的评估标记为 `past`、`current` 或 `future`，并在 summary 中报告相对同一方法适应前初始状态的 current gain、future transfer 和 future negative-transfer rate。
 
+## 外部基准连续评估
+
+AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID 都只作为 target-only 测试集，重复使用 GenImage SD v1.4 源检测器，不将外部图像用于源训练。原始数据必须先离线转换为项目 Arrow bundle：
+
+```bash
+python scripts/prepare_external_arrow.py aigc_detection_benchmark \
+  --input-root /data/AIGCDetectionBenchmark/test_set \
+  --output-root /data/arrow/aigc_detection_benchmark
+python scripts/prepare_external_arrow.py aigi_holmes_p3 \
+  --input-root /data/AIGI-Holmes/TestSet \
+  --output-root /data/arrow/aigi_holmes_p3
+python scripts/prepare_external_arrow.py opensdid_global \
+  --input-root /data/OpenSDI_test \
+  --output-root /data/arrow/opensdid_global
+```
+
+转换默认为每个 generator 和二类标签保留 1,000 张图片；运行时再按 seed 在其中定义 750 张适应样本和 250 张互不重叠的 final holdout。OpenSDID 正式设置只使用 global (`entire/`) 操作范围。转换后必须校验：
+
+```bash
+python scripts/check_arrow_datasets.py aigc_detection_benchmark /data/arrow/aigc_detection_benchmark
+python scripts/check_arrow_datasets.py aigi_holmes_p3 /data/arrow/aigi_holmes_p3
+python scripts/check_arrow_datasets.py opensdid_global /data/arrow/opensdid_global
+```
+
+设置 Arrow 根目录和已训练源 checkpoint 后，以 AIGCDetectionBenchmark seed 0 为例：
+
+```bash
+export GENIMAGE_SOURCE_CHECKPOINT=/outputs/source_train/genimage_sd14_resnet50_arrow/source.pt
+export AIGC_DETECTION_BENCHMARK_ARROW_ROOT=/data/arrow/aigc_detection_benchmark
+python run_continual_stream.py \
+  --config configs/experiments/controlled_ctta/aigc_detection_benchmark_continual_seed0.yaml
+```
+
+将配置名替换为 `aigi_holmes_p3_continual_seed{0,1,2}` 或
+`opensdid_global_continual_seed{0,1,2}`，并设置对应的
+`AIGI_HOLMES_P3_ARROW_ROOT` 或 `OPENSDID_GLOBAL_ARROW_ROOT`，即可运行其余正式流。三 seed 完成后可以汇总 AUC 与准确率：
+
+```bash
+python scripts/summarize_continual_results.py \
+  --results-root /data/outputs/controlled_ctta/aigc_detection_benchmark/continual \
+  --output-dir /data/results/aigc_detection_benchmark
+```
+
 ## IAPL
 
 IAPL 是独立的补充协议。它对每张图生成 32 个视图，重置 prompt 和优化器，执行 2 步适应后再预测。BatchNorm buffers 只在同一个目标域内部跨图片保留；切换目标域时重新加载模型，因此各目标结果相互独立。

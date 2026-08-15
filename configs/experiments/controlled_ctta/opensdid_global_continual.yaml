@@ -1,0 +1,6 @@
+extends:
+  - external_continual.yaml
+  - ../../datasets/opensdid_global.yaml
+
+seed: 0
+output_dir: outputs/controlled_ctta/opensdid_global/continual/seed0

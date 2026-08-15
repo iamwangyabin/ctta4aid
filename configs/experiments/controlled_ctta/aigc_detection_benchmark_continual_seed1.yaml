@@ -1,0 +1,4 @@
+extends: aigc_detection_benchmark_continual.yaml
+
+seed: 1
+output_dir: outputs/controlled_ctta/aigc_detection_benchmark/continual/seed1

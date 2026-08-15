@@ -40,18 +40,57 @@ GENIMAGE_DOMAINS = [
     "VQDM",
     "wukong",
 ]
+EXTERNAL_DOMAINS = {
+    "aigc_detection_benchmark": [
+        "ProGAN",
+        "StyleGAN",
+        "BigGAN",
+        "CycleGAN",
+        "StarGAN",
+        "GauGAN",
+        "StyleGAN2",
+        "WFIR",
+        "ADM",
+        "GLIDE",
+        "Midjourney",
+        "SD v1.4",
+        "SD v1.5",
+        "VQDM",
+        "Wukong",
+        "DALL-E2",
+        "SDXL",
+    ],
+    "aigi_holmes_p3": [
+        "Janus",
+        "Janus-Pro-1B",
+        "Janus-Pro-7B",
+        "Show-o",
+        "LlamaGen",
+        "Infinity",
+        "VAR",
+        "PixArt-XL",
+        "SD3.5-L",
+        "FLUX",
+    ],
+    "opensdid_global": ["SD1.5", "SD2.1", "SDXL", "SD3", "Flux.1"],
+}
+SUITE_DOMAINS = {
+    "ufd": UFD_DOMAINS,
+    "genimage": GENIMAGE_DOMAINS,
+    **EXTERNAL_DOMAINS,
+}
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Validate canonical Arrow domains, labels, row mappings and image bytes"
     )
-    parser.add_argument("suite", choices=["ufd", "genimage"])
+    parser.add_argument("suite", choices=sorted(SUITE_DOMAINS))
     parser.add_argument("roots", nargs="+")
     parser.add_argument("--output")
     args = parser.parse_args()
 
-    domains = UFD_DOMAINS if args.suite == "ufd" else GENIMAGE_DOMAINS
+    domains = SUITE_DOMAINS[args.suite]
     split = "test"
     results = {}
     for domain in domains:

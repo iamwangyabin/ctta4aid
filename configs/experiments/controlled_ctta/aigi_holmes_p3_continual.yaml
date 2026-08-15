@@ -1,0 +1,6 @@
+extends:
+  - external_continual.yaml
+  - ../../datasets/aigi_holmes_p3.yaml
+
+seed: 0
+output_dir: outputs/controlled_ctta/aigi_holmes_p3/continual/seed0

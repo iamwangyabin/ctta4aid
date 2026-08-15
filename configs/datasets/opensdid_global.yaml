@@ -1,0 +1,16 @@
+extends: external_controlled.yaml
+
+data:
+  root: ${OPENSDID_GLOBAL_ARROW_ROOT}
+  targets:
+    - SD1.5
+    - SD2.1
+    - SDXL
+    - SD3
+    - Flux.1
+  stream:
+    - SD1.5
+    - SD2.1
+    - SDXL
+    - SD3
+    - Flux.1

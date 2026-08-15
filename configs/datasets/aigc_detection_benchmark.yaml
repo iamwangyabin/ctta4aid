@@ -1,0 +1,40 @@
+extends: external_controlled.yaml
+
+data:
+  root: ${AIGC_DETECTION_BENCHMARK_ARROW_ROOT}
+  targets:
+    - ProGAN
+    - StyleGAN
+    - BigGAN
+    - CycleGAN
+    - StarGAN
+    - GauGAN
+    - StyleGAN2
+    - WFIR
+    - ADM
+    - GLIDE
+    - Midjourney
+    - SD v1.4
+    - SD v1.5
+    - VQDM
+    - Wukong
+    - DALL-E2
+    - SDXL
+  stream:
+    - ProGAN
+    - StyleGAN
+    - BigGAN
+    - CycleGAN
+    - StarGAN
+    - GauGAN
+    - StyleGAN2
+    - WFIR
+    - ADM
+    - GLIDE
+    - Midjourney
+    - SD v1.4
+    - SD v1.5
+    - VQDM
+    - Wukong
+    - DALL-E2
+    - SDXL

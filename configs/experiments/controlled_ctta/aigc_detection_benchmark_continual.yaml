@@ -1,0 +1,6 @@
+extends:
+  - external_continual.yaml
+  - ../../datasets/aigc_detection_benchmark.yaml
+
+seed: 0
+output_dir: outputs/controlled_ctta/aigc_detection_benchmark/continual/seed0

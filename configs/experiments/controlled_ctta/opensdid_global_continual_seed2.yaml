@@ -1,0 +1,4 @@
+extends: opensdid_global_continual.yaml
+
+seed: 2
+output_dir: outputs/controlled_ctta/opensdid_global/continual/seed2

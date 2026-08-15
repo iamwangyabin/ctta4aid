@@ -1,0 +1,26 @@
+extends: external_controlled.yaml
+
+data:
+  root: ${AIGI_HOLMES_P3_ARROW_ROOT}
+  targets:
+    - Janus
+    - Janus-Pro-1B
+    - Janus-Pro-7B
+    - Show-o
+    - LlamaGen
+    - Infinity
+    - VAR
+    - PixArt-XL
+    - SD3.5-L
+    - FLUX
+  stream:
+    - Janus
+    - Janus-Pro-1B
+    - Janus-Pro-7B
+    - Show-o
+    - LlamaGen
+    - Infinity
+    - VAR
+    - PixArt-XL
+    - SD3.5-L
+    - FLUX

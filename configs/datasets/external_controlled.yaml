@@ -1,0 +1,15 @@
+# Shared ResNet-50 source detector for target-only external benchmark evaluation.
+model:
+  architecture: resnet50
+  pretrained: false
+  num_classes: 2
+  checkpoint: ${GENIMAGE_SOURCE_CHECKPOINT}
+
+data:
+  format: arrow
+  split: test
+  source_domain: genimage_sd14
+  image_size: 224
+  batch_size: 16
+  num_workers: 4
+  shuffle: true

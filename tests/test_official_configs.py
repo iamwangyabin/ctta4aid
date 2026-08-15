@@ -349,6 +349,72 @@ class OfficialConfigTests(unittest.TestCase):
         self.assertEqual(config["data"]["val_split"], "test")
         self.assertTrue(config["training"]["compute_fisher"])
 
+    def test_external_continual_configs_are_target_only_arrow_streams(self) -> None:
+        expected = {
+            "aigc_detection_benchmark": {
+                "root": "${AIGC_DETECTION_BENCHMARK_ARROW_ROOT}",
+                "domains": [
+                    "ProGAN",
+                    "StyleGAN",
+                    "BigGAN",
+                    "CycleGAN",
+                    "StarGAN",
+                    "GauGAN",
+                    "StyleGAN2",
+                    "WFIR",
+                    "ADM",
+                    "GLIDE",
+                    "Midjourney",
+                    "SD v1.4",
+                    "SD v1.5",
+                    "VQDM",
+                    "Wukong",
+                    "DALL-E2",
+                    "SDXL",
+                ],
+            },
+            "aigi_holmes_p3": {
+                "root": "${AIGI_HOLMES_P3_ARROW_ROOT}",
+                "domains": [
+                    "Janus",
+                    "Janus-Pro-1B",
+                    "Janus-Pro-7B",
+                    "Show-o",
+                    "LlamaGen",
+                    "Infinity",
+                    "VAR",
+                    "PixArt-XL",
+                    "SD3.5-L",
+                    "FLUX",
+                ],
+            },
+            "opensdid_global": {
+                "root": "${OPENSDID_GLOBAL_ARROW_ROOT}",
+                "domains": ["SD1.5", "SD2.1", "SDXL", "SD3", "Flux.1"],
+            },
+        }
+        methods = {"source", "tent", "eata", "cotta", "rotta", "lame", "t2a"}
+        directory = PROJECT_ROOT / "configs" / "experiments" / "controlled_ctta"
+        for setting, specification in expected.items():
+            with self.subTest(setting=setting):
+                base = load_config(directory / f"{setting}_continual.yaml")
+                self.assertEqual(set(base["methods"]), methods)
+                self.assertEqual(base["data"]["format"], "arrow")
+                self.assertEqual(base["data"]["root"], specification["root"])
+                self.assertEqual(base["data"]["source_domain"], "genimage_sd14")
+                self.assertEqual(base["data"]["targets"], specification["domains"])
+                self.assertEqual(base["data"]["stream"], specification["domains"])
+                self.assertEqual(base["protocol"]["name"], "predict_then_adapt")
+                self.assertFalse(base["protocol"]["target_labels_available_to_method"])
+                self.assertFalse(base["protocol"]["generator_id_available_to_method"])
+                for seed in (0, 1, 2):
+                    config = load_config(directory / f"{setting}_continual_seed{seed}.yaml")
+                    self.assertEqual(config["seed"], seed)
+                    self.assertEqual(
+                        config["output_dir"],
+                        f"outputs/controlled_ctta/{setting}/continual/seed{seed}",
+                    )
+
     def test_t2a_unreported_release_values_are_isolated(self) -> None:
         config = self.load("configs/methods/t2a.yaml")["method_configs"]["t2a"]
         self.assertEqual(config["noise_type"], "bernoulli")
