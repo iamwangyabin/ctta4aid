@@ -62,6 +62,7 @@ class ExternalArrowPreparationTests(unittest.TestCase):
             root = Path(temporary)
             _write_image(root / "progan" / "0_real" / "real.png", 0)
             _write_image(root / "progan" / "1_fake" / "fake.png", 128)
+            _write_image(root / "progan" / "1_fake" / "fake2.png", 192)
             (root / "progan" / "0_real" / "corrupt.jpg").write_bytes(b"not an image")
             (root / "progan" / "1_fake" / "corrupt.jpg").write_bytes(b"not an image")
 
@@ -69,6 +70,21 @@ class ExternalArrowPreparationTests(unittest.TestCase):
 
             self.assertEqual({record.label for record in records}, {0, 1})
             self.assertTrue(all("corrupt.jpg" not in record.image_path for record in records))
+
+    def test_tree_records_recovers_a_truncated_jpeg(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            _write_image(root / "progan" / "0_real" / "real.png", 0)
+            _write_image(root / "progan" / "1_fake" / "fake.png", 128)
+            _write_image(root / "progan" / "1_fake" / "fake2.png", 192)
+            truncated = _jpeg_payload(200)[:-100]
+            (root / "progan" / "0_real" / "truncated.jpg").write_bytes(truncated)
+
+            records = PREPARE_SCRIPT.tree_records(root, "ProGAN", "progan", 2, 0)
+
+            recovered = next(record for record in records if record.repaired)
+            self.assertEqual(recovered.label, 0)
+            self.assertTrue(PREPARE_SCRIPT._is_decodable_image(recovered.image_bytes()))
 
     @unittest.skipUnless(DATASETS_AVAILABLE, "datasets and pyarrow are required")
     def test_tree_records_write_a_project_arrow_bundle(self) -> None:
@@ -99,6 +115,12 @@ def _write_image(path: Path, value: int) -> None:
     payload = io.BytesIO()
     Image.new("RGB", (4, 4), color=(value, value, value)).save(payload, format="PNG")
     path.write_bytes(payload.getvalue())
+
+
+def _jpeg_payload(value: int) -> bytes:
+    payload = io.BytesIO()
+    Image.new("RGB", (128, 128), color=(value, value, value)).save(payload, format="JPEG")
+    return payload.getvalue()
 
 
 if __name__ == "__main__":

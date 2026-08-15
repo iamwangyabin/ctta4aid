@@ -6,12 +6,12 @@ import heapq
 import json
 import random
 import shutil
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from io import BytesIO
 from pathlib import Path
 from typing import Iterable
 
-from PIL import Image
+from PIL import Image, ImageFile
 
 
 TREE_SUITES: dict[str, tuple[tuple[str, str], ...]] = {
@@ -65,6 +65,7 @@ class ExternalRecord:
     label: int
     source_path: Path | None = None
     payload: bytes | None = None
+    repaired: bool = False
 
     def image_bytes(self) -> bytes:
         if self.payload is not None:
@@ -84,25 +85,44 @@ def _case_insensitive_child(root: Path, name: str) -> Path:
     return matches[0]
 
 
-def _is_decodable_image(payload: bytes) -> bool:
+def _validated_image_payload(payload: bytes) -> tuple[bool, bytes | None]:
     try:
         with Image.open(BytesIO(payload)) as image:
             image.load()
     except (OSError, ValueError):
-        return False
-    return True
+        original_setting = ImageFile.LOAD_TRUNCATED_IMAGES
+        try:
+            ImageFile.LOAD_TRUNCATED_IMAGES = True
+            with Image.open(BytesIO(payload)) as image:
+                image.load()
+                recovered = BytesIO()
+                image.convert("RGB").save(recovered, format="PNG")
+            return True, recovered.getvalue()
+        except (OSError, ValueError):
+            return False, None
+        finally:
+            ImageFile.LOAD_TRUNCATED_IMAGES = original_setting
+    return True, None
 
 
-def _sample_valid_paths(paths: list[Path], limit: int, seed: int) -> list[Path]:
+def _is_decodable_image(payload: bytes) -> bool:
+    valid, recovered = _validated_image_payload(payload)
+    return valid and recovered is None
+
+
+def _sample_valid_paths(
+    paths: list[Path], limit: int, seed: int
+) -> list[tuple[Path, bytes | None]]:
     rng = random.Random(seed)
     candidates = list(paths)
     rng.shuffle(candidates)
     selected = []
     for path in candidates:
-        if _is_decodable_image(path.read_bytes()):
-            selected.append(path)
+        valid, repaired = _validated_image_payload(path.read_bytes())
+        if valid:
+            selected.append((path, repaired))
         if len(selected) == limit:
-            return sorted(selected)
+            return sorted(selected, key=lambda item: item[0])
     raise ValueError(f"Need {limit} decodable images per class, found only {len(selected)}")
 
 
@@ -135,13 +155,15 @@ def tree_records(
     for label in (0, 1):
         paths = _label_image_paths(domain_root, label)
         selected = _sample_valid_paths(paths, samples_per_class, seed + label)
-        for path in selected:
+        for path, repaired_payload in selected:
             relative = path.relative_to(domain_root).as_posix()
             records.append(
                 ExternalRecord(
                     image_path=f"{domain}/test/{relative}",
                     label=label,
-                    source_path=path,
+                    source_path=path if repaired_payload is None else None,
+                    payload=repaired_payload,
+                    repaired=repaired_payload is not None,
                 )
             )
     return sorted(records, key=lambda record: record.image_path)
@@ -228,6 +250,26 @@ def _rows(records: Iterable[ExternalRecord]):
         yield {"image": payload, "image_path": record.image_path}
 
 
+def _materialize_repaired_records(records: list[ExternalRecord]) -> list[ExternalRecord]:
+    materialized = []
+    for record in records:
+        valid, repaired_payload = _validated_image_payload(record.image_bytes())
+        if not valid:
+            raise ValueError(f"Cannot decode selected image: {record.image_path}")
+        if repaired_payload is not None:
+            materialized.append(
+                replace(
+                    record,
+                    source_path=None,
+                    payload=repaired_payload,
+                    repaired=True,
+                )
+            )
+        else:
+            materialized.append(record)
+    return materialized
+
+
 def write_arrow_bundle(
     output_root: Path, suite: str, domain: str, records: list[ExternalRecord]
 ) -> dict[str, int]:
@@ -236,6 +278,7 @@ def write_arrow_bundle(
     except ImportError as error:
         raise RuntimeError("datasets is required to create project Arrow bundles") from error
 
+    records = _materialize_repaired_records(records)
     labels = {record.image_path: record.label for record in records}
     if len(labels) != len(records):
         raise ValueError(f"Duplicate logical image paths for {suite}/{domain}")
@@ -267,6 +310,7 @@ def write_arrow_bundle(
                 "split": "test",
                 "real_samples": counts[0],
                 "fake_samples": counts[1],
+                "recovered_images": sum(record.repaired for record in records),
             },
             indent=2,
         ),
