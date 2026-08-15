@@ -127,14 +127,14 @@ python scripts/prepare_external_arrow.py aigc_detection_benchmark \
   --input-root /data/AIGCDetectionBenchmark/test_set \
   --output-root /data/arrow/aigc_detection_benchmark
 python scripts/prepare_external_arrow.py aigi_holmes_p3 \
-  --input-root /data/AIGI-Holmes/TestSet \
+  --input-root /data/AIGI-Holmes/TestSet.zip \
   --output-root /data/arrow/aigi_holmes_p3
 python scripts/prepare_external_arrow.py opensdid_global \
   --input-root /data/OpenSDI_test \
   --output-root /data/arrow/opensdid_global
 ```
 
-转换默认为每个 generator 和二类标签保留 1,000 张图片；运行时再按 seed 在其中定义 750 张适应样本和 250 张互不重叠的 final holdout。每个入选图像都会完整解码；可恢复的截断图像会以其解码像素重编码为 PNG，并在对应 `bundle_manifest.json` 的 `recovered_images` 中披露，无法恢复的图像不会进入 Arrow bundle。OpenSDID 正式设置只使用 global (`entire/`) 操作范围。转换后必须校验：
+转换默认为每个 generator 和二类标签保留 1,000 张图片；运行时再按 seed 在其中定义 750 张适应样本和 250 张互不重叠的 final holdout。AIGI-Holmes 可直接从 `TestSet.zip` 流式读取入选图像，无需完整解压原始集。每个入选图像都会完整解码；可恢复的截断图像会以其解码像素重编码为 PNG，并在对应 `bundle_manifest.json` 的 `recovered_images` 中披露，无法恢复的图像不会进入 Arrow bundle。OpenSDID 正式设置只使用 global (`entire/`) 操作范围。转换后必须校验：
 
 ```bash
 python scripts/check_arrow_datasets.py aigc_detection_benchmark /data/arrow/aigc_detection_benchmark

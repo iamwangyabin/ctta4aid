@@ -7,6 +7,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from zipfile import ZipFile
 
 from PIL import Image
 
@@ -86,6 +87,33 @@ class ExternalArrowPreparationTests(unittest.TestCase):
             self.assertEqual(recovered.label, 0)
             self.assertTrue(PREPARE_SCRIPT._is_decodable_image(recovered.image_bytes()))
 
+    def test_archive_tree_records_support_aigi_holmes_zip_layout(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            archive_path = root / "TestSet.zip"
+            with ZipFile(archive_path, "w") as archive:
+                archive.writestr(
+                    "TestSet/JANUS/0_real/real.png", _png_payload(0)
+                )
+                archive.writestr(
+                    "TestSet/JANUS/1_fake/fake.png", _png_payload(128)
+                )
+
+            records = PREPARE_SCRIPT.archive_tree_records(
+                archive_path, "Janus", "Janus", 1, 5
+            )
+
+            self.assertEqual({record.label for record in records}, {0, 1})
+            self.assertTrue(
+                all(record.image_path.startswith("Janus/test/") for record in records)
+            )
+            self.assertTrue(
+                all(
+                    PREPARE_SCRIPT._is_decodable_image(record.image_bytes())
+                    for record in records
+                )
+            )
+
     @unittest.skipUnless(DATASETS_AVAILABLE, "datasets and pyarrow are required")
     def test_tree_records_write_a_project_arrow_bundle(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -112,9 +140,13 @@ class ExternalArrowPreparationTests(unittest.TestCase):
 
 def _write_image(path: Path, value: int) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(_png_payload(value))
+
+
+def _png_payload(value: int) -> bytes:
     payload = io.BytesIO()
     Image.new("RGB", (4, 4), color=(value, value, value)).save(payload, format="PNG")
-    path.write_bytes(payload.getvalue())
+    return payload.getvalue()
 
 
 def _jpeg_payload(value: int) -> bytes:

@@ -8,8 +8,9 @@ import random
 import shutil
 from dataclasses import dataclass, replace
 from io import BytesIO
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Iterable
+from zipfile import ZipFile, ZipInfo
 
 from PIL import Image, ImageFile
 
@@ -165,6 +166,78 @@ def tree_records(
                     payload=repaired_payload,
                     repaired=repaired_payload is not None,
                 )
+            )
+    return sorted(records, key=lambda record: record.image_path)
+
+
+def _archive_image_candidates(
+    archive: ZipFile, raw_domain: str, label: int
+) -> list[tuple[ZipInfo, str]]:
+    aliases = {"0_real", "real"} if label == 0 else {"1_fake", "fake"}
+    candidates: list[tuple[ZipInfo, str]] = []
+    for info in archive.infolist():
+        if info.is_dir():
+            continue
+        path = PurePosixPath(info.filename)
+        if path.suffix.lower() not in IMAGE_EXTENSIONS:
+            continue
+        parts = path.parts
+        domain_index = next(
+            (index for index, part in enumerate(parts) if part.lower() == raw_domain.lower()),
+            None,
+        )
+        if domain_index is None:
+            continue
+        relative_parts = parts[domain_index + 1 :]
+        if any(part.lower() in aliases for part in relative_parts[:-1]):
+            candidates.append((info, PurePosixPath(*relative_parts).as_posix()))
+    if not candidates:
+        raise FileNotFoundError(
+            f"Expected one of {sorted(aliases)!r} below archive domain {raw_domain!r}"
+        )
+    return sorted(candidates, key=lambda item: item[1])
+
+
+def archive_tree_records(
+    archive_path: Path,
+    domain: str,
+    raw_domain: str,
+    samples_per_class: int,
+    seed: int,
+) -> list[ExternalRecord]:
+    records: list[ExternalRecord] = []
+    with ZipFile(archive_path) as archive:
+        for label in (0, 1):
+            candidates = _archive_image_candidates(archive, raw_domain, label)
+            rng = random.Random(seed + label)
+            rng.shuffle(candidates)
+            selected = []
+            for info, relative_path in candidates:
+                payload = archive.read(info)
+                valid, repaired_payload = _validated_image_payload(payload)
+                if valid:
+                    selected.append(
+                        (
+                            relative_path,
+                            repaired_payload or payload,
+                            repaired_payload is not None,
+                        )
+                    )
+                if len(selected) == samples_per_class:
+                    break
+            if len(selected) != samples_per_class:
+                raise ValueError(
+                    f"Need {samples_per_class} decodable archive images per class for "
+                    f"{domain}, found only {len(selected)}"
+                )
+            records.extend(
+                ExternalRecord(
+                    image_path=f"{domain}/test/{relative_path}",
+                    label=label,
+                    payload=payload,
+                    repaired=repaired,
+                )
+                for relative_path, payload, repaired in selected
             )
     return sorted(records, key=lambda record: record.image_path)
 
@@ -327,7 +400,19 @@ def prepare_suite(
     output_root.mkdir(parents=True)
     domain_summaries: dict[str, dict[str, int]] = {}
     try:
-        if suite in TREE_SUITES:
+        if suite == "aigi_holmes_p3" and input_root.is_file():
+            for offset, (domain, raw_domain) in enumerate(TREE_SUITES[suite]):
+                records = archive_tree_records(
+                    input_root,
+                    domain,
+                    raw_domain,
+                    samples_per_class,
+                    seed + offset * 10,
+                )
+                domain_summaries[domain] = write_arrow_bundle(
+                    output_root, suite, domain, records
+                )
+        elif suite in TREE_SUITES:
             for offset, (domain, raw_domain) in enumerate(TREE_SUITES[suite]):
                 records = tree_records(
                     input_root,
