@@ -88,24 +88,40 @@ def _sample_paths(paths: list[Path], limit: int, seed: int) -> list[Path]:
     return sorted(rng.sample(paths, limit))
 
 
+def _label_image_paths(domain_root: Path, label: int) -> list[Path]:
+    aliases = ("0_real", "real") if label == 0 else ("1_fake", "fake")
+    class_roots = [
+        path
+        for path in domain_root.rglob("*")
+        if path.is_dir() and path.name.lower() in aliases
+    ]
+    if not class_roots:
+        raise FileNotFoundError(
+            f"Expected one of {aliases!r} below {domain_root} for label={label}"
+        )
+    return sorted(
+        {
+            path
+            for class_root in class_roots
+            for path in class_root.rglob("*")
+            if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS
+        }
+    )
+
+
 def tree_records(
     root: Path, domain: str, raw_domain: str, samples_per_class: int, seed: int
 ) -> list[ExternalRecord]:
     domain_root = _case_insensitive_child(root, raw_domain)
     records: list[ExternalRecord] = []
-    for label, label_dir in ((0, "0_real"), (1, "1_fake")):
-        class_root = _case_insensitive_child(domain_root, label_dir)
-        paths = sorted(
-            path
-            for path in class_root.rglob("*")
-            if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS
-        )
+    for label in (0, 1):
+        paths = _label_image_paths(domain_root, label)
         selected = _sample_paths(paths, samples_per_class, seed + label)
         for path in selected:
-            relative = path.relative_to(class_root).as_posix()
+            relative = path.relative_to(domain_root).as_posix()
             records.append(
                 ExternalRecord(
-                    image_path=f"{domain}/test/{label_dir}/{relative}",
+                    image_path=f"{domain}/test/{relative}",
                     label=label,
                     source_path=path,
                 )

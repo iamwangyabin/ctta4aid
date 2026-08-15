@@ -44,6 +44,19 @@ class ExternalArrowPreparationTests(unittest.TestCase):
         self.assertEqual(aliases["SDXL"], "sd_xl")
         self.assertEqual(aliases["WFIR"], "whichfaceisreal")
 
+    def test_tree_records_support_nested_label_directories(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            _write_image(root / "progan" / "airplane" / "0_real" / "real.png", 0)
+            _write_image(root / "progan" / "airplane" / "1_fake" / "fake.png", 128)
+
+            records = PREPARE_SCRIPT.tree_records(root, "ProGAN", "progan", 1, 3)
+
+            self.assertEqual({record.label for record in records}, {0, 1})
+            self.assertTrue(
+                all("airplane/" in record.image_path for record in records)
+            )
+
     @unittest.skipUnless(DATASETS_AVAILABLE, "datasets and pyarrow are required")
     def test_tree_records_write_a_project_arrow_bundle(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
