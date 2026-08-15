@@ -7,8 +7,11 @@ import json
 import random
 import shutil
 from dataclasses import dataclass
+from io import BytesIO
 from pathlib import Path
 from typing import Iterable
+
+from PIL import Image
 
 
 TREE_SUITES: dict[str, tuple[tuple[str, str], ...]] = {
@@ -81,11 +84,26 @@ def _case_insensitive_child(root: Path, name: str) -> Path:
     return matches[0]
 
 
-def _sample_paths(paths: list[Path], limit: int, seed: int) -> list[Path]:
-    if len(paths) < limit:
-        raise ValueError(f"Need {limit} images per class, found only {len(paths)}")
+def _is_decodable_image(payload: bytes) -> bool:
+    try:
+        with Image.open(BytesIO(payload)) as image:
+            image.load()
+    except (OSError, ValueError):
+        return False
+    return True
+
+
+def _sample_valid_paths(paths: list[Path], limit: int, seed: int) -> list[Path]:
     rng = random.Random(seed)
-    return sorted(rng.sample(paths, limit))
+    candidates = list(paths)
+    rng.shuffle(candidates)
+    selected = []
+    for path in candidates:
+        if _is_decodable_image(path.read_bytes()):
+            selected.append(path)
+        if len(selected) == limit:
+            return sorted(selected)
+    raise ValueError(f"Need {limit} decodable images per class, found only {len(selected)}")
 
 
 def _label_image_paths(domain_root: Path, label: int) -> list[Path]:
@@ -116,7 +134,7 @@ def tree_records(
     records: list[ExternalRecord] = []
     for label in (0, 1):
         paths = _label_image_paths(domain_root, label)
-        selected = _sample_paths(paths, samples_per_class, seed + label)
+        selected = _sample_valid_paths(paths, samples_per_class, seed + label)
         for path in selected:
             relative = path.relative_to(domain_root).as_posix()
             records.append(
@@ -204,7 +222,10 @@ def opensdi_global_records(
 
 def _rows(records: Iterable[ExternalRecord]):
     for record in records:
-        yield {"image": record.image_bytes(), "image_path": record.image_path}
+        payload = record.image_bytes()
+        if not _is_decodable_image(payload):
+            raise ValueError(f"Cannot decode selected image: {record.image_path}")
+        yield {"image": payload, "image_path": record.image_path}
 
 
 def write_arrow_bundle(

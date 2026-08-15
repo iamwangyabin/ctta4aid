@@ -57,6 +57,19 @@ class ExternalArrowPreparationTests(unittest.TestCase):
                 all("airplane/" in record.image_path for record in records)
             )
 
+    def test_tree_records_skip_corrupt_images_when_sampling(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            _write_image(root / "progan" / "0_real" / "real.png", 0)
+            _write_image(root / "progan" / "1_fake" / "fake.png", 128)
+            (root / "progan" / "0_real" / "corrupt.jpg").write_bytes(b"not an image")
+            (root / "progan" / "1_fake" / "corrupt.jpg").write_bytes(b"not an image")
+
+            records = PREPARE_SCRIPT.tree_records(root, "ProGAN", "progan", 1, 9)
+
+            self.assertEqual({record.label for record in records}, {0, 1})
+            self.assertTrue(all("corrupt.jpg" not in record.image_path for record in records))
+
     @unittest.skipUnless(DATASETS_AVAILABLE, "datasets and pyarrow are required")
     def test_tree_records_write_a_project_arrow_bundle(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

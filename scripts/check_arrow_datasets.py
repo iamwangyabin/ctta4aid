@@ -108,15 +108,20 @@ def main() -> None:
         )
         real = sum(record.label == 0 for record in dataset.records)
         fake = sum(record.label == 1 for record in dataset.records)
-        payload, _, sample_id = dataset.raw_item(0)
-        with Image.open(BytesIO(payload)) as image:
-            image.verify()
-            image_format = image.format
+        first_sample_id = None
+        image_format = None
+        for index in range(len(dataset)):
+            payload, _, sample_id = dataset.raw_item(index)
+            with Image.open(BytesIO(payload)) as image:
+                image.load()
+                if first_sample_id is None:
+                    first_sample_id = sample_id
+                    image_format = image.format
         results[domain] = {
             "samples": len(dataset),
             "real": real,
             "fake": fake,
-            "first_sample_id": sample_id,
+            "first_sample_id": first_sample_id,
             "first_image_format": image_format,
         }
         print(f"{domain:<24} samples={len(dataset):>6} real={real:>6} fake={fake:>6}")
