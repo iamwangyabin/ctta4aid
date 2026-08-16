@@ -304,7 +304,9 @@ def main() -> None:
             "definition": "fixed_holdout_best_auc_minus_final_auc",
             "evaluate_after_each_domain": True,
             "average_excludes_last_domain": True,
-            "holdout_shuffle": "seeded_global",
+            "holdout_shuffle": (
+                "manifest_locked" if manifest_lock is not None else "seeded_global"
+            ),
             "loader_seed_offset": HOLDOUT_LOADER_SEED_OFFSET,
             "evaluation_seed": seed + HOLDOUT_EVALUATION_SEED_OFFSET,
             "random_state_restored_after_evaluation": True,
