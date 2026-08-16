@@ -1,0 +1,513 @@
+{
+  "source": {
+    "overall": {
+      "auc": 0.8046836281179139,
+      "accuracy": 0.687047619047619,
+      "balanced_accuracy": 0.687047619047619,
+      "samples": 10500
+    },
+    "by_domain": {
+      "BigGAN": {
+        "auc": 0.8539982222222223,
+        "accuracy": 0.5186666666666667,
+        "balanced_accuracy": 0.5186666666666666,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.5635928888888888,
+        "accuracy": 0.5313333333333333,
+        "balanced_accuracy": 0.5313333333333333,
+        "samples": 1500
+      },
+      "glide": {
+        "auc": 0.881560888888889,
+        "accuracy": 0.5973333333333334,
+        "balanced_accuracy": 0.5973333333333333,
+        "samples": 1500
+      },
+      "stable_diffusion_v_1_5": {
+        "auc": 0.999968,
+        "accuracy": 0.9973333333333333,
+        "balanced_accuracy": 0.9973333333333334,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.44704533333333335,
+        "accuracy": 0.5113333333333333,
+        "balanced_accuracy": 0.5113333333333333,
+        "samples": 1500
+      },
+      "wukong": {
+        "auc": 0.999856,
+        "accuracy": 0.994,
+        "balanced_accuracy": 0.994,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.8980888888888889,
+        "accuracy": 0.6593333333333333,
+        "balanced_accuracy": 0.6593333333333333,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 0,
+      "mean_predict_ms_per_batch": 6.233799381480907,
+      "mean_adapt_ms_per_batch": 0.014563771976298854,
+      "mean_total_ms_per_batch": 6.248363153457206,
+      "peak_memory_mb": 434.4580078125,
+      "batches": 658
+    },
+    "online_average_domain_auc": 0.8063014603174604,
+    "final_average_auc": 0.7975085714285715,
+    "final_pooled_auc": 0.7969769795918368,
+    "forgetting_by_domain": {
+      "BigGAN": 0.0,
+      "ADM": 0.0,
+      "glide": 0.0,
+      "stable_diffusion_v_1_5": 0.0,
+      "VQDM": 0.0,
+      "wukong": 0.0,
+      "Midjourney": 0.0
+    },
+    "average_forgetting": 0.0
+  },
+  "tent": {
+    "overall": {
+      "auc": 0.8193666031746032,
+      "accuracy": 0.727047619047619,
+      "balanced_accuracy": 0.727047619047619,
+      "samples": 10500
+    },
+    "by_domain": {
+      "BigGAN": {
+        "auc": 0.667080888888889,
+        "accuracy": 0.596,
+        "balanced_accuracy": 0.596,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.5711644444444445,
+        "accuracy": 0.5933333333333334,
+        "balanced_accuracy": 0.5933333333333334,
+        "samples": 1500
+      },
+      "glide": {
+        "auc": 0.8250355555555555,
+        "accuracy": 0.7086666666666667,
+        "balanced_accuracy": 0.7086666666666667,
+        "samples": 1500
+      },
+      "stable_diffusion_v_1_5": {
+        "auc": 0.9999164444444445,
+        "accuracy": 0.9893333333333333,
+        "balanced_accuracy": 0.9893333333333334,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.37538666666666665,
+        "accuracy": 0.4666666666666667,
+        "balanced_accuracy": 0.4666666666666667,
+        "samples": 1500
+      },
+      "wukong": {
+        "auc": 0.9971813333333334,
+        "accuracy": 0.9486666666666667,
+        "balanced_accuracy": 0.9486666666666667,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.9296773333333334,
+        "accuracy": 0.7866666666666666,
+        "balanced_accuracy": 0.7866666666666666,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 53120,
+      "mean_predict_ms_per_batch": 5.980694191505356,
+      "mean_adapt_ms_per_batch": 14.309310551683152,
+      "mean_total_ms_per_batch": 20.290004743188508,
+      "peak_memory_mb": 1732.029296875,
+      "batches": 658
+    },
+    "online_average_domain_auc": 0.7664918095238095,
+    "final_average_auc": 0.768622857142857,
+    "final_pooled_auc": 0.8149492244897959,
+    "forgetting_by_domain": {
+      "BigGAN": 0.06659999999999999,
+      "ADM": 0.008703999999999934,
+      "glide": 0.0,
+      "stable_diffusion_v_1_5": 4.8000000000048004e-05,
+      "VQDM": 0.0012240000000000029,
+      "wukong": 0.0,
+      "Midjourney": 0.0
+    },
+    "average_forgetting": 0.012762666666666663
+  },
+  "eata": {
+    "overall": {
+      "auc": 0.8019142857142857,
+      "accuracy": 0.7219047619047619,
+      "balanced_accuracy": 0.7219047619047618,
+      "samples": 10500
+    },
+    "by_domain": {
+      "BigGAN": {
+        "auc": 0.6448462222222222,
+        "accuracy": 0.5753333333333334,
+        "balanced_accuracy": 0.5753333333333333,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.5541288888888889,
+        "accuracy": 0.564,
+        "balanced_accuracy": 0.564,
+        "samples": 1500
+      },
+      "glide": {
+        "auc": 0.7804293333333333,
+        "accuracy": 0.7113333333333334,
+        "balanced_accuracy": 0.7113333333333334,
+        "samples": 1500
+      },
+      "stable_diffusion_v_1_5": {
+        "auc": 0.9999093333333333,
+        "accuracy": 0.9973333333333333,
+        "balanced_accuracy": 0.9973333333333333,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.36169155555555554,
+        "accuracy": 0.4033333333333333,
+        "balanced_accuracy": 0.4033333333333333,
+        "samples": 1500
+      },
+      "wukong": {
+        "auc": 0.9989422222222223,
+        "accuracy": 0.986,
+        "balanced_accuracy": 0.986,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.9001075555555555,
+        "accuracy": 0.816,
+        "balanced_accuracy": 0.8160000000000001,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 53120,
+      "mean_predict_ms_per_batch": 6.054096255349224,
+      "mean_adapt_ms_per_batch": 12.18808043770499,
+      "mean_total_ms_per_batch": 18.242176693054212,
+      "peak_memory_mb": 1737.740234375,
+      "batches": 658
+    },
+    "online_average_domain_auc": 0.7485793015873016,
+    "final_average_auc": 0.7475085714285713,
+    "final_pooled_auc": 0.8002793469387754,
+    "forgetting_by_domain": {
+      "BigGAN": 0.0,
+      "ADM": 0.0,
+      "glide": 0.0,
+      "stable_diffusion_v_1_5": 0.0,
+      "VQDM": 0.0,
+      "wukong": 0.0,
+      "Midjourney": 0.0
+    },
+    "average_forgetting": 0.0
+  },
+  "cotta": {
+    "overall": {
+      "auc": 0.6839925442176871,
+      "accuracy": 0.6383809523809524,
+      "balanced_accuracy": 0.6383809523809524,
+      "samples": 10500
+    },
+    "by_domain": {
+      "BigGAN": {
+        "auc": 0.6693680000000001,
+        "accuracy": 0.6033333333333334,
+        "balanced_accuracy": 0.6033333333333333,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.46198933333333336,
+        "accuracy": 0.498,
+        "balanced_accuracy": 0.498,
+        "samples": 1500
+      },
+      "glide": {
+        "auc": 0.6833084444444444,
+        "accuracy": 0.6226666666666667,
+        "balanced_accuracy": 0.6226666666666667,
+        "samples": 1500
+      },
+      "stable_diffusion_v_1_5": {
+        "auc": 0.9392986666666666,
+        "accuracy": 0.8626666666666667,
+        "balanced_accuracy": 0.8626666666666667,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.38855466666666666,
+        "accuracy": 0.42933333333333334,
+        "balanced_accuracy": 0.42933333333333334,
+        "samples": 1500
+      },
+      "wukong": {
+        "auc": 0.8736551111111112,
+        "accuracy": 0.7973333333333333,
+        "balanced_accuracy": 0.7973333333333333,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.7145324444444444,
+        "accuracy": 0.6553333333333333,
+        "balanced_accuracy": 0.6553333333333333,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 23512130,
+      "mean_predict_ms_per_batch": 11.550880379848431,
+      "mean_adapt_ms_per_batch": 32.05022225539133,
+      "mean_total_ms_per_batch": 43.60110263523976,
+      "peak_memory_mb": 2031.7724609375,
+      "batches": 658
+    },
+    "online_average_domain_auc": 0.675815238095238,
+    "final_average_auc": 0.6910182857142857,
+    "final_pooled_auc": 0.6972527346938775,
+    "forgetting_by_domain": {
+      "BigGAN": 0.0,
+      "ADM": 0.0,
+      "glide": 0.0,
+      "stable_diffusion_v_1_5": 0.014959999999999751,
+      "VQDM": 0.007423999999999986,
+      "wukong": 0.0036160000000000636,
+      "Midjourney": 0.0
+    },
+    "average_forgetting": 0.0043333333333333
+  },
+  "rotta": {
+    "overall": {
+      "auc": 0.7866745215419502,
+      "accuracy": 0.7171428571428572,
+      "balanced_accuracy": 0.7171428571428571,
+      "samples": 10500
+    },
+    "by_domain": {
+      "BigGAN": {
+        "auc": 0.7241582222222223,
+        "accuracy": 0.6186666666666667,
+        "balanced_accuracy": 0.6186666666666667,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.5047315555555556,
+        "accuracy": 0.534,
+        "balanced_accuracy": 0.534,
+        "samples": 1500
+      },
+      "glide": {
+        "auc": 0.7728382222222222,
+        "accuracy": 0.6706666666666666,
+        "balanced_accuracy": 0.6706666666666666,
+        "samples": 1500
+      },
+      "stable_diffusion_v_1_5": {
+        "auc": 0.9998097777777778,
+        "accuracy": 0.992,
+        "balanced_accuracy": 0.992,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.43864711111111115,
+        "accuracy": 0.5086666666666667,
+        "balanced_accuracy": 0.5086666666666667,
+        "samples": 1500
+      },
+      "wukong": {
+        "auc": 0.999776,
+        "accuracy": 0.9926666666666667,
+        "balanced_accuracy": 0.9926666666666666,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.8996497777777778,
+        "accuracy": 0.7033333333333334,
+        "balanced_accuracy": 0.7033333333333334,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 53120,
+      "mean_predict_ms_per_batch": 8.02956083893189,
+      "mean_adapt_ms_per_batch": 53.89432672962628,
+      "mean_total_ms_per_batch": 61.92388756855817,
+      "peak_memory_mb": 11009.9541015625,
+      "batches": 658
+    },
+    "online_average_domain_auc": 0.7628015238095237,
+    "final_average_auc": 0.7849942857142856,
+    "final_pooled_auc": 0.7849005714285714,
+    "forgetting_by_domain": {
+      "BigGAN": 0.02481600000000006,
+      "ADM": 0.04379199999999994,
+      "glide": 0.014383999999999952,
+      "stable_diffusion_v_1_5": 0.0021919999999999717,
+      "VQDM": 0.022048000000000012,
+      "wukong": 9.599999999998499e-05,
+      "Midjourney": 0.0
+    },
+    "average_forgetting": 0.017887999999999987
+  },
+  "lame": {
+    "overall": {
+      "auc": 0.779440671201814,
+      "accuracy": 0.6567619047619048,
+      "balanced_accuracy": 0.6567619047619048,
+      "samples": 10500
+    },
+    "by_domain": {
+      "BigGAN": {
+        "auc": 0.8513120000000001,
+        "accuracy": 0.506,
+        "balanced_accuracy": 0.506,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.6026933333333333,
+        "accuracy": 0.5113333333333333,
+        "balanced_accuracy": 0.5113333333333333,
+        "samples": 1500
+      },
+      "glide": {
+        "auc": 0.8897137777777777,
+        "accuracy": 0.5353333333333333,
+        "balanced_accuracy": 0.5353333333333333,
+        "samples": 1500
+      },
+      "stable_diffusion_v_1_5": {
+        "auc": 0.9999786666666667,
+        "accuracy": 0.9966666666666667,
+        "balanced_accuracy": 0.9966666666666666,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.5012817777777777,
+        "accuracy": 0.5046666666666667,
+        "balanced_accuracy": 0.5046666666666667,
+        "samples": 1500
+      },
+      "wukong": {
+        "auc": 0.9998257777777778,
+        "accuracy": 0.9913333333333333,
+        "balanced_accuracy": 0.9913333333333334,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.9049991111111111,
+        "accuracy": 0.552,
+        "balanced_accuracy": 0.552,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 0,
+      "mean_predict_ms_per_batch": 7.034692963528908,
+      "mean_adapt_ms_per_batch": 0.015634777998172405,
+      "mean_total_ms_per_batch": 7.05032774152708,
+      "peak_memory_mb": 451.3173828125,
+      "batches": 658
+    },
+    "online_average_domain_auc": 0.821400634920635,
+    "final_average_auc": 0.8126857142857143,
+    "final_pooled_auc": 0.7735944489795918,
+    "forgetting_by_domain": {
+      "BigGAN": 0.0,
+      "ADM": 0.0,
+      "glide": 0.0,
+      "stable_diffusion_v_1_5": 0.0,
+      "VQDM": 0.0,
+      "wukong": 0.0,
+      "Midjourney": 0.0
+    },
+    "average_forgetting": 0.0
+  },
+  "t2a": {
+    "overall": {
+      "auc": 0.7677094421768709,
+      "accuracy": 0.7004761904761905,
+      "balanced_accuracy": 0.7004761904761905,
+      "samples": 10500
+    },
+    "by_domain": {
+      "BigGAN": {
+        "auc": 0.6198382222222222,
+        "accuracy": 0.5653333333333334,
+        "balanced_accuracy": 0.5653333333333334,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.5515671111111111,
+        "accuracy": 0.5566666666666666,
+        "balanced_accuracy": 0.5566666666666666,
+        "samples": 1500
+      },
+      "glide": {
+        "auc": 0.7078542222222222,
+        "accuracy": 0.6473333333333333,
+        "balanced_accuracy": 0.6473333333333333,
+        "samples": 1500
+      },
+      "stable_diffusion_v_1_5": {
+        "auc": 0.9999182222222222,
+        "accuracy": 0.996,
+        "balanced_accuracy": 0.996,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.39872266666666667,
+        "accuracy": 0.42733333333333334,
+        "balanced_accuracy": 0.42733333333333334,
+        "samples": 1500
+      },
+      "wukong": {
+        "auc": 0.9974311111111112,
+        "accuracy": 0.9753333333333334,
+        "balanced_accuracy": 0.9753333333333334,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.7977191111111112,
+        "accuracy": 0.7353333333333333,
+        "balanced_accuracy": 0.7353333333333334,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 23512130,
+      "mean_predict_ms_per_batch": 7.910415819291396,
+      "mean_adapt_ms_per_batch": 49.774156146004785,
+      "mean_total_ms_per_batch": 57.68457196529618,
+      "peak_memory_mb": 3344.6923828125,
+      "batches": 658
+    },
+    "online_average_domain_auc": 0.7247215238095237,
+    "final_average_auc": 0.6768457142857143,
+    "final_pooled_auc": 0.7516915918367347,
+    "forgetting_by_domain": {
+      "BigGAN": 0.17224000000000006,
+      "ADM": 0.012768000000000002,
+      "glide": 0.16050399999999987,
+      "stable_diffusion_v_1_5": 0.0022080000000000988,
+      "VQDM": 0.007055999999999896,
+      "wukong": 7.999999999996898e-05,
+      "Midjourney": 0.0
+    },
+    "average_forgetting": 0.05914266666666665
+  }
+}

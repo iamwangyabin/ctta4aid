@@ -1,0 +1,59 @@
+{
+  "suite": "genimage_continual",
+  "display_name": "GenImage seven-domain continual stream",
+  "execution_date": "2026-08-12",
+  "implementation_commit": null,
+  "implementation_provenance_note": "The archived execution snapshot did not retain Git metadata; no code commit is asserted for this imported result package.",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "data_format": "arrow",
+  "source_domain": "Stable Diffusion v1.4",
+  "stream": [
+    "BigGAN",
+    "ADM",
+    "GLIDE",
+    "Stable Diffusion v1.5",
+    "VQDM",
+    "Wukong",
+    "Midjourney"
+  ],
+  "methods": [
+    "source",
+    "tent",
+    "eata",
+    "cotta",
+    "rotta",
+    "lame",
+    "t2a"
+  ],
+  "samples_per_generator_per_class": 750,
+  "adaptation_samples_per_class": 750,
+  "final_holdout_samples_per_class": 250,
+  "target_labels_are_evaluator_only": true,
+  "source_checkpoint_sha256": "866969a8eb6d45126bce5680cbbdd1cd2e7808f9b724592ab2e15825fd51f3b7",
+  "input_manifest_audit": {
+    "canonical_method": "source",
+    "method_manifest_verification": "The online and final-holdout manifests were byte-identical across all seven methods within each seed.",
+    "manifest_line_endings": "LF normalized on import; sample entries and order are unchanged.",
+    "online_rows_per_seed": 10500,
+    "final_holdout_rows_per_seed": 3500,
+    "online_holdout_overlap_per_seed": 0,
+    "sha256": {
+      "seed0": {
+        "online": "60ab6a7a15e9f5910d6b4330cc4a5f6bb23220e695a015c2aee486b7f9a04620",
+        "final_holdout": "d225f1cb3e46efeb25a0811a4447e6672b3369bbbf3b48bd6694aa546e54f94e"
+      },
+      "seed1": {
+        "online": "f2044b502dc756672930cfdefa3e93b0d331a544fa39da83bcd1e2f7d1b209b7",
+        "final_holdout": "8adda4958143046c6604ac5fadfb04d18693a5b09c365928572316ed4e651fca"
+      },
+      "seed2": {
+        "online": "0d979a4ce634f22e4128ee7ed6262a7e81fa1c93c1ea1a6c4077d4aa24e19231",
+        "final_holdout": "5d7100db6bb5bf6f4b70dc234baf0dc1c17154efb2f1d56e86d94ccbe65739b9"
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "checkpoint_identifier": "genimage_sd14_resnet50_arrow/source.pt",
+  "sha256": "866969a8eb6d45126bce5680cbbdd1cd2e7808f9b724592ab2e15825fd51f3b7",
+  "training_config": "configs/train/genimage_sd14_source.yaml",
+  "architecture": "resnet50",
+  "source_domain": "GenImage SD v1.4",
+  "source_role": "Controlled CTTA source detector"
+}
