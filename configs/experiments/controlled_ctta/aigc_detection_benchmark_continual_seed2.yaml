@@ -1,4 +1,7 @@
 extends: aigc_detection_benchmark_continual.yaml
 
 seed: 2
+data:
+  locked_online_manifest: ../../../results/controlled_ctta_external_20260816/aigc_detection_benchmark/per_seed/seed2_online_manifest.csv
+  locked_final_holdout_manifest: ../../../results/controlled_ctta_external_20260816/aigc_detection_benchmark/per_seed/seed2_final_holdout_manifest.csv
 output_dir: outputs/controlled_ctta/aigc_detection_benchmark/continual/seed2

@@ -1,12 +1,133 @@
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator
+import csv
+from collections.abc import Iterable, Iterator, Mapping, Sequence
+from pathlib import Path
 from typing import Any
 
 from src.types import StreamBatch
 
 from .arrow import build_dataset
 from .transforms import build_eval_transform
+
+
+_MANIFEST_FIELDS = ("batch", "domain", "position", "sample_id")
+
+
+def load_locked_manifest(path: str | Path) -> list[dict[str, int | str]]:
+    manifest_path = Path(path).expanduser()
+    if not manifest_path.is_file():
+        raise FileNotFoundError(f"Locked sample manifest does not exist: {manifest_path}")
+    with manifest_path.open(encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if tuple(reader.fieldnames or ()) != _MANIFEST_FIELDS:
+            raise ValueError(
+                f"Locked sample manifest has unexpected columns: {manifest_path}"
+            )
+        rows: list[dict[str, int | str]] = []
+        previous_batch = -1
+        for expected_position, row in enumerate(reader):
+            try:
+                batch = int(row["batch"])
+                position = int(row["position"])
+            except (TypeError, ValueError) as error:
+                raise ValueError(
+                    f"Locked sample manifest has invalid batch or position: {manifest_path}"
+                ) from error
+            domain = row["domain"]
+            sample_id = row["sample_id"]
+            if (
+                position != expected_position
+                or batch < 0
+                or batch > previous_batch + 1
+                or not domain
+                or not sample_id
+            ):
+                raise ValueError(
+                    f"Locked sample manifest is not a complete ordered stream: {manifest_path}"
+                )
+            rows.append(
+                {
+                    "batch": batch,
+                    "domain": domain,
+                    "position": position,
+                    "sample_id": sample_id,
+                }
+            )
+            previous_batch = batch
+    if not rows:
+        raise ValueError(f"Locked sample manifest must not be empty: {manifest_path}")
+    return rows
+
+
+def locked_sample_ids_by_domain(
+    manifest: Sequence[Mapping[str, int | str]], domains: Sequence[str]
+) -> dict[str, list[str]]:
+    if len(domains) != len(set(domains)):
+        raise ValueError("Locked stream domains must be unique")
+    grouped = {domain: [] for domain in domains}
+    observed_domains: list[str] = []
+    completed_domains: set[str] = set()
+    active_domain: str | None = None
+    for row in manifest:
+        domain = str(row["domain"])
+        if domain not in grouped:
+            raise ValueError(
+                f"Locked sample manifest references a domain outside the stream: {domain}"
+            )
+        if domain != active_domain:
+            if domain in completed_domains:
+                raise ValueError(
+                    f"Locked sample manifest revisits a completed domain: {domain}"
+                )
+            if active_domain is not None:
+                completed_domains.add(active_domain)
+            observed_domains.append(domain)
+            active_domain = domain
+        grouped[domain].append(str(row["sample_id"]))
+    empty_domains = [domain for domain, sample_ids in grouped.items() if not sample_ids]
+    if empty_domains:
+        raise ValueError(
+            "Locked sample manifest is missing stream domains: "
+            + ", ".join(empty_domains)
+        )
+    if observed_domains != list(domains):
+        raise ValueError(
+            "Locked sample manifest domain order differs from the configured stream"
+        )
+    return grouped
+
+
+def lock_stream_to_manifest(
+    stream: Iterable[StreamBatch],
+    manifest: Sequence[Mapping[str, int | str]],
+    *,
+    name: str,
+) -> Iterator[StreamBatch]:
+    position = 0
+    for batch_index, batch in enumerate(stream):
+        for sample_id in batch.sample_ids:
+            if position >= len(manifest):
+                raise RuntimeError(f"Locked {name} stream contains unexpected samples")
+            expected = manifest[position]
+            actual = {
+                "batch": batch_index,
+                "domain": batch.domain,
+                "position": position,
+                "sample_id": sample_id,
+            }
+            if actual != expected:
+                raise RuntimeError(
+                    f"Locked {name} stream mismatch at position {position}: "
+                    f"expected {expected}, got {actual}"
+                )
+            position += 1
+        yield batch
+    if position != len(manifest):
+        raise RuntimeError(
+            f"Locked {name} stream ended after {position} samples; "
+            f"expected {len(manifest)}"
+        )
 
 
 def build_domain_loader(
@@ -20,6 +141,7 @@ def build_domain_loader(
     max_samples_per_class: int | None = None,
     sample_offset_per_class: int = 0,
     shuffle: bool | None = None,
+    locked_sample_ids: Sequence[str] | None = None,
 ) -> Any:
     try:
         import torch
@@ -41,14 +163,21 @@ def build_domain_loader(
             )
         ),
         max_samples_per_class=(
-            max_samples_per_class
-            if max_samples_per_class is not None
-            else data_config.get("max_samples_per_class")
+            None
+            if locked_sample_ids is not None
+            else (
+                max_samples_per_class
+                if max_samples_per_class is not None
+                else data_config.get("max_samples_per_class")
+            )
         ),
-        sample_offset_per_class=sample_offset_per_class,
+        sample_offset_per_class=(
+            0 if locked_sample_ids is not None else sample_offset_per_class
+        ),
         seed=seed if sample_seed is None else sample_seed,
+        locked_sample_ids=locked_sample_ids,
     )
-    effective_shuffle = (
+    effective_shuffle = False if locked_sample_ids is not None else (
         bool(data_config.get("shuffle", True)) if shuffle is None else shuffle
     )
     generator_state = torch.Generator()
@@ -80,12 +209,19 @@ def concatenate_domain_streams(
     *,
     seed: int,
     transform: Any = None,
+    locked_samples_by_domain: Mapping[str, Sequence[str]] | None = None,
 ) -> Iterator[StreamBatch]:
     for offset, domain in enumerate(domains):
+        locked_sample_ids = None
+        if locked_samples_by_domain is not None:
+            if domain not in locked_samples_by_domain:
+                raise ValueError(f"No locked samples for stream domain: {domain}")
+            locked_sample_ids = locked_samples_by_domain[domain]
         loader = build_domain_loader(
             data_config,
             domain,
             seed=seed + offset,
             transform=transform,
+            locked_sample_ids=locked_sample_ids,
         )
         yield from as_stream(loader, domain)

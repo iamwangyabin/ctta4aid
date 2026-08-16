@@ -3,4 +3,7 @@ extends:
   - ../../datasets/opensdid_global.yaml
 
 seed: 0
+data:
+  locked_online_manifest: ../../../results/controlled_ctta_external_20260816/opensdid_global/per_seed/seed0_online_manifest.csv
+  locked_final_holdout_manifest: ../../../results/controlled_ctta_external_20260816/opensdid_global/per_seed/seed0_final_holdout_manifest.csv
 output_dir: outputs/controlled_ctta/opensdid_global/continual/seed0

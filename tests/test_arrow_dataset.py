@@ -7,13 +7,35 @@ import random
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from PIL import Image
 
-from src.data.arrow import ArrowDataset, build_dataset
+from src.data.arrow import ArrowDataset, ArrowRecord, build_dataset
 
 
 DATASETS_AVAILABLE = importlib.util.find_spec("datasets") is not None
+
+
+class ArrowDatasetLockTests(unittest.TestCase):
+    def test_locked_sample_ids_preserve_requested_order_without_sampling(self) -> None:
+        records = [
+            ArrowRecord("/bundle", 0, 0, "ADM/test/0_real/a.png", "Bundle/A"),
+            ArrowRecord("/bundle", 1, 1, "ADM/test/1_fake/b.png", "Bundle/B"),
+            ArrowRecord("/bundle", 2, 0, "ADM/test/0_real/c.png", "Bundle/C"),
+        ]
+        with patch("src.data.arrow._resolve_dataset_roots", return_value=[Path("/bundle")]), patch(
+            "src.data.arrow._records_from_root", return_value=records
+        ):
+            dataset = ArrowDataset(
+                root="unused",
+                generator="ADM",
+                split="test",
+                max_samples_per_class=1,
+                locked_sample_ids=["Bundle/B", "Bundle/A"],
+            )
+
+        self.assertEqual([record.sample_id for record in dataset.records], ["Bundle/B", "Bundle/A"])
 
 
 @unittest.skipUnless(DATASETS_AVAILABLE, "datasets and pyarrow are required")
@@ -182,6 +204,37 @@ class ArrowDatasetTests(unittest.TestCase):
                 {record.sample_id for record in stream.records}
                 & {record.sample_id for record in holdout.records}
             )
+
+    def test_locked_sample_ids_preserve_manifest_order(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "External"
+            labels = {
+                "ADM/test/0_real/a.png": 0,
+                "ADM/test/0_real/b.png": 0,
+                "ADM/test/1_fake/c.png": 1,
+                "ADM/test/1_fake/d.png": 1,
+            }
+            _save_dataset(root, labels, split_name="test", domain="ADM")
+            locked_ids = [
+                f"{root.name}/ADM/test/1_fake/d.png",
+                f"{root.name}/ADM/test/0_real/a.png",
+            ]
+
+            dataset = ArrowDataset(
+                root=root,
+                generator="ADM",
+                split="test",
+                locked_sample_ids=locked_ids,
+            )
+
+            self.assertEqual([record.sample_id for record in dataset.records], locked_ids)
+            with self.assertRaisesRegex(FileNotFoundError, "missing from the supplied"):
+                ArrowDataset(
+                    root=root,
+                    generator="ADM",
+                    split="test",
+                    locked_sample_ids=[f"{root.name}/ADM/test/unknown.png"],
+                )
 
     def test_dataset_factory_rejects_legacy_formats(self) -> None:
         with self.assertRaisesRegex(ValueError, "only reads 'arrow'"):

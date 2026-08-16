@@ -3,4 +3,7 @@ extends:
   - ../../datasets/aigi_holmes_p3.yaml
 
 seed: 0
+data:
+  locked_online_manifest: ../../../results/controlled_ctta_external_20260816/aigi_holmes_p3/per_seed/seed0_online_manifest.csv
+  locked_final_holdout_manifest: ../../../results/controlled_ctta_external_20260816/aigi_holmes_p3/per_seed/seed0_final_holdout_manifest.csv
 output_dir: outputs/controlled_ctta/aigi_holmes_p3/continual/seed0

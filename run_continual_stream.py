@@ -10,7 +10,13 @@ from src.cli.common import (
     write_json,
 )
 from src.config import load_config, require
-from src.data import build_domain_loader, concatenate_domain_streams
+from src.data import (
+    build_domain_loader,
+    concatenate_domain_streams,
+    load_locked_manifest,
+    lock_stream_to_manifest,
+    locked_sample_ids_by_domain,
+)
 from src.data.streams import as_stream
 from src.evaluation import (
     OnlineEvaluator,
@@ -25,24 +31,77 @@ HOLDOUT_EVALUATION_SEED_OFFSET = 2_000_000
 
 
 def final_holdout_stream(
-    config: dict, domains: list[str], seed: int, *, transform=None
+    config: dict,
+    domains: list[str],
+    seed: int,
+    *,
+    transform=None,
+    locked_samples_by_domain: dict[str, list[str]] | None = None,
 ):
     data_config = config["data"]
     offset = int(data_config.get("max_samples_per_class", 0))
     limit = int(data_config.get("final_eval_max_samples_per_class", 250))
     for domain_index, domain in enumerate(domains):
+        locked_sample_ids = None
+        if locked_samples_by_domain is not None:
+            try:
+                locked_sample_ids = locked_samples_by_domain[domain]
+            except KeyError as error:
+                raise ValueError(
+                    f"No locked final-holdout samples for domain: {domain}"
+                ) from error
         loader = build_domain_loader(
             data_config,
             domain,
             seed=seed + domain_index,
             sample_seed=seed + domain_index,
             loader_seed=seed + HOLDOUT_LOADER_SEED_OFFSET + domain_index,
-            max_samples_per_class=limit,
-            sample_offset_per_class=offset,
-            shuffle=True,
+            max_samples_per_class=None if locked_sample_ids is not None else limit,
+            sample_offset_per_class=0 if locked_sample_ids is not None else offset,
+            shuffle=False if locked_sample_ids is not None else True,
             transform=transform,
+            locked_sample_ids=locked_sample_ids,
         )
         yield from as_stream(loader, domain)
+
+
+def _locked_manifest_path(config: dict, field: str) -> Path | None:
+    configured = config["data"].get(field)
+    if configured is None:
+        return None
+    path = Path(str(configured)).expanduser()
+    if not path.is_absolute():
+        path = Path(config["_config_path"]).parent / path
+    return path.resolve()
+
+
+def load_manifest_lock(config: dict, domains: list[str]) -> dict | None:
+    online_path = _locked_manifest_path(config, "locked_online_manifest")
+    holdout_path = _locked_manifest_path(config, "locked_final_holdout_manifest")
+    if online_path is None and holdout_path is None:
+        return None
+    if online_path is None or holdout_path is None:
+        raise ValueError(
+            "Continual manifest locking requires both online and final-holdout manifests"
+        )
+    online_manifest = load_locked_manifest(online_path)
+    holdout_manifest = load_locked_manifest(holdout_path)
+    return {
+        "online": online_manifest,
+        "online_samples_by_domain": locked_sample_ids_by_domain(
+            online_manifest, domains
+        ),
+        "final_holdout": holdout_manifest,
+        "final_holdout_samples_by_domain": locked_sample_ids_by_domain(
+            holdout_manifest, domains
+        ),
+        "config": {
+            "online_manifest": str(config["data"]["locked_online_manifest"]),
+            "final_holdout_manifest": str(
+                config["data"]["locked_final_holdout_manifest"]
+            ),
+        },
+    }
 
 
 def holdout_matrix_rows(
@@ -110,6 +169,11 @@ def main() -> None:
     evaluate_future_domains = bool(
         evaluation_config.get("evaluate_future_generators", False)
     )
+    manifest_lock = load_manifest_lock(config, domains)
+    if manifest_lock is not None and not evaluate_future_domains:
+        raise ValueError(
+            "Continual manifest locking requires evaluate_future_generators=true"
+        )
     output_root = Path(config["output_dir"])
     write_json(output_root / "effective_config.json", config)
     aggregate = {}
@@ -128,14 +192,26 @@ def main() -> None:
         final_holdout_manifest: list[dict] = []
         initial_holdout = None
         if evaluate_future_domains:
+            initial_stream = final_holdout_stream(
+                config,
+                domains,
+                seed,
+                transform=getattr(method, "input_transform", None),
+                locked_samples_by_domain=(
+                    None
+                    if manifest_lock is None
+                    else manifest_lock["final_holdout_samples_by_domain"]
+                ),
+            )
+            if manifest_lock is not None:
+                initial_stream = lock_stream_to_manifest(
+                    initial_stream,
+                    manifest_lock["final_holdout"],
+                    name="final holdout",
+                )
             initial_holdout = evaluate_without_adaptation(
                 method,
-                final_holdout_stream(
-                    config,
-                    domains,
-                    seed,
-                    transform=getattr(method, "input_transform", None),
-                ),
+                initial_stream,
                 threshold=threshold,
                 evaluation_seed=seed + HOLDOUT_EVALUATION_SEED_OFFSET,
             )
@@ -148,14 +224,26 @@ def main() -> None:
                 )
             seen_domains.append(completed_domain)
             evaluation_domains = domains if evaluate_future_domains else seen_domains
+            holdout_stream = final_holdout_stream(
+                config,
+                evaluation_domains,
+                seed,
+                transform=getattr(current_method, "input_transform", None),
+                locked_samples_by_domain=(
+                    None
+                    if manifest_lock is None
+                    else manifest_lock["final_holdout_samples_by_domain"]
+                ),
+            )
+            if manifest_lock is not None:
+                holdout_stream = lock_stream_to_manifest(
+                    holdout_stream,
+                    manifest_lock["final_holdout"],
+                    name="final holdout",
+                )
             holdout = evaluate_without_adaptation(
                 current_method,
-                final_holdout_stream(
-                    config,
-                    evaluation_domains,
-                    seed,
-                    transform=getattr(current_method, "input_transform", None),
-                ),
+                holdout_stream,
                 threshold=threshold,
                 include_manifest=True,
                 evaluation_seed=seed + HOLDOUT_EVALUATION_SEED_OFFSET,
@@ -164,14 +252,24 @@ def main() -> None:
             final_holdout_manifest.extend(holdout.pop("sample_manifest"))
             return holdout
 
+        online_stream = concatenate_domain_streams(
+            config["data"],
+            domains,
+            seed=seed,
+            transform=getattr(method, "input_transform", None),
+            locked_samples_by_domain=(
+                None
+                if manifest_lock is None
+                else manifest_lock["online_samples_by_domain"]
+            ),
+        )
+        if manifest_lock is not None:
+            online_stream = lock_stream_to_manifest(
+                online_stream, manifest_lock["online"], name="online"
+            )
         result = evaluator.run(
             method,
-            concatenate_domain_streams(
-                config["data"],
-                domains,
-                seed=seed,
-                transform=getattr(method, "input_transform", None),
-            ),
+            online_stream,
             on_domain_end=evaluate_after_domain,
         )
         checkpoints = result.pop("domain_end_evaluations")
@@ -227,6 +325,8 @@ def main() -> None:
         result["protocol"] = getattr(method, "protocol_name", "predict_then_adapt")
         result["stream_order"] = domains
         result["method"] = method_name
+        if manifest_lock is not None:
+            result["sample_lock"] = manifest_lock["config"]
         save_evaluation(result, output_root / method_name)
         aggregate[method_name] = result["summary"]
         print(

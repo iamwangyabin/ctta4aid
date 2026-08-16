@@ -64,6 +64,7 @@ class ArrowDataset:
         max_samples_per_class: int | None = None,
         sample_offset_per_class: int = 0,
         seed: int = 0,
+        locked_sample_ids: Sequence[str] | None = None,
     ) -> None:
         if not generator:
             raise ValueError("Arrow format requires a generator/domain name")
@@ -90,6 +91,28 @@ class ArrowDataset:
                 f"Duplicate Arrow sample IDs found for generator={generator!r} split={split!r}"
             )
 
+        locked_ids = list(locked_sample_ids) if locked_sample_ids is not None else None
+        if locked_ids is not None:
+            if not locked_ids:
+                raise ValueError("Locked Arrow sample manifest must not be empty")
+            if any(
+                not isinstance(sample_id, str) or not sample_id
+                for sample_id in locked_ids
+            ):
+                raise ValueError("Locked Arrow sample IDs must be non-empty strings")
+            if len(locked_ids) != len(set(locked_ids)):
+                raise ValueError("Locked Arrow sample manifest contains duplicate sample IDs")
+            records_by_id = {record.sample_id: record for record in records}
+            missing = [
+                sample_id for sample_id in locked_ids if sample_id not in records_by_id
+            ]
+            if missing:
+                raise FileNotFoundError(
+                    "Locked Arrow sample is missing from the supplied dataset: "
+                    f"{missing[0]}"
+                )
+            records = [records_by_id[sample_id] for sample_id in locked_ids]
+
         real_records = [record for record in records if record.label == 0]
         fake_records = [record for record in records if record.label == 1]
         if not real_records or not fake_records:
@@ -98,7 +121,9 @@ class ArrowDataset:
                 f"fake={len(fake_records)} for generator={generator!r} split={split!r}"
             )
 
-        if max_samples_per_class is not None or sample_offset_per_class > 0:
+        if locked_ids is None and (
+            max_samples_per_class is not None or sample_offset_per_class > 0
+        ):
             rng = random.Random(seed)
             rng.shuffle(real_records)
             rng.shuffle(fake_records)
@@ -110,8 +135,12 @@ class ArrowDataset:
             real_records = real_records[sample_offset_per_class:end]
             fake_records = fake_records[sample_offset_per_class:end]
 
-        self.records = sorted(
-            [*real_records, *fake_records], key=lambda record: record.sample_id
+        self.records = (
+            records
+            if locked_ids is not None
+            else sorted(
+                [*real_records, *fake_records], key=lambda record: record.sample_id
+            )
         )
         self.transform = transform
 
@@ -162,6 +191,7 @@ def build_dataset(
     max_samples_per_class: int | None = None,
     sample_offset_per_class: int = 0,
     seed: int = 0,
+    locked_sample_ids: Sequence[str] | None = None,
 ) -> ArrowDataset:
     if data_format != ARROW_FORMAT:
         raise ValueError(
@@ -180,6 +210,7 @@ def build_dataset(
         max_samples_per_class=max_samples_per_class,
         sample_offset_per_class=sample_offset_per_class,
         seed=seed,
+        locked_sample_ids=locked_sample_ids,
     )
 
 

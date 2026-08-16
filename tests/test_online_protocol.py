@@ -108,6 +108,34 @@ class OnlineProtocolTest(unittest.TestCase):
         self.assertEqual(second.kwargs["sample_seed"], 8)
         self.assertEqual(second.kwargs["loader_seed"], 1_000_008)
 
+    def test_final_holdout_uses_locked_manifest_samples_without_shuffling(self):
+        config = {
+            "data": {
+                "max_samples_per_class": 10,
+                "final_eval_max_samples_per_class": 2,
+            }
+        }
+        locked_samples = {"A": ["A/a"], "B": ["B/a"]}
+        with patch(
+            "run_continual_stream.build_domain_loader", return_value=[]
+        ) as build_loader, patch(
+            "run_continual_stream.as_stream", return_value=iter(())
+        ):
+            list(
+                final_holdout_stream(
+                    config,
+                    ["A", "B"],
+                    seed=7,
+                    locked_samples_by_domain=locked_samples,
+                )
+            )
+
+        first = build_loader.call_args_list[0]
+        self.assertFalse(first.kwargs["shuffle"])
+        self.assertIsNone(first.kwargs["max_samples_per_class"])
+        self.assertEqual(first.kwargs["sample_offset_per_class"], 0)
+        self.assertEqual(first.kwargs["locked_sample_ids"], ["A/a"])
+
     def test_holdout_evaluation_restores_random_state(self):
         method = SpyMethod()
         stream = [

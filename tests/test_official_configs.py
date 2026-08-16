@@ -407,13 +407,30 @@ class OfficialConfigTests(unittest.TestCase):
                 self.assertEqual(base["protocol"]["name"], "predict_then_adapt")
                 self.assertFalse(base["protocol"]["target_labels_available_to_method"])
                 self.assertFalse(base["protocol"]["generator_id_available_to_method"])
+                for field in (
+                    "locked_online_manifest",
+                    "locked_final_holdout_manifest",
+                ):
+                    self.assertTrue((directory / base["data"][field]).resolve().is_file())
                 for seed in (0, 1, 2):
-                    config = load_config(directory / f"{setting}_continual_seed{seed}.yaml")
+                    config_path = directory / f"{setting}_continual_seed{seed}.yaml"
+                    config = load_config(config_path)
                     self.assertEqual(config["seed"], seed)
                     self.assertEqual(
                         config["output_dir"],
                         f"outputs/controlled_ctta/{setting}/continual/seed{seed}",
                     )
+                    for field, suffix in (
+                        ("locked_online_manifest", "online"),
+                        ("locked_final_holdout_manifest", "final_holdout"),
+                    ):
+                        manifest_path = (
+                            config_path.parent / config["data"][field]
+                        ).resolve()
+                        self.assertTrue(manifest_path.is_file())
+                        self.assertEqual(
+                            manifest_path.name, f"seed{seed}_{suffix}_manifest.csv"
+                        )
 
     def test_t2a_unreported_release_values_are_isolated(self) -> None:
         config = self.load("configs/methods/t2a.yaml")["method_configs"]["t2a"]
