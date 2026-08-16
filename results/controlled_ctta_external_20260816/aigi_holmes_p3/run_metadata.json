@@ -1,0 +1,18 @@
+{
+  "suite": "aigi_holmes_p3",
+  "display_name": "AIGI-Holmes P3",
+  "implementation_commit": "d60ce81580d509080ed98230b5c64d78eec45e86",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "data_format": "arrow",
+  "scope": "All 10 configured generators are used.",
+  "samples_per_generator_per_class": 1000,
+  "adaptation_samples_per_class": 750,
+  "final_holdout_samples_per_class": 250,
+  "target_labels_are_evaluator_only": true,
+  "source_checkpoint_sha256": "866969a8eb6d45126bce5680cbbdd1cd2e7808f9b724592ab2e15825fd51f3b7",
+  "image_recovery_note": null
+}

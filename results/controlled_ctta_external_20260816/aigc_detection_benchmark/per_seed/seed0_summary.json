@@ -1,0 +1,3418 @@
+{
+  "source": {
+    "overall": {
+      "auc": 0.7445275540176854,
+      "average_precision": 0.8045187180515875,
+      "accuracy": 0.6423529411764706,
+      "balanced_accuracy": 0.6423529411764706,
+      "real_accuracy": 0.9947450980392157,
+      "fake_accuracy": 0.2899607843137255,
+      "predicted_fake_rate": 0.1476078431372549,
+      "brier_score": 0.34594939633787974,
+      "nll": 4.277941709648431,
+      "ece": 0.35079432126938276,
+      "samples": 25500
+    },
+    "by_domain": {
+      "ProGAN": {
+        "auc": 0.776192,
+        "average_precision": 0.8149760337322289,
+        "accuracy": 0.6013333333333334,
+        "balanced_accuracy": 0.6013333333333333,
+        "real_accuracy": 0.9973333333333333,
+        "fake_accuracy": 0.20533333333333334,
+        "predicted_fake_rate": 0.104,
+        "brier_score": 0.3801950955499013,
+        "nll": 4.0523671448437515,
+        "ece": 0.39202912480536467,
+        "samples": 1500
+      },
+      "StyleGAN": {
+        "auc": 0.6350275555555556,
+        "average_precision": 0.7000382302024626,
+        "accuracy": 0.5706666666666667,
+        "balanced_accuracy": 0.5706666666666667,
+        "real_accuracy": 0.996,
+        "fake_accuracy": 0.14533333333333334,
+        "predicted_fake_rate": 0.07466666666666667,
+        "brier_score": 0.41317166073099415,
+        "nll": 5.100961153994415,
+        "ece": 0.4210272673349832,
+        "samples": 1500
+      },
+      "BigGAN": {
+        "auc": 0.34884088888888887,
+        "average_precision": 0.4631315185706909,
+        "accuracy": 0.5093333333333333,
+        "balanced_accuracy": 0.5093333333333333,
+        "real_accuracy": 0.992,
+        "fake_accuracy": 0.02666666666666667,
+        "predicted_fake_rate": 0.017333333333333333,
+        "brier_score": 0.48742012514978145,
+        "nll": 7.416832085275394,
+        "ece": 0.4878890247271619,
+        "samples": 1500
+      },
+      "CycleGAN": {
+        "auc": 0.80744,
+        "average_precision": 0.7833633700507125,
+        "accuracy": 0.5046666666666667,
+        "balanced_accuracy": 0.5046666666666667,
+        "real_accuracy": 1.0,
+        "fake_accuracy": 0.009333333333333334,
+        "predicted_fake_rate": 0.004666666666666667,
+        "brier_score": 0.4931454724845971,
+        "nll": 6.909855295034958,
+        "ece": 0.4952878470840763,
+        "samples": 1500
+      },
+      "StarGAN": {
+        "auc": 0.9850257777777779,
+        "average_precision": 0.9866576770875165,
+        "accuracy": 0.516,
+        "balanced_accuracy": 0.516,
+        "real_accuracy": 1.0,
+        "fake_accuracy": 0.032,
+        "predicted_fake_rate": 0.016,
+        "brier_score": 0.4738614445367176,
+        "nll": 5.49788197403438,
+        "ece": 0.47975393583038584,
+        "samples": 1500
+      },
+      "GauGAN": {
+        "auc": 0.4799431111111111,
+        "average_precision": 0.4925102722487883,
+        "accuracy": 0.5013333333333333,
+        "balanced_accuracy": 0.5013333333333333,
+        "real_accuracy": 1.0,
+        "fake_accuracy": 0.0026666666666666666,
+        "predicted_fake_rate": 0.0013333333333333333,
+        "brier_score": 0.4981610478758266,
+        "nll": 7.834071623784254,
+        "ece": 0.4982086378712898,
+        "samples": 1500
+      },
+      "StyleGAN2": {
+        "auc": 0.6031715555555556,
+        "average_precision": 0.6638360240780078,
+        "accuracy": 0.5413333333333333,
+        "balanced_accuracy": 0.5413333333333333,
+        "real_accuracy": 0.9893333333333333,
+        "fake_accuracy": 0.09333333333333334,
+        "predicted_fake_rate": 0.052,
+        "brier_score": 0.4476764731777368,
+        "nll": 5.4765294466162775,
+        "ece": 0.4508261268335556,
+        "samples": 1500
+      },
+      "WFIR": {
+        "auc": 0.43458844444444444,
+        "average_precision": 0.43726241978514785,
+        "accuracy": 0.48733333333333334,
+        "balanced_accuracy": 0.48733333333333334,
+        "real_accuracy": 0.968,
+        "fake_accuracy": 0.006666666666666667,
+        "predicted_fake_rate": 0.019333333333333334,
+        "brier_score": 0.5060566761473339,
+        "nll": 6.476442113484675,
+        "ece": 0.5038169295451252,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.5267537777777778,
+        "average_precision": 0.6103563843245863,
+        "accuracy": 0.5333333333333333,
+        "balanced_accuracy": 0.5333333333333333,
+        "real_accuracy": 0.996,
+        "fake_accuracy": 0.07066666666666667,
+        "predicted_fake_rate": 0.037333333333333336,
+        "brier_score": 0.45886380827515877,
+        "nll": 6.370754374393045,
+        "ece": 0.46242051867726597,
+        "samples": 1500
+      },
+      "GLIDE": {
+        "auc": 0.8945208888888889,
+        "average_precision": 0.9008600120053077,
+        "accuracy": 0.6233333333333333,
+        "balanced_accuracy": 0.6233333333333333,
+        "real_accuracy": 0.996,
+        "fake_accuracy": 0.25066666666666665,
+        "predicted_fake_rate": 0.12733333333333333,
+        "brier_score": 0.35239751426435245,
+        "nll": 3.3975460756213627,
+        "ece": 0.3677269038874605,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.8972266666666667,
+        "average_precision": 0.9105944892105846,
+        "accuracy": 0.6526666666666666,
+        "balanced_accuracy": 0.6526666666666667,
+        "real_accuracy": 0.996,
+        "fake_accuracy": 0.30933333333333335,
+        "predicted_fake_rate": 0.15666666666666668,
+        "brier_score": 0.3180535902441353,
+        "nll": 2.984498561560744,
+        "ece": 0.3387864612060574,
+        "samples": 1500
+      },
+      "SD v1.4": {
+        "auc": 0.9999982222222222,
+        "average_precision": 0.9999982245894363,
+        "accuracy": 0.9986666666666667,
+        "balanced_accuracy": 0.9986666666666666,
+        "real_accuracy": 0.9973333333333333,
+        "fake_accuracy": 1.0,
+        "predicted_fake_rate": 0.5013333333333333,
+        "brier_score": 0.0009271526126699306,
+        "nll": 0.0031898286210697993,
+        "ece": 0.0017696300847010267,
+        "samples": 1500
+      },
+      "SD v1.5": {
+        "auc": 0.9988888888888889,
+        "average_precision": 0.9991929849560723,
+        "accuracy": 0.996,
+        "balanced_accuracy": 0.996,
+        "real_accuracy": 0.9946666666666667,
+        "fake_accuracy": 0.9973333333333333,
+        "predicted_fake_rate": 0.5013333333333333,
+        "brier_score": 0.003833992521794589,
+        "nll": 0.03368764322561981,
+        "ece": 0.0046930878559115355,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.4114524444444444,
+        "average_precision": 0.4941585862054718,
+        "accuracy": 0.5086666666666667,
+        "balanced_accuracy": 0.5086666666666667,
+        "real_accuracy": 0.996,
+        "fake_accuracy": 0.021333333333333333,
+        "predicted_fake_rate": 0.012666666666666666,
+        "brier_score": 0.48852839941730614,
+        "nll": 7.201131888999942,
+        "ece": 0.4904222880944892,
+        "samples": 1500
+      },
+      "Wukong": {
+        "auc": 0.9995786666666667,
+        "average_precision": 0.9995931816841552,
+        "accuracy": 0.99,
+        "balanced_accuracy": 0.99,
+        "real_accuracy": 0.996,
+        "fake_accuracy": 0.984,
+        "predicted_fake_rate": 0.494,
+        "brier_score": 0.008988315031877796,
+        "nll": 0.03730188520573626,
+        "ece": 0.008929918341397954,
+        "samples": 1500
+      },
+      "DALL-E2": {
+        "auc": 0.9308195555555555,
+        "average_precision": 0.9323532198249781,
+        "accuracy": 0.6533333333333333,
+        "balanced_accuracy": 0.6533333333333333,
+        "real_accuracy": 0.9973333333333333,
+        "fake_accuracy": 0.30933333333333335,
+        "predicted_fake_rate": 0.156,
+        "brier_score": 0.3156589059048422,
+        "nll": 2.544128346149796,
+        "ece": 0.33770980660709715,
+        "samples": 1500
+      },
+      "SDXL": {
+        "auc": 0.9824177777777777,
+        "average_precision": 0.9822782531704901,
+        "accuracy": 0.732,
+        "balanced_accuracy": 0.732,
+        "real_accuracy": 0.9986666666666667,
+        "fake_accuracy": 0.4653333333333333,
+        "predicted_fake_rate": 0.23333333333333334,
+        "brier_score": 0.2342000638189291,
+        "nll": 1.3878296231779141,
+        "ece": 0.2634521727565527,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 0,
+      "mean_predict_ms_per_batch": 5.908372676033801,
+      "mean_adapt_ms_per_batch": 0.01348903627357491,
+      "mean_total_ms_per_batch": 5.9218617123073765,
+      "mean_predict_ms_per_sample": 0.37025802103145156,
+      "mean_adapt_ms_per_sample": 0.0008453129398106944,
+      "mean_total_ms_per_sample": 0.3711033339712623,
+      "samples_per_second": 2694.6672488731633,
+      "peak_memory_mb": 434.4580078125,
+      "batches": 1598,
+      "samples": 25500
+    },
+    "temporal_generalization": {
+      "definition": "checkpoint_auc_minus_initial_auc_on_fixed_holdouts",
+      "current_by_domain": {
+        "ProGAN": {
+          "initial_auc": 0.7756639999999999,
+          "current_auc": 0.7756639999999999,
+          "auc_delta": 0.0
+        },
+        "StyleGAN": {
+          "initial_auc": 0.619456,
+          "current_auc": 0.619456,
+          "auc_delta": 0.0
+        },
+        "BigGAN": {
+          "initial_auc": 0.318496,
+          "current_auc": 0.318496,
+          "auc_delta": 0.0
+        },
+        "CycleGAN": {
+          "initial_auc": 0.8359519999999999,
+          "current_auc": 0.8359519999999999,
+          "auc_delta": 0.0
+        },
+        "StarGAN": {
+          "initial_auc": 0.9814240000000001,
+          "current_auc": 0.9814240000000001,
+          "auc_delta": 0.0
+        },
+        "GauGAN": {
+          "initial_auc": 0.4370240000000001,
+          "current_auc": 0.4370240000000001,
+          "auc_delta": 0.0
+        },
+        "StyleGAN2": {
+          "initial_auc": 0.596832,
+          "current_auc": 0.596832,
+          "auc_delta": 0.0
+        },
+        "WFIR": {
+          "initial_auc": 0.45827199999999996,
+          "current_auc": 0.45827199999999996,
+          "auc_delta": 0.0
+        },
+        "ADM": {
+          "initial_auc": 0.585824,
+          "current_auc": 0.585824,
+          "auc_delta": 0.0
+        },
+        "GLIDE": {
+          "initial_auc": 0.8871680000000001,
+          "current_auc": 0.8871680000000001,
+          "auc_delta": 0.0
+        },
+        "Midjourney": {
+          "initial_auc": 0.890368,
+          "current_auc": 0.890368,
+          "auc_delta": 0.0
+        },
+        "SD v1.4": {
+          "initial_auc": 0.999968,
+          "current_auc": 0.999968,
+          "auc_delta": 0.0
+        },
+        "SD v1.5": {
+          "initial_auc": 1.0,
+          "current_auc": 1.0,
+          "auc_delta": 0.0
+        },
+        "VQDM": {
+          "initial_auc": 0.422304,
+          "current_auc": 0.422304,
+          "auc_delta": 0.0
+        },
+        "Wukong": {
+          "initial_auc": 0.999984,
+          "current_auc": 0.999984,
+          "auc_delta": 0.0
+        },
+        "DALL-E2": {
+          "initial_auc": 0.9356639999999999,
+          "current_auc": 0.9356639999999999,
+          "auc_delta": 0.0
+        },
+        "SDXL": {
+          "initial_auc": 0.9798239999999999,
+          "current_auc": 0.9798239999999999,
+          "auc_delta": 0.0
+        }
+      },
+      "mean_current_auc_delta": 0.0,
+      "future_by_checkpoint": [
+        {
+          "checkpoint": 0,
+          "after_domain": "ProGAN",
+          "future_domains": 16,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 1,
+          "after_domain": "StyleGAN",
+          "future_domains": 15,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 2,
+          "after_domain": "BigGAN",
+          "future_domains": 14,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 3,
+          "after_domain": "CycleGAN",
+          "future_domains": 13,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 4,
+          "after_domain": "StarGAN",
+          "future_domains": 12,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 5,
+          "after_domain": "GauGAN",
+          "future_domains": 11,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 6,
+          "after_domain": "StyleGAN2",
+          "future_domains": 10,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 7,
+          "after_domain": "WFIR",
+          "future_domains": 9,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 8,
+          "after_domain": "ADM",
+          "future_domains": 8,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 9,
+          "after_domain": "GLIDE",
+          "future_domains": 7,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 10,
+          "after_domain": "Midjourney",
+          "future_domains": 6,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 11,
+          "after_domain": "SD v1.4",
+          "future_domains": 5,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 12,
+          "after_domain": "SD v1.5",
+          "future_domains": 4,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 13,
+          "after_domain": "VQDM",
+          "future_domains": 3,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 14,
+          "after_domain": "Wukong",
+          "future_domains": 2,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 15,
+          "after_domain": "DALL-E2",
+          "future_domains": 1,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 16,
+          "after_domain": "SDXL",
+          "future_domains": 0,
+          "mean_auc_delta": NaN,
+          "negative_transfer_rate": NaN
+        }
+      ],
+      "mean_future_auc_delta": 0.0,
+      "future_negative_transfer_rate": 0.0
+    },
+    "online_average_domain_auc": 0.7477580130718955,
+    "final_average_auc": 0.7484837647058822,
+    "final_pooled_auc": 0.7471782145328718,
+    "forgetting_by_domain": {
+      "ProGAN": 0.0,
+      "StyleGAN": 0.0,
+      "BigGAN": 0.0,
+      "CycleGAN": 0.0,
+      "StarGAN": 0.0,
+      "GauGAN": 0.0,
+      "StyleGAN2": 0.0,
+      "WFIR": 0.0,
+      "ADM": 0.0,
+      "GLIDE": 0.0,
+      "Midjourney": 0.0,
+      "SD v1.4": 0.0,
+      "SD v1.5": 0.0,
+      "VQDM": 0.0,
+      "Wukong": 0.0,
+      "DALL-E2": 0.0,
+      "SDXL": 0.0
+    },
+    "average_forgetting": 0.0
+  },
+  "tent": {
+    "overall": {
+      "auc": 0.8052845397923875,
+      "average_precision": 0.8086944935367368,
+      "accuracy": 0.7241960784313726,
+      "balanced_accuracy": 0.7241960784313726,
+      "real_accuracy": 0.828156862745098,
+      "fake_accuracy": 0.6202352941176471,
+      "predicted_fake_rate": 0.39603921568627454,
+      "brier_score": 0.26139367964600035,
+      "nll": 2.7544845149767445,
+      "ece": 0.2539866420167396,
+      "samples": 25500
+    },
+    "by_domain": {
+      "ProGAN": {
+        "auc": 0.7852071111111112,
+        "average_precision": 0.8031502525609369,
+        "accuracy": 0.7066666666666667,
+        "balanced_accuracy": 0.7066666666666667,
+        "real_accuracy": 0.892,
+        "fake_accuracy": 0.5213333333333333,
+        "predicted_fake_rate": 0.31466666666666665,
+        "brier_score": 0.26693303199295915,
+        "nll": 2.159263128379922,
+        "ece": 0.25321892373488303,
+        "samples": 1500
+      },
+      "StyleGAN": {
+        "auc": 0.6279893333333333,
+        "average_precision": 0.661253870785066,
+        "accuracy": 0.602,
+        "balanced_accuracy": 0.6020000000000001,
+        "real_accuracy": 0.648,
+        "fake_accuracy": 0.556,
+        "predicted_fake_rate": 0.454,
+        "brier_score": 0.37801701024518647,
+        "nll": 3.996680585638151,
+        "ece": 0.37079716397955975,
+        "samples": 1500
+      },
+      "BigGAN": {
+        "auc": 0.48192888888888885,
+        "average_precision": 0.5164857170517577,
+        "accuracy": 0.49866666666666665,
+        "balanced_accuracy": 0.4986666666666667,
+        "real_accuracy": 0.656,
+        "fake_accuracy": 0.3413333333333333,
+        "predicted_fake_rate": 0.3426666666666667,
+        "brier_score": 0.47900021742009746,
+        "nll": 5.032070193134287,
+        "ece": 0.47102103429118747,
+        "samples": 1500
+      },
+      "CycleGAN": {
+        "auc": 0.8890160000000001,
+        "average_precision": 0.866331970246238,
+        "accuracy": 0.7906666666666666,
+        "balanced_accuracy": 0.7906666666666666,
+        "real_accuracy": 0.8813333333333333,
+        "fake_accuracy": 0.7,
+        "predicted_fake_rate": 0.4093333333333333,
+        "brier_score": 0.19223402333089218,
+        "nll": 1.5148222255434582,
+        "ece": 0.1837879400713078,
+        "samples": 1500
+      },
+      "StarGAN": {
+        "auc": 0.9989866666666667,
+        "average_precision": 0.9991873087092155,
+        "accuracy": 0.9773333333333334,
+        "balanced_accuracy": 0.9773333333333334,
+        "real_accuracy": 0.9986666666666667,
+        "fake_accuracy": 0.956,
+        "predicted_fake_rate": 0.4786666666666667,
+        "brier_score": 0.018789130626269853,
+        "nll": 0.10538625055349674,
+        "ece": 0.020740584367954295,
+        "samples": 1500
+      },
+      "GauGAN": {
+        "auc": 0.4430942222222223,
+        "average_precision": 0.4506637383160297,
+        "accuracy": 0.4633333333333333,
+        "balanced_accuracy": 0.4633333333333334,
+        "real_accuracy": 0.6306666666666667,
+        "fake_accuracy": 0.296,
+        "predicted_fake_rate": 0.33266666666666667,
+        "brier_score": 0.5079174902048595,
+        "nll": 5.221565158154786,
+        "ece": 0.49686812548053305,
+        "samples": 1500
+      },
+      "StyleGAN2": {
+        "auc": 0.6577937777777778,
+        "average_precision": 0.7136910059362549,
+        "accuracy": 0.6426666666666667,
+        "balanced_accuracy": 0.6426666666666667,
+        "real_accuracy": 0.648,
+        "fake_accuracy": 0.6373333333333333,
+        "predicted_fake_rate": 0.49466666666666664,
+        "brier_score": 0.33948981200443823,
+        "nll": 3.9579761139251155,
+        "ece": 0.33439075263487117,
+        "samples": 1500
+      },
+      "WFIR": {
+        "auc": 0.5399022222222223,
+        "average_precision": 0.5209007220568551,
+        "accuracy": 0.5073333333333333,
+        "balanced_accuracy": 0.5073333333333334,
+        "real_accuracy": 0.7546666666666667,
+        "fake_accuracy": 0.26,
+        "predicted_fake_rate": 0.25266666666666665,
+        "brier_score": 0.4648876001359972,
+        "nll": 4.632135223698037,
+        "ece": 0.4580322788770718,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.54836,
+        "average_precision": 0.6039636059991169,
+        "accuracy": 0.5593333333333333,
+        "balanced_accuracy": 0.5593333333333333,
+        "real_accuracy": 0.7226666666666667,
+        "fake_accuracy": 0.396,
+        "predicted_fake_rate": 0.33666666666666667,
+        "brier_score": 0.42409628124600596,
+        "nll": 5.057373664810955,
+        "ece": 0.4195449689157552,
+        "samples": 1500
+      },
+      "GLIDE": {
+        "auc": 0.8944986666666667,
+        "average_precision": 0.8836252210832786,
+        "accuracy": 0.7866666666666666,
+        "balanced_accuracy": 0.7866666666666666,
+        "real_accuracy": 0.9013333333333333,
+        "fake_accuracy": 0.672,
+        "predicted_fake_rate": 0.38533333333333336,
+        "brier_score": 0.199225679210388,
+        "nll": 1.9474510050536549,
+        "ece": 0.1979819223751483,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.9104364444444444,
+        "average_precision": 0.9088855813283228,
+        "accuracy": 0.8013333333333333,
+        "balanced_accuracy": 0.8013333333333333,
+        "real_accuracy": 0.928,
+        "fake_accuracy": 0.6746666666666666,
+        "predicted_fake_rate": 0.37333333333333335,
+        "brier_score": 0.18871178832366226,
+        "nll": 1.981557439899791,
+        "ece": 0.18572421850731333,
+        "samples": 1500
+      },
+      "SD v1.4": {
+        "auc": 0.9986248888888888,
+        "average_precision": 0.9977254252730953,
+        "accuracy": 0.9826666666666667,
+        "balanced_accuracy": 0.9826666666666666,
+        "real_accuracy": 0.9933333333333333,
+        "fake_accuracy": 0.972,
+        "predicted_fake_rate": 0.48933333333333334,
+        "brier_score": 0.014010481888301025,
+        "nll": 0.08888706438491722,
+        "ece": 0.015684697170584638,
+        "samples": 1500
+      },
+      "SD v1.5": {
+        "auc": 0.9980142222222222,
+        "average_precision": 0.9981520362291036,
+        "accuracy": 0.9826666666666667,
+        "balanced_accuracy": 0.9826666666666667,
+        "real_accuracy": 0.9906666666666667,
+        "fake_accuracy": 0.9746666666666667,
+        "predicted_fake_rate": 0.492,
+        "brier_score": 0.016426864678361037,
+        "nll": 0.14090470318533516,
+        "ece": 0.017580741698373384,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.36463644444444443,
+        "average_precision": 0.4402689071215461,
+        "accuracy": 0.43,
+        "balanced_accuracy": 0.42999999999999994,
+        "real_accuracy": 0.572,
+        "fake_accuracy": 0.288,
+        "predicted_fake_rate": 0.358,
+        "brier_score": 0.5584911590757171,
+        "nll": 7.0971139359099,
+        "ece": 0.5548965665784512,
+        "samples": 1500
+      },
+      "Wukong": {
+        "auc": 0.9929928888888889,
+        "average_precision": 0.9936710532046842,
+        "accuracy": 0.9506666666666667,
+        "balanced_accuracy": 0.9506666666666667,
+        "real_accuracy": 0.984,
+        "fake_accuracy": 0.9173333333333333,
+        "predicted_fake_rate": 0.4666666666666667,
+        "brier_score": 0.04508758221576608,
+        "nll": 0.39171453268109896,
+        "ece": 0.04636548384036902,
+        "samples": 1500
+      },
+      "DALL-E2": {
+        "auc": 0.8839128888888889,
+        "average_precision": 0.8749823194018655,
+        "accuracy": 0.766,
+        "balanced_accuracy": 0.766,
+        "real_accuracy": 0.92,
+        "fake_accuracy": 0.612,
+        "predicted_fake_rate": 0.346,
+        "brier_score": 0.22205866756037332,
+        "nll": 2.208960109897511,
+        "ece": 0.21889356690590742,
+        "samples": 1500
+      },
+      "SDXL": {
+        "auc": 0.9577688888888889,
+        "average_precision": 0.9523538095286315,
+        "accuracy": 0.8633333333333333,
+        "balanced_accuracy": 0.8633333333333333,
+        "real_accuracy": 0.9573333333333334,
+        "fake_accuracy": 0.7693333333333333,
+        "predicted_fake_rate": 0.406,
+        "brier_score": 0.1283157338227313,
+        "nll": 1.292375419754242,
+        "ece": 0.1273901090142835,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 53120,
+      "mean_predict_ms_per_batch": 5.944660624873257,
+      "mean_adapt_ms_per_batch": 14.177564311737909,
+      "mean_total_ms_per_batch": 20.122224936611165,
+      "mean_predict_ms_per_sample": 0.3725320658253908,
+      "mean_adapt_ms_per_sample": 0.8884606968689089,
+      "mean_total_ms_per_sample": 1.2609927626942996,
+      "samples_per_second": 793.0259630224605,
+      "peak_memory_mb": 1732.029296875,
+      "batches": 1598,
+      "samples": 25500
+    },
+    "temporal_generalization": {
+      "definition": "checkpoint_auc_minus_initial_auc_on_fixed_holdouts",
+      "current_by_domain": {
+        "ProGAN": {
+          "initial_auc": 0.7832000000000001,
+          "current_auc": 0.7931999999999999,
+          "auc_delta": 0.009999999999999787
+        },
+        "StyleGAN": {
+          "initial_auc": 0.5973919999999999,
+          "current_auc": 0.606336,
+          "auc_delta": 0.008944000000000063
+        },
+        "BigGAN": {
+          "initial_auc": 0.43299200000000004,
+          "current_auc": 0.42908,
+          "auc_delta": -0.003912000000000027
+        },
+        "CycleGAN": {
+          "initial_auc": 0.8752800000000001,
+          "current_auc": 0.91024,
+          "auc_delta": 0.03495999999999999
+        },
+        "StarGAN": {
+          "initial_auc": 0.999072,
+          "current_auc": 0.999472,
+          "auc_delta": 0.00040000000000006697
+        },
+        "GauGAN": {
+          "initial_auc": 0.44690399999999997,
+          "current_auc": 0.435184,
+          "auc_delta": -0.011719999999999953
+        },
+        "StyleGAN2": {
+          "initial_auc": 0.6300399999999999,
+          "current_auc": 0.646944,
+          "auc_delta": 0.01690400000000003
+        },
+        "WFIR": {
+          "initial_auc": 0.5729280000000001,
+          "current_auc": 0.5891599999999999,
+          "auc_delta": 0.016231999999999802
+        },
+        "ADM": {
+          "initial_auc": 0.567424,
+          "current_auc": 0.586024,
+          "auc_delta": 0.01859999999999995
+        },
+        "GLIDE": {
+          "initial_auc": 0.7624719999999999,
+          "current_auc": 0.880552,
+          "auc_delta": 0.11808000000000007
+        },
+        "Midjourney": {
+          "initial_auc": 0.91968,
+          "current_auc": 0.933136,
+          "auc_delta": 0.013455999999999912
+        },
+        "SD v1.4": {
+          "initial_auc": 0.999856,
+          "current_auc": 0.999312,
+          "auc_delta": -0.0005439999999999889
+        },
+        "SD v1.5": {
+          "initial_auc": 1.0,
+          "current_auc": 0.999776,
+          "auc_delta": -0.00022400000000000198
+        },
+        "VQDM": {
+          "initial_auc": 0.367992,
+          "current_auc": 0.378352,
+          "auc_delta": 0.010360000000000036
+        },
+        "Wukong": {
+          "initial_auc": 0.99812,
+          "current_auc": 0.99576,
+          "auc_delta": -0.0023600000000000287
+        },
+        "DALL-E2": {
+          "initial_auc": 0.875008,
+          "current_auc": 0.8964000000000001,
+          "auc_delta": 0.021392000000000078
+        },
+        "SDXL": {
+          "initial_auc": 0.953696,
+          "current_auc": 0.972368,
+          "auc_delta": 0.018672000000000022
+        }
+      },
+      "mean_current_auc_delta": 0.01583764705882352,
+      "future_by_checkpoint": [
+        {
+          "checkpoint": 0,
+          "after_domain": "ProGAN",
+          "future_domains": 16,
+          "mean_auc_delta": 0.007936499999999985,
+          "negative_transfer_rate": 0.25
+        },
+        {
+          "checkpoint": 1,
+          "after_domain": "StyleGAN",
+          "future_domains": 15,
+          "mean_auc_delta": 0.008556266666666652,
+          "negative_transfer_rate": 0.4
+        },
+        {
+          "checkpoint": 2,
+          "after_domain": "BigGAN",
+          "future_domains": 14,
+          "mean_auc_delta": 0.011596571428571404,
+          "negative_transfer_rate": 0.2857142857142857
+        },
+        {
+          "checkpoint": 3,
+          "after_domain": "CycleGAN",
+          "future_domains": 13,
+          "mean_auc_delta": 0.014711384615384614,
+          "negative_transfer_rate": 0.23076923076923078
+        },
+        {
+          "checkpoint": 4,
+          "after_domain": "StarGAN",
+          "future_domains": 12,
+          "mean_auc_delta": 0.016368000000000004,
+          "negative_transfer_rate": 0.25
+        },
+        {
+          "checkpoint": 5,
+          "after_domain": "GauGAN",
+          "future_domains": 11,
+          "mean_auc_delta": 0.017628363636363612,
+          "negative_transfer_rate": 0.2727272727272727
+        },
+        {
+          "checkpoint": 6,
+          "after_domain": "StyleGAN2",
+          "future_domains": 10,
+          "mean_auc_delta": 0.016059200000000013,
+          "negative_transfer_rate": 0.3
+        },
+        {
+          "checkpoint": 7,
+          "after_domain": "WFIR",
+          "future_domains": 9,
+          "mean_auc_delta": 0.020912888888888894,
+          "negative_transfer_rate": 0.3333333333333333
+        },
+        {
+          "checkpoint": 8,
+          "after_domain": "ADM",
+          "future_domains": 8,
+          "mean_auc_delta": 0.022327000000000014,
+          "negative_transfer_rate": 0.375
+        },
+        {
+          "checkpoint": 9,
+          "after_domain": "GLIDE",
+          "future_domains": 7,
+          "mean_auc_delta": 0.0073405714285714185,
+          "negative_transfer_rate": 0.42857142857142855
+        },
+        {
+          "checkpoint": 10,
+          "after_domain": "Midjourney",
+          "future_domains": 6,
+          "mean_auc_delta": 0.009040000000000012,
+          "negative_transfer_rate": 0.5
+        },
+        {
+          "checkpoint": 11,
+          "after_domain": "SD v1.4",
+          "future_domains": 5,
+          "mean_auc_delta": 0.01219680000000003,
+          "negative_transfer_rate": 0.4
+        },
+        {
+          "checkpoint": 12,
+          "after_domain": "SD v1.5",
+          "future_domains": 4,
+          "mean_auc_delta": 0.013406000000000043,
+          "negative_transfer_rate": 0.25
+        },
+        {
+          "checkpoint": 13,
+          "after_domain": "VQDM",
+          "future_domains": 3,
+          "mean_auc_delta": 0.00757866666666666,
+          "negative_transfer_rate": 0.3333333333333333
+        },
+        {
+          "checkpoint": 14,
+          "after_domain": "Wukong",
+          "future_domains": 2,
+          "mean_auc_delta": 0.00820000000000004,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 15,
+          "after_domain": "DALL-E2",
+          "future_domains": 1,
+          "mean_auc_delta": 0.013095999999999997,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 16,
+          "after_domain": "SDXL",
+          "future_domains": 0,
+          "mean_auc_delta": NaN,
+          "negative_transfer_rate": NaN
+        }
+      ],
+      "mean_future_auc_delta": 0.013228999999999998,
+      "future_negative_transfer_rate": 0.3088235294117647
+    },
+    "online_average_domain_auc": 0.7631272679738563,
+    "final_average_auc": 0.7660032941176469,
+    "final_pooled_auc": 0.8012720830449827,
+    "forgetting_by_domain": {
+      "ProGAN": 0.033823999999999965,
+      "StyleGAN": 0.02183999999999997,
+      "BigGAN": 0.017743999999999982,
+      "CycleGAN": 0.020207999999999893,
+      "StarGAN": 0.00024000000000001798,
+      "GauGAN": 0.03083999999999998,
+      "StyleGAN2": 0.008328000000000002,
+      "WFIR": 0.009544000000000108,
+      "ADM": 0.0,
+      "GLIDE": 0.00010400000000010401,
+      "Midjourney": 0.0,
+      "SD v1.4": 0.00036800000000003497,
+      "SD v1.5": 0.00014399999999992197,
+      "VQDM": 0.0,
+      "Wukong": 0.0034399999999999986,
+      "DALL-E2": 0.0,
+      "SDXL": 0.0
+    },
+    "average_forgetting": 0.009163999999999999
+  },
+  "eata": {
+    "overall": {
+      "auc": 0.7931317001153403,
+      "average_precision": 0.8068752223970663,
+      "accuracy": 0.7149803921568627,
+      "balanced_accuracy": 0.7149803921568627,
+      "real_accuracy": 0.8024313725490196,
+      "fake_accuracy": 0.6275294117647059,
+      "predicted_fake_rate": 0.4125490196078431,
+      "brier_score": 0.2595071803149667,
+      "nll": 2.124484509952915,
+      "ece": 0.2473542633847778,
+      "samples": 25500
+    },
+    "by_domain": {
+      "ProGAN": {
+        "auc": 0.785216,
+        "average_precision": 0.8004819235794729,
+        "accuracy": 0.71,
+        "balanced_accuracy": 0.71,
+        "real_accuracy": 0.8733333333333333,
+        "fake_accuracy": 0.5466666666666666,
+        "predicted_fake_rate": 0.33666666666666667,
+        "brier_score": 0.2593973614273443,
+        "nll": 1.9363804114489618,
+        "ece": 0.24596957058220503,
+        "samples": 1500
+      },
+      "StyleGAN": {
+        "auc": 0.6206328888888888,
+        "average_precision": 0.6435730248068307,
+        "accuracy": 0.5926666666666667,
+        "balanced_accuracy": 0.5926666666666667,
+        "real_accuracy": 0.6346666666666667,
+        "fake_accuracy": 0.5506666666666666,
+        "predicted_fake_rate": 0.458,
+        "brier_score": 0.38102058059487026,
+        "nll": 3.707750155207829,
+        "ece": 0.3720446093634191,
+        "samples": 1500
+      },
+      "BigGAN": {
+        "auc": 0.48501777777777777,
+        "average_precision": 0.514839234693028,
+        "accuracy": 0.504,
+        "balanced_accuracy": 0.504,
+        "real_accuracy": 0.6533333333333333,
+        "fake_accuracy": 0.3546666666666667,
+        "predicted_fake_rate": 0.3506666666666667,
+        "brier_score": 0.46923173661550843,
+        "nll": 4.229051333755121,
+        "ece": 0.45573172585603416,
+        "samples": 1500
+      },
+      "CycleGAN": {
+        "auc": 0.8746053333333333,
+        "average_precision": 0.849619465549909,
+        "accuracy": 0.768,
+        "balanced_accuracy": 0.768,
+        "real_accuracy": 0.856,
+        "fake_accuracy": 0.68,
+        "predicted_fake_rate": 0.412,
+        "brier_score": 0.19761692833776964,
+        "nll": 1.2322024584569067,
+        "ece": 0.18643708747191268,
+        "samples": 1500
+      },
+      "StarGAN": {
+        "auc": 0.9987928888888888,
+        "average_precision": 0.9989447162195454,
+        "accuracy": 0.972,
+        "balanced_accuracy": 0.972,
+        "real_accuracy": 0.9986666666666667,
+        "fake_accuracy": 0.9453333333333334,
+        "predicted_fake_rate": 0.47333333333333333,
+        "brier_score": 0.022939273709765406,
+        "nll": 0.11716383602644373,
+        "ece": 0.02852067692991959,
+        "samples": 1500
+      },
+      "GauGAN": {
+        "auc": 0.41937511111111114,
+        "average_precision": 0.436881347712517,
+        "accuracy": 0.44533333333333336,
+        "balanced_accuracy": 0.44533333333333336,
+        "real_accuracy": 0.62,
+        "fake_accuracy": 0.27066666666666667,
+        "predicted_fake_rate": 0.3253333333333333,
+        "brier_score": 0.502568786474554,
+        "nll": 4.099429439739027,
+        "ece": 0.48577104485116074,
+        "samples": 1500
+      },
+      "StyleGAN2": {
+        "auc": 0.6313982222222222,
+        "average_precision": 0.6888207260814653,
+        "accuracy": 0.6113333333333333,
+        "balanced_accuracy": 0.6113333333333333,
+        "real_accuracy": 0.608,
+        "fake_accuracy": 0.6146666666666667,
+        "predicted_fake_rate": 0.5033333333333333,
+        "brier_score": 0.3642268083692258,
+        "nll": 3.605054899810823,
+        "ece": 0.35875598215415705,
+        "samples": 1500
+      },
+      "WFIR": {
+        "auc": 0.5245155555555555,
+        "average_precision": 0.509699033281059,
+        "accuracy": 0.5033333333333333,
+        "balanced_accuracy": 0.5033333333333333,
+        "real_accuracy": 0.7333333333333333,
+        "fake_accuracy": 0.2733333333333333,
+        "predicted_fake_rate": 0.27,
+        "brier_score": 0.44604103722924554,
+        "nll": 3.0131158539148344,
+        "ece": 0.4244340842356862,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.5260408888888889,
+        "average_precision": 0.5876476295608168,
+        "accuracy": 0.5173333333333333,
+        "balanced_accuracy": 0.5173333333333334,
+        "real_accuracy": 0.6346666666666667,
+        "fake_accuracy": 0.4,
+        "predicted_fake_rate": 0.38266666666666665,
+        "brier_score": 0.4447542817701386,
+        "nll": 3.8360803970505586,
+        "ece": 0.4356348592791901,
+        "samples": 1500
+      },
+      "GLIDE": {
+        "auc": 0.7877911111111111,
+        "average_precision": 0.783309490330236,
+        "accuracy": 0.694,
+        "balanced_accuracy": 0.694,
+        "real_accuracy": 0.8253333333333334,
+        "fake_accuracy": 0.5626666666666666,
+        "predicted_fake_rate": 0.36866666666666664,
+        "brier_score": 0.2760516557297758,
+        "nll": 2.0299512217643363,
+        "ece": 0.26854491712361817,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.9059075555555556,
+        "average_precision": 0.9129455957456456,
+        "accuracy": 0.82,
+        "balanced_accuracy": 0.8200000000000001,
+        "real_accuracy": 0.9293333333333333,
+        "fake_accuracy": 0.7106666666666667,
+        "predicted_fake_rate": 0.39066666666666666,
+        "brier_score": 0.16370333892577837,
+        "nll": 1.1958656415311024,
+        "ece": 0.15545900662591589,
+        "samples": 1500
+      },
+      "SD v1.4": {
+        "auc": 0.9999875555555555,
+        "average_precision": 0.9999875886147576,
+        "accuracy": 0.9973333333333333,
+        "balanced_accuracy": 0.9973333333333333,
+        "real_accuracy": 0.9973333333333333,
+        "fake_accuracy": 0.9973333333333333,
+        "predicted_fake_rate": 0.5,
+        "brier_score": 0.0013536687569919053,
+        "nll": 0.0039707857326319205,
+        "ece": 0.0027729487740195532,
+        "samples": 1500
+      },
+      "SD v1.5": {
+        "auc": 0.9986062222222223,
+        "average_precision": 0.9988420797600336,
+        "accuracy": 0.994,
+        "balanced_accuracy": 0.994,
+        "real_accuracy": 0.9946666666666667,
+        "fake_accuracy": 0.9933333333333333,
+        "predicted_fake_rate": 0.49933333333333335,
+        "brier_score": 0.005996729666409541,
+        "nll": 0.04695379355592301,
+        "ece": 0.006522206004223581,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.34454399999999996,
+        "average_precision": 0.44999025394725845,
+        "accuracy": 0.3953333333333333,
+        "balanced_accuracy": 0.3953333333333333,
+        "real_accuracy": 0.492,
+        "fake_accuracy": 0.2986666666666667,
+        "predicted_fake_rate": 0.4033333333333333,
+        "brier_score": 0.5626854994643504,
+        "nll": 5.327179155573617,
+        "ece": 0.557063203216057,
+        "samples": 1500
+      },
+      "Wukong": {
+        "auc": 0.9988551111111111,
+        "average_precision": 0.9989292144577324,
+        "accuracy": 0.9826666666666667,
+        "balanced_accuracy": 0.9826666666666667,
+        "real_accuracy": 0.9866666666666667,
+        "fake_accuracy": 0.9786666666666667,
+        "predicted_fake_rate": 0.496,
+        "brier_score": 0.014612522884310697,
+        "nll": 0.07172872438536551,
+        "ece": 0.014192717686163196,
+        "samples": 1500
+      },
+      "DALL-E2": {
+        "auc": 0.8836346666666666,
+        "average_precision": 0.8808309295329199,
+        "accuracy": 0.78,
+        "balanced_accuracy": 0.78,
+        "real_accuracy": 0.888,
+        "fake_accuracy": 0.672,
+        "predicted_fake_rate": 0.392,
+        "brier_score": 0.1861867419752113,
+        "nll": 1.0791954002390427,
+        "ece": 0.1748145468942227,
+        "samples": 1500
+      },
+      "SDXL": {
+        "auc": 0.9478186666666666,
+        "average_precision": 0.9481757231814709,
+        "accuracy": 0.8673333333333333,
+        "balanced_accuracy": 0.8673333333333333,
+        "real_accuracy": 0.916,
+        "fake_accuracy": 0.8186666666666667,
+        "predicted_fake_rate": 0.4513333333333333,
+        "brier_score": 0.11323511342318464,
+        "nll": 0.5851631610070284,
+        "ece": 0.0962129466530362,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 53120,
+      "mean_predict_ms_per_batch": 6.037465855741503,
+      "mean_adapt_ms_per_batch": 11.312106979538212,
+      "mean_total_ms_per_batch": 17.349572835279716,
+      "mean_predict_ms_per_sample": 0.37834786029313416,
+      "mean_adapt_ms_per_sample": 0.7088920373843947,
+      "mean_total_ms_per_sample": 1.0872398976775288,
+      "samples_per_second": 919.7602131195853,
+      "peak_memory_mb": 1737.740234375,
+      "batches": 1598,
+      "samples": 25500
+    },
+    "temporal_generalization": {
+      "definition": "checkpoint_auc_minus_initial_auc_on_fixed_holdouts",
+      "current_by_domain": {
+        "ProGAN": {
+          "initial_auc": 0.7832000000000001,
+          "current_auc": 0.783264,
+          "auc_delta": 6.399999999984196e-05
+        },
+        "StyleGAN": {
+          "initial_auc": 0.5973919999999999,
+          "current_auc": 0.59732,
+          "auc_delta": -7.199999999996098e-05
+        },
+        "BigGAN": {
+          "initial_auc": 0.43299200000000004,
+          "current_auc": 0.432976,
+          "auc_delta": -1.6000000000016e-05
+        },
+        "CycleGAN": {
+          "initial_auc": 0.8752800000000001,
+          "current_auc": 0.8752960000000001,
+          "auc_delta": 1.6000000000016e-05
+        },
+        "StarGAN": {
+          "initial_auc": 0.999072,
+          "current_auc": 0.999072,
+          "auc_delta": 0.0
+        },
+        "GauGAN": {
+          "initial_auc": 0.44690399999999997,
+          "current_auc": 0.447048,
+          "auc_delta": 0.000144000000000033
+        },
+        "StyleGAN2": {
+          "initial_auc": 0.6300399999999999,
+          "current_auc": 0.630056,
+          "auc_delta": 1.6000000000016e-05
+        },
+        "WFIR": {
+          "initial_auc": 0.5729280000000001,
+          "current_auc": 0.5729599999999999,
+          "auc_delta": 3.199999999980996e-05
+        },
+        "ADM": {
+          "initial_auc": 0.567424,
+          "current_auc": 0.5674399999999999,
+          "auc_delta": 1.599999999990498e-05
+        },
+        "GLIDE": {
+          "initial_auc": 0.7624719999999999,
+          "current_auc": 0.76244,
+          "auc_delta": -3.199999999992098e-05
+        },
+        "Midjourney": {
+          "initial_auc": 0.91968,
+          "current_auc": 0.9196799999999999,
+          "auc_delta": -1.1102230246251565e-16
+        },
+        "SD v1.4": {
+          "initial_auc": 0.999856,
+          "current_auc": 0.999856,
+          "auc_delta": 0.0
+        },
+        "SD v1.5": {
+          "initial_auc": 1.0,
+          "current_auc": 1.0,
+          "auc_delta": 0.0
+        },
+        "VQDM": {
+          "initial_auc": 0.367992,
+          "current_auc": 0.36796,
+          "auc_delta": -3.199999999997649e-05
+        },
+        "Wukong": {
+          "initial_auc": 0.99812,
+          "current_auc": 0.9981199999999999,
+          "auc_delta": -1.1102230246251565e-16
+        },
+        "DALL-E2": {
+          "initial_auc": 0.875008,
+          "current_auc": 0.87496,
+          "auc_delta": -4.8000000000048004e-05
+        },
+        "SDXL": {
+          "initial_auc": 0.953696,
+          "current_auc": 0.9536800000000001,
+          "auc_delta": -1.599999999990498e-05
+        }
+      },
+      "mean_current_auc_delta": 4.2352941176219065e-06,
+      "future_by_checkpoint": [
+        {
+          "checkpoint": 0,
+          "after_domain": "ProGAN",
+          "future_domains": 16,
+          "mean_auc_delta": 4.999999999831528e-07,
+          "negative_transfer_rate": 0.5
+        },
+        {
+          "checkpoint": 1,
+          "after_domain": "StyleGAN",
+          "future_domains": 15,
+          "mean_auc_delta": 5.333333333312762e-06,
+          "negative_transfer_rate": 0.4666666666666667
+        },
+        {
+          "checkpoint": 2,
+          "after_domain": "BigGAN",
+          "future_domains": 14,
+          "mean_auc_delta": 6.857142857121959e-06,
+          "negative_transfer_rate": 0.42857142857142855
+        },
+        {
+          "checkpoint": 3,
+          "after_domain": "CycleGAN",
+          "future_domains": 13,
+          "mean_auc_delta": 6.153846153822418e-06,
+          "negative_transfer_rate": 0.46153846153846156
+        },
+        {
+          "checkpoint": 4,
+          "after_domain": "StarGAN",
+          "future_domains": 12,
+          "mean_auc_delta": 6.666666666640952e-06,
+          "negative_transfer_rate": 0.5
+        },
+        {
+          "checkpoint": 5,
+          "after_domain": "GauGAN",
+          "future_domains": 11,
+          "mean_auc_delta": -5.818181818212869e-06,
+          "negative_transfer_rate": 0.5454545454545454
+        },
+        {
+          "checkpoint": 6,
+          "after_domain": "StyleGAN2",
+          "future_domains": 10,
+          "mean_auc_delta": -8.000000000035756e-06,
+          "negative_transfer_rate": 0.6
+        },
+        {
+          "checkpoint": 7,
+          "after_domain": "WFIR",
+          "future_domains": 9,
+          "mean_auc_delta": -1.2444444444463057e-05,
+          "negative_transfer_rate": 0.6666666666666666
+        },
+        {
+          "checkpoint": 8,
+          "after_domain": "ADM",
+          "future_domains": 8,
+          "mean_auc_delta": -1.6000000000009063e-05,
+          "negative_transfer_rate": 0.75
+        },
+        {
+          "checkpoint": 9,
+          "after_domain": "GLIDE",
+          "future_domains": 7,
+          "mean_auc_delta": -1.371428571430736e-05,
+          "negative_transfer_rate": 0.7142857142857143
+        },
+        {
+          "checkpoint": 10,
+          "after_domain": "Midjourney",
+          "future_domains": 6,
+          "mean_auc_delta": -1.600000000000675e-05,
+          "negative_transfer_rate": 0.6666666666666666
+        },
+        {
+          "checkpoint": 11,
+          "after_domain": "SD v1.4",
+          "future_domains": 5,
+          "mean_auc_delta": -1.92000000000081e-05,
+          "negative_transfer_rate": 0.8
+        },
+        {
+          "checkpoint": 12,
+          "after_domain": "SD v1.5",
+          "future_domains": 4,
+          "mean_auc_delta": -2.4000000000010124e-05,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 13,
+          "after_domain": "VQDM",
+          "future_domains": 3,
+          "mean_auc_delta": -2.133333333335467e-05,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 14,
+          "after_domain": "Wukong",
+          "future_domains": 2,
+          "mean_auc_delta": -3.199999999997649e-05,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 15,
+          "after_domain": "DALL-E2",
+          "future_domains": 1,
+          "mean_auc_delta": -1.599999999990498e-05,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 16,
+          "after_domain": "SDXL",
+          "future_domains": 0,
+          "mean_auc_delta": NaN,
+          "negative_transfer_rate": NaN
+        }
+      ],
+      "mean_future_auc_delta": -4.176470588254573e-06,
+      "future_negative_transfer_rate": 0.5882352941176471
+    },
+    "online_average_domain_auc": 0.748984679738562,
+    "final_average_auc": 0.7518898823529411,
+    "final_pooled_auc": 0.7947905328719723,
+    "forgetting_by_domain": {
+      "ProGAN": 0.0,
+      "StyleGAN": 0.0,
+      "BigGAN": 0.0,
+      "CycleGAN": 0.0,
+      "StarGAN": 0.0,
+      "GauGAN": 0.0,
+      "StyleGAN2": 0.0,
+      "WFIR": 0.0,
+      "ADM": 0.0,
+      "GLIDE": 0.0,
+      "Midjourney": 0.0,
+      "SD v1.4": 0.0,
+      "SD v1.5": 0.0,
+      "VQDM": 0.0,
+      "Wukong": 0.0,
+      "DALL-E2": 0.0,
+      "SDXL": 0.0
+    },
+    "average_forgetting": 0.0
+  },
+  "cotta": {
+    "overall": {
+      "auc": 0.7035832525951558,
+      "average_precision": 0.7006881645347767,
+      "accuracy": 0.649843137254902,
+      "balanced_accuracy": 0.649843137254902,
+      "real_accuracy": 0.7523921568627451,
+      "fake_accuracy": 0.5472941176470588,
+      "predicted_fake_rate": 0.39745098039215687,
+      "brier_score": 0.31312295214908714,
+      "nll": 2.3163290241455465,
+      "ece": 0.2934312316040508,
+      "samples": 25500
+    },
+    "by_domain": {
+      "ProGAN": {
+        "auc": 0.7500942222222222,
+        "average_precision": 0.7703519487281945,
+        "accuracy": 0.6793333333333333,
+        "balanced_accuracy": 0.6793333333333333,
+        "real_accuracy": 0.8573333333333333,
+        "fake_accuracy": 0.5013333333333333,
+        "predicted_fake_rate": 0.322,
+        "brier_score": 0.28649626176483617,
+        "nll": 2.1486302848991214,
+        "ece": 0.27167347805545244,
+        "samples": 1500
+      },
+      "StyleGAN": {
+        "auc": 0.5680311111111112,
+        "average_precision": 0.5924923933885464,
+        "accuracy": 0.5613333333333334,
+        "balanced_accuracy": 0.5613333333333334,
+        "real_accuracy": 0.636,
+        "fake_accuracy": 0.4866666666666667,
+        "predicted_fake_rate": 0.42533333333333334,
+        "brier_score": 0.40673120583773076,
+        "nll": 3.6333158787626973,
+        "ece": 0.3924281719004729,
+        "samples": 1500
+      },
+      "BigGAN": {
+        "auc": 0.41298755555555555,
+        "average_precision": 0.457355759075087,
+        "accuracy": 0.4573333333333333,
+        "balanced_accuracy": 0.45733333333333337,
+        "real_accuracy": 0.5826666666666667,
+        "fake_accuracy": 0.332,
+        "predicted_fake_rate": 0.37466666666666665,
+        "brier_score": 0.5038258806251233,
+        "nll": 4.28729642615785,
+        "ece": 0.48640626987543323,
+        "samples": 1500
+      },
+      "CycleGAN": {
+        "auc": 0.7346782222222221,
+        "average_precision": 0.6890664272704061,
+        "accuracy": 0.6486666666666666,
+        "balanced_accuracy": 0.6486666666666667,
+        "real_accuracy": 0.7733333333333333,
+        "fake_accuracy": 0.524,
+        "predicted_fake_rate": 0.37533333333333335,
+        "brier_score": 0.311327791975313,
+        "nll": 2.1920873055354435,
+        "ece": 0.2981062007129164,
+        "samples": 1500
+      },
+      "StarGAN": {
+        "auc": 0.863735111111111,
+        "average_precision": 0.8617905717862688,
+        "accuracy": 0.718,
+        "balanced_accuracy": 0.718,
+        "real_accuracy": 0.9493333333333334,
+        "fake_accuracy": 0.4866666666666667,
+        "predicted_fake_rate": 0.26866666666666666,
+        "brier_score": 0.24089880847179557,
+        "nll": 1.3123100659093516,
+        "ece": 0.24206959052000582,
+        "samples": 1500
+      },
+      "GauGAN": {
+        "auc": 0.5182115555555555,
+        "average_precision": 0.5120708945492947,
+        "accuracy": 0.5213333333333333,
+        "balanced_accuracy": 0.5213333333333333,
+        "real_accuracy": 0.6613333333333333,
+        "fake_accuracy": 0.38133333333333336,
+        "predicted_fake_rate": 0.36,
+        "brier_score": 0.4319859645411584,
+        "nll": 3.264871591124549,
+        "ece": 0.41209147397175183,
+        "samples": 1500
+      },
+      "StyleGAN2": {
+        "auc": 0.5638515555555556,
+        "average_precision": 0.5956414969817903,
+        "accuracy": 0.5573333333333333,
+        "balanced_accuracy": 0.5573333333333332,
+        "real_accuracy": 0.592,
+        "fake_accuracy": 0.5226666666666666,
+        "predicted_fake_rate": 0.4653333333333333,
+        "brier_score": 0.4070856500685105,
+        "nll": 3.780981859202926,
+        "ece": 0.3956761449639664,
+        "samples": 1500
+      },
+      "WFIR": {
+        "auc": 0.5137333333333334,
+        "average_precision": 0.5031458647149689,
+        "accuracy": 0.502,
+        "balanced_accuracy": 0.502,
+        "real_accuracy": 0.744,
+        "fake_accuracy": 0.26,
+        "predicted_fake_rate": 0.258,
+        "brier_score": 0.4330106647818505,
+        "nll": 2.6735063364921405,
+        "ece": 0.41213932104842116,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.45067466666666667,
+        "average_precision": 0.49888926867822125,
+        "accuracy": 0.47733333333333333,
+        "balanced_accuracy": 0.47733333333333333,
+        "real_accuracy": 0.5613333333333334,
+        "fake_accuracy": 0.3933333333333333,
+        "predicted_fake_rate": 0.416,
+        "brier_score": 0.47358945814367576,
+        "nll": 3.8927455760400984,
+        "ece": 0.45656623780505246,
+        "samples": 1500
+      },
+      "GLIDE": {
+        "auc": 0.7573537777777777,
+        "average_precision": 0.7163263227414289,
+        "accuracy": 0.6786666666666666,
+        "balanced_accuracy": 0.6786666666666666,
+        "real_accuracy": 0.7453333333333333,
+        "fake_accuracy": 0.612,
+        "predicted_fake_rate": 0.43333333333333335,
+        "brier_score": 0.28571047779903974,
+        "nll": 1.7737647403401589,
+        "ece": 0.26608226160160653,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.7756053333333333,
+        "average_precision": 0.7646786007309079,
+        "accuracy": 0.7,
+        "balanced_accuracy": 0.7,
+        "real_accuracy": 0.8093333333333333,
+        "fake_accuracy": 0.5906666666666667,
+        "predicted_fake_rate": 0.39066666666666666,
+        "brier_score": 0.2647924468486592,
+        "nll": 1.7264489295861865,
+        "ece": 0.24437256510674532,
+        "samples": 1500
+      },
+      "SD v1.4": {
+        "auc": 0.9495253333333332,
+        "average_precision": 0.9542524137023277,
+        "accuracy": 0.884,
+        "balanced_accuracy": 0.884,
+        "real_accuracy": 0.924,
+        "fake_accuracy": 0.844,
+        "predicted_fake_rate": 0.46,
+        "brier_score": 0.09935943518883236,
+        "nll": 0.5805179783447268,
+        "ece": 0.085832644189776,
+        "samples": 1500
+      },
+      "SD v1.5": {
+        "auc": 0.9574506666666668,
+        "average_precision": 0.9606765476928988,
+        "accuracy": 0.8906666666666667,
+        "balanced_accuracy": 0.8906666666666667,
+        "real_accuracy": 0.92,
+        "fake_accuracy": 0.8613333333333333,
+        "predicted_fake_rate": 0.4706666666666667,
+        "brier_score": 0.09201364793746734,
+        "nll": 0.4949657006169265,
+        "ece": 0.08041196715876603,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.35368,
+        "average_precision": 0.4181807984856053,
+        "accuracy": 0.39266666666666666,
+        "balanced_accuracy": 0.39266666666666666,
+        "real_accuracy": 0.47333333333333333,
+        "fake_accuracy": 0.312,
+        "predicted_fake_rate": 0.41933333333333334,
+        "brier_score": 0.556071116642211,
+        "nll": 4.684368229076095,
+        "ece": 0.5432983960136666,
+        "samples": 1500
+      },
+      "Wukong": {
+        "auc": 0.938072,
+        "average_precision": 0.940061578549014,
+        "accuracy": 0.8593333333333333,
+        "balanced_accuracy": 0.8593333333333333,
+        "real_accuracy": 0.8893333333333333,
+        "fake_accuracy": 0.8293333333333334,
+        "predicted_fake_rate": 0.47,
+        "brier_score": 0.11665077838572162,
+        "nll": 0.6200654494240654,
+        "ece": 0.10126002156946767,
+        "samples": 1500
+      },
+      "DALL-E2": {
+        "auc": 0.7955608888888889,
+        "average_precision": 0.7847060412667684,
+        "accuracy": 0.7173333333333334,
+        "balanced_accuracy": 0.7173333333333334,
+        "real_accuracy": 0.8053333333333333,
+        "fake_accuracy": 0.6293333333333333,
+        "predicted_fake_rate": 0.412,
+        "brier_score": 0.2464199819122669,
+        "nll": 1.4050261731216458,
+        "ece": 0.22379855639351046,
+        "samples": 1500
+      },
+      "SDXL": {
+        "auc": 0.8939884444444445,
+        "average_precision": 0.900298320081937,
+        "accuracy": 0.802,
+        "balanced_accuracy": 0.802,
+        "real_accuracy": 0.8666666666666667,
+        "fake_accuracy": 0.7373333333333333,
+        "predicted_fake_rate": 0.43533333333333335,
+        "brier_score": 0.1671206156102895,
+        "nll": 0.9066908858403107,
+        "ece": 0.15147404944824067,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 23512130,
+      "mean_predict_ms_per_batch": 11.560803872503419,
+      "mean_adapt_ms_per_batch": 31.134826437574816,
+      "mean_total_ms_per_batch": 42.695630310078236,
+      "mean_predict_ms_per_sample": 0.724477042676881,
+      "mean_adapt_ms_per_sample": 1.9511157900880218,
+      "mean_total_ms_per_sample": 2.675592832764903,
+      "samples_per_second": 373.74894556232624,
+      "peak_memory_mb": 2031.7724609375,
+      "batches": 1598,
+      "samples": 25500
+    },
+    "temporal_generalization": {
+      "definition": "checkpoint_auc_minus_initial_auc_on_fixed_holdouts",
+      "current_by_domain": {
+        "ProGAN": {
+          "initial_auc": 0.7832000000000001,
+          "current_auc": 0.690784,
+          "auc_delta": -0.09241600000000016
+        },
+        "StyleGAN": {
+          "initial_auc": 0.5973919999999999,
+          "current_auc": 0.520832,
+          "auc_delta": -0.07655999999999996
+        },
+        "BigGAN": {
+          "initial_auc": 0.43299200000000004,
+          "current_auc": 0.393512,
+          "auc_delta": -0.03948000000000007
+        },
+        "CycleGAN": {
+          "initial_auc": 0.8752800000000001,
+          "current_auc": 0.732608,
+          "auc_delta": -0.14267200000000002
+        },
+        "StarGAN": {
+          "initial_auc": 0.999072,
+          "current_auc": 0.8555200000000001,
+          "auc_delta": -0.1435519999999999
+        },
+        "GauGAN": {
+          "initial_auc": 0.44690399999999997,
+          "current_auc": 0.476064,
+          "auc_delta": 0.02916000000000002
+        },
+        "StyleGAN2": {
+          "initial_auc": 0.6300399999999999,
+          "current_auc": 0.568152,
+          "auc_delta": -0.06188799999999994
+        },
+        "WFIR": {
+          "initial_auc": 0.5729280000000001,
+          "current_auc": 0.548016,
+          "auc_delta": -0.024912000000000156
+        },
+        "ADM": {
+          "initial_auc": 0.567424,
+          "current_auc": 0.45761599999999997,
+          "auc_delta": -0.10980800000000007
+        },
+        "GLIDE": {
+          "initial_auc": 0.7624719999999999,
+          "current_auc": 0.777408,
+          "auc_delta": 0.01493600000000006
+        },
+        "Midjourney": {
+          "initial_auc": 0.91968,
+          "current_auc": 0.801264,
+          "auc_delta": -0.11841600000000008
+        },
+        "SD v1.4": {
+          "initial_auc": 0.999856,
+          "current_auc": 0.936976,
+          "auc_delta": -0.06287999999999994
+        },
+        "SD v1.5": {
+          "initial_auc": 1.0,
+          "current_auc": 0.9486399999999999,
+          "auc_delta": -0.05136000000000007
+        },
+        "VQDM": {
+          "initial_auc": 0.367992,
+          "current_auc": 0.354904,
+          "auc_delta": -0.013087999999999989
+        },
+        "Wukong": {
+          "initial_auc": 0.99812,
+          "current_auc": 0.9269280000000001,
+          "auc_delta": -0.07119199999999992
+        },
+        "DALL-E2": {
+          "initial_auc": 0.875008,
+          "current_auc": 0.7724719999999999,
+          "auc_delta": -0.10253600000000007
+        },
+        "SDXL": {
+          "initial_auc": 0.953696,
+          "current_auc": 0.9106559999999999,
+          "auc_delta": -0.04304000000000008
+        }
+      },
+      "mean_current_auc_delta": -0.06527670588235296,
+      "future_by_checkpoint": [
+        {
+          "checkpoint": 0,
+          "after_domain": "ProGAN",
+          "future_domains": 16,
+          "mean_auc_delta": -0.020327999999999992,
+          "negative_transfer_rate": 0.75
+        },
+        {
+          "checkpoint": 1,
+          "after_domain": "StyleGAN",
+          "future_domains": 15,
+          "mean_auc_delta": -0.047762666666666696,
+          "negative_transfer_rate": 0.9333333333333333
+        },
+        {
+          "checkpoint": 2,
+          "after_domain": "BigGAN",
+          "future_domains": 14,
+          "mean_auc_delta": -0.06494514285714284,
+          "negative_transfer_rate": 0.9285714285714286
+        },
+        {
+          "checkpoint": 3,
+          "after_domain": "CycleGAN",
+          "future_domains": 13,
+          "mean_auc_delta": -0.07259815384615388,
+          "negative_transfer_rate": 0.9230769230769231
+        },
+        {
+          "checkpoint": 4,
+          "after_domain": "StarGAN",
+          "future_domains": 12,
+          "mean_auc_delta": -0.06687133333333335,
+          "negative_transfer_rate": 0.9166666666666666
+        },
+        {
+          "checkpoint": 5,
+          "after_domain": "GauGAN",
+          "future_domains": 11,
+          "mean_auc_delta": -0.07035927272727276,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 6,
+          "after_domain": "StyleGAN2",
+          "future_domains": 10,
+          "mean_auc_delta": -0.06680080000000001,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 7,
+          "after_domain": "WFIR",
+          "future_domains": 9,
+          "mean_auc_delta": -0.07238666666666668,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 8,
+          "after_domain": "ADM",
+          "future_domains": 8,
+          "mean_auc_delta": -0.060697,
+          "negative_transfer_rate": 0.875
+        },
+        {
+          "checkpoint": 9,
+          "after_domain": "GLIDE",
+          "future_domains": 7,
+          "mean_auc_delta": -0.0723691428571429,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 10,
+          "after_domain": "Midjourney",
+          "future_domains": 6,
+          "mean_auc_delta": -0.06681733333333335,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 11,
+          "after_domain": "SD v1.4",
+          "future_domains": 5,
+          "mean_auc_delta": -0.06464960000000002,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 12,
+          "after_domain": "SD v1.5",
+          "future_domains": 4,
+          "mean_auc_delta": -0.06320799999999997,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 13,
+          "after_domain": "VQDM",
+          "future_domains": 3,
+          "mean_auc_delta": -0.07830666666666664,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 14,
+          "after_domain": "Wukong",
+          "future_domains": 2,
+          "mean_auc_delta": -0.07943199999999995,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 15,
+          "after_domain": "DALL-E2",
+          "future_domains": 1,
+          "mean_auc_delta": -0.047143999999999964,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 16,
+          "after_domain": "SDXL",
+          "future_domains": 0,
+          "mean_auc_delta": NaN,
+          "negative_transfer_rate": NaN
+        }
+      ],
+      "mean_future_auc_delta": -0.06029900000000001,
+      "future_negative_transfer_rate": 0.9338235294117647
+    },
+    "online_average_domain_auc": 0.6939549281045752,
+    "final_average_auc": 0.6902221176470588,
+    "final_pooled_auc": 0.6997712387543253,
+    "forgetting_by_domain": {
+      "ProGAN": 0.14527199999999996,
+      "StyleGAN": 0.009391999999999956,
+      "BigGAN": 0.0031039999999999957,
+      "CycleGAN": 0.0,
+      "StarGAN": 0.02238399999999996,
+      "GauGAN": 0.018335999999999963,
+      "StyleGAN2": 0.0,
+      "WFIR": 0.0008480000000000709,
+      "ADM": 0.0,
+      "GLIDE": 0.0,
+      "Midjourney": 0.0,
+      "SD v1.4": 0.0,
+      "SD v1.5": 0.0,
+      "VQDM": 0.002744000000000024,
+      "Wukong": 0.0013440000000000119,
+      "DALL-E2": 0.0,
+      "SDXL": 0.0
+    },
+    "average_forgetting": 0.012713999999999996
+  },
+  "rotta": {
+    "overall": {
+      "auc": 0.7715144544405997,
+      "average_precision": 0.7977282812912441,
+      "accuracy": 0.7115294117647059,
+      "balanced_accuracy": 0.711529411764706,
+      "real_accuracy": 0.8657254901960785,
+      "fake_accuracy": 0.5573333333333333,
+      "predicted_fake_rate": 0.34580392156862744,
+      "brier_score": 0.26703470285591463,
+      "nll": 2.5388904651888553,
+      "ece": 0.25681568699657753,
+      "samples": 25500
+    },
+    "by_domain": {
+      "ProGAN": {
+        "auc": 0.7689688888888889,
+        "average_precision": 0.7875247190681778,
+        "accuracy": 0.668,
+        "balanced_accuracy": 0.668,
+        "real_accuracy": 0.936,
+        "fake_accuracy": 0.4,
+        "predicted_fake_rate": 0.232,
+        "brier_score": 0.3016451402013718,
+        "nll": 2.3975461788671617,
+        "ece": 0.29342116492723086,
+        "samples": 1500
+      },
+      "StyleGAN": {
+        "auc": 0.6306355555555556,
+        "average_precision": 0.647257847040742,
+        "accuracy": 0.5873333333333334,
+        "balanced_accuracy": 0.5873333333333333,
+        "real_accuracy": 0.6706666666666666,
+        "fake_accuracy": 0.504,
+        "predicted_fake_rate": 0.4166666666666667,
+        "brier_score": 0.38262532665845866,
+        "nll": 3.667966039594576,
+        "ece": 0.37958696383213947,
+        "samples": 1500
+      },
+      "BigGAN": {
+        "auc": 0.46010755555555555,
+        "average_precision": 0.48054816093588293,
+        "accuracy": 0.4806666666666667,
+        "balanced_accuracy": 0.4806666666666667,
+        "real_accuracy": 0.8066666666666666,
+        "fake_accuracy": 0.15466666666666667,
+        "predicted_fake_rate": 0.174,
+        "brier_score": 0.4911296137815952,
+        "nll": 5.458925415452847,
+        "ece": 0.48522197385266125,
+        "samples": 1500
+      },
+      "CycleGAN": {
+        "auc": 0.8922515555555556,
+        "average_precision": 0.87019205633106,
+        "accuracy": 0.7733333333333333,
+        "balanced_accuracy": 0.7733333333333333,
+        "real_accuracy": 0.9066666666666666,
+        "fake_accuracy": 0.64,
+        "predicted_fake_rate": 0.36666666666666664,
+        "brier_score": 0.19881792437342596,
+        "nll": 1.2654298796624783,
+        "ece": 0.19281097679626538,
+        "samples": 1500
+      },
+      "StarGAN": {
+        "auc": 0.9945155555555556,
+        "average_precision": 0.9953307338802972,
+        "accuracy": 0.92,
+        "balanced_accuracy": 0.9199999999999999,
+        "real_accuracy": 1.0,
+        "fake_accuracy": 0.84,
+        "predicted_fake_rate": 0.42,
+        "brier_score": 0.06682033772597162,
+        "nll": 0.30724517523649036,
+        "ece": 0.08598193154236293,
+        "samples": 1500
+      },
+      "GauGAN": {
+        "auc": 0.46642133333333324,
+        "average_precision": 0.4562831338623077,
+        "accuracy": 0.46266666666666667,
+        "balanced_accuracy": 0.46266666666666667,
+        "real_accuracy": 0.8,
+        "fake_accuracy": 0.12533333333333332,
+        "predicted_fake_rate": 0.16266666666666665,
+        "brier_score": 0.509299420939295,
+        "nll": 5.33711114804099,
+        "ece": 0.5023166826598753,
+        "samples": 1500
+      },
+      "StyleGAN2": {
+        "auc": 0.6151555555555555,
+        "average_precision": 0.6494466191547746,
+        "accuracy": 0.566,
+        "balanced_accuracy": 0.566,
+        "real_accuracy": 0.432,
+        "fake_accuracy": 0.7,
+        "predicted_fake_rate": 0.634,
+        "brier_score": 0.41426467572308623,
+        "nll": 4.215212844497662,
+        "ece": 0.41246004524577773,
+        "samples": 1500
+      },
+      "WFIR": {
+        "auc": 0.514504888888889,
+        "average_precision": 0.49621712781637056,
+        "accuracy": 0.504,
+        "balanced_accuracy": 0.504,
+        "real_accuracy": 0.776,
+        "fake_accuracy": 0.232,
+        "predicted_fake_rate": 0.228,
+        "brier_score": 0.4509216828177029,
+        "nll": 3.479953161483034,
+        "ece": 0.4320356555808096,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.48195733333333335,
+        "average_precision": 0.5506515254740063,
+        "accuracy": 0.52,
+        "balanced_accuracy": 0.52,
+        "real_accuracy": 0.7613333333333333,
+        "fake_accuracy": 0.2786666666666667,
+        "predicted_fake_rate": 0.25866666666666666,
+        "brier_score": 0.45117312576938334,
+        "nll": 4.762289366089993,
+        "ece": 0.4397710959857735,
+        "samples": 1500
+      },
+      "GLIDE": {
+        "auc": 0.7870915555555555,
+        "average_precision": 0.7845709705763384,
+        "accuracy": 0.704,
+        "balanced_accuracy": 0.704,
+        "real_accuracy": 0.8746666666666667,
+        "fake_accuracy": 0.5333333333333333,
+        "predicted_fake_rate": 0.3293333333333333,
+        "brier_score": 0.2685576618319245,
+        "nll": 1.9882556998571332,
+        "ece": 0.25352940311177197,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.9070480000000001,
+        "average_precision": 0.917605456260594,
+        "accuracy": 0.8166666666666667,
+        "balanced_accuracy": 0.8166666666666667,
+        "real_accuracy": 0.9293333333333333,
+        "fake_accuracy": 0.704,
+        "predicted_fake_rate": 0.3873333333333333,
+        "brier_score": 0.16136611476796456,
+        "nll": 1.2175794230639014,
+        "ece": 0.15473788976560005,
+        "samples": 1500
+      },
+      "SD v1.4": {
+        "auc": 0.9999964444444445,
+        "average_precision": 0.9999964468116586,
+        "accuracy": 0.998,
+        "balanced_accuracy": 0.998,
+        "real_accuracy": 0.996,
+        "fake_accuracy": 1.0,
+        "predicted_fake_rate": 0.502,
+        "brier_score": 0.0018112483811883594,
+        "nll": 0.005901203275215262,
+        "ece": 0.0029074045607363564,
+        "samples": 1500
+      },
+      "SD v1.5": {
+        "auc": 0.9991057777777779,
+        "average_precision": 0.999319668825894,
+        "accuracy": 0.9966666666666667,
+        "balanced_accuracy": 0.9966666666666666,
+        "real_accuracy": 0.996,
+        "fake_accuracy": 0.9973333333333333,
+        "predicted_fake_rate": 0.5006666666666667,
+        "brier_score": 0.0029281682007202825,
+        "nll": 0.02825884430354343,
+        "ece": 0.0031637895148395887,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.40012622222222216,
+        "average_precision": 0.4834190603882006,
+        "accuracy": 0.5073333333333333,
+        "balanced_accuracy": 0.5073333333333333,
+        "real_accuracy": 0.9933333333333333,
+        "fake_accuracy": 0.021333333333333333,
+        "predicted_fake_rate": 0.014,
+        "brier_score": 0.48737863160950673,
+        "nll": 6.938133004715261,
+        "ece": 0.4870456495410513,
+        "samples": 1500
+      },
+      "Wukong": {
+        "auc": 0.99952,
+        "average_precision": 0.9995726956332813,
+        "accuracy": 0.99,
+        "balanced_accuracy": 0.99,
+        "real_accuracy": 0.9986666666666667,
+        "fake_accuracy": 0.9813333333333333,
+        "predicted_fake_rate": 0.49133333333333334,
+        "brier_score": 0.00756053632243058,
+        "nll": 0.033718307558484165,
+        "ece": 0.009209177161605086,
+        "samples": 1500
+      },
+      "DALL-E2": {
+        "auc": 0.862439111111111,
+        "average_precision": 0.8414506732995716,
+        "accuracy": 0.694,
+        "balanced_accuracy": 0.694,
+        "real_accuracy": 0.9293333333333333,
+        "fake_accuracy": 0.45866666666666667,
+        "predicted_fake_rate": 0.26466666666666666,
+        "brier_score": 0.26865027282683135,
+        "nll": 1.7397068612848388,
+        "ece": 0.26994155743852233,
+        "samples": 1500
+      },
+      "SDXL": {
+        "auc": 0.9718782222222223,
+        "average_precision": 0.9715139322284885,
+        "accuracy": 0.9073333333333333,
+        "balanced_accuracy": 0.9073333333333333,
+        "real_accuracy": 0.9106666666666666,
+        "fake_accuracy": 0.904,
+        "predicted_fake_rate": 0.49666666666666665,
+        "brier_score": 0.07464006661969161,
+        "nll": 0.31790535522692764,
+        "ece": 0.061973761493011106,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 53120,
+      "mean_predict_ms_per_batch": 8.04183909466848,
+      "mean_adapt_ms_per_batch": 54.48594011359228,
+      "mean_total_ms_per_batch": 62.52777920826076,
+      "mean_predict_ms_per_sample": 0.503955249932558,
+      "mean_adapt_ms_per_sample": 3.4144522471184495,
+      "mean_total_ms_per_sample": 3.9184074970510077,
+      "samples_per_second": 255.20571833138837,
+      "peak_memory_mb": 11045.5478515625,
+      "batches": 1598,
+      "samples": 25500
+    },
+    "temporal_generalization": {
+      "definition": "checkpoint_auc_minus_initial_auc_on_fixed_holdouts",
+      "current_by_domain": {
+        "ProGAN": {
+          "initial_auc": 0.7756799999999999,
+          "current_auc": 0.7782560000000001,
+          "auc_delta": 0.0025760000000001337
+        },
+        "StyleGAN": {
+          "initial_auc": 0.61944,
+          "current_auc": 0.6272800000000001,
+          "auc_delta": 0.00784000000000007
+        },
+        "BigGAN": {
+          "initial_auc": 0.31846399999999997,
+          "current_auc": 0.40002400000000005,
+          "auc_delta": 0.08156000000000008
+        },
+        "CycleGAN": {
+          "initial_auc": 0.835952,
+          "current_auc": 0.9013439999999999,
+          "auc_delta": 0.0653919999999999
+        },
+        "StarGAN": {
+          "initial_auc": 0.9814080000000001,
+          "current_auc": 0.99504,
+          "auc_delta": 0.013631999999999977
+        },
+        "GauGAN": {
+          "initial_auc": 0.437056,
+          "current_auc": 0.412848,
+          "auc_delta": -0.024208000000000007
+        },
+        "StyleGAN2": {
+          "initial_auc": 0.596832,
+          "current_auc": 0.6146480000000001,
+          "auc_delta": 0.017816000000000054
+        },
+        "WFIR": {
+          "initial_auc": 0.45831999999999995,
+          "current_auc": 0.591136,
+          "auc_delta": 0.13281600000000005
+        },
+        "ADM": {
+          "initial_auc": 0.585776,
+          "current_auc": 0.5649759999999999,
+          "auc_delta": -0.02080000000000004
+        },
+        "GLIDE": {
+          "initial_auc": 0.887184,
+          "current_auc": 0.779864,
+          "auc_delta": -0.10731999999999997
+        },
+        "Midjourney": {
+          "initial_auc": 0.890368,
+          "current_auc": 0.9219040000000001,
+          "auc_delta": 0.03153600000000001
+        },
+        "SD v1.4": {
+          "initial_auc": 0.999968,
+          "current_auc": 0.999968,
+          "auc_delta": 0.0
+        },
+        "SD v1.5": {
+          "initial_auc": 1.0,
+          "current_auc": 1.0,
+          "auc_delta": 0.0
+        },
+        "VQDM": {
+          "initial_auc": 0.42230399999999996,
+          "current_auc": 0.4162079999999999,
+          "auc_delta": -0.006096000000000046
+        },
+        "Wukong": {
+          "initial_auc": 0.999984,
+          "current_auc": 0.999984,
+          "auc_delta": 0.0
+        },
+        "DALL-E2": {
+          "initial_auc": 0.9356639999999999,
+          "current_auc": 0.8675999999999999,
+          "auc_delta": -0.06806400000000001
+        },
+        "SDXL": {
+          "initial_auc": 0.9798239999999999,
+          "current_auc": 0.9756480000000001,
+          "auc_delta": -0.0041759999999998465
+        }
+      },
+      "mean_current_auc_delta": 0.007206117647058843,
+      "future_by_checkpoint": [
+        {
+          "checkpoint": 0,
+          "after_domain": "ProGAN",
+          "future_domains": 16,
+          "mean_auc_delta": -0.017502000000000014,
+          "negative_transfer_rate": 0.875
+        },
+        {
+          "checkpoint": 1,
+          "after_domain": "StyleGAN",
+          "future_domains": 15,
+          "mean_auc_delta": -0.005235733333333329,
+          "negative_transfer_rate": 0.6
+        },
+        {
+          "checkpoint": 2,
+          "after_domain": "BigGAN",
+          "future_domains": 14,
+          "mean_auc_delta": -0.024019428571428542,
+          "negative_transfer_rate": 0.6428571428571429
+        },
+        {
+          "checkpoint": 3,
+          "after_domain": "CycleGAN",
+          "future_domains": 13,
+          "mean_auc_delta": -0.04010215384615383,
+          "negative_transfer_rate": 0.7692307692307693
+        },
+        {
+          "checkpoint": 4,
+          "after_domain": "StarGAN",
+          "future_domains": 12,
+          "mean_auc_delta": -0.03369666666666665,
+          "negative_transfer_rate": 0.75
+        },
+        {
+          "checkpoint": 5,
+          "after_domain": "GauGAN",
+          "future_domains": 11,
+          "mean_auc_delta": -0.06671418181818181,
+          "negative_transfer_rate": 0.9090909090909091
+        },
+        {
+          "checkpoint": 6,
+          "after_domain": "StyleGAN2",
+          "future_domains": 10,
+          "mean_auc_delta": -0.048658400000000004,
+          "negative_transfer_rate": 0.8
+        },
+        {
+          "checkpoint": 7,
+          "after_domain": "WFIR",
+          "future_domains": 9,
+          "mean_auc_delta": -0.11726577777777772,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 8,
+          "after_domain": "ADM",
+          "future_domains": 8,
+          "mean_auc_delta": -0.037885999999999996,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 9,
+          "after_domain": "GLIDE",
+          "future_domains": 7,
+          "mean_auc_delta": -0.019339428571428546,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 10,
+          "after_domain": "Midjourney",
+          "future_domains": 6,
+          "mean_auc_delta": -0.0038826666666666363,
+          "negative_transfer_rate": 0.5
+        },
+        {
+          "checkpoint": 11,
+          "after_domain": "SD v1.4",
+          "future_domains": 5,
+          "mean_auc_delta": -0.0029727999999999755,
+          "negative_transfer_rate": 0.8
+        },
+        {
+          "checkpoint": 12,
+          "after_domain": "SD v1.5",
+          "future_domains": 4,
+          "mean_auc_delta": 0.005500000000000074,
+          "negative_transfer_rate": 0.25
+        },
+        {
+          "checkpoint": 13,
+          "after_domain": "VQDM",
+          "future_domains": 3,
+          "mean_auc_delta": -0.0001706666666665783,
+          "negative_transfer_rate": 0.6666666666666666
+        },
+        {
+          "checkpoint": 14,
+          "after_domain": "Wukong",
+          "future_domains": 2,
+          "mean_auc_delta": -0.003615999999999897,
+          "negative_transfer_rate": 0.5
+        },
+        {
+          "checkpoint": 15,
+          "after_domain": "DALL-E2",
+          "future_domains": 1,
+          "mean_auc_delta": -0.007279999999999953,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 16,
+          "after_domain": "SDXL",
+          "future_domains": 0,
+          "mean_auc_delta": NaN,
+          "negative_transfer_rate": NaN
+        }
+      ],
+      "mean_future_auc_delta": -0.03210299999999998,
+      "future_negative_transfer_rate": 0.7720588235294118
+    },
+    "online_average_domain_auc": 0.7501013856209151,
+    "final_average_auc": 0.7226155294117647,
+    "final_pooled_auc": 0.7096463114186851,
+    "forgetting_by_domain": {
+      "ProGAN": 0.09294400000000025,
+      "StyleGAN": 0.03516799999999998,
+      "BigGAN": 0.13898399999999994,
+      "CycleGAN": 0.12351999999999996,
+      "StarGAN": 0.022591999999999945,
+      "GauGAN": 0.047648000000000024,
+      "StyleGAN2": 0.04715199999999997,
+      "WFIR": 0.114784,
+      "ADM": 0.07991999999999999,
+      "GLIDE": 0.16332800000000003,
+      "Midjourney": 0.05820800000000004,
+      "SD v1.4": 4.8000000000048004e-05,
+      "SD v1.5": 0.00030399999999997096,
+      "VQDM": 0.09708800000000001,
+      "Wukong": 0.00028799999999995496,
+      "DALL-E2": 0.006047999999999942,
+      "SDXL": 0.0
+    },
+    "average_forgetting": 0.0642515
+  },
+  "lame": {
+    "overall": {
+      "auc": 0.7179144482891195,
+      "average_precision": 0.7851149120993839,
+      "accuracy": 0.6105098039215686,
+      "balanced_accuracy": 0.6105098039215686,
+      "real_accuracy": 0.9985882352941177,
+      "fake_accuracy": 0.2224313725490196,
+      "predicted_fake_rate": 0.11192156862745098,
+      "brier_score": 0.3862571550613107,
+      "nll": 5.457893492509965,
+      "ece": 0.388215947469149,
+      "samples": 25500
+    },
+    "by_domain": {
+      "ProGAN": {
+        "auc": 0.769992888888889,
+        "average_precision": 0.8071580161494759,
+        "accuracy": 0.552,
+        "balanced_accuracy": 0.552,
+        "real_accuracy": 0.9986666666666667,
+        "fake_accuracy": 0.10533333333333333,
+        "predicted_fake_rate": 0.05333333333333334,
+        "brier_score": 0.44297244346288667,
+        "nll": 5.982739516845921,
+        "ece": 0.4469365263307973,
+        "samples": 1500
+      },
+      "StyleGAN": {
+        "auc": 0.6355146666666667,
+        "average_precision": 0.6956340624212738,
+        "accuracy": 0.5253333333333333,
+        "balanced_accuracy": 0.5253333333333333,
+        "real_accuracy": 0.9986666666666667,
+        "fake_accuracy": 0.052,
+        "predicted_fake_rate": 0.02666666666666667,
+        "brier_score": 0.4690247094190728,
+        "nll": 6.555354286306081,
+        "ece": 0.47266794639721943,
+        "samples": 1500
+      },
+      "BigGAN": {
+        "auc": 0.386664,
+        "average_precision": 0.4714825785585939,
+        "accuracy": 0.5073333333333333,
+        "balanced_accuracy": 0.5073333333333333,
+        "real_accuracy": 0.9986666666666667,
+        "fake_accuracy": 0.016,
+        "predicted_fake_rate": 0.008666666666666666,
+        "brier_score": 0.49152226941547783,
+        "nll": 7.728615779089079,
+        "ece": 0.49212064194948274,
+        "samples": 1500
+      },
+      "CycleGAN": {
+        "auc": 0.6682417777777778,
+        "average_precision": 0.707304372495748,
+        "accuracy": 0.5,
+        "balanced_accuracy": 0.5,
+        "real_accuracy": 1.0,
+        "fake_accuracy": 0.0,
+        "predicted_fake_rate": 0.0,
+        "brier_score": 0.4999002459540549,
+        "nll": 7.84829744520368,
+        "ece": 0.4999455349600477,
+        "samples": 1500
+      },
+      "StarGAN": {
+        "auc": 0.9632319999999999,
+        "average_precision": 0.9730337418119592,
+        "accuracy": 0.5073333333333333,
+        "balanced_accuracy": 0.5073333333333333,
+        "real_accuracy": 1.0,
+        "fake_accuracy": 0.014666666666666666,
+        "predicted_fake_rate": 0.007333333333333333,
+        "brier_score": 0.49079993038237474,
+        "nll": 7.266605706394808,
+        "ece": 0.4917117489354009,
+        "samples": 1500
+      },
+      "GauGAN": {
+        "auc": 0.4657902222222222,
+        "average_precision": 0.4849341443583429,
+        "accuracy": 0.5013333333333333,
+        "balanced_accuracy": 0.5013333333333333,
+        "real_accuracy": 1.0,
+        "fake_accuracy": 0.0026666666666666666,
+        "predicted_fake_rate": 0.0013333333333333333,
+        "brier_score": 0.4986526242456912,
+        "nll": 7.9917206685245645,
+        "ece": 0.49865850083736585,
+        "samples": 1500
+      },
+      "StyleGAN2": {
+        "auc": 0.6356586666666666,
+        "average_precision": 0.6618463302431152,
+        "accuracy": 0.5146666666666667,
+        "balanced_accuracy": 0.5146666666666667,
+        "real_accuracy": 1.0,
+        "fake_accuracy": 0.029333333333333333,
+        "predicted_fake_rate": 0.014666666666666666,
+        "brier_score": 0.48331102632372896,
+        "nll": 7.023682499359624,
+        "ece": 0.48552696391670863,
+        "samples": 1500
+      },
+      "WFIR": {
+        "auc": 0.4149848888888889,
+        "average_precision": 0.4280235575284654,
+        "accuracy": 0.49733333333333335,
+        "balanced_accuracy": 0.49733333333333335,
+        "real_accuracy": 0.9946666666666667,
+        "fake_accuracy": 0.0,
+        "predicted_fake_rate": 0.0026666666666666666,
+        "brier_score": 0.50228185721478,
+        "nll": 7.831008382884832,
+        "ece": 0.5027233940324084,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.5560444444444443,
+        "average_precision": 0.6211199117800095,
+        "accuracy": 0.516,
+        "balanced_accuracy": 0.516,
+        "real_accuracy": 1.0,
+        "fake_accuracy": 0.032,
+        "predicted_fake_rate": 0.016,
+        "brier_score": 0.4822375810574352,
+        "nll": 7.249030097808974,
+        "ece": 0.4843616230415108,
+        "samples": 1500
+      },
+      "GLIDE": {
+        "auc": 0.9014346666666667,
+        "average_precision": 0.9051506362167281,
+        "accuracy": 0.5486666666666666,
+        "balanced_accuracy": 0.5486666666666666,
+        "real_accuracy": 1.0,
+        "fake_accuracy": 0.09733333333333333,
+        "predicted_fake_rate": 0.048666666666666664,
+        "brier_score": 0.444063944347719,
+        "nll": 5.615080810544355,
+        "ece": 0.4493112838217167,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.9056266666666667,
+        "average_precision": 0.9161660691155498,
+        "accuracy": 0.5453333333333333,
+        "balanced_accuracy": 0.5453333333333333,
+        "real_accuracy": 0.9986666666666667,
+        "fake_accuracy": 0.092,
+        "predicted_fake_rate": 0.04666666666666667,
+        "brier_score": 0.44631754179342487,
+        "nll": 5.237121171771691,
+        "ece": 0.4524611442953909,
+        "samples": 1500
+      },
+      "SD v1.4": {
+        "auc": 1.0,
+        "average_precision": 1.0,
+        "accuracy": 0.9986666666666667,
+        "balanced_accuracy": 0.9986666666666666,
+        "real_accuracy": 0.9973333333333333,
+        "fake_accuracy": 1.0,
+        "predicted_fake_rate": 0.5013333333333333,
+        "brier_score": 0.001211832840567563,
+        "nll": 0.004056111810979854,
+        "ece": 0.001489766945141339,
+        "samples": 1500
+      },
+      "SD v1.5": {
+        "auc": 0.9985671111111111,
+        "average_precision": 0.999025365861999,
+        "accuracy": 0.996,
+        "balanced_accuracy": 0.996,
+        "real_accuracy": 0.9946666666666667,
+        "fake_accuracy": 0.9973333333333333,
+        "predicted_fake_rate": 0.5013333333333333,
+        "brier_score": 0.0038857338060302453,
+        "nll": 0.03873860521189167,
+        "ece": 0.00406032118114498,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.47311644444444445,
+        "average_precision": 0.5194119650308198,
+        "accuracy": 0.502,
+        "balanced_accuracy": 0.502,
+        "real_accuracy": 1.0,
+        "fake_accuracy": 0.004,
+        "predicted_fake_rate": 0.002,
+        "brier_score": 0.4975498120749404,
+        "nll": 7.738528679493984,
+        "ece": 0.4982023875971288,
+        "samples": 1500
+      },
+      "Wukong": {
+        "auc": 0.9995057777777778,
+        "average_precision": 0.9995281583244114,
+        "accuracy": 0.9886666666666667,
+        "balanced_accuracy": 0.9886666666666666,
+        "real_accuracy": 0.996,
+        "fake_accuracy": 0.9813333333333333,
+        "predicted_fake_rate": 0.49266666666666664,
+        "brier_score": 0.009697583937582641,
+        "nll": 0.05800532189721584,
+        "ece": 0.009929971740183927,
+        "samples": 1500
+      },
+      "DALL-E2": {
+        "auc": 0.9333155555555557,
+        "average_precision": 0.9347188502008482,
+        "accuracy": 0.5593333333333333,
+        "balanced_accuracy": 0.5593333333333333,
+        "real_accuracy": 0.9986666666666667,
+        "fake_accuracy": 0.12,
+        "predicted_fake_rate": 0.06066666666666667,
+        "brier_score": 0.43253098340440965,
+        "nll": 4.958538717257683,
+        "ece": 0.4391388582574357,
+        "samples": 1500
+      },
+      "SDXL": {
+        "auc": 0.9782240000000001,
+        "average_precision": 0.97828007449513,
+        "accuracy": 0.6186666666666667,
+        "balanced_accuracy": 0.6186666666666667,
+        "real_accuracy": 1.0,
+        "fake_accuracy": 0.23733333333333334,
+        "predicted_fake_rate": 0.11866666666666667,
+        "brier_score": 0.37041151636210484,
+        "nll": 3.6570655722640537,
+        "ece": 0.3802999727817237,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 0,
+      "mean_predict_ms_per_batch": 6.8377150737057475,
+      "mean_adapt_ms_per_batch": 0.012987001426925927,
+      "mean_total_ms_per_batch": 6.8507020751326735,
+      "mean_predict_ms_per_sample": 0.42849681128556016,
+      "mean_adapt_ms_per_sample": 0.0008138520894206914,
+      "mean_total_ms_per_sample": 0.42931066337498086,
+      "samples_per_second": 2329.315540728955,
+      "peak_memory_mb": 445.2080078125,
+      "batches": 1598,
+      "samples": 25500
+    },
+    "temporal_generalization": {
+      "definition": "checkpoint_auc_minus_initial_auc_on_fixed_holdouts",
+      "current_by_domain": {
+        "ProGAN": {
+          "initial_auc": 0.7687840000000001,
+          "current_auc": 0.7687840000000001,
+          "auc_delta": 0.0
+        },
+        "StyleGAN": {
+          "initial_auc": 0.6297600000000001,
+          "current_auc": 0.6297600000000001,
+          "auc_delta": 0.0
+        },
+        "BigGAN": {
+          "initial_auc": 0.371248,
+          "current_auc": 0.371248,
+          "auc_delta": 0.0
+        },
+        "CycleGAN": {
+          "initial_auc": 0.709136,
+          "current_auc": 0.709136,
+          "auc_delta": 0.0
+        },
+        "StarGAN": {
+          "initial_auc": 0.9638559999999999,
+          "current_auc": 0.9638559999999999,
+          "auc_delta": 0.0
+        },
+        "GauGAN": {
+          "initial_auc": 0.44636800000000004,
+          "current_auc": 0.44636800000000004,
+          "auc_delta": 0.0
+        },
+        "StyleGAN2": {
+          "initial_auc": 0.6255040000000001,
+          "current_auc": 0.6255040000000001,
+          "auc_delta": 0.0
+        },
+        "WFIR": {
+          "initial_auc": 0.444512,
+          "current_auc": 0.444512,
+          "auc_delta": 0.0
+        },
+        "ADM": {
+          "initial_auc": 0.621888,
+          "current_auc": 0.621888,
+          "auc_delta": 0.0
+        },
+        "GLIDE": {
+          "initial_auc": 0.8913920000000001,
+          "current_auc": 0.8913920000000001,
+          "auc_delta": 0.0
+        },
+        "Midjourney": {
+          "initial_auc": 0.902272,
+          "current_auc": 0.902272,
+          "auc_delta": 0.0
+        },
+        "SD v1.4": {
+          "initial_auc": 0.999968,
+          "current_auc": 0.999968,
+          "auc_delta": 0.0
+        },
+        "SD v1.5": {
+          "initial_auc": 1.0,
+          "current_auc": 1.0,
+          "auc_delta": 0.0
+        },
+        "VQDM": {
+          "initial_auc": 0.505968,
+          "current_auc": 0.505968,
+          "auc_delta": 0.0
+        },
+        "Wukong": {
+          "initial_auc": 1.0,
+          "current_auc": 1.0,
+          "auc_delta": 0.0
+        },
+        "DALL-E2": {
+          "initial_auc": 0.9353279999999999,
+          "current_auc": 0.9353279999999999,
+          "auc_delta": 0.0
+        },
+        "SDXL": {
+          "initial_auc": 0.9761759999999999,
+          "current_auc": 0.9761759999999999,
+          "auc_delta": 0.0
+        }
+      },
+      "mean_current_auc_delta": 0.0,
+      "future_by_checkpoint": [
+        {
+          "checkpoint": 0,
+          "after_domain": "ProGAN",
+          "future_domains": 16,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 1,
+          "after_domain": "StyleGAN",
+          "future_domains": 15,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 2,
+          "after_domain": "BigGAN",
+          "future_domains": 14,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 3,
+          "after_domain": "CycleGAN",
+          "future_domains": 13,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 4,
+          "after_domain": "StarGAN",
+          "future_domains": 12,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 5,
+          "after_domain": "GauGAN",
+          "future_domains": 11,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 6,
+          "after_domain": "StyleGAN2",
+          "future_domains": 10,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 7,
+          "after_domain": "WFIR",
+          "future_domains": 9,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 8,
+          "after_domain": "ADM",
+          "future_domains": 8,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 9,
+          "after_domain": "GLIDE",
+          "future_domains": 7,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 10,
+          "after_domain": "Midjourney",
+          "future_domains": 6,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 11,
+          "after_domain": "SD v1.4",
+          "future_domains": 5,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 12,
+          "after_domain": "SD v1.5",
+          "future_domains": 4,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 13,
+          "after_domain": "VQDM",
+          "future_domains": 3,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 14,
+          "after_domain": "Wukong",
+          "future_domains": 2,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 15,
+          "after_domain": "DALL-E2",
+          "future_domains": 1,
+          "mean_auc_delta": 0.0,
+          "negative_transfer_rate": 0.0
+        },
+        {
+          "checkpoint": 16,
+          "after_domain": "SDXL",
+          "future_domains": 0,
+          "mean_auc_delta": NaN,
+          "negative_transfer_rate": NaN
+        }
+      ],
+      "mean_future_auc_delta": 0.0,
+      "future_negative_transfer_rate": 0.0
+    },
+    "online_average_domain_auc": 0.7462302222222224,
+    "final_average_auc": 0.7524799999999999,
+    "final_pooled_auc": 0.7248257993079584,
+    "forgetting_by_domain": {
+      "ProGAN": 0.0,
+      "StyleGAN": 0.0,
+      "BigGAN": 0.0,
+      "CycleGAN": 0.0,
+      "StarGAN": 0.0,
+      "GauGAN": 0.0,
+      "StyleGAN2": 0.0,
+      "WFIR": 0.0,
+      "ADM": 0.0,
+      "GLIDE": 0.0,
+      "Midjourney": 0.0,
+      "SD v1.4": 0.0,
+      "SD v1.5": 0.0,
+      "VQDM": 0.0,
+      "Wukong": 0.0,
+      "DALL-E2": 0.0,
+      "SDXL": 0.0
+    },
+    "average_forgetting": 0.0
+  },
+  "t2a": {
+    "overall": {
+      "auc": 0.6634252026143791,
+      "average_precision": 0.6562621169218529,
+      "accuracy": 0.6122745098039216,
+      "balanced_accuracy": 0.6122745098039215,
+      "real_accuracy": 0.6741176470588235,
+      "fake_accuracy": 0.5504313725490196,
+      "predicted_fake_rate": 0.438156862745098,
+      "brier_score": 0.3227259110038999,
+      "nll": 1.6746949627575445,
+      "ece": 0.291859283525984,
+      "samples": 25500
+    },
+    "by_domain": {
+      "ProGAN": {
+        "auc": 0.7855333333333333,
+        "average_precision": 0.7996289599549075,
+        "accuracy": 0.7086666666666667,
+        "balanced_accuracy": 0.7086666666666667,
+        "real_accuracy": 0.8573333333333333,
+        "fake_accuracy": 0.56,
+        "predicted_fake_rate": 0.35133333333333333,
+        "brier_score": 0.2579291847758398,
+        "nll": 1.8659797944515308,
+        "ece": 0.2455289749638251,
+        "samples": 1500
+      },
+      "StyleGAN": {
+        "auc": 0.5953191111111111,
+        "average_precision": 0.6035524129005883,
+        "accuracy": 0.568,
+        "balanced_accuracy": 0.5680000000000001,
+        "real_accuracy": 0.584,
+        "fake_accuracy": 0.552,
+        "predicted_fake_rate": 0.484,
+        "brier_score": 0.4065335022688112,
+        "nll": 3.524269245548274,
+        "ece": 0.3928080758248884,
+        "samples": 1500
+      },
+      "BigGAN": {
+        "auc": 0.45313422222222227,
+        "average_precision": 0.5061736514603867,
+        "accuracy": 0.4746666666666667,
+        "balanced_accuracy": 0.4746666666666667,
+        "real_accuracy": 0.56,
+        "fake_accuracy": 0.3893333333333333,
+        "predicted_fake_rate": 0.4146666666666667,
+        "brier_score": 0.48672351206713527,
+        "nll": 3.835066584899249,
+        "ece": 0.4740002627800691,
+        "samples": 1500
+      },
+      "CycleGAN": {
+        "auc": 0.7712284444444444,
+        "average_precision": 0.7402900985738146,
+        "accuracy": 0.6966666666666667,
+        "balanced_accuracy": 0.6966666666666668,
+        "real_accuracy": 0.7253333333333334,
+        "fake_accuracy": 0.668,
+        "predicted_fake_rate": 0.4713333333333333,
+        "brier_score": 0.265773923491308,
+        "nll": 1.5099180333747872,
+        "ece": 0.24733578801155767,
+        "samples": 1500
+      },
+      "StarGAN": {
+        "auc": 0.8614542222222222,
+        "average_precision": 0.8632155779707846,
+        "accuracy": 0.764,
+        "balanced_accuracy": 0.764,
+        "real_accuracy": 0.7813333333333333,
+        "fake_accuracy": 0.7466666666666667,
+        "predicted_fake_rate": 0.4826666666666667,
+        "brier_score": 0.1865443434172937,
+        "nll": 0.7641272700296916,
+        "ece": 0.16251229991879748,
+        "samples": 1500
+      },
+      "GauGAN": {
+        "auc": 0.48756622222222223,
+        "average_precision": 0.48954796454527644,
+        "accuracy": 0.5013333333333333,
+        "balanced_accuracy": 0.5013333333333333,
+        "real_accuracy": 0.504,
+        "fake_accuracy": 0.49866666666666665,
+        "predicted_fake_rate": 0.49733333333333335,
+        "brier_score": 0.4327621707983748,
+        "nll": 2.3000062363268396,
+        "ece": 0.4043001763563815,
+        "samples": 1500
+      },
+      "StyleGAN2": {
+        "auc": 0.541952,
+        "average_precision": 0.5414622451870486,
+        "accuracy": 0.5206666666666667,
+        "balanced_accuracy": 0.5206666666666666,
+        "real_accuracy": 0.4706666666666667,
+        "fake_accuracy": 0.5706666666666667,
+        "predicted_fake_rate": 0.55,
+        "brier_score": 0.4180904762046211,
+        "nll": 2.325092364985906,
+        "ece": 0.3981277411915458,
+        "samples": 1500
+      },
+      "WFIR": {
+        "auc": 0.4814382222222222,
+        "average_precision": 0.48030290985896984,
+        "accuracy": 0.49266666666666664,
+        "balanced_accuracy": 0.4926666666666667,
+        "real_accuracy": 0.5693333333333334,
+        "fake_accuracy": 0.416,
+        "predicted_fake_rate": 0.42333333333333334,
+        "brier_score": 0.4108839946576245,
+        "nll": 1.6650817265579323,
+        "ece": 0.3668154348061403,
+        "samples": 1500
+      },
+      "ADM": {
+        "auc": 0.42900622222222223,
+        "average_precision": 0.4658246162107232,
+        "accuracy": 0.42933333333333334,
+        "balanced_accuracy": 0.42933333333333334,
+        "real_accuracy": 0.472,
+        "fake_accuracy": 0.38666666666666666,
+        "predicted_fake_rate": 0.4573333333333333,
+        "brier_score": 0.478362964279181,
+        "nll": 2.2472506924274755,
+        "ece": 0.46249008404987657,
+        "samples": 1500
+      },
+      "GLIDE": {
+        "auc": 0.44816711111111107,
+        "average_precision": 0.45674379433508694,
+        "accuracy": 0.4573333333333333,
+        "balanced_accuracy": 0.4573333333333333,
+        "real_accuracy": 0.5586666666666666,
+        "fake_accuracy": 0.356,
+        "predicted_fake_rate": 0.39866666666666667,
+        "brier_score": 0.459229185688588,
+        "nll": 2.225759329803731,
+        "ece": 0.4353080086594383,
+        "samples": 1500
+      },
+      "Midjourney": {
+        "auc": 0.6933937777777778,
+        "average_precision": 0.7204034606559839,
+        "accuracy": 0.668,
+        "balanced_accuracy": 0.6679999999999999,
+        "real_accuracy": 0.744,
+        "fake_accuracy": 0.592,
+        "predicted_fake_rate": 0.424,
+        "brier_score": 0.28152090149575126,
+        "nll": 1.3310955265521216,
+        "ece": 0.23460373098178436,
+        "samples": 1500
+      },
+      "SD v1.4": {
+        "auc": 0.9798826666666667,
+        "average_precision": 0.982260171972128,
+        "accuracy": 0.9326666666666666,
+        "balanced_accuracy": 0.9326666666666666,
+        "real_accuracy": 0.972,
+        "fake_accuracy": 0.8933333333333333,
+        "predicted_fake_rate": 0.46066666666666667,
+        "brier_score": 0.055746891445725644,
+        "nll": 0.23604352975252885,
+        "ece": 0.046519905967776914,
+        "samples": 1500
+      },
+      "SD v1.5": {
+        "auc": 0.9733440000000001,
+        "average_precision": 0.9763204886271898,
+        "accuracy": 0.9173333333333333,
+        "balanced_accuracy": 0.9173333333333333,
+        "real_accuracy": 0.9546666666666667,
+        "fake_accuracy": 0.88,
+        "predicted_fake_rate": 0.46266666666666667,
+        "brier_score": 0.06546283866477368,
+        "nll": 0.2415284844344851,
+        "ece": 0.043888640180655254,
+        "samples": 1500
+      },
+      "VQDM": {
+        "auc": 0.3864586666666666,
+        "average_precision": 0.44056954972950524,
+        "accuracy": 0.4106666666666667,
+        "balanced_accuracy": 0.4106666666666667,
+        "real_accuracy": 0.468,
+        "fake_accuracy": 0.35333333333333333,
+        "predicted_fake_rate": 0.44266666666666665,
+        "brier_score": 0.45893216472618026,
+        "nll": 1.6768002837097884,
+        "ece": 0.4310059630119746,
+        "samples": 1500
+      },
+      "Wukong": {
+        "auc": 0.9263644444444445,
+        "average_precision": 0.9255755479405876,
+        "accuracy": 0.846,
+        "balanced_accuracy": 0.846,
+        "real_accuracy": 0.9066666666666666,
+        "fake_accuracy": 0.7853333333333333,
+        "predicted_fake_rate": 0.43933333333333335,
+        "brier_score": 0.11623511786773413,
+        "nll": 0.4223849847709444,
+        "ece": 0.08067125428040889,
+        "samples": 1500
+      },
+      "DALL-E2": {
+        "auc": 0.4749244444444444,
+        "average_precision": 0.48169963300132573,
+        "accuracy": 0.478,
+        "balanced_accuracy": 0.47800000000000004,
+        "real_accuracy": 0.68,
+        "fake_accuracy": 0.276,
+        "predicted_fake_rate": 0.298,
+        "brier_score": 0.3827642387538408,
+        "nll": 1.2645714771031904,
+        "ece": 0.33411425863904887,
+        "samples": 1500
+      },
+      "SDXL": {
+        "auc": 0.5702986666666667,
+        "average_precision": 0.5495804343136046,
+        "accuracy": 0.5426666666666666,
+        "balanced_accuracy": 0.5426666666666666,
+        "real_accuracy": 0.652,
+        "fake_accuracy": 0.43333333333333335,
+        "predicted_fake_rate": 0.39066666666666666,
+        "brier_score": 0.32284507646351535,
+        "nll": 1.0348388021497812,
+        "ece": 0.25707628901485197,
+        "samples": 1500
+      }
+    },
+    "efficiency": {
+      "trainable_parameters": 23512130,
+      "mean_predict_ms_per_batch": 7.653693161977371,
+      "mean_adapt_ms_per_batch": 48.03896423525996,
+      "mean_total_ms_per_batch": 55.69265739723733,
+      "mean_predict_ms_per_sample": 0.4796314381505819,
+      "mean_adapt_ms_per_sample": 3.010441758742958,
+      "mean_total_ms_per_sample": 3.4900731968935395,
+      "samples_per_second": 286.52694186760453,
+      "peak_memory_mb": 3331.4892578125,
+      "batches": 1598,
+      "samples": 25500
+    },
+    "temporal_generalization": {
+      "definition": "checkpoint_auc_minus_initial_auc_on_fixed_holdouts",
+      "current_by_domain": {
+        "ProGAN": {
+          "initial_auc": 0.7832000000000001,
+          "current_auc": 0.77848,
+          "auc_delta": -0.0047200000000001685
+        },
+        "StyleGAN": {
+          "initial_auc": 0.5973919999999999,
+          "current_auc": 0.5238719999999999,
+          "auc_delta": -0.07352000000000003
+        },
+        "BigGAN": {
+          "initial_auc": 0.43299200000000004,
+          "current_auc": 0.40692800000000007,
+          "auc_delta": -0.026063999999999976
+        },
+        "CycleGAN": {
+          "initial_auc": 0.8752800000000001,
+          "current_auc": 0.7545280000000001,
+          "auc_delta": -0.12075199999999997
+        },
+        "StarGAN": {
+          "initial_auc": 0.999072,
+          "current_auc": 0.7219280000000001,
+          "auc_delta": -0.27714399999999983
+        },
+        "GauGAN": {
+          "initial_auc": 0.44690399999999997,
+          "current_auc": 0.494224,
+          "auc_delta": 0.04732000000000003
+        },
+        "StyleGAN2": {
+          "initial_auc": 0.6300399999999999,
+          "current_auc": 0.53656,
+          "auc_delta": -0.0934799999999999
+        },
+        "WFIR": {
+          "initial_auc": 0.5729280000000001,
+          "current_auc": 0.491648,
+          "auc_delta": -0.08128000000000013
+        },
+        "ADM": {
+          "initial_auc": 0.567424,
+          "current_auc": 0.44758400000000004,
+          "auc_delta": -0.11984
+        },
+        "GLIDE": {
+          "initial_auc": 0.7624719999999999,
+          "current_auc": 0.47463999999999995,
+          "auc_delta": -0.287832
+        },
+        "Midjourney": {
+          "initial_auc": 0.91968,
+          "current_auc": 0.699328,
+          "auc_delta": -0.2203520000000001
+        },
+        "SD v1.4": {
+          "initial_auc": 0.999856,
+          "current_auc": 0.9684800000000001,
+          "auc_delta": -0.03137599999999985
+        },
+        "SD v1.5": {
+          "initial_auc": 1.0,
+          "current_auc": 0.96984,
+          "auc_delta": -0.030159999999999965
+        },
+        "VQDM": {
+          "initial_auc": 0.367992,
+          "current_auc": 0.383792,
+          "auc_delta": 0.015800000000000036
+        },
+        "Wukong": {
+          "initial_auc": 0.99812,
+          "current_auc": 0.941488,
+          "auc_delta": -0.056632000000000016
+        },
+        "DALL-E2": {
+          "initial_auc": 0.875008,
+          "current_auc": 0.43166400000000005,
+          "auc_delta": -0.44334399999999996
+        },
+        "SDXL": {
+          "initial_auc": 0.953696,
+          "current_auc": 0.55816,
+          "auc_delta": -0.395536
+        }
+      },
+      "mean_current_auc_delta": -0.12934776470588236,
+      "future_by_checkpoint": [
+        {
+          "checkpoint": 0,
+          "after_domain": "ProGAN",
+          "future_domains": 16,
+          "mean_auc_delta": -0.00375650000000001,
+          "negative_transfer_rate": 0.75
+        },
+        {
+          "checkpoint": 1,
+          "after_domain": "StyleGAN",
+          "future_domains": 15,
+          "mean_auc_delta": -0.02938346666666667,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 2,
+          "after_domain": "BigGAN",
+          "future_domains": 14,
+          "mean_auc_delta": -0.04652285714285714,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 3,
+          "after_domain": "CycleGAN",
+          "future_domains": 13,
+          "mean_auc_delta": -0.058828923076923084,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 4,
+          "after_domain": "StarGAN",
+          "future_domains": 12,
+          "mean_auc_delta": -0.08740533333333333,
+          "negative_transfer_rate": 0.9166666666666666
+        },
+        {
+          "checkpoint": 5,
+          "after_domain": "GauGAN",
+          "future_domains": 11,
+          "mean_auc_delta": -0.11343345454545456,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 6,
+          "after_domain": "StyleGAN2",
+          "future_domains": 10,
+          "mean_auc_delta": -0.1510768,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 7,
+          "after_domain": "WFIR",
+          "future_domains": 9,
+          "mean_auc_delta": -0.1637964444444444,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 8,
+          "after_domain": "ADM",
+          "future_domains": 8,
+          "mean_auc_delta": -0.14236899999999997,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 9,
+          "after_domain": "GLIDE",
+          "future_domains": 7,
+          "mean_auc_delta": -0.1156594285714286,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 10,
+          "after_domain": "Midjourney",
+          "future_domains": 6,
+          "mean_auc_delta": -0.10959866666666666,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 11,
+          "after_domain": "SD v1.4",
+          "future_domains": 5,
+          "mean_auc_delta": -0.1349024,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 12,
+          "after_domain": "SD v1.5",
+          "future_domains": 4,
+          "mean_auc_delta": -0.18499999999999997,
+          "negative_transfer_rate": 0.75
+        },
+        {
+          "checkpoint": 13,
+          "after_domain": "VQDM",
+          "future_domains": 3,
+          "mean_auc_delta": -0.280264,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 14,
+          "after_domain": "Wukong",
+          "future_domains": 2,
+          "mean_auc_delta": -0.407792,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 15,
+          "after_domain": "DALL-E2",
+          "future_domains": 1,
+          "mean_auc_delta": -0.35561600000000004,
+          "negative_transfer_rate": 1.0
+        },
+        {
+          "checkpoint": 16,
+          "after_domain": "SDXL",
+          "future_domains": 0,
+          "mean_auc_delta": NaN,
+          "negative_transfer_rate": NaN
+        }
+      ],
+      "mean_future_auc_delta": -0.09728811764705882,
+      "future_negative_transfer_rate": 0.9558823529411765
+    },
+    "online_average_domain_auc": 0.6387921045751633,
+    "final_average_auc": 0.5562884705882354,
+    "final_pooled_auc": 0.5916083598615917,
+    "forgetting_by_domain": {
+      "ProGAN": 0.2544479999999999,
+      "StyleGAN": 0.06264799999999993,
+      "BigGAN": 0.016895999999999967,
+      "CycleGAN": 0.18708800000000014,
+      "StarGAN": 0.1506320000000001,
+      "GauGAN": 0.02607999999999988,
+      "StyleGAN2": 0.08644800000000002,
+      "WFIR": 0.022575999999999985,
+      "ADM": 0.012096000000000107,
+      "GLIDE": 0.18047999999999997,
+      "Midjourney": 0.16100799999999993,
+      "SD v1.4": 0.02524800000000016,
+      "SD v1.5": 0.014160000000000061,
+      "VQDM": 0.0,
+      "Wukong": 0.006159999999999943,
+      "DALL-E2": 0.010896000000000017,
+      "SDXL": 0.0
+    },
+    "average_forgetting": 0.07605400000000001
+  }
+}

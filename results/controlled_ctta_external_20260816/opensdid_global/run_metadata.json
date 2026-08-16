@@ -1,0 +1,18 @@
+{
+  "suite": "opensdid_global",
+  "display_name": "OpenSDID (global)",
+  "implementation_commit": "a1a4cb8a7eaf11557884bc3fa66216cfd97f582e",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "data_format": "arrow",
+  "scope": "Only the global entire/ scope is used.",
+  "samples_per_generator_per_class": 1000,
+  "adaptation_samples_per_class": 750,
+  "final_holdout_samples_per_class": 250,
+  "target_labels_are_evaluator_only": true,
+  "source_checkpoint_sha256": "866969a8eb6d45126bce5680cbbdd1cd2e7808f9b724592ab2e15825fd51f3b7",
+  "image_recovery_note": null
+}

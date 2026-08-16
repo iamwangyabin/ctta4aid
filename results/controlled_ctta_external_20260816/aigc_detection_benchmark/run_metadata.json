@@ -1,0 +1,18 @@
+{
+  "suite": "aigc_detection_benchmark",
+  "display_name": "AIGCDetectionBenchmark",
+  "implementation_commit": "32afabe07f1da5a8145481d5d69c8209d389a80b",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "data_format": "arrow",
+  "scope": "All 17 configured generators are used.",
+  "samples_per_generator_per_class": 1000,
+  "adaptation_samples_per_class": 750,
+  "final_holdout_samples_per_class": 250,
+  "target_labels_are_evaluator_only": true,
+  "source_checkpoint_sha256": "866969a8eb6d45126bce5680cbbdd1cd2e7808f9b724592ab2e15825fd51f3b7",
+  "image_recovery_note": "One selected DALL-E2 JPEG was decodable only with truncated-image recovery and was re-encoded as PNG before Arrow export."
+}
