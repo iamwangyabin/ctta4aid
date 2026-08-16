@@ -1,0 +1,24 @@
+extends:
+  - ../../datasets/opensdid_global.yaml
+  - ../../protocols/iapl_single_target.yaml
+  - ../../methods/iapl.yaml
+
+seed: 0
+device: auto
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/iapl_external_opensdid_global_seed0
+
+data:
+  batch_size: 1
+  num_workers: 8
+  shuffle: false
+  max_samples_per_class: null
+  # Reuse the exact seed-0 online samples and order from the controlled suite.
+  locked_online_manifest: ../../../results/controlled_ctta_external_20260816/opensdid_global/per_seed/seed0_online_manifest.csv
+
+method_configs:
+  iapl:
+    checkpoint: ${IAPL_GENIMAGE_CHECKPOINT}
+    adaptation_mode: full
+    normalization_mean: [0.481, 0.458, 0.408]
+    normalization_std: [0.269, 0.261, 0.276]
+    smooth: true

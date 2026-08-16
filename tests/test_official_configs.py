@@ -131,7 +131,12 @@ class OfficialConfigTests(unittest.TestCase):
         self.assertEqual(genimage["seed"], 0)
         self.assertEqual(genimage["data"]["num_workers"], 8)
         self.assertEqual(universal["data"]["num_workers"], 0)
-        for config in (genimage, universal):
+        external = (
+            "configs/experiments/iapl/aigc_detection_benchmark.yaml",
+            "configs/experiments/iapl/aigi_holmes_p3.yaml",
+            "configs/experiments/iapl/opensdid_global.yaml",
+        )
+        for config in (genimage, universal, *(self.load(path) for path in external)):
             method = config["method_configs"]["iapl"]
             self.assertEqual(config["methods"], ["iapl"])
             self.assertEqual(config["data"]["batch_size"], 1)
@@ -144,6 +149,13 @@ class OfficialConfigTests(unittest.TestCase):
             self.assertTrue(method["condition"])
             self.assertTrue(method["optimal_input_selection"])
             self.assertFalse(config["protocol"]["batchnorm_buffers_accumulate_across_targets"])
+
+        for filename in external:
+            with self.subTest(filename=filename):
+                config = self.load(filename)
+                self.assertEqual(config["seed"], 0)
+                self.assertIn("locked_online_manifest", config["data"])
+                self.assertEqual(config["method_configs"]["iapl"]["adaptation_mode"], "full")
 
         for filename, mode in (
             ("configs/experiments/iapl/genimage_static.yaml", "static"),
@@ -161,6 +173,9 @@ class OfficialConfigTests(unittest.TestCase):
         for filename in (
             "configs/experiments/ost/genimage.yaml",
             "configs/experiments/ost/ufd.yaml",
+            "configs/experiments/ost/aigc_detection_benchmark.yaml",
+            "configs/experiments/ost/aigi_holmes_p3.yaml",
+            "configs/experiments/ost/opensdid_global.yaml",
         ):
             with self.subTest(filename=filename):
                 config = self.load(filename)
@@ -181,6 +196,10 @@ class OfficialConfigTests(unittest.TestCase):
                 self.assertEqual(method["steps"], 1)
                 self.assertEqual(method["task_learning_rate"], 0.0005)
                 self.assertEqual(method["synthesis"], "full_frame_alpha")
+
+                if "external" in config["output_dir"]:
+                    self.assertIn("locked_online_manifest", config["data"])
+                    self.assertEqual(config["data"]["source_domain"], "SDv14")
 
         static = self.load("configs/experiments/ost/genimage_static.yaml")
         self.assertEqual(static["method_configs"]["ost"]["adaptation_mode"], "static")

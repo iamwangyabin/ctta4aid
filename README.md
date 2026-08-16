@@ -196,6 +196,17 @@ python run_single_target.py --config configs/experiments/iapl/genimage.yaml
 python run_single_target.py --config configs/experiments/iapl/ufd.yaml
 ```
 
+The three target-only external suites reuse the committed seed-0 online
+manifests from the Controlled CTTA evaluation, so IAPL receives the same image
+identities and per-domain order without using external images for source
+training:
+
+```bash
+python run_single_target.py --config configs/experiments/iapl/aigc_detection_benchmark.yaml
+python run_single_target.py --config configs/experiments/iapl/aigi_holmes_p3.yaml
+python run_single_target.py --config configs/experiments/iapl/opensdid_global.yaml
+```
+
 GenImage 的三个入口读取同一个作者 checkpoint。`static` 只预测标准全局视图，
 `views_only` 使用 32 views 和 OIS 但不更新 prompt，默认入口再加入两步 prompt
 adaptation。三者用于拆分多视图选择和参数更新各自带来的收益，不用于与其他 backbone
@@ -237,6 +248,15 @@ export GENIMAGE_SD14_TEMPLATE_ARROW_ROOT=/data/DF-arrow/SDv14_train_templates_se
 export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage_test
 python run_single_target.py --config configs/experiments/ost/genimage_static.yaml
 python run_single_target.py --config configs/experiments/ost/genimage.yaml
+```
+
+OST uses the same fixed external manifests and the SD v1.4 source-template
+bundle for its target-only external runs:
+
+```bash
+python run_single_target.py --config configs/experiments/ost/aigc_detection_benchmark.yaml
+python run_single_target.py --config configs/experiments/ost/aigi_holmes_p3.yaml
+python run_single_target.py --config configs/experiments/ost/opensdid_global.yaml
 ```
 
 OST 的 `static` 与默认入口加载同一个 MetaXception checkpoint；前者不抽取源模板、

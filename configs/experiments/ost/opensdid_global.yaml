@@ -1,0 +1,25 @@
+extends:
+  - ../../datasets/opensdid_global.yaml
+  - ../../protocols/ost_single_target.yaml
+  - ../../methods/ost.yaml
+
+seed: 0
+device: auto
+methods: [ost]
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/ost_external_opensdid_global_seed0
+
+data:
+  batch_size: 1
+  num_workers: 0
+  shuffle: false
+  max_samples_per_class: null
+  source_root: ${GENIMAGE_SD14_TEMPLATE_ARROW_ROOT}
+  source_domain: SDv14
+  source_split: train
+  source_max_samples_per_class: 1000
+  # Reuse the exact seed-0 online samples and order from the controlled suite.
+  locked_online_manifest: ../../../results/controlled_ctta_external_20260816/opensdid_global/per_seed/seed0_online_manifest.csv
+
+method_configs:
+  ost:
+    adaptation_mode: full

@@ -14,6 +14,32 @@ from .transforms import build_eval_transform
 _MANIFEST_FIELDS = ("batch", "domain", "position", "sample_id")
 
 
+def load_online_manifest_lock(
+    config: Mapping[str, Any], domains: Sequence[str]
+) -> dict[str, Any] | None:
+    configured = config["data"].get("locked_online_manifest")
+    if configured is None:
+        return None
+    path = Path(str(configured)).expanduser()
+    if not path.is_absolute():
+        path = Path(str(config["_config_path"])).parent / path
+    manifest = load_locked_manifest(path.resolve())
+    return {
+        "sample_ids_by_domain": locked_sample_ids_by_domain(manifest, domains),
+        "config": {"online_manifest": str(configured)},
+    }
+
+
+def validate_locked_sample_order(
+    observed_sample_ids: Sequence[str], expected_sample_ids: Sequence[str]
+) -> None:
+    if list(observed_sample_ids) != list(expected_sample_ids):
+        raise RuntimeError(
+            "Single-target evaluation did not consume the configured locked samples "
+            "in manifest order"
+        )
+
+
 def load_locked_manifest(path: str | Path) -> list[dict[str, int | str]]:
     manifest_path = Path(path).expanduser()
     if not manifest_path.is_file():

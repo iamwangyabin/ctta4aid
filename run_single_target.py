@@ -13,7 +13,12 @@ from src.cli.common import (
     write_json,
 )
 from src.config import load_config, require
-from src.data.streams import as_stream, build_domain_loader
+from src.data.streams import (
+    as_stream,
+    build_domain_loader,
+    load_online_manifest_lock,
+    validate_locked_sample_order,
+)
 from src.evaluation import OnlineEvaluator, evaluate_without_adaptation, save_evaluation
 
 
@@ -143,6 +148,9 @@ def main() -> None:
     write_json(output_root / "effective_config.json", config)
     aggregate = {}
     all_pairwise_rows: list[dict] = []
+    online_manifest_lock = load_online_manifest_lock(
+        config, list(config["data"]["targets"])
+    )
 
     for method_name in config["methods"]:
         aggregate[method_name] = {"targets": {}} if evaluate_cross_generators else {}
@@ -178,8 +186,19 @@ def main() -> None:
                 target,
                 seed=seed + target_index,
                 transform=getattr(method, "input_transform", None),
+                locked_sample_ids=(
+                    None
+                    if online_manifest_lock is None
+                    else online_manifest_lock["sample_ids_by_domain"][target]
+                ),
             )
             result = evaluator.run(method, as_stream(loader, target))
+            if online_manifest_lock is not None:
+                validate_locked_sample_order(
+                    [str(row["sample_id"]) for row in result["sample_manifest"]],
+                    online_manifest_lock["sample_ids_by_domain"][target],
+                )
+                result["sample_lock"] = online_manifest_lock["config"]
             result["protocol"] = getattr(method, "protocol_name", "predict_then_adapt")
             result["method"] = method_name
             result["target"] = target
