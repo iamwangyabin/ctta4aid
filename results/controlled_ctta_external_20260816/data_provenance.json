@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "verified_at_utc": "2026-08-16T04:57:41Z",
+  "hash_algorithm": "sha256",
+  "directory_tree_fingerprint": {
+    "line_format": "{file_sha256}  {relative_posix_path}",
+    "line_terminator": "LF",
+    "ordering": "LC_ALL=C ascending relative POSIX path",
+    "digest": "SHA-256 of the UTF-8 bytes of the complete manifest"
+  },
+  "conversion": {
+    "selection_seed": 20260816,
+    "samples_per_generator_per_class": 1000,
+    "adaptation_samples_per_class": 750,
+    "final_holdout_samples_per_class": 250
+  },
+  "reproducibility_scope": {
+    "exact_snapshot": "The raw artifacts and Arrow bundles below are content-locked. A repeat is accepted as the same data only when the applicable SHA-256 values match.",
+    "upstream_revision_limit": "The public publishers did not provide, or the acquisition did not retain, an immutable upstream revision for every artifact. The raw content fingerprint is therefore the authoritative identity of the data actually used here."
+  },
+  "suites": {
+    "aigc_detection_benchmark": {
+      "official_project_url": "https://github.com/Ekko-zn/AIGCDetectBenchmark",
+      "official_download_url": "https://modelscope.cn/datasets/aemilia/AIGCDetectionBenchmark/file/view/master?fileName=AIGCDetectionBenchmark%252Ftest.zip&id=88429&status=2",
+      "raw_snapshot": {
+        "artifact": "test_set.zip",
+        "bytes": 36422769596,
+        "sha256": "44f21174fc6dc4be2090e27b281ca9ad36c155554e8088f9d3300ba5368aeb23"
+      },
+      "arrow_snapshot": {
+        "bundle": "aigc_detection_benchmark_arrow_20260816_v4",
+        "files": 112,
+        "bytes": 8450099968,
+        "tree_sha256": "0c3823050ec6f30293d25dc4d2e7f363501260c33510f658dd03edbdb4132c73"
+      }
+    },
+    "aigi_holmes_p3": {
+      "official_project_url": "https://github.com/wyczzy/AIGI-Holmes",
+      "official_dataset_url": "https://huggingface.co/datasets/zzy0123/AIGI-Holmes-Dataset",
+      "raw_snapshot": {
+        "artifact": "TestSet.zip",
+        "bytes": 40457899107,
+        "sha256": "60079f602442682936e53a1fdafa7fe7f370dbd1238a3b47478349d02b0366be"
+      },
+      "arrow_snapshot": {
+        "bundle": "aigi_holmes_p3_arrow_20260816_v1",
+        "files": 73,
+        "bytes": 8109256208,
+        "tree_sha256": "98a170af5c7219770b517dd0f28633e58b520ed1887efc3ec3aad99a8d447036"
+      }
+    },
+    "opensdid_global": {
+      "official_project_url": "https://github.com/iamwangyabin/OpenSDI",
+      "official_dataset_url": "https://huggingface.co/datasets/nebula/OpenSDI_test",
+      "scope": "global entire/ only",
+      "raw_snapshot": {
+        "artifact": "OpenSDI_test parquet snapshot",
+        "files": 109,
+        "bytes": 18266091524,
+        "tree_sha256": "48ae07cb9297d8cd3ca86622cfc244041243a1616beea146f4df6ed113f436de"
+      },
+      "arrow_snapshot": {
+        "bundle": "opensdid_global_arrow_20260816",
+        "files": 31,
+        "bytes": 1653848298,
+        "tree_sha256": "5677a5613d959d82d8ed2631e8a0726b389799b859869a83c35eaf1110401e35"
+      }
+    }
+  }
+}

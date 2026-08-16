@@ -7,3 +7,7 @@ Every suite has three fixed seeds, seven Controlled CTTA methods, 1,000 selected
 The per-seed summaries retain the complete online metrics. The AUC and accuracy JSON/CSV files provide cross-seed aggregates. `external_overview.csv` is the compact final table across all suites.
 
 OpenSDID uses only its global `entire/` scope. AIGCDetectionBenchmark contains one selected DALL-E2 JPEG that was fully decodable only under PIL truncated-image recovery; its decoded pixels were re-encoded as PNG and the conversion remains disclosed in `aigc_detection_benchmark/run_metadata.json`.
+
+## Data Provenance
+
+`data_provenance.json` locks the raw artifacts and Arrow bundles actually used for these runs with portable SHA-256 tree fingerprints. A rerun is the same data snapshot only when the recorded raw and Arrow fingerprints match. It deliberately distinguishes those locked local snapshots from any upstream revision that was not captured at download time.
