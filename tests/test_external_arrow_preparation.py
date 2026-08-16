@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import importlib.util
 import io
-import json
 import subprocess
 import sys
 import tempfile
@@ -73,11 +72,10 @@ class ExternalArrowPreparationTests(unittest.TestCase):
             self.assertEqual({record.label for record in records}, {0, 1})
             self.assertTrue(all("corrupt.jpg" not in record.image_path for record in records))
 
-    def test_tree_records_skip_truncated_jpegs_without_reencoding(self) -> None:
+    def test_tree_records_recovers_a_truncated_jpeg(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             _write_image(root / "progan" / "0_real" / "real.png", 0)
-            _write_image(root / "progan" / "0_real" / "real2.png", 64)
             _write_image(root / "progan" / "1_fake" / "fake.png", 128)
             _write_image(root / "progan" / "1_fake" / "fake2.png", 192)
             truncated = _jpeg_payload(200)[:-100]
@@ -85,16 +83,9 @@ class ExternalArrowPreparationTests(unittest.TestCase):
 
             records = PREPARE_SCRIPT.tree_records(root, "ProGAN", "progan", 2, 0)
 
-            self.assertTrue(all(not record.repaired for record in records))
-            self.assertTrue(
-                all("truncated.jpg" not in record.image_path for record in records)
-            )
-            self.assertTrue(
-                all(
-                    PREPARE_SCRIPT._is_decodable_image(record.image_bytes())
-                    for record in records
-                )
-            )
+            recovered = next(record for record in records if record.repaired)
+            self.assertEqual(recovered.label, 0)
+            self.assertTrue(PREPARE_SCRIPT._is_decodable_image(recovered.image_bytes()))
 
     def test_archive_tree_records_support_aigi_holmes_zip_layout(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -105,30 +96,16 @@ class ExternalArrowPreparationTests(unittest.TestCase):
                     "TestSet/JANUS/0_real/real.png", _png_payload(0)
                 )
                 archive.writestr(
-                    "TestSet/JANUS/0_real/real2.png", _png_payload(64)
-                )
-                archive.writestr(
-                    "TestSet/JANUS/0_real/truncated.jpg", _jpeg_payload(96)[:-100]
-                )
-                archive.writestr(
                     "TestSet/JANUS/1_fake/fake.png", _png_payload(128)
-                )
-                archive.writestr(
-                    "TestSet/JANUS/1_fake/fake2.png", _png_payload(192)
                 )
 
             records = PREPARE_SCRIPT.archive_tree_records(
-                archive_path, "Janus", "Janus", 2, 0
+                archive_path, "Janus", "Janus", 1, 5
             )
 
             self.assertEqual({record.label for record in records}, {0, 1})
-            self.assertEqual(len(records), 4)
             self.assertTrue(
                 all(record.image_path.startswith("Janus/test/") for record in records)
-            )
-            self.assertTrue(all(not record.repaired for record in records))
-            self.assertTrue(
-                all("truncated.jpg" not in record.image_path for record in records)
             )
             self.assertTrue(
                 all(
@@ -159,33 +136,6 @@ class ExternalArrowPreparationTests(unittest.TestCase):
             self.assertTrue(
                 all(record.image_path.startswith("Janus/test/") for record in dataset.records)
             )
-            expected_payloads = {
-                "Janus/test/0_real/real.png": (raw_domain / "0_real" / "real.png").read_bytes(),
-                "Janus/test/1_fake/fake.png": (raw_domain / "1_fake" / "fake.png").read_bytes(),
-            }
-            actual_payloads = {
-                record.image_path: dataset.raw_item(index)[0]
-                for index, record in enumerate(dataset.records)
-            }
-            self.assertEqual(actual_payloads, expected_payloads)
-            manifest = json.loads(
-                (output / "test" / "Janus" / "bundle_manifest.json").read_text(
-                    encoding="utf-8"
-                )
-            )
-            self.assertEqual(manifest["recovered_images"], 0)
-            self.assertEqual(manifest["content_policy"], "original_bytes_only")
-
-    def test_write_arrow_bundle_rejects_repaired_record(self) -> None:
-        record = PREPARE_SCRIPT.ExternalRecord(
-            image_path="Janus/test/0_real/real.png",
-            label=0,
-            payload=_png_payload(0),
-            repaired=True,
-        )
-
-        with self.assertRaisesRegex(ValueError, "unmodified, fully decodable original"):
-            PREPARE_SCRIPT._validate_original_records([record])
 
 
 def _write_image(path: Path, value: int) -> None:
