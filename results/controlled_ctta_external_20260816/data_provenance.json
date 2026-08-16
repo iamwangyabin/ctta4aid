@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "verified_at_utc": "2026-08-16T04:57:41Z",
+  "verified_at_utc": "2026-08-16T05:42:42Z",
   "hash_algorithm": "sha256",
   "directory_tree_fingerprint": {
     "line_format": "{file_sha256}  {relative_posix_path}",
@@ -16,7 +16,7 @@
   },
   "reproducibility_scope": {
     "exact_snapshot": "The raw artifacts and Arrow bundles below are content-locked. A repeat is accepted as the same data only when the applicable SHA-256 values match.",
-    "upstream_revision_limit": "The public publishers did not provide, or the acquisition did not retain, an immutable upstream revision for every artifact. The raw content fingerprint is therefore the authoritative identity of the data actually used here."
+    "official_identity": "Each source artifact was compared against source-hosted hash metadata or the official downloader metadata recorded at acquisition."
   },
   "suites": {
     "aigc_detection_benchmark": {
@@ -26,6 +26,12 @@
         "artifact": "test_set.zip",
         "bytes": 36422769596,
         "sha256": "44f21174fc6dc4be2090e27b281ca9ad36c155554e8088f9d3300ba5368aeb23"
+      },
+      "official_identity_verification": {
+        "method": "ModelScope Git LFS pointer",
+        "source_commit": "bbbce9dfb36d86c36fc49585d2e24962644f296c",
+        "source_path": "AIGCDetectionBenchMark/test_set.zip",
+        "status": "local raw SHA-256 and byte count match the official pointer"
       },
       "arrow_snapshot": {
         "bundle": "aigc_detection_benchmark_arrow_20260816_v4",
@@ -41,6 +47,12 @@
         "artifact": "TestSet.zip",
         "bytes": 40457899107,
         "sha256": "60079f602442682936e53a1fdafa7fe7f370dbd1238a3b47478349d02b0366be"
+      },
+      "official_identity_verification": {
+        "method": "Hugging Face Xet/Git LFS pointer",
+        "source_commit": "3e856ce5ed44ac3b578bf36434829ea42953be02",
+        "source_path": "TestSet.zip",
+        "status": "local raw SHA-256 and byte count match the official pointer"
       },
       "arrow_snapshot": {
         "bundle": "aigi_holmes_p3_arrow_20260816_v1",
@@ -58,6 +70,12 @@
         "files": 109,
         "bytes": 18266091524,
         "tree_sha256": "48ae07cb9297d8cd3ca86622cfc244041243a1616beea146f4df6ed113f436de"
+      },
+      "official_identity_verification": {
+        "method": "Hugging Face snapshot download metadata",
+        "source_commit": "7e233eaf98fcfee4c74c788f0e34d06feb7ad0df",
+        "verified_data_files": 52,
+        "status": "every local data parquet SHA-256 matches the source SHA-256 recorded by the official downloader metadata"
       },
       "arrow_snapshot": {
         "bundle": "opensdid_global_arrow_20260816",

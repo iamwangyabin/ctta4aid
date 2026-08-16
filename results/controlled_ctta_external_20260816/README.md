@@ -10,4 +10,4 @@ OpenSDID uses only its global `entire/` scope. AIGCDetectionBenchmark contains o
 
 ## Data Provenance
 
-`data_provenance.json` locks the raw artifacts and Arrow bundles actually used for these runs with portable SHA-256 tree fingerprints. A rerun is the same data snapshot only when the recorded raw and Arrow fingerprints match. It deliberately distinguishes those locked local snapshots from any upstream revision that was not captured at download time.
+`data_provenance.json` locks the raw artifacts and Arrow bundles actually used for these runs with portable SHA-256 tree fingerprints. It also records the official source identities against which the local raw artifacts were verified. A rerun is the same data snapshot only when the recorded raw and Arrow fingerprints match.
