@@ -46,8 +46,8 @@ class ClipVlmSummaryTests(unittest.TestCase):
             self.assertIn("CLIP-native", table)
             self.assertIn("\\textbf{72.00 $\\pm$ 1.00}", table)
             self.assertIn("\\textbf{82.00 $\\pm$ 1.00}", table)
-            self.assertIn("RoTTA$^{\\ddagger}$ & N/A & N/A & N/A & N/A & N/A", table)
-            self.assertIn("TTC$^{\\S}$ & N/A & N/A & N/A & N/A & N/A", table)
+            self.assertIn("RoTTA$^{\\ddagger}$ & -- & -- & -- & -- & --", table)
+            self.assertIn("TTC$^{\\S}$ & -- & -- & -- & -- & --", table)
             self.assertIn("Ours & -- & -- & -- & -- & --", table)
 
             output = root / "paper"
@@ -61,8 +61,8 @@ class ClipVlmSummaryTests(unittest.TestCase):
                 rows = {row["method"]: row for row in csv.DictReader(handle)}
             self.assertEqual(rows["ours"]["genimage"], "")
             self.assertIn("62.00", rows["source_ft"]["genimage"])
-            self.assertEqual(rows["rotta"]["genimage"], "N/A")
-            self.assertEqual(rows["ttc"]["mean"], "N/A")
+            self.assertEqual(rows["rotta"]["genimage"], "")
+            self.assertEqual(rows["ttc"]["mean"], "")
 
     def test_blank_template_keeps_every_result_cell_empty(self) -> None:
         table = SUMMARY_SCRIPT.render_latex_table()
@@ -72,6 +72,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
         self.assertIn("Tent$^{\\dagger}$", table)
         self.assertIn("IAPL & -- & -- & -- & -- & --", table)
         self.assertNotIn("a real photograph", table)
+        self.assertNotIn("N/A", table)
         self.assertNotIn("\\textbf", table)
 
 

@@ -66,9 +66,9 @@ src/
 - IAPL 与 Ours 保留各自方法要求的源训练，但底层初始化仍必须来自同一固定 ViT-L/14 权重。主表必须把这类 method-specific source training 与前两组分块披露，不得跨 source setup 加粗全局最佳。
 - TENT、EATA、CoTTA 与 T2A 若公开实现只枚举 BatchNorm 参数，可将该参数选择最小映射到 CLIP LayerNorm affine 参数；目标函数、样本筛选、teacher、Fisher、gradient masking、更新顺序及在线状态不得随之重写，表格与 metadata 必须加脚注披露该必要迁移。
 - SAR 使用其官方 ViT LayerNorm 路径；其 ViT-B 最后三块过滤映射到 ViT-L/14 的最后三块必须在 metadata 中披露。
-- RoTTA 的 robust BatchNorm 是方法核心，替换为 LayerNorm 将构成方法重设计，因此在纯 ViT-L/14 主实验中只能标为 N/A，不得生成伪 RoTTA 数值。
+- RoTTA 的 robust BatchNorm 是方法核心，替换为 LayerNorm 将构成方法重设计，因此在纯 ViT-L/14 主实验中不得生成伪 RoTTA 数值；空表保留空白结果单元格并用脚注披露原因。
 - EATA 必须有与公共源域 CLIP detector 匹配的 source Fisher 才可标为 EATA；没有 Fisher 的运行只能标为 ETA 消融。
-- TTC 在作者公开实现可固定前只能在主表标为 N/A 或留在 related work，不得用项目自写实现生成复现数值。
+- TTC 在作者公开实现可固定前只能在主表保留空白结果单元格并用脚注披露原因，或留在 related work；不得用项目自写实现生成复现数值。
 - 主表按“公共源域 CLIP detector”“CLIP-native”“method-specific source training”分块；只有前两块可分别在块内比较最佳结果。
 - 每个 `method x target x seed` 必须重新构建方法；单目标结果使用已确认的 online manifest 锁定样本身份，批大小变化不得改变样本顺序。
 - 本轮方法配置逐项审定完成前，现有 `configs/experiments/clip_vlm/` 只能视为预备入口，不得启动或登记为正式实验。

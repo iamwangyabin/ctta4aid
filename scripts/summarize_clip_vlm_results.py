@@ -256,8 +256,8 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
         )
         for row in rows:
             if not row.available:
-                rendered = ["N/A"] * len(DATASET_ORDER)
-                mean_cell = "N/A"
+                rendered = ["--"] * len(DATASET_ORDER)
+                mean_cell = "--"
             else:
                 values = [
                     _method_value(summary, row.method, dataset)
@@ -303,8 +303,8 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
             "LayerNorm affine parameters without changing its objective or online "
             "logic. $^{\\ddagger}$RoTTA is not run because robust BatchNorm is a "
             "core component and replacing it would redesign the method. "
-            "$^{\\S}$TTC remains N/A until an authors' implementation can be "
-            "pinned. Target labels are never used for prompt or hyperparameter "
+            "$^{\\S}$TTC is not reported until an authors' implementation can "
+            "be pinned. Target labels are never used for prompt or hyperparameter "
             "selection.}",
             "\\end{table*}",
             "",
@@ -329,8 +329,8 @@ def write_summary(summary: Mapping[str, Any], output_dir: Path) -> None:
         for table_row in TABLE_ROWS:
             row = {"method": table_row.method}
             if not table_row.available:
-                row.update({dataset: "N/A" for dataset in DATASET_ORDER})
-                row["mean"] = "N/A"
+                row.update({dataset: "" for dataset in DATASET_ORDER})
+                row["mean"] = ""
                 writer.writerow(row)
                 continue
             values = []
