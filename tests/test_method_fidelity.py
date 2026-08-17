@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
 
 
 TORCH_AVAILABLE = (
@@ -186,6 +188,38 @@ class MethodFidelityTests(unittest.TestCase):
         self.assertGreater(sar_stats.selected, 0)
         self.assertFalse(sar_stats.extra["model_recovered"])
         self.assertTrue(self.torch.equal(sar.model.head.weight, sar_head_before))
+
+    def test_dynaprompt_keeps_trainable_prompt_state_fp32(self) -> None:
+        from src.methods.dynaprompt import DynaPrompt
+
+        nn = self.nn
+        torch = self.torch
+
+        class StubPromptModel(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.backbone = nn.Linear(2, 2, bias=False).half()
+                self.prompt_learner = nn.Module()
+                self.prompt_learner.register_parameter(
+                    "ctx", nn.Parameter(torch.ones(2, 2, dtype=torch.float16))
+                )
+
+            def reset(self) -> None:
+                pass
+
+        with patch(
+            "src.official.dynaprompt.build_prompt_model",
+            return_value=StubPromptModel(),
+        ):
+            method = DynaPrompt(
+                SimpleNamespace(clip=object()),
+                "cpu",
+                {"views": 10, "selection_fraction": 0.2, "amp": False},
+            )
+
+        self.assertEqual(method.model.prompt_learner.ctx.dtype, torch.float32)
+        self.assertFalse(method.model.backbone.weight.requires_grad)
+        self.assertTrue(method.model.prompt_learner.ctx.requires_grad)
 
     def test_cotta_runs_official_teacher_augmentation_update(self) -> None:
         from src.methods.cotta import CoTTA

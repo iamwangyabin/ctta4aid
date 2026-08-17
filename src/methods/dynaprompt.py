@@ -49,6 +49,9 @@ class DynaPrompt(TTAMethod):
             num_prompts=self.num_prompts,
         )
         super().__init__(prompt_model, device, config)
+        # OpenAI CLIP loads CUDA weights in fp16. Keep DynaPrompt's trainable
+        # context in fp32 so PyTorch AMP can safely unscale its gradients.
+        self.model.float()
         self.model.eval()
         for name, parameter in self.model.named_parameters():
             parameter.requires_grad_(name.startswith("prompt_learner."))
@@ -97,6 +100,8 @@ class DynaPrompt(TTAMethod):
                 "the official ViT-B command-line restriction is lifted for OpenAI CLIP ViT-L/14",
                 "fixed binary class names replace the repository's ImageNet class list",
                 "the original global-plus-AugMix multi-view transform is retained",
+                "trainable prompt state is held in fp32 before CUDA AMP so "
+                "its gradients are scaler-compatible",
             ],
         }
 
