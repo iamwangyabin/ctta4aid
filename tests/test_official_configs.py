@@ -157,6 +157,22 @@ class OfficialConfigTests(unittest.TestCase):
                 self.assertIn("locked_online_manifest", config["data"])
                 self.assertEqual(config["method_configs"]["iapl"]["adaptation_mode"], "full")
 
+        static_external = (
+            "configs/experiments/iapl/aigc_detection_benchmark_static.yaml",
+            "configs/experiments/iapl/aigi_holmes_p3_static.yaml",
+            "configs/experiments/iapl/opensdid_global_static.yaml",
+        )
+        for filename in static_external:
+            with self.subTest(filename=filename):
+                config = self.load(filename)
+                self.assertEqual(config["seed"], 0)
+                self.assertIn("locked_online_manifest", config["data"])
+                self.assertEqual(config["protocol"]["name"], "predict_only")
+                self.assertEqual(config["method_configs"]["iapl"]["adaptation_mode"], "static")
+                self.assertFalse(
+                    config["protocol"]["batchnorm_buffers_accumulate_across_targets"]
+                )
+
         for filename, mode in (
             ("configs/experiments/iapl/genimage_static.yaml", "static"),
             ("configs/experiments/iapl/genimage_views_only.yaml", "views_only"),

@@ -207,6 +207,16 @@ python run_single_target.py --config configs/experiments/iapl/aigi_holmes_p3.yam
 python run_single_target.py --config configs/experiments/iapl/opensdid_global.yaml
 ```
 
+The paired non-adaptive controls use the same locked samples and order, but
+evaluate the frozen checkpoint from one global view without OIS or prompt
+updates:
+
+```bash
+python run_single_target.py --config configs/experiments/iapl/aigc_detection_benchmark_static.yaml
+python run_single_target.py --config configs/experiments/iapl/aigi_holmes_p3_static.yaml
+python run_single_target.py --config configs/experiments/iapl/opensdid_global_static.yaml
+```
+
 GenImage 的三个入口读取同一个作者 checkpoint。`static` 只预测标准全局视图，
 `views_only` 使用 32 views 和 OIS 但不更新 prompt，默认入口再加入两步 prompt
 adaptation。三者用于拆分多视图选择和参数更新各自带来的收益，不用于与其他 backbone

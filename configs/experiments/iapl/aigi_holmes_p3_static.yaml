@@ -1,0 +1,15 @@
+extends: aigi_holmes_p3.yaml
+
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/iapl_static_external_aigi_holmes_p3_seed0
+
+protocol:
+  name: predict_only
+  source_free_during_test: true
+  reset: per_target_model
+  parameter_accumulation_between_images: false
+  batchnorm_buffers_may_accumulate_between_images: false
+  batchnorm_buffers_accumulate_across_targets: false
+
+method_configs:
+  iapl:
+    adaptation_mode: static
