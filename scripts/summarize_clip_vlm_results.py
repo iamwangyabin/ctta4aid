@@ -1,4 +1,4 @@
-"""Aggregate CLIP ViT-L/14 single-target runs into the paper's main table."""
+"""Aggregate CLIP ViT-L/14 single-target runs into paper result tables."""
 
 from __future__ import annotations
 
@@ -23,7 +23,65 @@ DATASET_LABELS = {
     "aigi_holmes_p3": "AIGI-Holmes P3 (10)",
     "opensdid_global": "OpenSDID (5)",
 }
-METRICS = ("auc", "average_precision", "balanced_accuracy")
+DATASET_TITLES = {
+    "genimage": "GenImage",
+    "aigc_detection_benchmark": "AIGCDetectionBenchmark",
+    "aigi_holmes_p3": "AIGI-Holmes P3",
+    "opensdid_global": "OpenSDID Global",
+}
+DATASET_TARGETS = {
+    "genimage": (
+        ("BigGAN", "BigGAN"),
+        ("ADM", "ADM"),
+        ("glide", "GLIDE"),
+        ("stable_diffusion_v_1_5", "SD v1.5"),
+        ("VQDM", "VQDM"),
+        ("wukong", "Wukong"),
+        ("Midjourney", "Midjourney"),
+    ),
+    "aigc_detection_benchmark": (
+        ("ProGAN", "ProGAN"),
+        ("StyleGAN", "StyleGAN"),
+        ("BigGAN", "BigGAN"),
+        ("CycleGAN", "CycleGAN"),
+        ("StarGAN", "StarGAN"),
+        ("GauGAN", "GauGAN"),
+        ("StyleGAN2", "StyleGAN2"),
+        ("WFIR", "WFIR"),
+        ("ADM", "ADM"),
+        ("GLIDE", "GLIDE"),
+        ("Midjourney", "Midjourney"),
+        ("SD v1.4", "SD v1.4"),
+        ("SD v1.5", "SD v1.5"),
+        ("VQDM", "VQDM"),
+        ("Wukong", "Wukong"),
+        ("DALL-E2", "DALL-E2"),
+        ("SDXL", "SDXL"),
+    ),
+    "aigi_holmes_p3": (
+        ("Janus", "Janus"),
+        ("Janus-Pro-1B", "Janus-Pro-1B"),
+        ("Janus-Pro-7B", "Janus-Pro-7B"),
+        ("Show-o", "Show-o"),
+        ("LlamaGen", "LlamaGen"),
+        ("Infinity", "Infinity"),
+        ("VAR", "VAR"),
+        ("PixArt-XL", "PixArt-XL"),
+        ("SD3.5-L", "SD3.5-L"),
+        ("FLUX", "FLUX"),
+    ),
+    "opensdid_global": (
+        ("SD1.5", "SD1.5"),
+        ("SD2.1", "SD2.1"),
+        ("SDXL", "SDXL"),
+        ("SD3", "SD3"),
+        ("Flux.1", "Flux.1"),
+    ),
+}
+METRICS = ("auc", "average_precision", "accuracy", "balanced_accuracy")
+TABLE_METRICS = ("auc", "accuracy")
+METRIC_LABELS = {"auc": "AUC", "accuracy": "Accuracy"}
+LOCKED_SEED_DIRS = ("seed0", "seed1", "seed2")
 
 
 class TableRow(NamedTuple):
@@ -89,13 +147,15 @@ def _finite_metric(value: Any, *, context: str) -> float:
     return metric
 
 
-def _seed_summary(path: Path) -> tuple[list[str], dict[str, dict[str, float]]]:
+def _seed_summary(
+    path: Path,
+) -> tuple[list[str], dict[str, dict[str, dict[str, float]]]]:
     with path.open(encoding="utf-8") as handle:
         raw = json.load(handle)
     if not isinstance(raw, dict) or not raw:
         raise ValueError(f"Invalid single-target summary: {path}")
 
-    methods: dict[str, dict[str, float]] = {}
+    methods: dict[str, dict[str, dict[str, float]]] = {}
     expected_targets: list[str] | None = None
     for method, by_target in raw.items():
         if not isinstance(by_target, dict) or not by_target:
@@ -105,42 +165,48 @@ def _seed_summary(path: Path) -> tuple[list[str], dict[str, dict[str, float]]]:
             expected_targets = targets
         elif targets != expected_targets:
             raise ValueError(f"Target order differs for {method} in {path}")
-        method_metrics: dict[str, float] = {}
-        for metric in METRICS:
-            values = []
-            for target, result in by_target.items():
+        target_metrics: dict[str, dict[str, float]] = {}
+        for target, result in by_target.items():
+            metrics: dict[str, float] = {}
+            for metric in METRICS:
                 try:
-                    values.append(
-                        _finite_metric(
-                            result["overall"][metric],
-                            context=f"{path}:{method}:{target}:{metric}",
-                        )
+                    metrics[metric] = _finite_metric(
+                        result["overall"][metric],
+                        context=f"{path}:{method}:{target}:{metric}",
                     )
                 except (KeyError, TypeError) as error:
                     raise ValueError(
                         f"Missing {metric!r} for {method}/{target} in {path}"
                     ) from error
-            method_metrics[metric] = fmean(values)
-        methods[str(method)] = method_metrics
+            target_metrics[str(target)] = metrics
+        methods[str(method)] = target_metrics
     assert expected_targets is not None
     return expected_targets, methods
 
 
-def aggregate_dataset(results_root: Path) -> dict[str, Any]:
+def aggregate_dataset(
+    results_root: Path, *, expected_targets: tuple[str, ...] | None = None
+) -> dict[str, Any]:
     """Macro-average each target within a dataset, then aggregate three seeds."""
 
     summaries = sorted(results_root.glob("seed*/single_target_summary.json"))
     if not summaries:
         raise FileNotFoundError(f"No seed*/single_target_summary.json below {results_root}")
+    observed_seed_dirs = tuple(path.parent.name for path in summaries)
+    if observed_seed_dirs != LOCKED_SEED_DIRS:
+        raise ValueError(
+            f"Expected complete seeds {LOCKED_SEED_DIRS} below {results_root}; "
+            f"found {observed_seed_dirs}"
+        )
 
-    per_seed: dict[str, dict[str, dict[str, float]]] = {}
-    expected_targets: list[str] | None = None
+    per_seed: dict[str, dict[str, dict[str, dict[str, float]]]] = {}
+    observed_targets: list[str] | None = None
     expected_methods: list[str] | None = None
     for summary_path in summaries:
         targets, methods = _seed_summary(summary_path)
-        if expected_targets is None:
-            expected_targets = targets
-        elif targets != expected_targets:
+        if observed_targets is None:
+            observed_targets = targets
+        elif targets != observed_targets:
             raise ValueError(f"Target order differs in {summary_path}")
         method_names = list(methods)
         if expected_methods is None:
@@ -149,19 +215,48 @@ def aggregate_dataset(results_root: Path) -> dict[str, Any]:
             raise ValueError(f"Method order differs in {summary_path}")
         per_seed[summary_path.parent.name] = methods
 
-    assert expected_targets is not None
+    assert observed_targets is not None
     assert expected_methods is not None
+    if expected_targets is not None and observed_targets != list(expected_targets):
+        raise ValueError(
+            f"Target order below {results_root} does not match the locked dataset order"
+        )
+
+    per_target_aggregate = {
+        method: {
+            target: {
+                metric: _mean_std(
+                    [
+                        per_seed[seed][method][target][metric]
+                        for seed in per_seed
+                    ]
+                )
+                for metric in METRICS
+            }
+            for target in observed_targets
+        }
+        for method in expected_methods
+    }
     aggregate = {
         method: {
-            metric: _mean_std([per_seed[seed][method][metric] for seed in per_seed])
+            metric: _mean_std(
+                [
+                    fmean(
+                        per_seed[seed][method][target][metric]
+                        for target in observed_targets
+                    )
+                    for seed in per_seed
+                ]
+            )
             for metric in METRICS
         }
         for method in expected_methods
     }
     return {
         "seeds": list(per_seed),
-        "targets": expected_targets,
+        "targets": observed_targets,
         "per_seed": per_seed,
+        "per_target_aggregate": per_target_aggregate,
         "aggregate": aggregate,
     }
 
@@ -179,19 +274,44 @@ def aggregate_results(dataset_roots: Mapping[str, Path]) -> dict[str, Any]:
     return {
         "backbone": "OpenAI CLIP ViT-L/14",
         "metric": "macro_target_auc",
+        "table_metrics": list(TABLE_METRICS),
         "datasets": {
-            name: aggregate_dataset(Path(dataset_roots[name]).expanduser().resolve())
+            name: aggregate_dataset(
+                Path(dataset_roots[name]).expanduser().resolve(),
+                expected_targets=tuple(target for target, _label in DATASET_TARGETS[name]),
+            )
             for name in DATASET_ORDER
         },
     }
 
 
 def _method_value(
-    summary: Mapping[str, Any] | None, method: str, dataset: str
+    summary: Mapping[str, Any] | None,
+    method: str,
+    dataset: str,
+    metric: str = "auc",
 ) -> dict[str, float] | None:
     if summary is None:
         return None
-    value = summary["datasets"][dataset]["aggregate"].get(method, {}).get("auc")
+    value = summary["datasets"][dataset]["aggregate"].get(method, {}).get(metric)
+    return value if isinstance(value, dict) else None
+
+
+def _target_value(
+    summary: Mapping[str, Any] | None,
+    method: str,
+    dataset: str,
+    target: str,
+    metric: str,
+) -> dict[str, float] | None:
+    if summary is None:
+        return None
+    value = (
+        summary["datasets"][dataset]["per_target_aggregate"]
+        .get(method, {})
+        .get(target, {})
+        .get(metric)
+    )
     return value if isinstance(value, dict) else None
 
 
@@ -213,7 +333,9 @@ def _best_methods(
     return {method for method, value in candidates if math.isclose(value, best)}
 
 
-def _format_auc(value: Mapping[str, float] | None, *, bold: bool = False) -> str:
+def _format_mean_std_percentage(
+    value: Mapping[str, float] | None, *, bold: bool = False
+) -> str:
     if value is None:
         return "--"
     mean = float(value["mean"])
@@ -222,8 +344,171 @@ def _format_auc(value: Mapping[str, float] | None, *, bold: bool = False) -> str
     return f"\\textbf{{{rendered}}}" if bold else rendered
 
 
+def _format_target_metric(
+    value: Mapping[str, float] | None, *, bold: bool = False
+) -> str:
+    if value is None:
+        return "--"
+    rendered = f"{100.0 * float(value['mean']):.2f}"
+    return f"\\textbf{{{rendered}}}" if bold else rendered
+
+
+def _best_detailed_methods(
+    summary: Mapping[str, Any] | None,
+    dataset: str,
+    metric: str,
+    rank_group: str,
+    target: str | None,
+) -> set[str]:
+    if summary is None:
+        return set()
+    candidates = []
+    for row in TABLE_ROWS:
+        if not row.available or row.rank_group != rank_group:
+            continue
+        value = (
+            _method_value(summary, row.method, dataset, metric)
+            if target is None
+            else _target_value(summary, row.method, dataset, target, metric)
+        )
+        if value is not None:
+            candidates.append((row.method, float(value["mean"])))
+    if not candidates:
+        return set()
+    best = max(value for _method, value in candidates)
+    return {method for method, value in candidates if math.isclose(value, best)}
+
+
+def detailed_table_filename(dataset: str, metric: str) -> str:
+    if dataset not in DATASET_ORDER or metric not in TABLE_METRICS:
+        raise ValueError(f"Unsupported detailed table: {dataset}/{metric}")
+    return f"clip_vitl14_{dataset}_{metric}_table.tex"
+
+
+def render_dataset_table(
+    dataset: str,
+    metric: str,
+    summary: Mapping[str, Any] | None = None,
+) -> str:
+    """Render one target-wise AUC or Accuracy table for a dataset."""
+
+    if dataset not in DATASET_ORDER:
+        raise ValueError(f"Unsupported dataset: {dataset}")
+    if metric not in TABLE_METRICS:
+        raise ValueError(f"Unsupported table metric: {metric}")
+
+    targets = DATASET_TARGETS[dataset]
+    metric_label = METRIC_LABELS[metric]
+    total_columns = len(targets) + 2
+    target_columns = "".join("c" for _target in targets)
+    accuracy_note = (
+        ", using a fixed 0.5 decision threshold" if metric == "accuracy" else ""
+    )
+    wide_table = len(targets) > 5
+    font_size = "\\scriptsize" if wide_table else "\\small"
+    tabcolsep = "1.5pt" if wide_table else "4pt"
+    resize_width = "\\textwidth" if wide_table else "0.82\\textwidth"
+    status_note = (
+        " Result cells remain blank until the complete campaign is validated."
+        if summary is None
+        else ""
+    )
+    best_by_group_column = {
+        (rank_group, target): _best_detailed_methods(
+            summary, dataset, metric, rank_group, target
+        )
+        for rank_group in ("source_trained", "clip_native")
+        for target in (None, *(target for target, _label in targets))
+    }
+    latex_newline = r"\\"
+    label_dataset = dataset.replace("_", "-")
+    lines = [
+        "\\begin{table*}[t]",
+        "\\centering",
+        f"\\caption{{Target-wise {metric_label} (\\%) on {DATASET_TITLES[dataset]} "
+        f"with OpenAI CLIP ViT-L/14{accuracy_note}. Target columns report "
+        "means over three locked seeds; Mean reports the target-macro mean "
+        f"$\\pm$ standard deviation across seeds.{status_note}}}",
+        f"\\label{{tab:clip-vitl14-{label_dataset}-{metric}}}",
+        font_size,
+        f"\\setlength{{\\tabcolsep}}{{{tabcolsep}}}",
+        "\\renewcommand{\\arraystretch}{1.05}",
+        f"\\resizebox{{{resize_width}}}{{!}}{{%",
+        f"\\begin{{tabular}}{{l{target_columns}c}}",
+        "\\toprule",
+        f"& \\multicolumn{{{len(targets)}}}{{c}}{{{metric_label} (\\%) by target}} "
+        f"& \\multicolumn{{1}}{{c}}{{Summary}} {latex_newline}",
+        f"\\cmidrule(lr){{2-{len(targets) + 1}}}",
+        f"\\cmidrule(lr){{{len(targets) + 2}-{len(targets) + 2}}}",
+        "Method & "
+        + " & ".join(label for _target, label in targets)
+        + " & Mean "
+        + latex_newline,
+        "\\midrule",
+    ]
+    for group_index, (_group_key, group_label, rows) in enumerate(TABLE_GROUPS):
+        if group_index:
+            lines.append("\\midrule")
+        lines.append(
+            f"\\multicolumn{{{total_columns}}}{{l}}{{\\textit{{{group_label}}}}} "
+            + latex_newline
+        )
+        for row in rows:
+            if not row.available:
+                rendered_targets = ["--"] * len(targets)
+                rendered_mean = "--"
+            else:
+                rendered_targets = []
+                for target, _label in targets:
+                    value = _target_value(
+                        summary, row.method, dataset, target, metric
+                    )
+                    rendered_targets.append(
+                        _format_target_metric(
+                            value,
+                            bold=(
+                                row.rank_group is not None
+                                and row.method
+                                in best_by_group_column[(row.rank_group, target)]
+                            ),
+                        )
+                    )
+                mean_value = _method_value(summary, row.method, dataset, metric)
+                rendered_mean = _format_mean_std_percentage(
+                    mean_value,
+                    bold=(
+                        row.rank_group is not None
+                        and row.method
+                        in best_by_group_column[(row.rank_group, None)]
+                    ),
+                )
+            lines.append(
+                " & ".join([row.label, *rendered_targets, rendered_mean])
+                + " "
+                + latex_newline
+            )
+    lines.extend(
+        [
+            "\\bottomrule",
+            "\\end{tabular}%",
+            "}",
+            "\\vspace{2pt}",
+            "\\parbox{\\textwidth}{\\footnotesize Blocks distinguish source "
+            "setup; bold is restricted to the two blocks with shared starting "
+            "states. $^{\\dagger}$BatchNorm parameter selection is minimally "
+            "mapped to LayerNorm affine parameters. $^{\\ddagger}$RoTTA remains "
+            "blank because robust BatchNorm is a core component. $^{\\S}$TTC "
+            "remains blank until an authors' implementation can be pinned. "
+            "Target labels are used only by the evaluator.}",
+            "\\end{table*}",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
-    """Render the blank template or a filled paper-ready main table."""
+    """Render the optional four-dataset AUC overview table."""
 
     best_by_group_dataset = {
         (rank_group, dataset): _best_methods(summary, dataset, rank_group)
@@ -264,7 +549,7 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
                     for dataset in DATASET_ORDER
                 ]
                 rendered = [
-                    _format_auc(
+                    _format_mean_std_percentage(
                         value,
                         bold=(
                             row.rank_group is not None
@@ -313,6 +598,17 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
     return "\n".join(lines)
 
 
+def write_latex_tables(
+    output_dir: Path, summary: Mapping[str, Any] | None = None
+) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for dataset in DATASET_ORDER:
+        for metric in TABLE_METRICS:
+            (output_dir / detailed_table_filename(dataset, metric)).write_text(
+                render_dataset_table(dataset, metric, summary), encoding="utf-8"
+            )
+
+
 def write_summary(summary: Mapping[str, Any], output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "clip_vitl14_summary.json").write_text(
@@ -336,14 +632,14 @@ def write_summary(summary: Mapping[str, Any], output_dir: Path) -> None:
             values = []
             for dataset in DATASET_ORDER:
                 value = _method_value(summary, table_row.method, dataset)
-                row[dataset] = "" if value is None else _format_auc(value)
+                row[dataset] = (
+                    "" if value is None else _format_mean_std_percentage(value)
+                )
                 if value is not None:
                     values.append(float(value["mean"]))
             row["mean"] = "" if len(values) != len(DATASET_ORDER) else f"{fmean(values):.6f}"
             writer.writerow(row)
-    (output_dir / "clip_vitl14_main_table.tex").write_text(
-        render_latex_table(summary), encoding="utf-8"
-    )
+    write_latex_tables(output_dir, summary)
 
 
 def _parse_dataset_arguments(values: list[str]) -> dict[str, Path]:
@@ -360,7 +656,7 @@ def _parse_dataset_arguments(values: list[str]) -> dict[str, Path]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Aggregate CLIP ViT-L/14 target-stream results into the paper table"
+        description="Aggregate CLIP ViT-L/14 target-stream results into paper tables"
     )
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument(
@@ -380,10 +676,7 @@ def main() -> None:
     if args.template_only:
         if args.dataset:
             parser.error("--template-only cannot be combined with --dataset")
-        output_dir.mkdir(parents=True, exist_ok=True)
-        (output_dir / "clip_vitl14_main_table.tex").write_text(
-            render_latex_table(), encoding="utf-8"
-        )
+        write_latex_tables(output_dir)
         return
     try:
         summary = aggregate_results(_parse_dataset_arguments(args.dataset))

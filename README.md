@@ -93,12 +93,19 @@ CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fish
 | Ours | 固定 ViT-L/14 初始化的本方法 detector | 本方法完整训练与 CTTA 机制 | 只统一数据、初始化与 evaluator |
 
 所有 target hidden labels 始终只进入 evaluator。CLIP-native 方法的类别语义属于任务定义，
-但 template 或 prompt 不得使用目标标签选择。主表报告每个数据集内 generator-macro AUROC
-的三 seed 均值与标准差；GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和
-OpenSDID Global 分别含 7、17、10、5 个 target。
+但 template 或 prompt 不得使用目标标签选择。主结果不再把一个数据集压缩成单个数值：
+每个数据集分别给出逐 target 的 AUC 表和 Accuracy 表。target 单元格报告三个正式 seed
+的均值，Mean 列报告 target-macro 均值及跨 seed 标准差；Accuracy 固定使用 0.5 阈值。
 
-可先生成数值为空的 LaTeX 主表；全量运行完成后对同一命令去掉 `--template-only`，
-汇总器会自动填入数值并导出 CSV、JSON 和 LaTeX：
+| 数据集 | 固定 target 列顺序 |
+|---|---|
+| GenImage | BigGAN、ADM、GLIDE、SD v1.5、VQDM、Wukong、Midjourney |
+| AIGCDetectionBenchmark | ProGAN、StyleGAN、BigGAN、CycleGAN、StarGAN、GauGAN、StyleGAN2、WFIR、ADM、GLIDE、Midjourney、SD v1.4、SD v1.5、VQDM、Wukong、DALL-E2、SDXL |
+| AIGI-Holmes P3 | Janus、Janus-Pro-1B、Janus-Pro-7B、Show-o、LlamaGen、Infinity、VAR、PixArt-XL、SD3.5-L、FLUX |
+| OpenSDID Global | SD1.5、SD2.1、SDXL、SD3、Flux.1 |
+
+可先生成八张数值为空的 LaTeX 详细表；全量运行完成后对同一命令去掉
+`--template-only`，汇总器会自动填入逐 target 数值，并导出 CSV、JSON 和 LaTeX：
 
 ```bash
 python scripts/summarize_clip_vlm_results.py \
@@ -106,7 +113,8 @@ python scripts/summarize_clip_vlm_results.py \
   --output-dir /tmp/clip_vitl14_paper_table
 ```
 
-本轮只冻结实验设计与论文空表，不启动正式实验。现有
+本轮只冻结实验设计与论文空表，不启动正式实验。八张新表在完整三 seed campaign
+验收前全部保持空白；此前完成的 ResNet-50 数值表原样保留在论文补充材料中。现有
 `configs/experiments/clip_vlm/` 仍包含上一版统一固定文本原型的预备配置，不能作为
 正式结果入口。必须先逐方法完成 source checkpoint、分类器或 prompt 构造、可训练参数、
 batch/views、更新步数、状态重置和预测/适应顺序的配置审定及测试，再开放三个 seed 的
@@ -380,10 +388,10 @@ EATA、T2A 和 OST 的参数适应在这轮配对实验中均未提高宏平均 
 
 ## 实验边界
 
-- CLIP 主表只使用固定 OpenAI CLIP ViT-L/14 预训练权重，并锁定目标样本 identity、目标内顺序和 seed；每种方法保留原生 source training、分类器或 prompt 构造、batch/views、在线状态与预测/适应顺序。表格以 generator-macro AUROC 为主指标，报告三个锁定 seed 的均值与标准差。
+- CLIP 主结果只使用固定 OpenAI CLIP ViT-L/14 预训练权重，并锁定目标样本 identity、目标内顺序和 seed；每种方法保留原生 source training、分类器或 prompt 构造、batch/views、在线状态与预测/适应顺序。每个数据集分别报告逐 target AUC 和阈值 0.5 的 Accuracy；target 单元格为三 seed 均值，Mean 为 target-macro 均值及跨 seed 标准差。
 - TENT、EATA、CoTTA 和 T2A 只允许把公开实现中的 BN 参数选择最小映射到 LayerNorm affine；其余方法逻辑不得重写。EATA 必须包含匹配公共源域 CLIP detector 的 Fisher。RoTTA 因 robust BatchNorm 是核心而不生成结果，原因只在脚注披露。
 - CLIP-native 方法只共享类别语义，不共享人为固定的一句最终 prompt。IAPL 与 Ours 使用各自原生源训练并单独披露 source setup；TTC 在作者公开实现可固定前不生成结果，原因只在脚注披露。
-- CNN Controlled CTTA 方法共享 backbone、源 checkpoint、输入顺序、batch size 和 Predict-Then-Adapt 协议，并保留为补充材料。
+- CNN Controlled CTTA 方法共享 backbone、源 checkpoint、输入顺序、batch size 和 Predict-Then-Adapt 协议；既有数值表原样保留为补充材料，不得被新 CLIP 空表覆盖或删除。
 - OST 使用自己的 MetaXception checkpoint、源训练模板和 Adapt-Then-Predict 协议，只能单独披露；当前通用 alpha 合成结果不等价于作者的人脸实验。
 - T2A 使用经过必要运行修复的作者公开核心，不能描述为未经修改的官方实现。
 - LAME 核心采用 CC BY-NC-SA 4.0，仅限非商业使用；完整第三方授权见 `THIRD_PARTY_NOTICES.md`。

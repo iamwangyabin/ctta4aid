@@ -70,6 +70,8 @@ src/
 - EATA 必须有与公共源域 CLIP detector 匹配的 source Fisher 才可标为 EATA；没有 Fisher 的运行只能标为 ETA 消融。
 - TTC 在作者公开实现可固定前只能在主表保留空白结果单元格并用脚注披露原因，或留在 related work；不得用项目自写实现生成复现数值。
 - 主表按“公共源域 CLIP detector”“CLIP-native”“method-specific source training”分块；只有前两块可分别在块内比较最佳结果。
+- 四个数据集必须分别生成逐 target 的 AUC 表和 Accuracy 表，不能只报告数据集级平均值。target 列及顺序固定为现有数据配置；Accuracy 使用阈值 0.5。每个 target 单元格报告三个正式 seed 的均值，Mean 报告 target-macro 均值及跨 seed 标准差。
+- 新 CLIP ViT-L/14 表格在完整三 seed campaign 验收前不得出现任何实验数值。既有 ResNet-50 数值表必须原样保留在论文补充材料中，并明确标为上一轮 CNN controlled results，不得与新 CLIP 结果混写。
 - 每个 `method x target x seed` 必须重新构建方法；单目标结果使用已确认的 online manifest 锁定样本身份，批大小变化不得改变样本顺序。
 - 本轮方法配置逐项审定完成前，现有 `configs/experiments/clip_vlm/` 只能视为预备入口，不得启动或登记为正式实验。
 
