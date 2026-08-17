@@ -1,0 +1,15 @@
+extends:
+  - ../../datasets/genimage.yaml
+  - base.yaml
+
+data:
+  # Keep the source domain out of the target-only table and use the completed
+  # ResNet campaign's sample identities for every method-native run.
+  targets:
+    - BigGAN
+    - ADM
+    - glide
+    - stable_diffusion_v_1_5
+    - VQDM
+    - wukong
+    - Midjourney

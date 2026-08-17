@@ -1,0 +1,16 @@
+method_configs:
+  source:
+    capture_initial_state: false
+    reference:
+      role: frozen_openai_clip_control
+      trainable_parameters: 0
+      source_setup: frozen_openai_clip_zero_shot_binary_prompts
+  lame:
+    capture_initial_state: false
+    data:
+      batch_size: 16
+      num_workers: 4
+  iapl:
+    data:
+      batch_size: 1
+      num_workers: 8

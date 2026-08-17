@@ -1,12 +1,13 @@
 # Online TTA for AI-Generated Image Detection
 
-这是一个用于 AI 生成图像检测的在线测试时适应项目。论文专项只纳入有作者公开实现的方法，当前保留三条实验轨道：
+这是一个用于 AI 生成图像检测的在线测试时适应项目。论文专项只纳入有作者公开实现的方法，当前保留四条实验轨道：
 
-- **Controlled CTTA 主实验**：Source、TENT、EATA、CoTTA、RoTTA、LAME 和 T2A 共用同一个 ResNet-50 源模型，比较独立 Single-target 与 Continual stream。
-- **IAPL 补充实验**：使用 CLIP ViT-L/14，按逐图 Adapt-Then-Predict 协议运行，不与公共 CNN 控制实验混为一谈。
+- **CLIP VLM 主实验**：以 OpenAI CLIP ViT-L/14 为固定预训练起点，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上比较 Frozen CLIP、Tent-LN、SAR、LAME、TDA、DynaPrompt、CLIPTTA、BATCLIP 与 IAPL。
+- **Controlled CTTA 补充实验**：Source、TENT、EATA、CoTTA、RoTTA、LAME 和 T2A 共用同一个 ResNet-50 源模型，保留为 CNN 对照与补充材料。
+- **IAPL 独立能力**：使用作者发布的 IAPL checkpoint 和 CLIP ViT-L/14，按逐图 Adapt-Then-Predict 协议运行；主表中必须显式标出其 source setup 与 Frozen CLIP 不同。
 - **OST 补充实验**：使用作者的 MetaXception、AM-Softmax 和单步 fast weights；每张测试图从源训练集抽取带标签模板，合成伪样本后 Adapt-Then-Predict。
 
-旧阶段实验和结果已经移除。当前完成的正式实验按独立目录保存在 `results/`，只提交最终汇总、复现身份和结论，不提交运行日志或中间产物。
+已确认的 ResNet-50 结果仍按独立目录保存在 `results/`，只提交最终汇总、复现身份和结论，不提交运行日志或中间产物。新的 CLIP 主表结果必须写入新的 `results/clip_vlm_*` 目录，绝不覆盖这些补充材料。
 
 ## 项目结构
 
@@ -53,9 +54,74 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-## Controlled CTTA 主实验
+## CLIP VLM 主表
 
-主实验读取符合项目数据契约的 UniversalFakeDetect Arrow bundle。运行前设置：
+主表固定使用 OpenAI CLIP ViT-L/14 的本地 checkpoint，并验证 SHA-256 为
+`b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836`。
+Frozen CLIP、Tent-LN、SAR、LAME、TDA、CLIPTTA 和 BATCLIP 使用相同的预注册二分类
+文本原型 `a real photograph` / `an AI-generated image`。DynaPrompt 从相同的 real/fake
+类名开始，但按其原生协议在线更新 context；IAPL 必须使用作者发布的任务 checkpoint，
+因此主表会把它标为独立 source setup，而不是声称全部方法共享同一任务训练状态。
+
+当前量化入口固定每个 target 的 Arrow sample identity 和顺序，三 seed 分别复用已经
+确认的 manifest。主表报告每个数据集内 generator-macro AUROC 的三 seed 均值与标准差；
+GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 分别含 7、17、10、5
+个 target。方法保留论文原生的 batch contract：Tent-LN、SAR、LAME、TDA、CLIPTTA 和 BATCLIP
+使用 batch 16；DynaPrompt 与 IAPL 使用 batch 1 的逐图多视图适应。表格明确标注
+Predict-Then-Adapt 或 Adapt-Then-Predict，不将不同预测/适应顺序伪装为同一协议。
+
+尚无论文源文件时，可先生成数值为空的 LaTex 主表；全量运行完成后对同一命令去掉
+`--template-only`，汇总器会自动填入数值并导出 CSV、JSON 和 LaTex：
+
+```bash
+python scripts/summarize_clip_vlm_results.py \
+  --template-only \
+  --output-dir /tmp/clip_vitl14_paper_table
+```
+
+先放置 CLIP checkpoint 与 IAPL checkpoint，并设置四个 Arrow 根目录：
+
+```bash
+scripts/fetch_clip_vitl14.sh /data/weights/clip/ViT-L-14.pt
+export CLIP_VIT_L14_CHECKPOINT=/data/weights/clip/ViT-L-14.pt
+export IAPL_GENIMAGE_CHECKPOINT=/data/weights/iapl/GenImage.pth
+export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage_test
+export AIGC_DETECTION_BENCHMARK_ARROW_ROOT=/data/arrow/aigc_detection_benchmark
+export AIGI_HOLMES_P3_ARROW_ROOT=/data/arrow/aigi_holmes_p3
+export OPENSDID_GLOBAL_ARROW_ROOT=/data/arrow/opensdid_global
+export CTTA4AID_EXPERIMENT_ROOT=/data/experiments
+```
+
+例如运行 GenImage 的三个 seed：
+
+```bash
+python run_single_target.py --config configs/experiments/clip_vlm/genimage_seed0.yaml
+python run_single_target.py --config configs/experiments/clip_vlm/genimage_seed1.yaml
+python run_single_target.py --config configs/experiments/clip_vlm/genimage_seed2.yaml
+```
+
+将配置名替换为 `aigc_detection_benchmark_seed{0,1,2}`、
+`aigi_holmes_p3_seed{0,1,2}` 或 `opensdid_global_seed{0,1,2}` 可运行其余三个
+数据集。TTC 尚未发现可固定的作者公开实现，因此只作为 related work；RoTTA、T2A 和
+当前 CoTTA 公开核心依赖 BatchNorm，不能用项目自写的 LayerNorm 改版放入 ViT-L/14
+主表。Tent-LN 明确使用 SAR 发布代码的 LayerNorm 路径，不冒充 BatchNorm-only 的原始
+Tent；SAR 使用其官方 ViT LayerNorm 路径。ResNet-101
+作为第二个预训练 backbone 的补充实验将在 CLIP 主表稳定后单独加入。
+
+四个数据集的三 seed 全部完成后，写入最终结果目录并生成论文主表：
+
+```bash
+python scripts/summarize_clip_vlm_results.py \
+  --dataset genimage=${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm/genimage \
+  --dataset aigc_detection_benchmark=${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm/aigc_detection_benchmark \
+  --dataset aigi_holmes_p3=${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm/aigi_holmes_p3 \
+  --dataset opensdid_global=${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm/opensdid_global \
+  --output-dir /data/results/clip_vlm_vitl14
+```
+
+## Controlled CTTA 补充实验
+
+这条 CNN 补充轨道读取符合项目数据契约的 UniversalFakeDetect Arrow bundle。运行前设置：
 
 ```bash
 export UFD_FORENSYNTHS_ARROW_ROOT=/data/DF-arrow-data/ForenSynths
@@ -96,7 +162,7 @@ python run_continual_stream.py \
 
 Single-target 会为每个 `method x target` 重新加载源 checkpoint。Continual stream 只在每个方法开始时加载一次，域切换时保留方法状态；每个域结束后会在与适应样本不重叠的固定 holdout 上计算当前域收益、过去域 forgetting，以及尚未进入适应流的 future-generator transfer。未来域样本仅用于 evaluator 的只读预测，标签只进入指标计算；二者都不进入方法的适应调用。
 
-GenImage Controlled CTTA 使用 SD v1.4 训练公共 ResNet-50 源模型，并将其从
+GenImage CNN Controlled CTTA 使用 SD v1.4 训练公共 ResNet-50 源模型，并将其从
 目标域中排除。七个方法共享该 checkpoint、Fisher、样本顺序和
 Predict-Then-Adapt 协议；IAPL 仍作为独立的 CLIP 补充轨道汇报。设置：
 
@@ -163,9 +229,9 @@ python scripts/summarize_continual_results.py \
 
 ## IAPL
 
-IAPL 是独立的补充协议。它对每张图生成 32 个视图，重置 prompt 和优化器，执行 2 步适应后再预测。BatchNorm buffers 只在同一个目标域内部跨图片保留；切换目标域时重新加载模型，因此各目标结果相互独立。
+IAPL 是独立的逐图协议。它对每张图生成 32 个视图，重置 prompt 和优化器，执行 2 步适应后再预测。BatchNorm buffers 只在同一个目标域内部跨图片保留；切换目标域时重新加载模型，因此各目标结果相互独立。CLIP 主表可报告其数值，但必须将作者任务 checkpoint 标为不同于 Frozen CLIP 的 source setup。
 
-IAPL 与 Controlled CTTA 共用 `src.data` 中的 dataset factory、domain loader 和样本三元组接口。两条轨道只在输入变换和适应协议上不同：IAPL 使用全局/局部多视图变换，Controlled CTTA 使用公共单视图评估变换。
+IAPL 与 CLIP VLM 主轨和 CNN Controlled CTTA 共用 `src.data` 中的 dataset factory、domain loader 和样本三元组接口。IAPL 使用全局/局部多视图变换；CLIP VLM 其余方法分别使用单视图或其作者的原生多视图变换。
 
 安装额外依赖：
 
@@ -310,9 +376,10 @@ EATA、T2A 和 OST 的参数适应在这轮配对实验中均未提高宏平均 
 
 ## 实验边界
 
-- Controlled CTTA 方法共享 backbone、源 checkpoint、输入顺序、batch size 和 Predict-Then-Adapt 协议。
-- EATA checkpoint 必须包含源域 Fisher；缺少 Fisher 时默认拒绝运行。
-- IAPL 使用不同 backbone 和 Adapt-Then-Predict 协议，只能作为单独披露设置的补充比较。
+- CLIP 主表固定 OpenAI CLIP ViT-L/14 的预训练 checkpoint、目标样本 identity、目标内顺序和 seed；每行都披露 source setup、batch contract 与预测/适应顺序。表格以 generator-macro AUROC 为主指标，报告三个锁定 seed 的均值与标准差。
+- EATA checkpoint 必须包含匹配的源域 Fisher；缺少 Fisher 时默认拒绝运行。RoTTA、T2A 和当前 CoTTA 公开实现不能在没有 BatchNorm 的 ViT-L/14 上伪装为官方复现。
+- IAPL 使用作者任务 checkpoint 和 Adapt-Then-Predict 协议，主表中只能作为单独披露的 source setup 比较，不能写成与 Frozen CLIP 同一检测器状态。
+- CNN Controlled CTTA 方法共享 backbone、源 checkpoint、输入顺序、batch size 和 Predict-Then-Adapt 协议，并保留为补充材料。
 - OST 使用自己的 MetaXception checkpoint、源训练模板和 Adapt-Then-Predict 协议，只能单独披露；当前通用 alpha 合成结果不等价于作者的人脸实验。
 - T2A 使用经过必要运行修复的作者公开核心，不能描述为未经修改的官方实现。
 - LAME 核心采用 CC BY-NC-SA 4.0，仅限非商业使用；完整第三方授权见 `THIRD_PARTY_NOTICES.md`。

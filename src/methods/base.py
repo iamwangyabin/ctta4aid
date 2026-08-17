@@ -15,7 +15,11 @@ class TTAMethod(ABC):
         self.device = device
         self.config = config or {}
         self.optimizer: Any = None
-        self._initial_model_state = deepcopy(self.model.state_dict())
+        self._initial_model_state = (
+            deepcopy(self.model.state_dict())
+            if bool(self.config.get("capture_initial_state", True))
+            else None
+        )
         self._initial_optimizer_state: dict[str, Any] | None = None
 
     def _capture_optimizer_state(self) -> None:
@@ -43,6 +47,8 @@ class TTAMethod(ABC):
         """Update from images only. Ground-truth labels must never enter here."""
 
     def reset(self) -> None:
+        if self._initial_model_state is None:
+            raise RuntimeError("This method was configured without an initial model snapshot")
         self.model.load_state_dict(deepcopy(self._initial_model_state))
         if self.optimizer is not None and self._initial_optimizer_state is not None:
             self.optimizer.load_state_dict(deepcopy(self._initial_optimizer_state))

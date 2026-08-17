@@ -183,6 +183,8 @@ class OnlineEvaluator:
         )
         if hasattr(method, "source_checkpoint_identity"):
             reproduction["source_checkpoint"] = method.source_checkpoint_identity
+        if hasattr(method, "source_model_metadata"):
+            reproduction["source_model"] = method.source_model_metadata
         if hasattr(method, "config"):
             reproduction["effective_method_config"] = method.config
         return {

@@ -1,0 +1,7 @@
+extends: opensdid_global.yaml
+
+seed: 2
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm/opensdid_global/seed2
+
+data:
+  locked_online_manifest: ../../../results/controlled_ctta_external_20260816/opensdid_global/per_seed/seed2_online_manifest.csv

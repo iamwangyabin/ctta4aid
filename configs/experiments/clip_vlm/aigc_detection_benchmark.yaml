@@ -1,0 +1,3 @@
+extends:
+  - ../../datasets/aigc_detection_benchmark.yaml
+  - base.yaml

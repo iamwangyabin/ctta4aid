@@ -137,3 +137,101 @@ iapl:
     - trailing whitespace normalized without changing code semantics
     - CLIP checkpoint path injected by src/models/iapl.py
   numerical_validation: requires_framework_native_benchmark_run
+
+openai_clip:
+  repository: https://github.com/openai/CLIP.git
+  commit: d05afc436d78f1c48dc0dbf8e5980a9d471f35f6
+  upstream_files:
+    - clip/__init__.py
+    - clip/clip.py
+    - clip/model.py
+    - clip/simple_tokenizer.py
+    - clip/bpe_simple_vocab_16e6.txt.gz
+  project_profile: configs/experiments/clip_vlm/base.yaml
+  official_core: src/official/openai_clip
+  model_loader: src/models/clip_vlm.py
+  status: vendored_official_core_with_binary_prompt_adapter
+  license: MIT
+  checkpoint:
+    architecture: ViT-L/14
+    filename: ViT-L-14.pt
+    sha256: b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836
+  numerical_validation: requires_framework_native_benchmark_run
+
+tda:
+  repository: https://github.com/kdiAAA/TDA.git
+  commit: e697fb0c8078cdeff93daa56bcf8860702542069
+  upstream_files: [tda_runner.py]
+  upstream_config: config.yaml
+  project_profile: configs/methods/tda.yaml
+  official_core: src/official/tda.py
+  wrapper: src/methods/tda.py
+  status: vendored_official_cache_core_with_binary_prompt_adapter
+  license: MIT
+  numerical_validation: requires_framework_native_benchmark_run
+
+dynaprompt:
+  repository: https://github.com/zzzx1224/DynaPrompt.git
+  commit: acd33cf71f5be817512f99ba3b81ec019595ad59
+  upstream_files:
+    - clip/custom_clip_lessctx.py
+    - dynap_classification.py
+    - data/augmix_ops.py
+  upstream_config: scripts/test_dynap.sh
+  project_profile: configs/methods/dynaprompt.yaml
+  official_core:
+    - src/official/dynaprompt.py
+    - src/official/dynaprompt_augmix.py
+  wrapper: src/methods/dynaprompt.py
+  status: selective_vendored_public_core_with_arrow_multiview_adapter
+  upstream_license: none_declared
+  numerical_validation: requires_framework_native_benchmark_run
+
+cliptta:
+  repository: https://github.com/MarcLafon/cliptta.git
+  commit: ef0e6797f7618959ca85be36816a5e01299a522f
+  upstream_files:
+    - ttavlm/methods/cliptta_otsu.py
+    - ttavlm/lib/softmax_entropy.py
+  upstream_config: ttavlm/configuration.py
+  project_profile: configs/methods/cliptta.yaml
+  official_core: src/official/cliptta.py
+  wrapper: src/methods/cliptta.py
+  status: selective_vendored_public_closed_set_core_with_vitl14_bridge
+  upstream_license: none_declared
+  numerical_validation: requires_framework_native_benchmark_run
+
+batclip:
+  repository: https://github.com/sarthaxxxxx/BATCLIP.git
+  commit: ba2e3381873ef58e76a90148ee3835864349e985
+  upstream_files:
+    - classification/methods/ours.py
+    - classification/utils/losses.py
+  upstream_config: cfgs/imagenet_c/ours.yaml
+  project_profile: configs/methods/batclip.yaml
+  official_core: src/official/batclip.py
+  wrapper: src/methods/batclip.py
+  status: vendored_official_loss_core_with_openai_vitl14_bridge
+  license: MIT
+  numerical_validation: requires_framework_native_benchmark_run
+
+sar:
+  repository: https://github.com/mr-eggplant/SAR.git
+  commit: 20f6e24b17525f34503510afccedc0629b67b7c4
+  upstream_files: [sar.py, sam.py, tent.py]
+  upstream_config: main.py
+  project_profiles: [configs/methods/tent_ln.yaml, configs/methods/sar.yaml]
+  official_core: src/official/sar.py
+  wrappers: [src/methods/tent_ln.py, src/methods/sar.py]
+  status: selective_vendored_vit_layernorm_core_with_clip_protocol_wrappers
+  license: BSD-3-Clause
+  local_changes:
+    - ViT-B final-block filtering is mapped to the final three OpenAI CLIP ViT-L/14 visual blocks
+    - empty reliable selections restore SAM parameters rather than emitting a NaN update
+    - Tent-LN is explicitly labeled as the SAR release LayerNorm path, not a BatchNorm-only original-Tent reproduction
+  numerical_validation: requires_framework_native_benchmark_run
+
+ttc:
+  paper: https://arxiv.org/abs/2608.00559
+  status: no_public_author_implementation_found_as_of_2026_08_17
+  quantitative_status: related_work_only

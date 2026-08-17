@@ -5,6 +5,7 @@ from pathlib import Path
 
 from src.cli.common import (
     build_fresh_method,
+    data_config_for_method,
     resolve_device,
     seed_everything,
     write_json,
@@ -37,8 +38,9 @@ def final_holdout_stream(
     *,
     transform=None,
     locked_samples_by_domain: dict[str, list[str]] | None = None,
+    data_config: dict | None = None,
 ):
-    data_config = config["data"]
+    data_config = config["data"] if data_config is None else data_config
     offset = int(data_config.get("max_samples_per_class", 0))
     limit = int(data_config.get("final_eval_max_samples_per_class", 250))
     for domain_index, domain in enumerate(domains):
@@ -179,6 +181,7 @@ def main() -> None:
     aggregate = {}
 
     for method_name in config["methods"]:
+        method_data_config = data_config_for_method(config, method_name)
         seed_everything(seed)
         method, _ = build_fresh_method(config, method_name, device)
         if evaluate_future_domains and getattr(
@@ -202,6 +205,7 @@ def main() -> None:
                     if manifest_lock is None
                     else manifest_lock["final_holdout_samples_by_domain"]
                 ),
+                data_config=method_data_config,
             )
             if manifest_lock is not None:
                 initial_stream = lock_stream_to_manifest(
@@ -234,6 +238,7 @@ def main() -> None:
                     if manifest_lock is None
                     else manifest_lock["final_holdout_samples_by_domain"]
                 ),
+                data_config=method_data_config,
             )
             if manifest_lock is not None:
                 holdout_stream = lock_stream_to_manifest(
@@ -253,7 +258,7 @@ def main() -> None:
             return holdout
 
         online_stream = concatenate_domain_streams(
-            config["data"],
+            method_data_config,
             domains,
             seed=seed,
             transform=getattr(method, "input_transform", None),

@@ -1,0 +1,7 @@
+extends: genimage.yaml
+
+seed: 0
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm/genimage/seed0
+
+data:
+  locked_online_manifest: ../../../results/controlled_ctta_genimage_20260812/genimage_continual/per_seed/seed0_online_manifest.csv

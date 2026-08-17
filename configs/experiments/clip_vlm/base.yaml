@@ -1,0 +1,45 @@
+extends:
+  - ../../protocols/clip_vlm_single_target.yaml
+  - ../../methods/source.yaml
+  - ../../methods/tent_ln.yaml
+  - ../../methods/sar.yaml
+  - ../../methods/lame.yaml
+  - ../../methods/tda.yaml
+  - ../../methods/dynaprompt.yaml
+  - ../../methods/cliptta.yaml
+  - ../../methods/batclip.yaml
+  - ../../methods/iapl.yaml
+  - ../../methods/clip_vlm_common.yaml
+
+device: auto
+methods: [source, tent_ln, sar, lame, tda, dynaprompt, cliptta, batclip, iapl]
+
+model:
+  family: clip_vlm
+  architecture: ViT-L/14
+  checkpoint: ${CLIP_VIT_L14_CHECKPOINT}
+  image_size: 224
+  resize_size: 256
+  class_prompts:
+    - [a real photograph]
+    - [an AI-generated image]
+
+data:
+  image_size: 224
+  batch_size: 16
+  num_workers: 4
+  shuffle: false
+  max_samples_per_class: null
+
+method_configs:
+  iapl:
+    checkpoint: ${IAPL_GENIMAGE_CHECKPOINT}
+    adaptation_mode: full
+    normalization_mean: [0.481, 0.458, 0.408]
+    normalization_std: [0.269, 0.261, 0.276]
+    smooth: true
+
+reporting:
+  primary_table: clip_vitl14_method_native_online
+  source_setup_column: required
+  excluded_from_main_quantitative_table: [eata, cotta, rotta, t2a, ttc]

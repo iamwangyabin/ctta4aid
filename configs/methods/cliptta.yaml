@@ -1,0 +1,28 @@
+methods: [cliptta]
+
+method_configs:
+  cliptta:
+    capture_initial_state: false
+    data:
+      batch_size: 16
+      num_workers: 4
+    optimizer: Adam
+    lr: 0.001
+    weight_decay: 0.0
+    steps: 1
+    logit_scale: 100.0
+    beta_tta: 1.0
+    beta_reg: 0.1
+    use_softmax_entropy: false
+    use_tent: false
+    use_memory: false
+    update_text: false
+    update_all_params: false
+    use_ood_loss: false
+    detect_ood: false
+    reference:
+      profile: official_cliptta_closed_set_vision_only
+      repository: https://github.com/MarcLafon/cliptta
+      commit: ef0e6797f7618959ca85be36816a5e01299a522f
+      protocol: online_adapt_then_predict
+      transfer_note: The official parser only lists ViT-B variants. This profile uses its CLIP loader's ViT-L/14 checkpoint support with the closed-set, no-memory branch.

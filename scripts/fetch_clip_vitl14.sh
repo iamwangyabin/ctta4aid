@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-destination=${1:-weights/clip/ViT-L-14.pt}
+destination=${1:-${CTTA4AID_WEIGHT_ROOT:-$HOME/.cache/ctta4aid}/clip/ViT-L-14.pt}
 sha256=b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836
 url="https://openaipublic.azureedge.net/clip/models/$sha256/ViT-L-14.pt"
 mkdir -p "$(dirname "$destination")"

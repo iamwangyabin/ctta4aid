@@ -1,0 +1,16 @@
+protocol:
+  name: method_native_online
+  reset_between_targets: true
+  source_free_during_test: true
+  target_labels_available_to_method: false
+  generator_id_available_to_method: false
+  passes: 1
+  prediction_order: method_native
+
+data:
+  max_samples_per_class: null
+
+evaluation:
+  threshold: 0.5
+  curve_window_batches: 20
+  evaluate_cross_generators: false

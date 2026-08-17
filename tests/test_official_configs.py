@@ -100,15 +100,82 @@ class OfficialConfigTests(unittest.TestCase):
             "t2a": "33c8ccc64afdda260564123d6c790d030a89ff81",
             "ost": "1e4518b9e560baf9c5693f13a402fa5d7104190f",
             "iapl": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
+            "openai_clip": "d05afc436d78f1c48dc0dbf8e5980a9d471f35f6",
+            "tda": "e697fb0c8078cdeff93daa56bcf8860702542069",
+            "dynaprompt": "acd33cf71f5be817512f99ba3b81ec019595ad59",
+            "cliptta": "ef0e6797f7618959ca85be36816a5e01299a522f",
+            "batclip": "ba2e3381873ef58e76a90148ee3835864349e985",
+            "sar": "20f6e24b17525f34503510afccedc0629b67b7c4",
         }
         self.assertEqual(
             {
                 name: config["commit"]
                 for name, config in sources.items()
-                if not name.startswith("_")
+                if not name.startswith("_") and "commit" in config
             },
             expected,
         )
+
+    def test_clip_vlm_main_configs_lock_the_primary_table_protocol(self) -> None:
+        expected_targets = {
+            "genimage": 7,
+            "aigc_detection_benchmark": 17,
+            "aigi_holmes_p3": 10,
+            "opensdid_global": 5,
+        }
+        expected_methods = [
+            "source",
+            "tent_ln",
+            "sar",
+            "lame",
+            "tda",
+            "dynaprompt",
+            "cliptta",
+            "batclip",
+            "iapl",
+        ]
+        for dataset, target_count in expected_targets.items():
+            for seed in (0, 1, 2):
+                filename = f"configs/experiments/clip_vlm/{dataset}_seed{seed}.yaml"
+                with self.subTest(filename=filename):
+                    config = self.load(filename)
+                    self.assertEqual(config["methods"], expected_methods)
+                    self.assertEqual(config["seed"], seed)
+                    self.assertEqual(config["model"]["family"], "clip_vlm")
+                    self.assertEqual(config["model"]["architecture"], "ViT-L/14")
+                    self.assertEqual(config["protocol"]["name"], "method_native_online")
+                    self.assertFalse(
+                        config["protocol"]["target_labels_available_to_method"]
+                    )
+                    self.assertEqual(len(config["data"]["targets"]), target_count)
+                    self.assertEqual(
+                        config["method_configs"]["tent_ln"]["data"]["batch_size"],
+                        16,
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["sar"]["data"]["batch_size"], 16
+                    )
+                    self.assertAlmostEqual(
+                        config["method_configs"]["sar"]["margin"],
+                        math.log(2.0) * 0.4,
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["dynaprompt"]["data"]["batch_size"],
+                        1,
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["iapl"]["data"]["batch_size"],
+                        1,
+                    )
+                    manifest = (
+                        Path(config["_config_path"]).parent
+                        / config["data"]["locked_online_manifest"]
+                    ).resolve()
+                    self.assertTrue(manifest.is_file())
+
+        sources = self.load("configs/official_sources.yaml")
+        self.assertEqual(sources["sar"]["official_core"], "src/official/sar.py")
+        self.assertTrue((PROJECT_ROOT / sources["sar"]["official_core"]).is_file())
 
     def test_every_cnn_wrapper_points_to_a_vendored_official_core(self) -> None:
         sources = self.load("configs/official_sources.yaml")

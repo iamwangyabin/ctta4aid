@@ -1,0 +1,22 @@
+methods: [tent_ln]
+
+method_configs:
+  tent_ln:
+    capture_initial_state: false
+    data:
+      batch_size: 16
+      num_workers: 4
+    optimizer: Adam
+    steps: 1
+    lr: 0.001
+    weight_decay: 0.0
+    reference:
+      profile: sar_release_tent_layernorm_path_on_clip_vitl14
+      original_method: Tent
+      repository: https://github.com/mr-eggplant/SAR
+      commit: 20f6e24b17525f34503510afccedc0629b67b7c4
+      protocol: predict_then_adapt
+      transfer_note: >
+        The SAR release configures LayerNorm for ViT adaptation. This row is
+        named Tent-LN and is not presented as a BatchNorm-only original-Tent
+        reproduction.

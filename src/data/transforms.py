@@ -5,6 +5,8 @@ from typing import Any
 
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
+CLIP_MEAN = (0.48145466, 0.4578275, 0.40821073)
+CLIP_STD = (0.26862954, 0.26130258, 0.27577711)
 
 
 def _torchvision_transforms() -> Any:
@@ -42,4 +44,26 @@ def build_eval_transform(image_size: int = 224, *, resize_before_crop: bool = Tr
     )
     return transforms.Compose(
         operations
+    )
+
+
+def build_clip_eval_transform(image_size: int = 224, *, resize_size: int | None = None) -> Any:
+    """Match OpenAI CLIP's deterministic resize, crop, and normalization."""
+
+    transforms = _torchvision_transforms()
+    if resize_size is None:
+        resize_size = int(round(image_size / 0.875))
+    try:
+        interpolation = transforms.InterpolationMode.BICUBIC
+    except AttributeError:
+        from PIL import Image
+
+        interpolation = Image.BICUBIC
+    return transforms.Compose(
+        [
+            transforms.Resize(resize_size, interpolation=interpolation),
+            transforms.CenterCrop(image_size),
+            transforms.ToTensor(),
+            transforms.Normalize(CLIP_MEAN, CLIP_STD),
+        ]
     )

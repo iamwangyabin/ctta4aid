@@ -8,6 +8,7 @@ from statistics import fmean
 
 from src.cli.common import (
     build_fresh_method,
+    data_config_for_method,
     resolve_device,
     seed_everything,
     write_json,
@@ -27,9 +28,14 @@ CROSS_HOLDOUT_EVALUATION_SEED_OFFSET = 4_000_000
 
 
 def cross_generator_holdout_stream(
-    config: dict, domains: list[str], seed: int, *, transform=None
+    config: dict,
+    domains: list[str],
+    seed: int,
+    *,
+    transform=None,
+    data_config: dict | None = None,
 ):
-    data_config = config["data"]
+    data_config = config["data"] if data_config is None else data_config
     offset = int(data_config.get("max_samples_per_class", 0))
     limit = int(data_config.get("cross_eval_max_samples_per_class", 250))
     for domain_index, domain in enumerate(domains):
@@ -153,6 +159,7 @@ def main() -> None:
     )
 
     for method_name in config["methods"]:
+        method_data_config = data_config_for_method(config, method_name)
         aggregate[method_name] = {"targets": {}} if evaluate_cross_generators else {}
         initial_holdout = None
         if evaluate_cross_generators:
@@ -172,6 +179,7 @@ def main() -> None:
                     evaluation_domains,
                     seed,
                     transform=getattr(initial_method, "input_transform", None),
+                    data_config=method_data_config,
                 ),
                 threshold=float(evaluation_config.get("threshold", 0.5)),
                 evaluation_seed=seed + CROSS_HOLDOUT_EVALUATION_SEED_OFFSET,
@@ -182,7 +190,7 @@ def main() -> None:
             seed_everything(seed)
             method, _ = build_fresh_method(config, method_name, device)
             loader = build_domain_loader(
-                config["data"],
+                method_data_config,
                 target,
                 seed=seed + target_index,
                 transform=getattr(method, "input_transform", None),
@@ -205,11 +213,12 @@ def main() -> None:
             if initial_holdout is not None:
                 cross_holdout = evaluate_without_adaptation(
                     method,
-                    cross_generator_holdout_stream(
-                        config,
-                        evaluation_domains,
-                        seed,
-                        transform=getattr(method, "input_transform", None),
+                cross_generator_holdout_stream(
+                    config,
+                    evaluation_domains,
+                    seed,
+                    transform=getattr(method, "input_transform", None),
+                    data_config=method_data_config,
                     ),
                     threshold=float(evaluation_config.get("threshold", 0.5)),
                     evaluation_seed=seed + CROSS_HOLDOUT_EVALUATION_SEED_OFFSET,

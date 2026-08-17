@@ -1,0 +1,30 @@
+methods: [dynaprompt]
+
+method_configs:
+  dynaprompt:
+    capture_initial_state: false
+    data:
+      batch_size: 1
+      num_workers: 8
+    image_size: 224
+    views: 64
+    augmix: true
+    augmix_severity: 1
+    steps: 1
+    selection_fraction: 0.1
+    n_ctx: 4
+    ctx_init: a photo of a
+    num_prompts: 4
+    online_prompt_tuning: true
+    class_names: [real photograph, AI-generated image]
+    optimizer: AdamW
+    lr: 0.005
+    weight_decay: 0.01
+    amp: true
+    amp_init_scale: 1000.0
+    reference:
+      profile: official_dynaprompt_online_prompt_selection
+      repository: https://github.com/zzzx1224/DynaPrompt
+      commit: acd33cf71f5be817512f99ba3b81ec019595ad59
+      protocol: online_adapt_then_predict
+      transfer_note: The global-plus-AugMix view procedure and prompt selection are retained. The ImageNet class list is replaced by fixed real/fake class names.

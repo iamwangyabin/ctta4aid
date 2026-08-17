@@ -1,0 +1,20 @@
+methods: [batclip]
+
+method_configs:
+  batclip:
+    capture_initial_state: false
+    data:
+      batch_size: 16
+      num_workers: 4
+    optimizer: Adam
+    lr: 0.001
+    weight_decay: 0.0
+    steps: 1
+    amp: true
+    amp_init_scale: 1000.0
+    reference:
+      profile: official_batclip_norm_adaptation_with_openai_clip_bridge
+      repository: https://github.com/sarthaxxxxx/BATCLIP
+      commit: ba2e3381873ef58e76a90148ee3835864349e985
+      protocol: predict_then_adapt
+      transfer_note: The public method uses OpenCLIP. The main track fixes the matching OpenAI ViT-L/14 weights and preserves BATCLIP's norm-only loss and update order.

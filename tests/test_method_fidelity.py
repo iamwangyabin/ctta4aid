@@ -43,6 +43,55 @@ class MethodFidelityTests(unittest.TestCase):
 
         return TinyDetector()
 
+    def clip_vlm(self):
+        nn = self.nn
+        torch = self.torch
+
+        class Block(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.ln_1 = nn.LayerNorm(4)
+                self.ln_2 = nn.LayerNorm(4)
+
+            def forward(self, values):
+                return self.ln_2(torch.tanh(self.ln_1(values)))
+
+        class Transformer(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.resblocks = nn.ModuleList([Block() for _ in range(4)])
+
+        class Visual(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.conv = nn.Conv2d(3, 4, kernel_size=1)
+                self.ln_pre = nn.LayerNorm(4)
+                self.transformer = Transformer()
+                self.ln_post = nn.LayerNorm(4)
+
+            def forward(self, images):
+                values = self.conv(images).mean(dim=(2, 3))
+                values = self.ln_pre(values)
+                for block in self.transformer.resblocks:
+                    values = block(values)
+                return self.ln_post(values)
+
+        class Clip(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.visual = Visual()
+
+        class TinyClipVLM(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.clip = Clip()
+                self.head = nn.Linear(4, 2)
+
+            def forward(self, images):
+                return self.head(self.clip.visual(images))
+
+        return TinyClipVLM()
+
     def test_tent_updates_only_batch_norm_affine_parameters(self) -> None:
         from src.methods.tent import Tent
 
@@ -92,6 +141,51 @@ class MethodFidelityTests(unittest.TestCase):
         stats = method.adapt(self.torch.randn(4, 3, 8, 8))
         self.assertEqual(stats.selected, 4)
         self.assertFalse(stats.extra["fisher_enabled"])
+
+    def test_tent_ln_and_sar_adapt_only_clip_visual_normalization(self) -> None:
+        from src.methods import build_method
+        from src.methods.sar import SAR
+        from src.methods.tent_ln import TentLayerNorm
+
+        images = self.torch.randn(4, 3, 8, 8)
+        tent = build_method(
+            "tent_ln",
+            self.clip_vlm(),
+            "cpu",
+            {"optimizer": "adam", "lr": 0.001, "steps": 1},
+        )
+        self.assertIsInstance(tent, TentLayerNorm)
+        self.assertTrue(
+            all(name.startswith("clip.visual.") for name in tent.official_parameter_names)
+        )
+        head_before = tent.model.head.weight.detach().clone()
+        tent.predict(images)
+        tent_stats = tent.adapt(images)
+        self.assertEqual(tent_stats.selected, 4)
+        self.assertTrue(self.torch.equal(tent.model.head.weight, head_before))
+
+        sar = build_method(
+            "sar",
+            self.clip_vlm(),
+            "cpu",
+            {
+                "margin": 10.0,
+                "reset_constant": -1.0,
+                "exclude_last_visual_blocks": 3,
+            },
+        )
+        self.assertIsInstance(sar, SAR)
+        self.assertNotIn("clip.visual.ln_post.weight", sar.official_parameter_names)
+        self.assertTrue(
+            all("resblocks.1" not in name for name in sar.official_parameter_names)
+        )
+        sar_head_before = sar.model.head.weight.detach().clone()
+        sar.predict(images)
+        sar_stats = sar.adapt(images)
+        self.assertGreater(sar_stats.extra["first_reliable"], 0)
+        self.assertGreater(sar_stats.selected, 0)
+        self.assertFalse(sar_stats.extra["model_recovered"])
+        self.assertTrue(self.torch.equal(sar.model.head.weight, sar_head_before))
 
     def test_cotta_runs_official_teacher_augmentation_update(self) -> None:
         from src.methods.cotta import CoTTA

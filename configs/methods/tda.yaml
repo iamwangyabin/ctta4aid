@@ -1,0 +1,22 @@
+methods: [tda]
+
+method_configs:
+  tda:
+    capture_initial_state: false
+    data:
+      batch_size: 16
+      num_workers: 4
+    positive_shot_capacity: 3
+    positive_alpha: 2.0
+    positive_beta: 5.0
+    negative_shot_capacity: 2
+    negative_alpha: 0.117
+    negative_beta: 1.0
+    negative_entropy_threshold: [0.2, 0.5]
+    negative_mask_threshold: [0.03, 1.0]
+    reference:
+      profile: official_tda_default_cache_with_binary_prompt_bridge
+      repository: https://github.com/kdiAAA/TDA
+      commit: e697fb0c8078cdeff93daa56bcf8860702542069
+      protocol: online_adapt_then_predict
+      transfer_note: The cache core is retained; the official ImageNet text classifier is replaced by the pre-registered binary CLIP text prototypes.

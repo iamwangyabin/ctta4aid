@@ -1,0 +1,7 @@
+extends: aigc_detection_benchmark.yaml
+
+seed: 0
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm/aigc_detection_benchmark/seed0
+
+data:
+  locked_online_manifest: ../../../results/controlled_ctta_external_20260816/aigc_detection_benchmark/per_seed/seed0_online_manifest.csv

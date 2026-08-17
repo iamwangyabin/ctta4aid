@@ -6,13 +6,14 @@
 
 ## 1. 项目范围
 
-项目必须同时保留三条实验轨道：
+项目必须同时保留四条实验轨道：
 
-1. **Controlled CTTA 主实验**：公共 ResNet-50 checkpoint 下的 Source、TENT、EATA、CoTTA、RoTTA、LAME 和 T2A。
-2. **IAPL 补充实验**：CLIP ViT-L/14、逐图 Adapt-Then-Predict 的独立方法轨道。
-3. **OST 补充实验**：MetaXception、源训练模板、逐图一次 fast-weight 更新的独立方法轨道。
+1. **CLIP VLM 主实验**：固定 OpenAI CLIP ViT-L/14 预训练权重，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上报告方法原生的在线结果。当前量化方法为 Frozen CLIP、Tent-LN、SAR、LAME、TDA、DynaPrompt、CLIPTTA、BATCLIP 和 IAPL；表格必须同时披露 source setup 与预测/适应顺序。
+2. **Controlled CTTA 补充实验**：公共 ResNet-50 checkpoint 下的 Source、TENT、EATA、CoTTA、RoTTA、LAME 和 T2A。已确认结果保持不可变，作为 CNN 对照与补充材料，不再作为论文主表。
+3. **IAPL 补充轨道**：CLIP ViT-L/14、逐图 Adapt-Then-Predict 的独立方法能力；主表若列出 IAPL，必须标注其作者发布的任务 checkpoint，不能写成与 Frozen CLIP 相同的 source state。
+4. **OST 补充实验**：MetaXception、源训练模板、逐图一次 fast-weight 更新的独立方法轨道。
 
-IAPL 和 OST 都是正式项目能力。不得因为当前机器缺少权重或当前没有结果，就把其配置、核心、loader、方法、测试、依赖或说明判定为垃圾。论文专项方法只加入有作者公开实现且来源可固定的 OST、T2A 和 IAPL；没有作者公开实现的方法不得用项目自写实现冒充复现。
+IAPL 和 OST 都是正式项目能力。不得因为当前机器缺少权重或当前没有结果，就把其配置、核心、loader、方法、测试、依赖或说明判定为垃圾。论文专项方法只加入有作者公开实现且来源可固定的方法；没有作者公开实现的方法不得用项目自写实现冒充复现。TTC 在作者公开实现可固定前只能作为 related work，不得生成量化复现行。
 
 ## 2. 冻结目录结构
 
@@ -56,7 +57,18 @@ src/
 
 ## 3. 冻结实验协议
 
-### Controlled CTTA
+### CLIP VLM 主实验
+
+- backbone 固定为 OpenAI CLIP ViT-L/14，checkpoint SHA-256 固定为 `b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836`。
+- 所有方法共享目标样本身份、目标内顺序、三个正式 seed 与 target-label embargo；方法可保留其论文要求的 batch size、views、prompt state 与 Adapt-Then-Predict 顺序。
+- Frozen CLIP、Tent-LN、SAR、LAME、TDA、CLIPTTA 与 BATCLIP 使用预注册的二分类文本原型；DynaPrompt 从同一 real/fake 类名开始并按其原生协议更新 context；IAPL 使用作者发布的任务 checkpoint，必须在结果和主表单列 source setup。
+- 主表是 method-native online 指标，不能把它写成“所有方法共享同一个任务训练 checkpoint”的严格公平排名。跨方法结论必须保留该限制。
+- RoTTA 与 T2A 的公开核心依赖 BatchNorm；当前 ViT-L/14 轨道不得用项目自写的 LayerNorm 替代物冒充其官方复现。CoTTA 也不得在未完成独立兼容性验证前进入本主表。
+- Tent-LN 只能表述为 SAR 公开代码中 LayerNorm-capable Tent 路径的 ViT 变体，不能伪称为 BatchNorm-only 原始 Tent 复现。SAR 的 ViT LayerNorm 路径可进入主表，但其 ViT-B 最后三块过滤映射到 ViT-L/14 的最后三块必须在 metadata 中披露。
+- EATA 必须有与 CLIP prompt state 匹配的 source Fisher 才可标为 EATA；没有 Fisher 的运行只能标为 ETA 消融。
+- 每个 `method x target x seed` 必须重新构建方法；单目标结果使用已确认的 online manifest 锁定样本身份，批大小变化不得改变样本顺序。
+
+### Controlled CTTA 补充实验
 
 - 方法集合固定为 `source, tent, eata, cotta, rotta, lame, t2a`。
 - 所有方法共享同一 backbone、源 checkpoint、输入样本、顺序、batch size 和 seed。
@@ -103,6 +115,8 @@ src/
 
 当前没有冻结的正式结果。新的实验完成后，`results/` 只接收最终结果：
 
+- `results/controlled_ctta_genimage_20260812/` 与 `results/controlled_ctta_external_20260816/` 是已确认的 ResNet-50 补充材料；不得移动、覆盖、重算后回写或改动其 JSON 数值。
+- CLIP VLM 主表必须写入新的、明确命名的 `results/clip_vlm_*` 目录，并保留 per-seed summary、跨 seed summary、CLIP checkpoint 身份、文本原型、方法 source setup 与最终总表。
 - 正式结果至少保留 per-seed summary、跨 seed summary、源模型记录和最终总表。
 - 结果文件一旦确认，不得修改已有 JSON 数值来匹配后续代码变化。
 - 不得覆盖已经确认的结果；新实验必须写入新的、明确命名的结果文件。
