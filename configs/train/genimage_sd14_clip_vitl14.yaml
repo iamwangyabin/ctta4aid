@@ -24,6 +24,12 @@ data:
   resize_size: 256
   batch_size: 16
   num_workers: 8
+  # The offline preflight found these three zero-byte source payloads. They are
+  # excluded before sampling rather than substituted with synthetic pixels.
+  train_exclude_image_paths:
+    - SDv14/train/ai/033_sdv4_00134.png
+    - SDv14/train/ai/033_sdv4_00137.png
+    - SDv14/train/ai/033_sdv4_00152.png
 
 training:
   profile: shared_clip_vitl14_full_source_detector

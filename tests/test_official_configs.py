@@ -211,6 +211,14 @@ class OfficialConfigTests(unittest.TestCase):
         self.assertEqual(
             config["data"]["val_generator"], "stable_diffusion_v_1_4"
         )
+        self.assertEqual(
+            config["data"]["train_exclude_image_paths"],
+            [
+                "SDv14/train/ai/033_sdv4_00134.png",
+                "SDv14/train/ai/033_sdv4_00137.png",
+                "SDv14/train/ai/033_sdv4_00152.png",
+            ],
+        )
         training = config["training"]
         self.assertEqual(training["epochs"], 3)
         self.assertTrue(training["compute_fisher"])

@@ -119,6 +119,8 @@ AdamW、CLIP 训练增强，并在相同 source checkpoint 的干净 source hold
 所需的 LayerNorm Fisher。这个 checkpoint 在全部三个 online seed 和所有公共 detector
 方法之间共享。`configs/experiments/clip_vlm/` 是正式入口；每种方法的分类器或 prompt
 构造、可训练参数、batch/views、更新步数、状态重置和预测/适应顺序均由其方法配置锁定。
+训练配置还固定排除了 preflight 检出的三条零字节 SD v1.4 源图逻辑路径；不会用空白或
+合成像素替代损坏样本。
 八张新表在完整三 seed campaign 验收前仍全部保持空白；此前完成的 ResNet-50 数值表原样
 保留在论文补充材料中。RoTTA 与 TTC 的结果单元格保持空白并由脚注解释，不得为了填表
 放宽上述约束。

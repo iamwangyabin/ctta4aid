@@ -122,6 +122,31 @@ class ArrowDatasetTests(unittest.TestCase):
             self.assertIn(label, {0, 1})
             self.assertTrue(sample_id.startswith("GenImage_test/ADM/val/"))
 
+    def test_exclude_image_paths_removes_known_invalid_source_records(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "GenImage_train"
+            labels = {
+                "SDv14/train/nature/a.png": 0,
+                "SDv14/train/nature/b.png": 0,
+                "SDv14/train/ai/c.png": 1,
+                "SDv14/train/ai/d.png": 1,
+            }
+            _save_dataset(root, labels, split_name="train", domain="SDv14")
+
+            dataset = ArrowDataset(
+                root=root,
+                generator="SDv14",
+                split="train",
+                exclude_image_paths=["SDv14/train/ai/c.png"],
+            )
+
+            self.assertEqual(len(dataset), 3)
+            self.assertNotIn(
+                "SDv14/train/ai/c.png",
+                [record.image_path for record in dataset.records],
+            )
+            self.assertEqual({record.label for record in dataset.records}, {0, 1})
+
     def test_discovers_nested_generator_and_split_bundles(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary) / "GenImage-arrow"

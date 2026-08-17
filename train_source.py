@@ -58,6 +58,19 @@ def data_generator(data_config: dict[str, Any], role: str) -> str:
     return str(generator)
 
 
+def excluded_image_paths(data_config: dict[str, Any], role: str) -> list[str] | None:
+    configured = data_config.get(
+        f"{role}_exclude_image_paths", data_config.get("exclude_image_paths")
+    )
+    if configured is None:
+        return None
+    if not isinstance(configured, list) or not all(
+        isinstance(path, str) and path.strip() for path in configured
+    ):
+        raise ValueError(f"data.{role}_exclude_image_paths must be a list of paths")
+    return list(configured)
+
+
 def _autocast(device: Any, enabled: bool) -> Any:
     if enabled and str(device).startswith("cuda"):
         import torch
@@ -165,8 +178,6 @@ def _ost_episode(
 
 
 def train_ost(config: dict[str, Any], device: Any, seed: int) -> None:
-    import torch
-
     from src.data.ost import build_ost_transform
     from src.official.ost import OSTMetaTrainingCore
 
@@ -440,6 +451,7 @@ def main() -> None:
         transform=train_transform,
         max_samples_per_class=data_config.get("max_train_samples_per_class"),
         seed=seed,
+        exclude_image_paths=excluded_image_paths(data_config, "train"),
     )
     val_dataset = build_dataset(
         data_format=data_config["format"],
@@ -449,6 +461,7 @@ def main() -> None:
         transform=val_transform,
         max_samples_per_class=data_config.get("max_val_samples_per_class"),
         seed=seed,
+        exclude_image_paths=excluded_image_paths(data_config, "val"),
     )
     train_loader = build_loader(train_dataset, data_config, shuffle=True, seed=seed)
     val_loader = build_loader(val_dataset, data_config, shuffle=False)

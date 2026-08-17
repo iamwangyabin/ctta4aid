@@ -65,6 +65,7 @@ class ArrowDataset:
         sample_offset_per_class: int = 0,
         seed: int = 0,
         locked_sample_ids: Sequence[str] | None = None,
+        exclude_image_paths: Sequence[str] | None = None,
     ) -> None:
         if not generator:
             raise ValueError("Arrow format requires a generator/domain name")
@@ -77,6 +78,11 @@ class ArrowDataset:
                 record
                 for dataset_root in roots
                 for record in _records_from_root(dataset_root, generator, split)
+            ]
+        excluded_paths = _normalize_excluded_image_paths(exclude_image_paths)
+        if excluded_paths:
+            records = [
+                record for record in records if record.image_path not in excluded_paths
             ]
         if not records:
             joined = ", ".join(str(path) for path in roots)
@@ -192,6 +198,7 @@ def build_dataset(
     sample_offset_per_class: int = 0,
     seed: int = 0,
     locked_sample_ids: Sequence[str] | None = None,
+    exclude_image_paths: Sequence[str] | None = None,
 ) -> ArrowDataset:
     if data_format != ARROW_FORMAT:
         raise ValueError(
@@ -211,7 +218,19 @@ def build_dataset(
         sample_offset_per_class=sample_offset_per_class,
         seed=seed,
         locked_sample_ids=locked_sample_ids,
+        exclude_image_paths=exclude_image_paths,
     )
+
+
+def _normalize_excluded_image_paths(
+    image_paths: Sequence[str] | None,
+) -> set[str]:
+    if image_paths is None:
+        return set()
+    normalized = {str(path).strip() for path in image_paths}
+    if "" in normalized:
+        raise ValueError("exclude_image_paths must contain non-empty logical paths")
+    return normalized
 
 
 def _resolve_dataset_roots(
