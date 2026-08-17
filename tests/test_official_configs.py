@@ -124,10 +124,14 @@ class OfficialConfigTests(unittest.TestCase):
             "opensdid_global": 5,
         }
         expected_methods = [
-            "source",
-            "tent_ln",
+            "source_ft",
+            "tent",
+            "eata",
             "sar",
+            "cotta",
             "lame",
+            "t2a",
+            "frozen_clip",
             "tda",
             "dynaprompt",
             "cliptta",
@@ -141,16 +145,32 @@ class OfficialConfigTests(unittest.TestCase):
                     config = self.load(filename)
                     self.assertEqual(config["methods"], expected_methods)
                     self.assertEqual(config["seed"], seed)
-                    self.assertEqual(config["model"]["family"], "clip_vlm")
-                    self.assertEqual(config["model"]["architecture"], "ViT-L/14")
+                    self.assertEqual(config["model"]["family"], "clip_vlm_main")
+                    self.assertEqual(
+                        config["model"]["source_detector"]["architecture"],
+                        "ViT-L/14",
+                    )
+                    self.assertEqual(
+                        config["model"]["clip_native"]["architecture"], "ViT-L/14"
+                    )
+                    self.assertNotIn("class_prompts", config["model"])
                     self.assertEqual(config["protocol"]["name"], "method_native_online")
                     self.assertFalse(
                         config["protocol"]["target_labels_available_to_method"]
                     )
                     self.assertEqual(len(config["data"]["targets"]), target_count)
                     self.assertEqual(
-                        config["method_configs"]["tent_ln"]["data"]["batch_size"],
+                        config["method_configs"]["tent"]["data"]["batch_size"],
                         16,
+                    )
+                    self.assertTrue(
+                        config["method_configs"]["tent"]["clip_visual_layernorm"]
+                    )
+                    self.assertTrue(
+                        config["method_configs"]["eata"]["clip_visual_layernorm"]
+                    )
+                    self.assertTrue(
+                        config["method_configs"]["t2a"]["clip_visual_layernorm"]
                     )
                     self.assertEqual(
                         config["method_configs"]["sar"]["data"]["batch_size"], 16
@@ -167,6 +187,10 @@ class OfficialConfigTests(unittest.TestCase):
                         config["method_configs"]["iapl"]["data"]["batch_size"],
                         1,
                     )
+                    self.assertTrue(
+                        config["method_configs"]["batclip"]["vlm"]
+                        ["dynamic_text_features"]
+                    )
                     manifest = (
                         Path(config["_config_path"]).parent
                         / config["data"]["locked_online_manifest"]
@@ -176,6 +200,26 @@ class OfficialConfigTests(unittest.TestCase):
         sources = self.load("configs/official_sources.yaml")
         self.assertEqual(sources["sar"]["official_core"], "src/official/sar.py")
         self.assertTrue((PROJECT_ROOT / sources["sar"]["official_core"]).is_file())
+
+    def test_clip_vitl14_source_training_config_is_shared_and_fisher_compatible(self) -> None:
+        config = self.load("configs/train/genimage_sd14_clip_vitl14.yaml")
+        self.assertEqual(config["model"]["family"], "clip_source_detector")
+        self.assertEqual(config["model"]["architecture"], "ViT-L/14")
+        self.assertEqual(config["model"]["trainable_scope"], "full")
+        self.assertEqual(config["data"]["format"], "arrow")
+        self.assertEqual(config["data"]["train_generator"], "SDv14")
+        self.assertEqual(
+            config["data"]["val_generator"], "stable_diffusion_v_1_4"
+        )
+        training = config["training"]
+        self.assertEqual(training["epochs"], 3)
+        self.assertTrue(training["compute_fisher"])
+        self.assertEqual(training["fisher_parameter_scope"], "clip_visual_layernorm")
+        self.assertEqual(training["fisher_samples"], 2000)
+        self.assertEqual(
+            training["intended_methods"],
+            ["source_ft", "tent", "eata", "sar", "cotta", "lame", "t2a"],
+        )
 
     def test_every_cnn_wrapper_points_to_a_vendored_official_core(self) -> None:
         sources = self.load("configs/official_sources.yaml")

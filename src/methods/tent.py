@@ -7,7 +7,7 @@ from typing import Any
 from src.types import AdaptationStats
 
 from .base import TTAMethod
-from .utils import build_optimizer
+from .utils import build_optimizer, select_clip_visual_norm_parameters
 
 
 class Tent(TTAMethod):
@@ -18,10 +18,21 @@ class Tent(TTAMethod):
         from src.official import tent as official_tent
 
         self.official_module = official_tent
-        official_tent.configure_model(self.model)
-        parameters, self.official_parameter_names = official_tent.collect_params(self.model)
+        self.normalization_mapping = None
+        if bool(self.config.get("clip_visual_layernorm", False)):
+            self.model.train()
+            self.model.requires_grad_(False)
+            parameters, self.official_parameter_names = select_clip_visual_norm_parameters(
+                self.model
+            )
+            self.normalization_mapping = "BatchNorm_affine_to_CLIP_visual_LayerNorm_affine"
+        else:
+            official_tent.configure_model(self.model)
+            parameters, self.official_parameter_names = official_tent.collect_params(
+                self.model
+            )
         if not parameters:
-            raise RuntimeError("Official TENT requires at least one BatchNorm2d layer")
+            raise RuntimeError("Official TENT did not collect adaptation parameters")
         self.optimizer = build_optimizer(parameters, self.config)
         self.core = official_tent.Tent(
             self.model,
@@ -38,7 +49,18 @@ class Tent(TTAMethod):
             "official_core": "src.official.tent",
             "numerical_validation": "not_run_requires_official_data_and_weights",
             "protocol_wrapper": "predict_then_adapt",
-            "intentional_changes": ["framework separates prediction from official adaptation"],
+            "intentional_changes": [
+                "framework separates prediction from official adaptation",
+                *(
+                    [
+                        "BatchNorm affine selection is minimally mapped to OpenAI "
+                        "CLIP visual LayerNorm affine parameters"
+                    ]
+                    if self.normalization_mapping is not None
+                    else []
+                ),
+            ],
+            "normalization_mapping": self.normalization_mapping,
         }
 
     def adapt(self, images: Any) -> AdaptationStats:

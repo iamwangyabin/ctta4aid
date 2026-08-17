@@ -181,7 +181,7 @@ def _write_seed(
     for method, auc in (
         ("source_ft", source_ft_auc),
         ("sar", sar_auc),
-        ("source", frozen_clip_auc),
+        ("frozen_clip", frozen_clip_auc),
         ("tda", tda_auc),
         ("iapl", iapl_auc),
     ):

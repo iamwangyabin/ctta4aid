@@ -8,7 +8,7 @@ from typing import Any
 from src.types import AdaptationStats
 
 from .base import TTAMethod
-from .utils import preserve_batch_norm_buffers
+from .utils import preserve_batch_norm_buffers, select_clip_visual_norm_parameters
 
 
 class T2A(TTAMethod):
@@ -32,6 +32,14 @@ class T2A(TTAMethod):
         self.model.train()
         self.model.requires_grad_(True)
         self.official_module = official_t2a
+        self.normalization_mapping = None
+        self._gradient_reference_parameter_ids: set[int] | None = None
+        if bool(self.config.get("clip_visual_layernorm", False)):
+            layernorm_parameters, _ = select_clip_visual_norm_parameters(self.model)
+            self._gradient_reference_parameter_ids = {
+                id(parameter) for parameter in layernorm_parameters
+            }
+            self.normalization_mapping = "BatchNorm_gradient_reference_to_CLIP_visual_LayerNorm"
         self.official_model = DictOutputModel(self.model)
         optimizer_name = str(self.config.get("optimizer", "adam")).lower()
         official_optimizer_config = self.config.get("optimizer_config", {})
@@ -108,6 +116,40 @@ class T2A(TTAMethod):
             cosine_strategy=str(release_repairs.get("cosine_strategy", "zero_pad")),
         )
         self.optimizer = self.core.optimizer
+        if self._gradient_reference_parameter_ids is not None:
+            self.core.perform_gradient_masking = self._clip_layernorm_gradient_masking
+
+    def _clip_layernorm_gradient_masking(self) -> int:
+        """Keep T2A's masking rule while substituting its BN reference tensors."""
+
+        import torch
+
+        assert self._gradient_reference_parameter_ids is not None
+        reference_grads = [
+            parameter.grad.flatten()
+            for parameter in self.core.model.parameters()
+            if id(parameter) in self._gradient_reference_parameter_ids
+            and parameter.grad is not None
+        ]
+        if not reference_grads:
+            return 0
+        reference_vector = torch.cat(reference_grads)
+        masked = 0
+        for parameter in self.core.model.parameters():
+            if (
+                parameter.grad is None
+                or id(parameter) in self._gradient_reference_parameter_ids
+            ):
+                continue
+            cosine_similarity = self.official_module.compute_cosine_similarity(
+                parameter.grad.flatten().unsqueeze(0),
+                reference_vector,
+                strategy=str(self.core.cosine_strategy),
+            )
+            if cosine_similarity < float(self.core.psi):
+                parameter.grad.zero_()
+                masked += 1
+        return masked
 
     @property
     def reproduction_metadata(self) -> dict[str, Any]:
@@ -128,7 +170,16 @@ class T2A(TTAMethod):
                 "normalized-loss denominators are guarded against numerical zero",
                 "authors' adapt-then-predict forward is split by the framework",
                 "predict preserves BatchNorm running buffers until adapt",
+                *(
+                    [
+                        "the official BatchNorm gradient reference is minimally "
+                        "mapped to OpenAI CLIP visual LayerNorm affine parameters"
+                    ]
+                    if self.normalization_mapping is not None
+                    else []
+                ),
             ],
+            "normalization_mapping": self.normalization_mapping,
         }
 
     def predict(self, images: Any):

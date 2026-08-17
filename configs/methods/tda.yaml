@@ -14,9 +14,14 @@ method_configs:
     negative_beta: 1.0
     negative_entropy_threshold: [0.2, 0.5]
     negative_mask_threshold: [0.03, 1.0]
+    vlm:
+      prompt_profile: tda_binary_photo_template_v1
+      class_prompts:
+        - [a photo of a real image.]
+        - [a photo of an AI-generated image.]
     reference:
       profile: official_tda_default_cache_with_binary_prompt_bridge
       repository: https://github.com/kdiAAA/TDA
       commit: e697fb0c8078cdeff93daa56bcf8860702542069
       protocol: online_adapt_then_predict
-      transfer_note: The cache core is retained; the official ImageNet text classifier is replaced by the pre-registered binary CLIP text prototypes.
+      transfer_note: The cache core is retained; the official text-classifier construction is bridged to binary real/fake class semantics.

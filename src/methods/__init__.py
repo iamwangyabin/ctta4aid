@@ -30,7 +30,7 @@ def build_method(
 ) -> TTAMethod:
     normalized = name.lower().replace("²", "2").replace("_", "").replace("-", "")
     config = config or {}
-    if normalized in {"source", "sourceonly"}:
+    if normalized in {"source", "sourceonly", "sourceft", "frozenclip"}:
         return SourceOnly(model, device, config)
     if normalized == "tent":
         return Tent(model, device, config)

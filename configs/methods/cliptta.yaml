@@ -20,6 +20,11 @@ method_configs:
     update_all_params: false
     use_ood_loss: false
     detect_ood: false
+    vlm:
+      prompt_profile: cliptta_closed_set_binary_template_v1
+      class_prompts:
+        - [this is a real photograph.]
+        - [this is an AI-generated image.]
     reference:
       profile: official_cliptta_closed_set_vision_only
       repository: https://github.com/MarcLafon/cliptta

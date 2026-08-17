@@ -29,6 +29,10 @@ class BATCLIP(TTAMethod):
 
         self.model.eval()
         self.model.requires_grad_(False)
+        if hasattr(self.model, "dynamic_text_features"):
+            # BATCLIP updates image and text pathways jointly, so prototypes
+            # cannot stay cached while text-side normalization parameters change.
+            self.model.dynamic_text_features = True
         parameters = []
         names = []
         seen = set()
@@ -90,6 +94,8 @@ class BATCLIP(TTAMethod):
                 "but is device-safe on CPU",
                 "the framework separates pre-update prediction from the official "
                 "update and owns Arrow I/O",
+                "text prototypes are recomputed during adaptation so text-side "
+                "normalization updates remain part of the bimodal objective",
             ],
         }
 

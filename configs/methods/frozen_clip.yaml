@@ -1,0 +1,20 @@
+methods: [frozen_clip]
+
+method_configs:
+  frozen_clip:
+    adaptation: none
+    reference:
+      role: frozen_openai_clip_control
+      trainable_parameters: 0
+      source_setup: frozen_openai_clip_method_specific_text_ensemble
+    vlm:
+      prompt_profile: frozen_aigc_binary_ensemble_v1
+      class_prompts:
+        -
+          - a real photograph.
+          - an authentic camera image.
+          - a natural image.
+        -
+          - an AI-generated image.
+          - a synthetic image.
+          - a computer-generated picture.

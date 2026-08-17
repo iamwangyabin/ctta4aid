@@ -144,12 +144,74 @@ class MethodFidelityTests(unittest.TestCase):
         self.assertEqual(stats.selected, 4)
         self.assertFalse(stats.extra["fisher_enabled"])
 
-    def test_tent_ln_and_sar_adapt_only_clip_visual_normalization(self) -> None:
+    def test_eata_layernorm_mapping_uses_matching_fisher_names(self) -> None:
+        from src.methods.eata import EATA
+        from src.methods.utils import select_clip_visual_norm_parameters
+
+        model = self.clip_vlm()
+        parameters, names = select_clip_visual_norm_parameters(model)
+        fishers = {
+            name: [self.torch.zeros_like(parameter), parameter.detach().clone()]
+            for name, parameter in zip(names, parameters, strict=True)
+        }
+        method = EATA(
+            model,
+            "cpu",
+            {
+                "optimizer": "adam",
+                "lr": 0.001,
+                "clip_visual_layernorm": True,
+                "entropy_margin": 10.0,
+                "require_fisher": True,
+            },
+            fishers=fishers,
+        )
+        self.assertEqual(
+            method.normalization_mapping,
+            "BatchNorm_affine_to_CLIP_visual_LayerNorm_affine",
+        )
+        stats = method.adapt(self.torch.randn(4, 3, 8, 8))
+        self.assertTrue(stats.extra["fisher_enabled"])
+
+    def test_tent_layernorm_mapping_and_sar_adapt_only_clip_visual_normalization(
+        self,
+    ) -> None:
         from src.methods import build_method
         from src.methods.sar import SAR
+        from src.methods.tent import Tent
         from src.methods.tent_ln import TentLayerNorm
 
         images = self.torch.randn(4, 3, 8, 8)
+        mapped_tent = build_method(
+            "tent",
+            self.clip_vlm(),
+            "cpu",
+            {
+                "optimizer": "adam",
+                "lr": 0.001,
+                "steps": 1,
+                "clip_visual_layernorm": True,
+            },
+        )
+        self.assertIsInstance(mapped_tent, Tent)
+        self.assertEqual(
+            mapped_tent.normalization_mapping,
+            "BatchNorm_affine_to_CLIP_visual_LayerNorm_affine",
+        )
+        self.assertTrue(
+            all(
+                name.startswith("clip.visual.")
+                for name in mapped_tent.official_parameter_names
+            )
+        )
+        mapped_head_before = mapped_tent.model.head.weight.detach().clone()
+        mapped_tent.predict(images)
+        mapped_tent_stats = mapped_tent.adapt(images)
+        self.assertEqual(mapped_tent_stats.selected, 4)
+        self.assertTrue(
+            self.torch.equal(mapped_tent.model.head.weight, mapped_head_before)
+        )
+
         tent = build_method(
             "tent_ln",
             self.clip_vlm(),

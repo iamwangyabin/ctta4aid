@@ -2,14 +2,26 @@ from __future__ import annotations
 
 import argparse
 from copy import deepcopy
+from contextlib import nullcontext
 from pathlib import Path
 from typing import Any
 
 from src.cli.common import resolve_device, seed_everything, write_json
 from src.config import load_config, require
-from src.data import build_dataset, build_eval_transform, build_train_transform
+from src.data import (
+    build_clip_eval_transform,
+    build_clip_train_transform,
+    build_dataset,
+    build_eval_transform,
+    build_train_transform,
+)
 from src.evaluation.metrics import MetricAccumulator
-from src.models import build_detector, build_ost_training_detector, save_checkpoint
+from src.models import (
+    build_clip_source_detector,
+    build_detector,
+    build_ost_training_detector,
+    save_checkpoint,
+)
 
 
 def build_loader(
@@ -46,12 +58,22 @@ def data_generator(data_config: dict[str, Any], role: str) -> str:
     return str(generator)
 
 
-def evaluate(model: Any, loader: Any, device: Any) -> dict[str, Any]:
+def _autocast(device: Any, enabled: bool) -> Any:
+    if enabled and str(device).startswith("cuda"):
+        import torch
+
+        return torch.autocast(device_type="cuda", dtype=torch.float16)
+    return nullcontext()
+
+
+def evaluate(
+    model: Any, loader: Any, device: Any, *, amp_enabled: bool = False
+) -> dict[str, Any]:
     import torch
 
     model.eval()
     accumulator = MetricAccumulator()
-    with torch.no_grad():
+    with torch.no_grad(), _autocast(device, amp_enabled):
         for images, labels, _ in loader:
             probabilities = model(images.to(device, non_blocking=True)).softmax(dim=1)[:, 1]
             accumulator.update(labels, probabilities, "validation")
@@ -289,26 +311,48 @@ def train_ost(config: dict[str, Any], device: Any, seed: int) -> None:
     print(f"saved={output_path}")
 
 
-def estimate_bn_fishers(model: Any, loader: Any, device: Any, max_samples: int) -> dict[str, Any]:
-    """Reproduce the official EATA pseudo-label Fisher preparation."""
+def estimate_bn_fishers(
+    model: Any,
+    loader: Any,
+    device: Any,
+    max_samples: int,
+    *,
+    parameter_scope: str = "batchnorm",
+) -> dict[str, Any]:
+    """Reproduce EATA's pseudo-label Fisher preparation for the chosen norm scope."""
     import torch
     import torch.nn as nn
     import torch.nn.functional as functional
 
     fisher_model = deepcopy(model).to(device)
+    normalized_scope = parameter_scope.lower().replace("-", "_")
     fisher_model.train()
     fisher_model.requires_grad_(False)
-    for module in fisher_model.modules():
-        if isinstance(module, nn.BatchNorm2d):
-            module.requires_grad_(True)
-            module.track_running_stats = False
-            module.running_mean = None
-            module.running_var = None
-    selected = {
-        name: parameter
-        for name, parameter in fisher_model.named_parameters()
-        if parameter.requires_grad
-    }
+    if normalized_scope == "clip_visual_layernorm":
+        from src.methods.utils import select_clip_visual_norm_parameters
+
+        _parameters, names = select_clip_visual_norm_parameters(fisher_model)
+        selected = dict(fisher_model.named_parameters())
+        selected = {name: selected[name] for name in names}
+    elif normalized_scope == "batchnorm":
+        for module in fisher_model.modules():
+            if isinstance(module, nn.BatchNorm2d):
+                module.requires_grad_(True)
+                module.track_running_stats = False
+                module.running_mean = None
+                module.running_var = None
+        selected = {
+            name: parameter
+            for name, parameter in fisher_model.named_parameters()
+            if parameter.requires_grad
+        }
+    else:
+        raise ValueError(
+            "Fisher parameter_scope must be batchnorm or clip_visual_layernorm, "
+            f"got {parameter_scope!r}"
+        )
+    if not selected:
+        raise RuntimeError("Fisher preparation did not select any adaptation parameters")
     fisher_sums = {
         name: torch.zeros_like(parameter, device="cpu") for name, parameter in selected.items()
     }
@@ -359,7 +403,9 @@ def main() -> None:
     seed = int(config.get("seed", 0))
     seed_everything(seed)
     device = resolve_device(str(config.get("device", "auto")))
-    if str(config["model"].get("architecture", "resnet50")).lower() in {
+    model_config = config["model"]
+    model_family = str(model_config.get("family", "detector")).lower().replace("-", "_")
+    if str(model_config.get("architecture", "resnet50")).lower() in {
         "meta_xception",
         "metaxception",
     }:
@@ -369,12 +415,29 @@ def main() -> None:
     val_generator = data_generator(data_config, "val")
 
     image_size = int(data_config.get("image_size", 224))
+    clip_source_detector = model_family == "clip_source_detector"
+    train_transform = (
+        build_clip_train_transform(image_size)
+        if clip_source_detector
+        else build_train_transform(image_size)
+    )
+    val_transform = (
+        build_clip_eval_transform(
+            image_size,
+            resize_size=int(data_config.get("resize_size", round(image_size / 0.875))),
+        )
+        if clip_source_detector
+        else build_eval_transform(
+            image_size,
+            resize_before_crop=bool(data_config.get("resize_before_crop", True)),
+        )
+    )
     train_dataset = build_dataset(
         data_format=data_config["format"],
         root=data_config.get("train_root", data_config.get("root")),
         generator=train_generator,
         split=data_config["train_split"],
-        transform=build_train_transform(image_size),
+        transform=train_transform,
         max_samples_per_class=data_config.get("max_train_samples_per_class"),
         seed=seed,
     )
@@ -383,23 +446,25 @@ def main() -> None:
         root=data_config.get("val_root", data_config.get("root")),
         generator=val_generator,
         split=data_config["val_split"],
-        transform=build_eval_transform(
-            image_size,
-            resize_before_crop=bool(data_config.get("resize_before_crop", True)),
-        ),
+        transform=val_transform,
         max_samples_per_class=data_config.get("max_val_samples_per_class"),
         seed=seed,
     )
     train_loader = build_loader(train_dataset, data_config, shuffle=True, seed=seed)
     val_loader = build_loader(val_dataset, data_config, shuffle=False)
 
-    model_config = config["model"]
-    model = build_detector(
-        model_config.get("architecture", "resnet50"),
-        pretrained=bool(model_config.get("pretrained", True)),
-        pretrained_weights=str(model_config.get("pretrained_weights", "default")),
-        num_classes=int(model_config.get("num_classes", 2)),
-    ).to(device)
+    initialization_metadata: dict[str, Any] | None = None
+    if clip_source_detector:
+        model, initialization_metadata = build_clip_source_detector(
+            model_config, device=device
+        )
+    else:
+        model = build_detector(
+            model_config.get("architecture", "resnet50"),
+            pretrained=bool(model_config.get("pretrained", True)),
+            pretrained_weights=str(model_config.get("pretrained_weights", "default")),
+            num_classes=int(model_config.get("num_classes", 2)),
+        ).to(device)
 
     import torch
     import torch.nn.functional as functional
@@ -408,30 +473,40 @@ def main() -> None:
     optimizer_name = str(training.get("optimizer", "adamw")).lower()
     optimizer_class = torch.optim.AdamW if optimizer_name == "adamw" else torch.optim.Adam
     optimizer = optimizer_class(
-        model.parameters(),
+        (parameter for parameter in model.parameters() if parameter.requires_grad),
         lr=float(training.get("learning_rate", 1e-4)),
         weight_decay=float(training.get("weight_decay", 1e-4)),
     )
+    amp_enabled = str(device).startswith("cuda") and bool(training.get("amp", False))
+    scaler = torch.cuda.amp.GradScaler(enabled=amp_enabled)
 
     best_auc = float("-inf")
     best_state = None
     best_metrics: dict[str, Any] = {}
     epochs = int(training.get("epochs", 10))
+    max_steps = training.get("max_steps_per_epoch")
+    max_steps = None if max_steps is None else int(max_steps)
     for epoch in range(1, epochs + 1):
         model.train()
         running_loss = 0.0
+        steps = 0
         for images, labels, _ in train_loader:
+            if max_steps is not None and steps >= max_steps:
+                break
             images = images.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
-            loss = functional.cross_entropy(model(images), labels)
+            with _autocast(device, amp_enabled):
+                loss = functional.cross_entropy(model(images), labels)
             optimizer.zero_grad(set_to_none=True)
-            loss.backward()
-            optimizer.step()
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
             running_loss += float(loss.detach().cpu())
+            steps += 1
 
-        metrics = evaluate(model, val_loader, device)
+        metrics = evaluate(model, val_loader, device, amp_enabled=amp_enabled)
         print(
-            f"epoch={epoch:03d} loss={running_loss / max(len(train_loader), 1):.5f} "
+            f"epoch={epoch:03d} loss={running_loss / max(steps, 1):.5f} "
             f"val_auc={metrics['auc']:.5f} val_acc={metrics['accuracy']:.5f}"
         )
         if float(metrics["auc"]) > best_auc:
@@ -455,7 +530,11 @@ def main() -> None:
             seed=seed,
         )
         fishers = estimate_bn_fishers(
-            model, fisher_loader, device, int(training.get("fisher_samples", 2000))
+            model,
+            fisher_loader,
+            device,
+            int(training.get("fisher_samples", 2000)),
+            parameter_scope=str(training.get("fisher_parameter_scope", "batchnorm")),
         )
 
     output_root = Path(config["output_dir"])
@@ -465,6 +544,7 @@ def main() -> None:
         model,
         output_path,
         architecture=model_config.get("architecture", "resnet50"),
+        model_family=model_family,
         pretrained_weights=model_config.get("pretrained_weights", "default"),
         source_generator=str(data_config.get("generator", train_generator)),
         train_generator=train_generator,
@@ -475,6 +555,8 @@ def main() -> None:
         checkpoint_role=str(training.get("checkpoint_role", "source_detector")),
         intended_methods=list(training.get("intended_methods", [])),
         requested_for=training.get("requested_for"),
+        initialization=initialization_metadata,
+        fisher_parameter_scope=str(training.get("fisher_parameter_scope", "batchnorm")),
         seed=seed,
     )
     print(f"saved={output_path}")

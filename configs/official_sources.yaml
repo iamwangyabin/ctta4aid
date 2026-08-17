@@ -6,7 +6,7 @@ tent:
   project_profile: configs/methods/tent.yaml
   official_core: src/official/tent.py
   wrapper: src/methods/tent.py
-  status: vendored_official_core_with_protocol_wrapper
+  status: vendored_official_core_with_clip_visual_layernorm_protocol_wrapper
   numerical_validation: not_run_requires_official_data_and_weights
 
 eata:
@@ -17,7 +17,7 @@ eata:
   project_profile: configs/methods/eata.yaml
   official_core: src/official/eata.py
   wrapper: src/methods/eata.py
-  status: vendored_official_core_with_binary_protocol_wrapper
+  status: vendored_official_core_with_binary_clip_visual_layernorm_protocol_wrapper
   numerical_validation: not_run_requires_official_data_and_weights
 
 cotta:
@@ -220,15 +220,14 @@ sar:
   commit: 20f6e24b17525f34503510afccedc0629b67b7c4
   upstream_files: [sar.py, sam.py, tent.py]
   upstream_config: main.py
-  project_profiles: [configs/methods/tent_ln.yaml, configs/methods/sar.yaml]
+  project_profiles: [configs/methods/tent.yaml, configs/methods/sar.yaml]
   official_core: src/official/sar.py
-  wrappers: [src/methods/tent_ln.py, src/methods/sar.py]
+  wrappers: [src/methods/tent.py, src/methods/sar.py]
   status: selective_vendored_vit_layernorm_core_with_clip_protocol_wrappers
   license: BSD-3-Clause
   local_changes:
     - ViT-B final-block filtering is mapped to the final three OpenAI CLIP ViT-L/14 visual blocks
     - empty reliable selections restore SAM parameters rather than emitting a NaN update
-    - Tent-LN is explicitly labeled as the SAR release LayerNorm path, not a BatchNorm-only original-Tent reproduction
   numerical_validation: requires_framework_native_benchmark_run
 
 ttc:

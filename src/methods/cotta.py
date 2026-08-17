@@ -7,7 +7,7 @@ from typing import Any
 from src.types import AdaptationStats, PredictionBatch
 
 from .base import TTAMethod
-from .utils import NormalizedInputTransform, build_optimizer
+from .utils import NormalizedInputTransform, build_optimizer, model_input_normalization
 
 
 class CoTTA(TTAMethod):
@@ -49,7 +49,10 @@ class CoTTA(TTAMethod):
                 self.config.get("restore_probability", 0.001)
             ),
         )
-        self.core.transform = NormalizedInputTransform(self.core.transform)
+        self.input_mean, self.input_std = model_input_normalization(self.model)
+        self.core.transform = NormalizedInputTransform(
+            self.core.transform, mean=self.input_mean, std=self.input_std
+        )
         self._pending_teacher_target: Any = None
         self._pending_batch_id: int | None = None
 
@@ -65,7 +68,7 @@ class CoTTA(TTAMethod):
             "intentional_changes": [
                 "modern torchvision interpolation argument",
                 "device-safe stochastic restoration instead of hard-coded CUDA",
-                "ImageNet normalization bridge around official pixel augmentation",
+                "model-native normalization bridge around official pixel augmentation",
                 "teacher prediction split and cached for Predict-Then-Adapt",
                 "hard-coded official constants exposed without changing defaults",
             ],
@@ -117,7 +120,9 @@ class CoTTA(TTAMethod):
                 gaussian_std=float(self.config.get("gaussian_std", 0.005)),
                 soft=bool(self.config.get("soft_augmentation", False)),
                 image_size=int(self.config.get("image_size", 224)),
-            )
+            ),
+            mean=self.input_mean,
+            std=self.input_std,
         )
         self._pending_teacher_target = None
         self._pending_batch_id = None

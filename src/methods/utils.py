@@ -10,7 +10,7 @@ IMAGENET_STD = (0.229, 0.224, 0.225)
 
 
 class NormalizedInputTransform:
-    """Run a pixel-space transform around ImageNet-normalized model input."""
+    """Run a pixel-space transform around the model's normalized input."""
 
     def __init__(
         self,
@@ -107,6 +107,64 @@ def configure_batch_norm(model: Any, *, train_all: bool = False) -> list[Any]:
     if not selected:
         raise RuntimeError("The selected TTA method requires BatchNorm layers, but none were found")
     return selected
+
+
+def select_clip_visual_norm_parameters(
+    model: Any,
+    *,
+    exclude_last_blocks: int = 0,
+    exclude_output_norm: bool = False,
+) -> tuple[list[Any], list[str]]:
+    """Select OpenAI CLIP ViT visual LayerNorm affine parameters for TTA."""
+
+    import torch.nn as nn
+
+    clip = getattr(model, "clip", None)
+    visual = getattr(clip, "visual", None)
+    if visual is None:
+        raise TypeError("LayerNorm adaptation requires an OpenAI CLIP visual tower")
+
+    blocks = tuple(getattr(getattr(visual, "transformer", None), "resblocks", ()))
+    excluded_blocks = set(
+        range(max(0, len(blocks) - exclude_last_blocks), len(blocks))
+    )
+    parameters: list[Any] = []
+    names: list[str] = []
+    seen: set[int] = set()
+    for module_name, module in visual.named_modules():
+        if not isinstance(module, nn.LayerNorm):
+            continue
+        if exclude_output_norm and module_name == "ln_post":
+            continue
+        parts = module_name.split(".")
+        if (
+            len(parts) >= 3
+            and parts[0] == "transformer"
+            and parts[1] == "resblocks"
+            and parts[2].isdigit()
+            and int(parts[2]) in excluded_blocks
+        ):
+            continue
+        module.requires_grad_(True)
+        for parameter_name, parameter in module.named_parameters(recurse=False):
+            if parameter_name not in {"weight", "bias"} or id(parameter) in seen:
+                continue
+            seen.add(id(parameter))
+            parameters.append(parameter)
+            names.append(f"clip.visual.{module_name}.{parameter_name}")
+    if not parameters:
+        raise RuntimeError("No CLIP visual LayerNorm affine parameters were found")
+    return parameters, names
+
+
+def model_input_normalization(model: Any) -> tuple[tuple[float, ...], tuple[float, ...]]:
+    """Return the model's input normalization for pixel-space augmentations."""
+
+    mean = tuple(float(value) for value in getattr(model, "input_mean", IMAGENET_MEAN))
+    std = tuple(float(value) for value in getattr(model, "input_std", IMAGENET_STD))
+    if len(mean) != 3 or len(std) != 3:
+        raise ValueError("Input normalization must provide three mean and std values")
+    return mean, std
 
 
 def build_optimizer(parameters: Iterable[Any], config: dict[str, Any]) -> Any:

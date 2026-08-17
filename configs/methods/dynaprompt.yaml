@@ -22,9 +22,17 @@ method_configs:
     weight_decay: 0.01
     amp: true
     amp_init_scale: 1000.0
+    vlm:
+      # DynaPrompt constructs and tunes its own text embeddings. These class
+      # names only initialize the upstream prompt learner, not another method's
+      # frozen final prompt.
+      prompt_profile: dynaprompt_binary_context_initialization_v1
+      class_prompts:
+        - [a photo of a real photograph.]
+        - [a photo of an AI-generated image.]
     reference:
       profile: official_dynaprompt_online_prompt_selection
       repository: https://github.com/zzzx1224/DynaPrompt
       commit: acd33cf71f5be817512f99ba3b81ec019595ad59
       protocol: online_adapt_then_predict
-      transfer_note: The global-plus-AugMix view procedure and prompt selection are retained. The ImageNet class list is replaced by fixed real/fake class names.
+      transfer_note: The global-plus-AugMix view procedure and prompt selection are retained. The ImageNet class list is replaced by binary real/fake class semantics.

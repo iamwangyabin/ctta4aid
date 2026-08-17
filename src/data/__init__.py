@@ -6,7 +6,12 @@ from .streams import (
     lock_stream_to_manifest,
     locked_sample_ids_by_domain,
 )
-from .transforms import build_clip_eval_transform, build_eval_transform, build_train_transform
+from .transforms import (
+    build_clip_eval_transform,
+    build_clip_train_transform,
+    build_eval_transform,
+    build_train_transform,
+)
 from .views import DynaPromptViewTransform, GlobalLocalViewTransform
 
 __all__ = [
@@ -19,6 +24,7 @@ __all__ = [
     "lock_stream_to_manifest",
     "locked_sample_ids_by_domain",
     "build_clip_eval_transform",
+    "build_clip_train_transform",
     "build_eval_transform",
     "build_train_transform",
     "DynaPromptViewTransform",

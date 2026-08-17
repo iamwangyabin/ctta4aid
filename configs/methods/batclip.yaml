@@ -12,6 +12,12 @@ method_configs:
     steps: 1
     amp: true
     amp_init_scale: 1000.0
+    vlm:
+      prompt_profile: batclip_bimodal_binary_template_v1
+      dynamic_text_features: true
+      class_prompts:
+        - [a high quality real photograph.]
+        - [a high quality AI-generated image.]
     reference:
       profile: official_batclip_norm_adaptation_with_openai_clip_bridge
       repository: https://github.com/sarthaxxxxx/BATCLIP

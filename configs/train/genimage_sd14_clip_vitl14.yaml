@@ -1,0 +1,42 @@
+# Train the shared ViT-L/14 source detector once on GenImage SD v1.4.
+seed: 0
+device: auto
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vitl14_source_train
+
+model:
+  family: clip_source_detector
+  architecture: ViT-L/14
+  checkpoint: ${CLIP_VIT_L14_CHECKPOINT}
+  image_size: 224
+  resize_size: 256
+  trainable_scope: full
+
+data:
+  format: arrow
+  train_root: ${GENIMAGE_SD14_TRAIN_ARROW_ROOT}
+  val_root: ${GENIMAGE_ARROW_ROOT}
+  generator: stable_diffusion_v_1_4
+  train_generator: SDv14
+  val_generator: stable_diffusion_v_1_4
+  train_split: train
+  val_split: test
+  image_size: 224
+  resize_size: 256
+  batch_size: 16
+  num_workers: 8
+
+training:
+  profile: shared_clip_vitl14_full_source_detector
+  checkpoint_role: shared_source_detector_for_clip_vitl14_ctta
+  intended_methods: [source_ft, tent, eata, sar, cotta, lame, t2a]
+  epochs: 3
+  max_steps_per_epoch: null
+  optimizer: adamw
+  learning_rate: 0.00001
+  weight_decay: 0.01
+  amp: true
+  compute_fisher: true
+  fisher_parameter_scope: clip_visual_layernorm
+  fisher_samples: 2000
+  fisher_batch_size: 16
+  fisher_source: clean_source_holdout_pseudo_labels

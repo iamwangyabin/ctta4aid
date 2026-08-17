@@ -97,10 +97,10 @@ TABLE_GROUPS = (
         "Source-trained CLIP detector (shared source checkpoint)",
         (
             TableRow("source_ft", "Source", "source_trained"),
-            TableRow("tent_ln", "Tent$^{\\dagger}$", "source_trained"),
+            TableRow("tent", "Tent$^{\\dagger}$", "source_trained"),
             TableRow("eata", "EATA$^{\\dagger}$", "source_trained"),
             TableRow("sar", "SAR", "source_trained"),
-            TableRow("cotta", "CoTTA$^{\\dagger}$", "source_trained"),
+            TableRow("cotta", "CoTTA", "source_trained"),
             TableRow("rotta", "RoTTA$^{\\ddagger}$", None, available=False),
             TableRow("lame", "LAME", "source_trained"),
             TableRow("t2a", "T$^2$A$^{\\dagger}$", "source_trained"),
@@ -110,7 +110,7 @@ TABLE_GROUPS = (
         "clip_native",
         "CLIP-native (method-native text classifier)",
         (
-            TableRow("source", "Frozen CLIP", "clip_native"),
+            TableRow("frozen_clip", "Frozen CLIP", "clip_native"),
             TableRow("tda", "TDA", "clip_native"),
             TableRow("dynaprompt", "DynaPrompt", "clip_native"),
             TableRow("cliptta", "CLIPTTA", "clip_native"),

@@ -14,6 +14,7 @@ from src.config import deep_merge, method_config, require
 from src.data.ost import OSTTemplateSampler
 from src.methods import build_method
 from src.models import (
+    build_clip_source_detector,
     build_clip_vlm_detector,
     build_detector,
     build_iapl_detector,
@@ -117,7 +118,44 @@ def build_fresh_method(
     require(experiment_config, "model")
     model_config = experiment_config["model"]
     model_family = str(model_config.get("family", "detector")).lower().replace("-", "_")
-    if model_family == "clip_vlm":
+    if model_family == "clip_vlm_main":
+        source_trained_methods = {
+            "sourceft",
+            "tent",
+            "eata",
+            "sar",
+            "cotta",
+            "lame",
+            "t2a",
+        }
+        clip_native_methods = {
+            "frozenclip",
+            "tda",
+            "dynaprompt",
+            "cliptta",
+            "batclip",
+        }
+        if normalized_name in source_trained_methods:
+            source_config = deepcopy(model_config.get("source_detector", {}))
+            require(source_config, "checkpoint", "source_checkpoint")
+            model, initialization = build_clip_source_detector(source_config, device=device)
+            checkpoint_path = str(
+                Path(source_config["source_checkpoint"]).expanduser().resolve()
+            )
+            checkpoint_metadata = load_checkpoint(model, checkpoint_path, device=device)
+            metadata = {**initialization, **checkpoint_metadata}
+        elif normalized_name in clip_native_methods:
+            native_config = deep_merge(
+                model_config.get("clip_native", {}), effective_method_config.get("vlm", {})
+            )
+            require(native_config, "checkpoint")
+            model, metadata = build_clip_vlm_detector(native_config, device=device)
+            checkpoint_path = str(Path(native_config["checkpoint"]).expanduser().resolve())
+        else:
+            raise ValueError(
+                f"CLIP VLM main track has no model profile for method: {name}"
+            )
+    elif model_family == "clip_vlm":
         require(model_config, "checkpoint")
         model, metadata = build_clip_vlm_detector(model_config, device=device)
         checkpoint_path = str(Path(model_config["checkpoint"]).expanduser().resolve())

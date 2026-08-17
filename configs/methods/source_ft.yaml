@@ -1,0 +1,10 @@
+methods: [source_ft]
+
+method_configs:
+  source_ft:
+    adaptation: none
+    reference:
+      role: shared_source_trained_clip_detector_control
+      trainable_parameters: 0
+      source_setup: shared_source_trained_clip_vitl14_binary_detector
+      note: Prediction only; no test-time update.

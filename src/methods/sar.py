@@ -9,7 +9,7 @@ from typing import Any
 from src.types import AdaptationStats
 
 from .base import TTAMethod
-from .tent_ln import select_clip_visual_norm_parameters
+from .utils import select_clip_visual_norm_parameters
 
 
 class SAR(TTAMethod):

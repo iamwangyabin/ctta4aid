@@ -29,6 +29,28 @@ def build_train_transform(image_size: int = 224) -> Any:
     )
 
 
+def build_clip_train_transform(image_size: int = 224) -> Any:
+    """Augment source images while preserving OpenAI CLIP normalization."""
+
+    transforms = _torchvision_transforms()
+    try:
+        interpolation = transforms.InterpolationMode.BICUBIC
+    except AttributeError:
+        from PIL import Image
+
+        interpolation = Image.BICUBIC
+    return transforms.Compose(
+        [
+            transforms.RandomResizedCrop(
+                image_size, scale=(0.8, 1.0), interpolation=interpolation
+            ),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(CLIP_MEAN, CLIP_STD),
+        ]
+    )
+
+
 def build_eval_transform(image_size: int = 224, *, resize_before_crop: bool = True) -> Any:
     transforms = _torchvision_transforms()
     resize_size = int(round(image_size / 0.875))

@@ -8,56 +8,7 @@ from typing import Any
 from src.types import AdaptationStats
 
 from .base import TTAMethod
-from .utils import build_optimizer
-
-
-def select_clip_visual_norm_parameters(
-    model: Any,
-    *,
-    exclude_last_blocks: int = 0,
-    exclude_output_norm: bool = False,
-) -> tuple[list[Any], list[str]]:
-    """Select visual LayerNorm affine parameters for CLIP ViT adaptation."""
-
-    import torch.nn as nn
-
-    clip = getattr(model, "clip", None)
-    visual = getattr(clip, "visual", None)
-    if visual is None:
-        raise TypeError("LayerNorm adaptation requires a CLIP visual tower")
-
-    blocks = getattr(getattr(visual, "transformer", None), "resblocks", ())
-    excluded_blocks = set(
-        range(max(0, len(blocks) - exclude_last_blocks), len(blocks))
-    )
-    parameters: list[Any] = []
-    names: list[str] = []
-    seen: set[int] = set()
-    norm_types = (nn.LayerNorm, nn.GroupNorm, nn.BatchNorm1d, nn.BatchNorm2d)
-    for module_name, module in visual.named_modules():
-        if not isinstance(module, norm_types):
-            continue
-        if exclude_output_norm and module_name == "ln_post":
-            continue
-        parts = module_name.split(".")
-        if (
-            len(parts) >= 3
-            and parts[0] == "transformer"
-            and parts[1] == "resblocks"
-            and parts[2].isdigit()
-            and int(parts[2]) in excluded_blocks
-        ):
-            continue
-        module.requires_grad_(True)
-        for parameter_name, parameter in module.named_parameters(recurse=False):
-            if parameter_name not in {"weight", "bias"} or id(parameter) in seen:
-                continue
-            seen.add(id(parameter))
-            parameters.append(parameter)
-            names.append(f"clip.visual.{module_name}.{parameter_name}")
-    if not parameters:
-        raise RuntimeError("No CLIP visual normalization affine parameters were found")
-    return parameters, names
+from .utils import build_optimizer, select_clip_visual_norm_parameters
 
 
 class TentLayerNorm(TTAMethod):

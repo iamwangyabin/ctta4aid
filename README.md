@@ -80,7 +80,7 @@ CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fish
 | TENT | 公共源域二分类 detector | 熵最小化及原生在线顺序 | `BN -> LN`，表格加脚注 |
 | EATA | 公共源域二分类 detector | 可靠/非冗余筛选、熵最小化、Fisher 防遗忘 | `BN -> LN`；Fisher 必须由同一源 checkpoint 与源数据计算 |
 | SAR | 公共源域二分类 detector | 可靠样本筛选、SAM 与恢复机制 | 使用作者公开的 ViT/LayerNorm 路径 |
-| CoTTA | 公共源域二分类 detector | student/EMA teacher、增强平均、随机恢复 | 仅将可训练归一化参数枚举映射为 LayerNorm |
+| CoTTA | 公共源域二分类 detector | student/EMA teacher、增强平均、随机恢复 | 保留作者全参数更新；只将像素增强的归一化桥接为 CLIP 输入归一化 |
 | RoTTA | 需要源域 detector | robust BatchNorm、memory 与 teacher | robust BatchNorm 是方法核心，不能最小迁移；结果单元格留空并加脚注 |
 | LAME | 公共源域 detector 的特征与 logits | 参数无关的 Laplacian 输出适配 | 仅接入 CLIP 特征；保留其 batch contract |
 | T2A | 公共源域二分类 detector | 不确定性选择、negative learning、gradient masking | 归一化梯度参照由 BN 最小映射为 LayerNorm，其他逻辑不动 |
@@ -113,12 +113,15 @@ python scripts/summarize_clip_vlm_results.py \
   --output-dir /tmp/clip_vitl14_paper_table
 ```
 
-本轮只冻结实验设计与论文空表，不启动正式实验。八张新表在完整三 seed campaign
-验收前全部保持空白；此前完成的 ResNet-50 数值表原样保留在论文补充材料中。现有
-`configs/experiments/clip_vlm/` 仍包含上一版统一固定文本原型的预备配置，不能作为
-正式结果入口。必须先逐方法完成 source checkpoint、分类器或 prompt 构造、可训练参数、
-batch/views、更新步数、状态重置和预测/适应顺序的配置审定及测试，再开放三个 seed 的
-运行命令。RoTTA 与 TTC 的结果单元格保持空白并由脚注解释，不得为了填表放宽上述约束。
+公共 detector 的 source checkpoint 由 `configs/train/genimage_sd14_clip_vitl14.yaml`
+从完整 GenImage SD v1.4 训练集微调一次：3 epoch、全 visual tower 和二分类 head、
+AdamW、CLIP 训练增强，并在相同 source checkpoint 的干净 source holdout 上计算 EATA
+所需的 LayerNorm Fisher。这个 checkpoint 在全部三个 online seed 和所有公共 detector
+方法之间共享。`configs/experiments/clip_vlm/` 是正式入口；每种方法的分类器或 prompt
+构造、可训练参数、batch/views、更新步数、状态重置和预测/适应顺序均由其方法配置锁定。
+八张新表在完整三 seed campaign 验收前仍全部保持空白；此前完成的 ResNet-50 数值表原样
+保留在论文补充材料中。RoTTA 与 TTC 的结果单元格保持空白并由脚注解释，不得为了填表
+放宽上述约束。
 
 四个数据集的三 seed 全部完成后，写入最终结果目录并生成论文主表：
 
@@ -389,7 +392,7 @@ EATA、T2A 和 OST 的参数适应在这轮配对实验中均未提高宏平均 
 ## 实验边界
 
 - CLIP 主结果只使用固定 OpenAI CLIP ViT-L/14 预训练权重，并锁定目标样本 identity、目标内顺序和 seed；每种方法保留原生 source training、分类器或 prompt 构造、batch/views、在线状态与预测/适应顺序。每个数据集分别报告逐 target AUC 和阈值 0.5 的 Accuracy；target 单元格为三 seed 均值，Mean 为 target-macro 均值及跨 seed 标准差。
-- TENT、EATA、CoTTA 和 T2A 只允许把公开实现中的 BN 参数选择最小映射到 LayerNorm affine；其余方法逻辑不得重写。EATA 必须包含匹配公共源域 CLIP detector 的 Fisher。RoTTA 因 robust BatchNorm 是核心而不生成结果，原因只在脚注披露。
+- TENT、EATA 和 T2A 只允许把公开实现中的 BN 参数参照最小映射到 CLIP visual LayerNorm affine；其余方法逻辑不得重写。CoTTA 保留作者 ImageNet 分支的全参数 student/teacher 更新，只将其像素空间增强桥接到 CLIP 输入归一化。EATA 必须包含匹配公共源域 CLIP detector 的 Fisher。RoTTA 因 robust BatchNorm 是核心而不生成结果，原因只在脚注披露。
 - CLIP-native 方法只共享类别语义，不共享人为固定的一句最终 prompt。IAPL 与 Ours 使用各自原生源训练并单独披露 source setup；TTC 在作者公开实现可固定前不生成结果，原因只在脚注披露。
 - CNN Controlled CTTA 方法共享 backbone、源 checkpoint、输入顺序、batch size 和 Predict-Then-Adapt 协议；既有数值表原样保留为补充材料，不得被新 CLIP 空表覆盖或删除。
 - OST 使用自己的 MetaXception checkpoint、源训练模板和 Adapt-Then-Predict 协议，只能单独披露；当前通用 alpha 合成结果不等价于作者的人脸实验。
