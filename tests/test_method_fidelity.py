@@ -94,6 +94,48 @@ class MethodFidelityTests(unittest.TestCase):
 
         return TinyClipVLM()
 
+    def test_clip_source_detector_keeps_only_visual_tower_and_binary_head(self) -> None:
+        from src.models.clip_detector import build_clip_source_detector
+
+        nn = self.nn
+
+        class Visual(nn.Module):
+            output_dim = 4
+
+            def __init__(self) -> None:
+                super().__init__()
+                self.conv1 = nn.Conv2d(3, 4, kernel_size=1)
+
+            def forward(self, images):
+                return self.conv1(images).mean(dim=(2, 3))
+
+        class FakeClip(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.visual = Visual()
+                self.text = nn.Linear(4, 4)
+
+        metadata = {"image_size": 8, "architecture": "ViT-L/14"}
+        with patch(
+            "src.models.clip_detector.load_openai_clip_model",
+            return_value=(FakeClip(), metadata),
+        ):
+            model, result_metadata = build_clip_source_detector(
+                {"image_size": 8, "resize_size": 8, "trainable_scope": "full"},
+                device="cpu",
+            )
+
+        names = [name for name, _parameter in model.named_parameters()]
+        self.assertTrue(any(name.startswith("clip.visual") for name in names))
+        self.assertTrue(any(name.startswith("classifier") for name in names))
+        self.assertFalse(any(name.startswith("clip.text") for name in names))
+        self.assertTrue(all(parameter.requires_grad for parameter in model.parameters()))
+        self.assertEqual(
+            result_metadata["source_setup"],
+            "shared_source_trained_clip_vitl14_binary_detector",
+        )
+        self.assertEqual(tuple(model(self.torch.randn(2, 3, 8, 8)).shape), (2, 2))
+
     def test_tent_updates_only_batch_norm_affine_parameters(self) -> None:
         from src.methods.tent import Tent
 

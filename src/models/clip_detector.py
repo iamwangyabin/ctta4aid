@@ -12,13 +12,21 @@ from .clip_vlm import load_openai_clip_model
 def _clip_source_detector_class() -> Any:
     import torch.nn as nn
 
+    class VisualTower(nn.Module):
+        """Keep only the pretrained CLIP visual tower in the detector state."""
+
+        def __init__(self, visual: Any) -> None:
+            super().__init__()
+            self.visual = visual
+
     class CLIPSourceDetector(nn.Module):
         """A supervised real/fake head over the OpenAI CLIP visual encoder."""
 
         def __init__(self, clip_model: Any, *, image_size: int, resize_size: int) -> None:
             super().__init__()
-            # Source training and all common-detector CTTA rows use fp32 weights.
-            self.clip = clip_model.float()
+            # The task-trained detector never calls CLIP's text tower. Retaining
+            # it would falsely expose unused text parameters to full-model CTTA.
+            self.clip = VisualTower(clip_model.visual.float())
             self.classifier = nn.Linear(int(self.clip.visual.output_dim), 2)
             self.input_transform = build_clip_eval_transform(image_size, resize_size=resize_size)
             self.input_mean = CLIP_MEAN
@@ -30,7 +38,7 @@ def _clip_source_detector_class() -> Any:
             return self.clip.visual.conv1.weight.dtype
 
         def encode_image(self, images: Any) -> Any:
-            return self.clip.encode_image(images.to(dtype=self.dtype))
+            return self.clip.visual(images.to(dtype=self.dtype))
 
         def forward_features(self, images: Any) -> Any:
             return self.encode_image(images).float()
@@ -46,7 +54,9 @@ def configure_clip_source_trainable_parameters(model: Any, scope: str) -> list[s
 
     normalized = scope.lower().replace("-", "_")
     if normalized in {"full", "visual_and_head"}:
-        model.requires_grad_(True)
+        model.requires_grad_(False)
+        model.clip.visual.requires_grad_(True)
+        model.classifier.requires_grad_(True)
     elif normalized in {"linear", "linear_head", "head_only"}:
         model.requires_grad_(False)
         model.classifier.requires_grad_(True)
