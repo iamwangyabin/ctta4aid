@@ -2,9 +2,9 @@
 
 这是一个用于 AI 生成图像检测的在线测试时适应项目。论文专项只纳入有作者公开实现的方法，当前保留四条实验轨道：
 
-- **CLIP VLM 主实验**：以 OpenAI CLIP ViT-L/14 为固定预训练起点，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上比较 Frozen CLIP、Tent-LN、SAR、LAME、TDA、DynaPrompt、CLIPTTA、BATCLIP 与 IAPL。
+- **CLIP ViT-L/14 论文主实验**：唯一预训练模型固定为 OpenAI CLIP ViT-L/14，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上按方法原生训练及适配方式比较通用 TTA、CLIP-native 与任务专用方法，只做接入 ViT-L/14 和二分类数据所必需的最小修改。
 - **Controlled CTTA 补充实验**：Source、TENT、EATA、CoTTA、RoTTA、LAME 和 T2A 共用同一个 ResNet-50 源模型，保留为 CNN 对照与补充材料。
-- **IAPL 独立能力**：使用作者发布的 IAPL checkpoint 和 CLIP ViT-L/14，按逐图 Adapt-Then-Predict 协议运行；主表中必须显式标出其 source setup 与 Frozen CLIP 不同。
+- **IAPL 独立能力**：从同一 CLIP ViT-L/14 预训练底座按 IAPL 原生源训练流程得到任务 checkpoint，再按逐图 Adapt-Then-Predict 协议运行；主表中必须显式标出其 source setup 与 Frozen CLIP 不同。
 - **OST 补充实验**：使用作者的 MetaXception、AM-Softmax 和单步 fast weights；每张测试图从源训练集抽取带标签模板，合成伪样本后 Adapt-Then-Predict。
 
 已确认的 ResNet-50 结果仍按独立目录保存在 `results/`，只提交最终汇总、复现身份和结论，不提交运行日志或中间产物。新的 CLIP 主表结果必须写入新的 `results/clip_vlm_*` 目录，绝不覆盖这些补充材料。
@@ -54,24 +54,51 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-## CLIP VLM 主表
+## CLIP ViT-L/14 论文主实验
 
-主表固定使用 OpenAI CLIP ViT-L/14 的本地 checkpoint，并验证 SHA-256 为
-`b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836`。
-Frozen CLIP、Tent-LN、SAR、LAME、TDA、CLIPTTA 和 BATCLIP 使用相同的预注册二分类
-文本原型 `a real photograph` / `an AI-generated image`。DynaPrompt 从相同的 real/fake
-类名开始，但按其原生协议在线更新 context；IAPL 必须使用作者发布的任务 checkpoint，
-因此主表会把它标为独立 source setup，而不是声称全部方法共享同一任务训练状态。
+主实验唯一预训练模型固定为 OpenAI CLIP ViT-L/14，本地 checkpoint 的 SHA-256 为
+`b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836`。这里统一的是
+预训练底座、目标样本、顺序、seed 和 evaluator，不是强迫所有方法共享一个分类头、
+一句固定 prompt 或相同的测试前任务状态。每个方法保留论文原生的 source training、
+batch/views、状态转移、预测/适应顺序和 prompt 构造，只做接入固定 ViT-L/14 与二分类
+数据所必需的最小修改。
 
-当前量化入口固定每个 target 的 Arrow sample identity 和顺序，三 seed 分别复用已经
-确认的 manifest。主表报告每个数据集内 generator-macro AUROC 的三 seed 均值与标准差；
-GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 分别含 7、17、10、5
-个 target。方法保留论文原生的 batch contract：Tent-LN、SAR、LAME、TDA、CLIPTTA 和 BATCLIP
-使用 batch 16；DynaPrompt 与 IAPL 使用 batch 1 的逐图多视图适应。表格明确标注
-Predict-Then-Adapt 或 Adapt-Then-Predict，不将不同预测/适应顺序伪装为同一协议。
+主表按 source setup 分为三个区块：
 
-尚无论文源文件时，可先生成数值为空的 LaTex 主表；全量运行完成后对同一命令去掉
-`--template-only`，汇总器会自动填入数值并导出 CSV、JSON 和 LaTex：
+| 区块 | 起点 | 方法 | 比较规则 |
+|---|---|---|---|
+| 公共源域 CLIP detector | 固定 ViT-L/14 初始化后，在同一源数据上训练的公共二分类 checkpoint | Source、TENT、EATA、SAR、CoTTA、LAME、T2A | 共享源 checkpoint，可在块内比较最佳结果 |
+| CLIP-native | 未做任务微调的固定 ViT-L/14 checkpoint | Frozen CLIP、TDA、DynaPrompt、CLIPTTA、BATCLIP | 共享二分类类别语义，各自保留原生 template、文本分类器或 prompt learner |
+| Method-specific source training | 固定 ViT-L/14 初始化后，按方法自己的源训练流程得到的 checkpoint | IAPL、TTC、Ours | source state 不同，只披露数值，不做跨块最佳排名 |
+
+各方法的冻结运行约定如下。`BN -> LN` 只表示把公开实现中的归一化参数枚举映射到
+CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fisher、gradient masking
+或在线状态。
+
+| Method | 判别能力来源 | 保留的原生机制 | ViT-L/14 必要改动与状态 |
+|---|---|---|---|
+| TENT | 公共源域二分类 detector | 熵最小化及原生在线顺序 | `BN -> LN`，表格加脚注 |
+| EATA | 公共源域二分类 detector | 可靠/非冗余筛选、熵最小化、Fisher 防遗忘 | `BN -> LN`；Fisher 必须由同一源 checkpoint 与源数据计算 |
+| SAR | 公共源域二分类 detector | 可靠样本筛选、SAM 与恢复机制 | 使用作者公开的 ViT/LayerNorm 路径 |
+| CoTTA | 公共源域二分类 detector | student/EMA teacher、增强平均、随机恢复 | 仅将可训练归一化参数枚举映射为 LayerNorm |
+| RoTTA | 需要源域 detector | robust BatchNorm、memory 与 teacher | robust BatchNorm 是方法核心，不能最小迁移；主表标 `N/A` |
+| LAME | 公共源域 detector 的特征与 logits | 参数无关的 Laplacian 输出适配 | 仅接入 CLIP 特征；保留其 batch contract |
+| T2A | 公共源域二分类 detector | 不确定性选择、negative learning、gradient masking | 归一化梯度参照由 BN 最小映射为 LayerNorm，其他逻辑不动 |
+| IAPL | IAPL 原生源训练得到的 CLIP detector | 32 views、2 steps、OIS、逐图 prompt/optimizer reset | 只替换统一数据接口，不改为公共 binary head |
+| TDA | CLIP 原生文本分类器 | 正负 cache、无反向传播 | 使用二分类类别语义与作者的 template 构造 |
+| DynaPrompt | CLIP 类别名与在线 context | 多视图 prompt tuning、动态 prompt buffer | 换成 ViT-L/14；不固定最终 prompt |
+| CLIPTTA | CLIP 文本原型 | 官方 closed-set 对比适配及 batch 机制 | 使用二分类类别语义与作者原生文本构造 |
+| BATCLIP | CLIP 图像与文本两端 | 双模态目标及原生在线更新 | 换成固定 ViT-L/14；不得退化成只更新视觉端 |
+| TTC | 已训练 AIGC detector | 课程式伪标签适配 | 作者公开实现可固定前标 `N/A`，不得自写后冒充复现 |
+| Ours | 固定 ViT-L/14 初始化的本方法 detector | 本方法完整训练与 CTTA 机制 | 只统一数据、初始化与 evaluator |
+
+所有 target hidden labels 始终只进入 evaluator。CLIP-native 方法的类别语义属于任务定义，
+但 template 或 prompt 不得使用目标标签选择。主表报告每个数据集内 generator-macro AUROC
+的三 seed 均值与标准差；GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和
+OpenSDID Global 分别含 7、17、10、5 个 target。
+
+可先生成数值为空的 LaTeX 主表；全量运行完成后对同一命令去掉 `--template-only`，
+汇总器会自动填入数值并导出 CSV、JSON 和 LaTeX：
 
 ```bash
 python scripts/summarize_clip_vlm_results.py \
@@ -79,43 +106,20 @@ python scripts/summarize_clip_vlm_results.py \
   --output-dir /tmp/clip_vitl14_paper_table
 ```
 
-先放置 CLIP checkpoint 与 IAPL checkpoint，并设置四个 Arrow 根目录：
-
-```bash
-scripts/fetch_clip_vitl14.sh /data/weights/clip/ViT-L-14.pt
-export CLIP_VIT_L14_CHECKPOINT=/data/weights/clip/ViT-L-14.pt
-export IAPL_GENIMAGE_CHECKPOINT=/data/weights/iapl/GenImage.pth
-export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage_test
-export AIGC_DETECTION_BENCHMARK_ARROW_ROOT=/data/arrow/aigc_detection_benchmark
-export AIGI_HOLMES_P3_ARROW_ROOT=/data/arrow/aigi_holmes_p3
-export OPENSDID_GLOBAL_ARROW_ROOT=/data/arrow/opensdid_global
-export CTTA4AID_EXPERIMENT_ROOT=/data/experiments
-```
-
-例如运行 GenImage 的三个 seed：
-
-```bash
-python run_single_target.py --config configs/experiments/clip_vlm/genimage_seed0.yaml
-python run_single_target.py --config configs/experiments/clip_vlm/genimage_seed1.yaml
-python run_single_target.py --config configs/experiments/clip_vlm/genimage_seed2.yaml
-```
-
-将配置名替换为 `aigc_detection_benchmark_seed{0,1,2}`、
-`aigi_holmes_p3_seed{0,1,2}` 或 `opensdid_global_seed{0,1,2}` 可运行其余三个
-数据集。TTC 尚未发现可固定的作者公开实现，因此只作为 related work；RoTTA、T2A 和
-当前 CoTTA 公开核心依赖 BatchNorm，不能用项目自写的 LayerNorm 改版放入 ViT-L/14
-主表。Tent-LN 明确使用 SAR 发布代码的 LayerNorm 路径，不冒充 BatchNorm-only 的原始
-Tent；SAR 使用其官方 ViT LayerNorm 路径。ResNet-101
-作为第二个预训练 backbone 的补充实验将在 CLIP 主表稳定后单独加入。
+本轮只冻结实验设计与论文空表，不启动正式实验。现有
+`configs/experiments/clip_vlm/` 仍包含上一版统一固定文本原型的预备配置，不能作为
+正式结果入口。必须先逐方法完成 source checkpoint、分类器或 prompt 构造、可训练参数、
+batch/views、更新步数、状态重置和预测/适应顺序的配置审定及测试，再开放三个 seed 的
+运行命令。RoTTA 与 TTC 保持 `N/A`，不得为了填表放宽上述约束。
 
 四个数据集的三 seed 全部完成后，写入最终结果目录并生成论文主表：
 
 ```bash
 python scripts/summarize_clip_vlm_results.py \
-  --dataset genimage=${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm/genimage \
-  --dataset aigc_detection_benchmark=${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm/aigc_detection_benchmark \
-  --dataset aigi_holmes_p3=${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm/aigi_holmes_p3 \
-  --dataset opensdid_global=${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm/opensdid_global \
+  --dataset genimage=/data/experiments/clip_vlm/genimage \
+  --dataset aigc_detection_benchmark=/data/experiments/clip_vlm/aigc_detection_benchmark \
+  --dataset aigi_holmes_p3=/data/experiments/clip_vlm/aigi_holmes_p3 \
+  --dataset opensdid_global=/data/experiments/clip_vlm/opensdid_global \
   --output-dir /data/results/clip_vlm_vitl14
 ```
 
@@ -376,9 +380,9 @@ EATA、T2A 和 OST 的参数适应在这轮配对实验中均未提高宏平均 
 
 ## 实验边界
 
-- CLIP 主表固定 OpenAI CLIP ViT-L/14 的预训练 checkpoint、目标样本 identity、目标内顺序和 seed；每行都披露 source setup、batch contract 与预测/适应顺序。表格以 generator-macro AUROC 为主指标，报告三个锁定 seed 的均值与标准差。
-- EATA checkpoint 必须包含匹配的源域 Fisher；缺少 Fisher 时默认拒绝运行。RoTTA、T2A 和当前 CoTTA 公开实现不能在没有 BatchNorm 的 ViT-L/14 上伪装为官方复现。
-- IAPL 使用作者任务 checkpoint 和 Adapt-Then-Predict 协议，主表中只能作为单独披露的 source setup 比较，不能写成与 Frozen CLIP 同一检测器状态。
+- CLIP 主表只使用固定 OpenAI CLIP ViT-L/14 预训练权重，并锁定目标样本 identity、目标内顺序和 seed；每种方法保留原生 source training、分类器或 prompt 构造、batch/views、在线状态与预测/适应顺序。表格以 generator-macro AUROC 为主指标，报告三个锁定 seed 的均值与标准差。
+- TENT、EATA、CoTTA 和 T2A 只允许把公开实现中的 BN 参数选择最小映射到 LayerNorm affine；其余方法逻辑不得重写。EATA 必须包含匹配公共源域 CLIP detector 的 Fisher。RoTTA 因 robust BatchNorm 是核心而标为 `N/A`。
+- CLIP-native 方法只共享类别语义，不共享人为固定的一句最终 prompt。IAPL 与 Ours 使用各自原生源训练并单独披露 source setup；TTC 在作者公开实现可固定前标为 `N/A`。
 - CNN Controlled CTTA 方法共享 backbone、源 checkpoint、输入顺序、batch size 和 Predict-Then-Adapt 协议，并保留为补充材料。
 - OST 使用自己的 MetaXception checkpoint、源训练模板和 Adapt-Then-Predict 协议，只能单独披露；当前通用 alpha 合成结果不等价于作者的人脸实验。
 - T2A 使用经过必要运行修复的作者公开核心，不能描述为未经修改的官方实现。

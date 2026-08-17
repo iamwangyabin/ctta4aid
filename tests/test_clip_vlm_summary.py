@@ -28,21 +28,27 @@ class ClipVlmSummaryTests(unittest.TestCase):
                     _write_seed(
                         dataset_root,
                         f"seed{seed}",
-                        source_auc=0.60 + dataset_index * 0.01 + offset,
+                        source_ft_auc=0.60 + dataset_index * 0.01 + offset,
                         sar_auc=0.70 + dataset_index * 0.01 + offset,
+                        frozen_clip_auc=0.80 + dataset_index * 0.01 + offset,
+                        tda_auc=0.75 + dataset_index * 0.01 + offset,
                         iapl_auc=0.80 + dataset_index * 0.01 + offset,
                     )
 
             summary = SUMMARY_SCRIPT.aggregate_results(dataset_roots)
 
-            genimage_source = summary["datasets"]["genimage"]["aggregate"]["source"]
+            genimage_source = summary["datasets"]["genimage"]["aggregate"]["source_ft"]
             self.assertAlmostEqual(genimage_source["auc"]["mean"], 0.62)
             self.assertGreater(genimage_source["auc"]["std"], 0.0)
             table = SUMMARY_SCRIPT.render_latex_table(summary)
-            self.assertIn("Method-native online AUC", table)
+            self.assertIn("sole pretrained model", table)
+            self.assertIn("Source-trained CLIP detector", table)
+            self.assertIn("CLIP-native", table)
             self.assertIn("\\textbf{72.00 $\\pm$ 1.00}", table)
-            self.assertIn("IAPL$^{\\dagger}$", table)
-            self.assertIn("Ours & CLIP & TBD & --", table)
+            self.assertIn("\\textbf{82.00 $\\pm$ 1.00}", table)
+            self.assertIn("RoTTA$^{\\ddagger}$ & N/A & N/A & N/A & N/A & N/A", table)
+            self.assertIn("TTC$^{\\S}$ & N/A & N/A & N/A & N/A & N/A", table)
+            self.assertIn("Ours & -- & -- & -- & -- & --", table)
 
             output = root / "paper"
             SUMMARY_SCRIPT.write_summary(summary, output)
@@ -54,14 +60,18 @@ class ClipVlmSummaryTests(unittest.TestCase):
             ) as handle:
                 rows = {row["method"]: row for row in csv.DictReader(handle)}
             self.assertEqual(rows["ours"]["genimage"], "")
-            self.assertIn("62.00", rows["source"]["genimage"])
+            self.assertIn("62.00", rows["source_ft"]["genimage"])
+            self.assertEqual(rows["rotta"]["genimage"], "N/A")
+            self.assertEqual(rows["ttc"]["mean"], "N/A")
 
     def test_blank_template_keeps_every_result_cell_empty(self) -> None:
         table = SUMMARY_SCRIPT.render_latex_table()
 
-        self.assertIn("Frozen CLIP & CLIP & P only & -- & -- & -- & -- & --", table)
-        self.assertIn("Tent-LN$^{\\ddagger}$", table)
-        self.assertIn("IAPL$^{\\dagger}$", table)
+        self.assertIn("Source & -- & -- & -- & -- & --", table)
+        self.assertIn("Frozen CLIP & -- & -- & -- & -- & --", table)
+        self.assertIn("Tent$^{\\dagger}$", table)
+        self.assertIn("IAPL & -- & -- & -- & -- & --", table)
+        self.assertNotIn("a real photograph", table)
         self.assertNotIn("\\textbf", table)
 
 
@@ -69,14 +79,18 @@ def _write_seed(
     dataset_root: Path,
     seed: str,
     *,
-    source_auc: float,
+    source_ft_auc: float,
     sar_auc: float,
+    frozen_clip_auc: float,
+    tda_auc: float,
     iapl_auc: float,
 ) -> None:
     summary = {}
     for method, auc in (
-        ("source", source_auc),
+        ("source_ft", source_ft_auc),
         ("sar", sar_auc),
+        ("source", frozen_clip_auc),
+        ("tda", tda_auc),
         ("iapl", iapl_auc),
     ):
         summary[method] = {}

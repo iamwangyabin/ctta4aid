@@ -8,7 +8,7 @@
 
 项目必须同时保留四条实验轨道：
 
-1. **CLIP VLM 主实验**：固定 OpenAI CLIP ViT-L/14 预训练权重，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上报告方法原生的在线结果。当前量化方法为 Frozen CLIP、Tent-LN、SAR、LAME、TDA、DynaPrompt、CLIPTTA、BATCLIP 和 IAPL；表格必须同时披露 source setup 与预测/适应顺序。
+1. **CLIP ViT-L/14 论文主实验**：唯一预训练模型固定为 OpenAI CLIP ViT-L/14，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上报告方法原生的在线结果。候选方法为 Source、TENT、EATA、SAR、CoTTA、RoTTA、LAME、T2A、Frozen CLIP、TDA、DynaPrompt、CLIPTTA、BATCLIP、IAPL、TTC 和 Ours；只有满足下述最小迁移与公开实现约束的方法才产生数值。
 2. **Controlled CTTA 补充实验**：公共 ResNet-50 checkpoint 下的 Source、TENT、EATA、CoTTA、RoTTA、LAME 和 T2A。已确认结果保持不可变，作为 CNN 对照与补充材料，不再作为论文主表。
 3. **IAPL 补充轨道**：CLIP ViT-L/14、逐图 Adapt-Then-Predict 的独立方法能力；主表若列出 IAPL，必须标注其作者发布的任务 checkpoint，不能写成与 Frozen CLIP 相同的 source state。
 4. **OST 补充实验**：MetaXception、源训练模板、逐图一次 fast-weight 更新的独立方法轨道。
@@ -60,13 +60,18 @@ src/
 ### CLIP VLM 主实验
 
 - backbone 固定为 OpenAI CLIP ViT-L/14，checkpoint SHA-256 固定为 `b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836`。
-- 所有方法共享目标样本身份、目标内顺序、三个正式 seed 与 target-label embargo；方法可保留其论文要求的 batch size、views、prompt state 与 Adapt-Then-Predict 顺序。
-- Frozen CLIP、Tent-LN、SAR、LAME、TDA、CLIPTTA 与 BATCLIP 使用预注册的二分类文本原型；DynaPrompt 从同一 real/fake 类名开始并按其原生协议更新 context；IAPL 使用作者发布的任务 checkpoint，必须在结果和主表单列 source setup。
-- 主表是 method-native online 指标，不能把它写成“所有方法共享同一个任务训练 checkpoint”的严格公平排名。跨方法结论必须保留该限制。
-- RoTTA 与 T2A 的公开核心依赖 BatchNorm；当前 ViT-L/14 轨道不得用项目自写的 LayerNorm 替代物冒充其官方复现。CoTTA 也不得在未完成独立兼容性验证前进入本主表。
-- Tent-LN 只能表述为 SAR 公开代码中 LayerNorm-capable Tent 路径的 ViT 变体，不能伪称为 BatchNorm-only 原始 Tent 复现。SAR 的 ViT LayerNorm 路径可进入主表，但其 ViT-B 最后三块过滤映射到 ViT-L/14 的最后三块必须在 metadata 中披露。
-- EATA 必须有与 CLIP prompt state 匹配的 source Fisher 才可标为 EATA；没有 Fisher 的运行只能标为 ETA 消融。
+- 所有方法共享目标样本身份、目标内顺序、三个正式 seed 与 target-label embargo；各方法保留论文原生的 source training、batch/views、状态转移、预测/适应顺序和 prompt 构造，只做接入固定 CLIP、二分类数据与统一 evaluator 所必需的改动。
+- 通用检测器适配方法 Source、TENT、EATA、SAR、CoTTA、LAME 与 T2A 必须共享一个从固定 ViT-L/14 权重开始训练的源域二分类 checkpoint。它们不得被强行改成固定文本 prompt 分类器。
+- CLIP-native 方法 Frozen CLIP、TDA、DynaPrompt、CLIPTTA 与 BATCLIP 直接从相同预训练 checkpoint 出发，保留各自论文的文本分类器、template 或 prompt learner。它们只共享二分类类别语义，不共享一条人为固定的最终 prompt；不得使用目标标签选择文本或超参数。
+- IAPL 与 Ours 保留各自方法要求的源训练，但底层初始化仍必须来自同一固定 ViT-L/14 权重。主表必须把这类 method-specific source training 与前两组分块披露，不得跨 source setup 加粗全局最佳。
+- TENT、EATA、CoTTA 与 T2A 若公开实现只枚举 BatchNorm 参数，可将该参数选择最小映射到 CLIP LayerNorm affine 参数；目标函数、样本筛选、teacher、Fisher、gradient masking、更新顺序及在线状态不得随之重写，表格与 metadata 必须加脚注披露该必要迁移。
+- SAR 使用其官方 ViT LayerNorm 路径；其 ViT-B 最后三块过滤映射到 ViT-L/14 的最后三块必须在 metadata 中披露。
+- RoTTA 的 robust BatchNorm 是方法核心，替换为 LayerNorm 将构成方法重设计，因此在纯 ViT-L/14 主实验中只能标为 N/A，不得生成伪 RoTTA 数值。
+- EATA 必须有与公共源域 CLIP detector 匹配的 source Fisher 才可标为 EATA；没有 Fisher 的运行只能标为 ETA 消融。
+- TTC 在作者公开实现可固定前只能在主表标为 N/A 或留在 related work，不得用项目自写实现生成复现数值。
+- 主表按“公共源域 CLIP detector”“CLIP-native”“method-specific source training”分块；只有前两块可分别在块内比较最佳结果。
 - 每个 `method x target x seed` 必须重新构建方法；单目标结果使用已确认的 online manifest 锁定样本身份，批大小变化不得改变样本顺序。
+- 本轮方法配置逐项审定完成前，现有 `configs/experiments/clip_vlm/` 只能视为预备入口，不得启动或登记为正式实验。
 
 ### Controlled CTTA 补充实验
 
@@ -116,7 +121,7 @@ src/
 当前没有冻结的正式结果。新的实验完成后，`results/` 只接收最终结果：
 
 - `results/controlled_ctta_genimage_20260812/` 与 `results/controlled_ctta_external_20260816/` 是已确认的 ResNet-50 补充材料；不得移动、覆盖、重算后回写或改动其 JSON 数值。
-- CLIP VLM 主表必须写入新的、明确命名的 `results/clip_vlm_*` 目录，并保留 per-seed summary、跨 seed summary、CLIP checkpoint 身份、文本原型、方法 source setup 与最终总表。
+- CLIP VLM 主表必须写入新的、明确命名的 `results/clip_vlm_*` 目录，并保留 per-seed summary、跨 seed summary、CLIP checkpoint 身份、每种方法的分类器或 prompt 构造、source setup 与最终总表。
 - 正式结果至少保留 per-seed summary、跨 seed summary、源模型记录和最终总表。
 - 结果文件一旦确认，不得修改已有 JSON 数值来匹配后续代码变化。
 - 不得覆盖已经确认的结果；新实验必须写入新的、明确命名的结果文件。

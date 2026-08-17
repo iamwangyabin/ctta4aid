@@ -8,7 +8,7 @@ import json
 import math
 from pathlib import Path
 from statistics import fmean, stdev
-from typing import Any, Mapping
+from typing import Any, Mapping, NamedTuple
 
 
 DATASET_ORDER = (
@@ -24,18 +24,52 @@ DATASET_LABELS = {
     "opensdid_global": "OpenSDID (5)",
 }
 METRICS = ("auc", "average_precision", "balanced_accuracy")
-TABLE_ROWS = (
-    ("source", "Frozen CLIP", "CLIP", "P only", True),
-    ("tent_ln", "Tent-LN$^{\\ddagger}$", "CLIP", "P$\\rightarrow$A", True),
-    ("sar", "SAR", "CLIP", "P$\\rightarrow$A", True),
-    ("lame", "LAME", "CLIP", "A$\\rightarrow$P", True),
-    ("tda", "TDA", "CLIP", "A$\\rightarrow$P", True),
-    ("dynaprompt", "DynaPrompt", "CLIP", "A$\\rightarrow$P", True),
-    ("cliptta", "CLIPTTA", "CLIP", "A$\\rightarrow$P", True),
-    ("batclip", "BATCLIP", "CLIP", "P$\\rightarrow$A", True),
-    ("iapl", "IAPL$^{\\dagger}$", "IAPL", "A$\\rightarrow$P", False),
-    ("ours", "Ours", "CLIP", "TBD", True),
+
+
+class TableRow(NamedTuple):
+    method: str
+    label: str
+    rank_group: str | None
+    available: bool = True
+
+
+TABLE_GROUPS = (
+    (
+        "source_trained",
+        "Source-trained CLIP detector (shared source checkpoint)",
+        (
+            TableRow("source_ft", "Source", "source_trained"),
+            TableRow("tent_ln", "Tent$^{\\dagger}$", "source_trained"),
+            TableRow("eata", "EATA$^{\\dagger}$", "source_trained"),
+            TableRow("sar", "SAR", "source_trained"),
+            TableRow("cotta", "CoTTA$^{\\dagger}$", "source_trained"),
+            TableRow("rotta", "RoTTA$^{\\ddagger}$", None, available=False),
+            TableRow("lame", "LAME", "source_trained"),
+            TableRow("t2a", "T$^2$A$^{\\dagger}$", "source_trained"),
+        ),
+    ),
+    (
+        "clip_native",
+        "CLIP-native (method-native text classifier)",
+        (
+            TableRow("source", "Frozen CLIP", "clip_native"),
+            TableRow("tda", "TDA", "clip_native"),
+            TableRow("dynaprompt", "DynaPrompt", "clip_native"),
+            TableRow("cliptta", "CLIPTTA", "clip_native"),
+            TableRow("batclip", "BATCLIP", "clip_native"),
+        ),
+    ),
+    (
+        "method_specific",
+        "Method-specific source training",
+        (
+            TableRow("iapl", "IAPL", None),
+            TableRow("ttc", "TTC$^{\\S}$", None, available=False),
+            TableRow("ours", "Ours", None),
+        ),
+    ),
 )
+TABLE_ROWS = tuple(row for _key, _label, rows in TABLE_GROUPS for row in rows)
 
 
 def _mean_std(values: list[float]) -> dict[str, float]:
@@ -161,16 +195,18 @@ def _method_value(
     return value if isinstance(value, dict) else None
 
 
-def _best_methods(summary: Mapping[str, Any] | None, dataset: str) -> set[str]:
+def _best_methods(
+    summary: Mapping[str, Any] | None, dataset: str, rank_group: str
+) -> set[str]:
     if summary is None:
         return set()
     candidates = []
-    for method, _label, _source, _protocol, same_source in TABLE_ROWS:
-        if not same_source:
+    for row in TABLE_ROWS:
+        if not row.available or row.rank_group != rank_group:
             continue
-        value = _method_value(summary, method, dataset)
+        value = _method_value(summary, row.method, dataset)
         if value is not None:
-            candidates.append((method, float(value["mean"])))
+            candidates.append((row.method, float(value["mean"])))
     if not candidates:
         return set()
     best = max(value for _method, value in candidates)
@@ -189,58 +225,87 @@ def _format_auc(value: Mapping[str, float] | None, *, bold: bool = False) -> str
 def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
     """Render the blank template or a filled paper-ready main table."""
 
-    best_by_dataset = {
-        dataset: _best_methods(summary, dataset) for dataset in DATASET_ORDER
+    best_by_group_dataset = {
+        (rank_group, dataset): _best_methods(summary, dataset, rank_group)
+        for rank_group in ("source_trained", "clip_native")
+        for dataset in DATASET_ORDER
     }
     latex_newline = r"\\"
     lines = [
         "\\begin{table*}[t]",
         "\\centering",
-        "\\caption{Method-native online AUC (\\%, mean $\\pm$ std over three "
-        "locked target-stream seeds) with OpenAI CLIP ViT-L/14. Each dataset "
-        "score first macro-averages its target generators.}",
+        "\\caption{Main comparison on four AI-generated image detection "
+        "benchmarks using OpenAI CLIP ViT-L/14 as the sole pretrained model. "
+        "Dataset cells report generator-macro AUROC (\\%, mean $\\pm$ "
+        "standard deviation over three locked seeds); Mean averages the four "
+        "dataset means.}",
         "\\label{tab:clip-vitl14-main}",
         "\\small",
         "\\setlength{\\tabcolsep}{4pt}",
-        "\\begin{tabular}{lccrrrrr}",
+        "\\begin{tabular}{lrrrrr}",
         "\\toprule",
-        "Method & Source & Online & GenImage & AIGC DB & AIGI-Holmes P3 & OpenSDID & Mean "
+        "Method & GenImage & AIGC DB & AIGI-Holmes P3 & OpenSDID & Mean "
         + latex_newline,
         "\\midrule",
     ]
-    for method, label, source, protocol, same_source in TABLE_ROWS:
-        values = [
-            _method_value(summary, method, dataset) for dataset in DATASET_ORDER
-        ]
-        rendered = [
-            _format_auc(
-                value,
-                bold=same_source and method in best_by_dataset[dataset],
+    for group_index, (_group_key, group_label, rows) in enumerate(TABLE_GROUPS):
+        if group_index:
+            lines.append("\\midrule")
+        lines.append(
+            f"\\multicolumn{{6}}{{l}}{{\\textit{{{group_label}}}}} " + latex_newline
+        )
+        for row in rows:
+            if not row.available:
+                rendered = ["N/A"] * len(DATASET_ORDER)
+                mean_cell = "N/A"
+            else:
+                values = [
+                    _method_value(summary, row.method, dataset)
+                    for dataset in DATASET_ORDER
+                ]
+                rendered = [
+                    _format_auc(
+                        value,
+                        bold=(
+                            row.rank_group is not None
+                            and row.method
+                            in best_by_group_dataset[(row.rank_group, dataset)]
+                        ),
+                    )
+                    for dataset, value in zip(DATASET_ORDER, values, strict=True)
+                ]
+                if all(value is not None for value in values):
+                    dataset_mean = fmean(
+                        float(value["mean"]) for value in values if value
+                    )
+                    mean_cell = f"{100.0 * dataset_mean:.2f}"
+                else:
+                    mean_cell = "--"
+            lines.append(
+                " & ".join([row.label, *rendered, mean_cell])
+                + " "
+                + latex_newline
             )
-            for dataset, value in zip(DATASET_ORDER, values, strict=True)
-        ]
-        if all(value is not None for value in values):
-            mean_value = _mean_std([float(value["mean"]) for value in values if value])
-            mean_cell = _format_auc(mean_value)
-        else:
-            mean_cell = "--"
-        row = " & ".join([label, source, protocol, *rendered, mean_cell])
-        lines.append(row + " " + latex_newline)
     lines.extend(
         [
             "\\bottomrule",
             "\\end{tabular}",
             "\\vspace{2pt}",
             "\\parbox{\\textwidth}{\\footnotesize "
-            "All non-IAPL rows start from the same frozen OpenAI CLIP checkpoint "
-            "and real/fake class labels; DynaPrompt retains its native context "
-            "updates. P$\\rightarrow$A reports the "
-            "pre-update prediction; A$\\rightarrow$P uses the current input during "
-            "the method's native adaptation before its reported prediction. "
-            "Native batch/view contracts are retained. $^{\\dagger}$IAPL uses its "
-            "authors' task checkpoint and is therefore not a same-source ranking "
-            "row. $^{\\ddagger}$Tent-LN uses the LayerNorm-capable Tent path in the "
-            "SAR release rather than claiming a BatchNorm-only Tent reproduction.}",
+            "Every method uses the same OpenAI CLIP ViT-L/14 pretrained "
+            "initialization. Source-trained methods share one binary source "
+            "checkpoint; CLIP-native methods retain their original text-classifier "
+            "or prompt construction; method-specific rows retain their native "
+            "source training. Batch/view contracts, state transitions, and "
+            "prediction/adaptation order follow each public method. Bold marks the "
+            "best result only within a shared-source block. $^{\\dagger}$The "
+            "method's BatchNorm parameter selection is minimally mapped to CLIP "
+            "LayerNorm affine parameters without changing its objective or online "
+            "logic. $^{\\ddagger}$RoTTA is not run because robust BatchNorm is a "
+            "core component and replacing it would redesign the method. "
+            "$^{\\S}$TTC remains N/A until an authors' implementation can be "
+            "pinned. Target labels are never used for prompt or hyperparameter "
+            "selection.}",
             "\\end{table*}",
             "",
         ]
@@ -261,11 +326,16 @@ def write_summary(summary: Mapping[str, Any], output_dir: Path) -> None:
             fieldnames=["method", *DATASET_ORDER, "mean"],
         )
         writer.writeheader()
-        for method, _label, _source, _protocol, _same_source in TABLE_ROWS:
-            row = {"method": method}
+        for table_row in TABLE_ROWS:
+            row = {"method": table_row.method}
+            if not table_row.available:
+                row.update({dataset: "N/A" for dataset in DATASET_ORDER})
+                row["mean"] = "N/A"
+                writer.writerow(row)
+                continue
             values = []
             for dataset in DATASET_ORDER:
-                value = _method_value(summary, method, dataset)
+                value = _method_value(summary, table_row.method, dataset)
                 row[dataset] = "" if value is None else _format_auc(value)
                 if value is not None:
                     values.append(float(value["mean"]))
