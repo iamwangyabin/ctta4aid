@@ -73,7 +73,9 @@ def _binary_vlm_class() -> Any:
             self.dynamic_text_features = dynamic_text_features
             for index, prompts in enumerate(self.class_prompts):
                 self.register_buffer(
-                    f"_class_prompt_tokens_{index}", tokenize(list(prompts)), persistent=False
+                    f"_class_prompt_tokens_{index}",
+                    tokenize(list(prompts)).to(self.clip.logit_scale.device),
+                    persistent=False,
                 )
             text_features, text_pre_features = self._encode_class_prompts(with_grad=False)
             self.register_buffer("text_features", text_features)
