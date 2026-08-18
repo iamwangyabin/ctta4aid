@@ -5,8 +5,11 @@ extends:
 data:
   # Keep the source domain out of the target-only table and use the completed
   # ResNet campaign's sample identities for every method-native run.
-  # Model-native transforms are resolved after CUDA initialization; spawning
-  # workers avoids an unsafe CUDA fork without changing locked sample order.
+  # Model-native transforms are resolved after CUDA initialization. Keep this
+  # loader single-process after repeated CUDA worker failures; the locked
+  # manifest preserves exactly the same sample identities and order.
+  num_workers: 0
+  # Retain the safe mode if a future machine deliberately re-enables workers.
   worker_start_method: spawn
   targets:
     - BigGAN
@@ -16,3 +19,47 @@ data:
     - VQDM
     - wukong
     - Midjourney
+
+# Method-specific data blocks in base.yaml intentionally override top-level
+# loader settings, so make the single-process runtime choice explicit for all
+# methods without changing their batches, views, or online state transitions.
+method_configs:
+  source_ft:
+    data:
+      num_workers: 0
+  tent:
+    data:
+      num_workers: 0
+  eata:
+    data:
+      num_workers: 0
+  sar:
+    data:
+      num_workers: 0
+  cotta:
+    data:
+      num_workers: 0
+  lame:
+    data:
+      num_workers: 0
+  t2a:
+    data:
+      num_workers: 0
+  frozen_clip:
+    data:
+      num_workers: 0
+  tda:
+    data:
+      num_workers: 0
+  dynaprompt:
+    data:
+      num_workers: 0
+  cliptta:
+    data:
+      num_workers: 0
+  batclip:
+    data:
+      num_workers: 0
+  iapl:
+    data:
+      num_workers: 0

@@ -167,6 +167,14 @@ class OfficialConfigTests(unittest.TestCase):
                         self.assertEqual(
                             config["data"]["worker_start_method"], "spawn"
                         )
+                        self.assertEqual(config["data"]["num_workers"], 0)
+                        for method_name in expected_methods:
+                            self.assertEqual(
+                                config["method_configs"][method_name]["data"][
+                                    "num_workers"
+                                ],
+                                0,
+                            )
                     else:
                         self.assertNotIn("worker_start_method", config["data"])
                     self.assertTrue(
