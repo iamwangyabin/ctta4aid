@@ -1,14 +1,46 @@
 from __future__ import annotations
 
 import csv
+import sys
 import tempfile
+import types
 import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 from src.data.streams import load_online_manifest_lock, validate_locked_sample_order
+from run_single_target import release_method_resources
 
 
 class SingleTargetManifestLockTests(unittest.TestCase):
+    def test_release_method_resources_collects_and_clears_cuda_cache(self) -> None:
+        fake_torch = types.ModuleType("torch")
+        fake_torch.cuda = types.SimpleNamespace(
+            is_available=MagicMock(return_value=True),
+            empty_cache=MagicMock(),
+        )
+        with patch("run_single_target.gc.collect") as collect, patch.dict(
+            sys.modules, {"torch": fake_torch}
+        ):
+            release_method_resources()
+
+        collect.assert_called_once_with()
+        fake_torch.cuda.empty_cache.assert_called_once_with()
+
+    def test_release_method_resources_skips_cache_clear_without_cuda(self) -> None:
+        fake_torch = types.ModuleType("torch")
+        fake_torch.cuda = types.SimpleNamespace(
+            is_available=MagicMock(return_value=False),
+            empty_cache=MagicMock(),
+        )
+        with patch("run_single_target.gc.collect") as collect, patch.dict(
+            sys.modules, {"torch": fake_torch}
+        ):
+            release_method_resources()
+
+        collect.assert_called_once_with()
+        fake_torch.cuda.empty_cache.assert_not_called()
+
     def test_loads_manifest_relative_to_experiment_config(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

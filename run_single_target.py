@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gc
 import math
 from pathlib import Path
 from statistics import fmean
@@ -119,6 +120,18 @@ def write_csv(path: Path, rows: list[dict]) -> None:
         writer.writerows(rows)
 
 
+def release_method_resources() -> None:
+    """Release a finished target model before constructing the next fresh model."""
+
+    gc.collect()
+    try:
+        import torch
+    except ImportError:
+        return
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Independent online TTA run per target generator")
     parser.add_argument(
@@ -185,6 +198,8 @@ def main() -> None:
                 evaluation_seed=seed + CROSS_HOLDOUT_EVALUATION_SEED_OFFSET,
             )
             aggregate[method_name]["initial_holdout"] = initial_holdout
+            del initial_method
+            release_method_resources()
 
         for target_index, target in enumerate(config["data"]["targets"]):
             seed_everything(seed)
@@ -247,6 +262,13 @@ def main() -> None:
                 f"method={method_name:>8s} target={target:<28s} "
                 f"auc={result['summary']['overall']['auc']:.5f}"
             )
+            # Loading the next target constructs a fresh ViT-L/14 method. Do
+            # not retain the finished method, source Fisher tensors, or CUDA
+            # allocator blocks while that new model is being created.
+            del result
+            del loader
+            del method
+            release_method_resources()
 
         if evaluate_cross_generators:
             method_rows = [
