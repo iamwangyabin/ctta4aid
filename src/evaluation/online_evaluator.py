@@ -268,6 +268,18 @@ def _preserve_random_state(seed: int | None):
 def _json_default(value: Any) -> Any:
     if isinstance(value, np.generic):
         return value.item()
+    try:
+        import torch
+    except ImportError:
+        torch = None
+    if torch is not None and isinstance(value, torch.Tensor):
+        # Checkpoint metadata can retain Fisher tensors for EATA. Record their
+        # identity without writing a second copy of their values per target.
+        return {
+            "type": "torch.Tensor",
+            "dtype": str(value.dtype),
+            "shape": list(value.shape),
+        }
     raise TypeError(f"Cannot serialize {type(value).__name__}")
 
 

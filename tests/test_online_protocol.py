@@ -1,11 +1,20 @@
+import json
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
 
+try:
+    import torch
+except ImportError:
+    torch = None
+
 from src.evaluation.online_evaluator import (
     OnlineEvaluator,
     evaluate_without_adaptation,
+    save_evaluation,
 )
 from src.types import AdaptationStats, PredictionBatch, StreamBatch
 from run_continual_stream import final_holdout_stream, holdout_matrix_rows
@@ -36,6 +45,32 @@ class SpyMethod:
 
 
 class OnlineProtocolTest(unittest.TestCase):
+    @unittest.skipIf(torch is None, "PyTorch is required")
+    def test_save_evaluation_records_tensor_metadata_without_tensor_values(self):
+        result = {
+            "summary": {},
+            "reproduction": {
+                "source_model": {
+                    "fishers": {"visual.norm.weight": torch.ones((2, 3))}
+                }
+            },
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            save_evaluation(result, Path(temporary))
+            with (Path(temporary) / "metrics.json").open(encoding="utf-8") as handle:
+                payload = json.load(handle)
+
+        self.assertEqual(
+            payload["reproduction"]["source_model"]["fishers"][
+                "visual.norm.weight"
+            ],
+            {
+                "type": "torch.Tensor",
+                "dtype": "torch.float32",
+                "shape": [2, 3],
+            },
+        )
+
     def test_predict_happens_before_adapt_and_labels_are_not_passed(self):
         method = SpyMethod()
         stream = [
