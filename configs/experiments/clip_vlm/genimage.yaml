@@ -5,6 +5,9 @@ extends:
 data:
   # Keep the source domain out of the target-only table and use the completed
   # ResNet campaign's sample identities for every method-native run.
+  # Model-native transforms are resolved after CUDA initialization; spawning
+  # workers avoids an unsafe CUDA fork without changing locked sample order.
+  worker_start_method: spawn
   targets:
     - BigGAN
     - ADM

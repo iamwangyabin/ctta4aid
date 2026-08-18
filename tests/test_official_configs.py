@@ -163,6 +163,12 @@ class OfficialConfigTests(unittest.TestCase):
                         config["method_configs"]["tent"]["data"]["batch_size"],
                         16,
                     )
+                    if dataset == "genimage":
+                        self.assertEqual(
+                            config["data"]["worker_start_method"], "spawn"
+                        )
+                    else:
+                        self.assertNotIn("worker_start_method", config["data"])
                     self.assertTrue(
                         config["method_configs"]["tent"]["clip_visual_layernorm"]
                     )

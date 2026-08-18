@@ -4,8 +4,10 @@ import csv
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from src.data.streams import (
+    build_domain_loader,
     load_locked_manifest,
     lock_stream_to_manifest,
     locked_sample_ids_by_domain,
@@ -78,6 +80,42 @@ class StreamManifestLockTests(unittest.TestCase):
 
             with self.assertRaisesRegex(ValueError, "domain order differs"):
                 locked_sample_ids_by_domain(load_locked_manifest(manifest_path), ["A", "B"])
+
+
+class DomainLoaderTests(unittest.TestCase):
+    def test_uses_configured_worker_start_method(self) -> None:
+        data_config = {
+            "format": "arrow",
+            "root": "unused",
+            "split": "test",
+            "batch_size": 16,
+            "num_workers": 4,
+            "worker_start_method": "spawn",
+        }
+        with patch("src.data.streams.build_dataset", return_value=object()), patch(
+            "torch.utils.data.DataLoader"
+        ) as loader:
+            build_domain_loader(data_config, "ADM", seed=7, transform=object())
+
+        self.assertEqual(loader.call_args.kwargs["multiprocessing_context"], "spawn")
+        self.assertEqual(loader.call_args.kwargs["num_workers"], 4)
+
+    def test_omits_worker_context_when_workers_are_disabled(self) -> None:
+        data_config = {
+            "format": "arrow",
+            "root": "unused",
+            "split": "test",
+            "batch_size": 16,
+            "num_workers": 0,
+            "worker_start_method": "spawn",
+        }
+        with patch("src.data.streams.build_dataset", return_value=object()), patch(
+            "torch.utils.data.DataLoader"
+        ) as loader:
+            build_domain_loader(data_config, "ADM", seed=7, transform=object())
+
+        self.assertNotIn("multiprocessing_context", loader.call_args.kwargs)
+        self.assertEqual(loader.call_args.kwargs["num_workers"], 0)
 
 
 def _write_manifest(path: Path, rows: list[dict[str, int | str]]) -> None:

@@ -206,16 +206,24 @@ def build_domain_loader(
     effective_shuffle = False if locked_sample_ids is not None else (
         bool(data_config.get("shuffle", True)) if shuffle is None else shuffle
     )
+    num_workers = int(data_config.get("num_workers", 4))
+    worker_start_method = data_config.get("worker_start_method")
+    loader_options = {}
+    if worker_start_method is not None and num_workers > 0:
+        # CLIP methods construct a CUDA model before its model-native transform
+        # is available. Spawn avoids forking that initialized CUDA process.
+        loader_options["multiprocessing_context"] = str(worker_start_method)
     generator_state = torch.Generator()
     generator_state.manual_seed(seed if loader_seed is None else loader_seed)
     return DataLoader(
         dataset,
         batch_size=int(data_config.get("batch_size", 16)),
         shuffle=effective_shuffle,
-        num_workers=int(data_config.get("num_workers", 4)),
+        num_workers=num_workers,
         pin_memory=True,
         drop_last=False,
         generator=generator_state,
+        **loader_options,
     )
 
 
