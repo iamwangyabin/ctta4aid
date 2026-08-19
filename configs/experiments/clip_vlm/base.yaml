@@ -48,71 +48,76 @@ model:
 data:
   image_size: 224
   batch_size: 16
-  num_workers: 4
+  # Both 4090 hosts have reproduced worker-process segmentation faults during
+  # long CLIP runs. This changes only input delivery; manifests keep sample
+  # identities and order fixed for every method and seed.
+  num_workers: 0
   shuffle: false
   max_samples_per_class: null
 
 method_configs:
   source_ft:
     capture_initial_state: false
+    data:
+      num_workers: 0
   tent:
     capture_initial_state: false
     clip_visual_layernorm: true
     data:
       batch_size: 16
-      num_workers: 4
+      num_workers: 0
   eata:
     capture_initial_state: false
     clip_visual_layernorm: true
     data:
       batch_size: 16
-      num_workers: 4
+      num_workers: 0
   sar:
     capture_initial_state: false
     data:
       batch_size: 16
-      num_workers: 4
+      num_workers: 0
   cotta:
     capture_initial_state: false
     data:
       batch_size: 16
-      num_workers: 4
+      num_workers: 0
   lame:
     capture_initial_state: false
     data:
       batch_size: 16
-      num_workers: 4
+      num_workers: 0
   t2a:
     capture_initial_state: false
     clip_visual_layernorm: true
     data:
       batch_size: 16
-      num_workers: 4
+      num_workers: 0
   frozen_clip:
     capture_initial_state: false
     data:
       batch_size: 16
-      num_workers: 4
+      num_workers: 0
   tda:
     capture_initial_state: false
     data:
       batch_size: 16
-      num_workers: 4
+      num_workers: 0
   dynaprompt:
     capture_initial_state: false
     data:
       batch_size: 1
-      num_workers: 8
+      num_workers: 0
   cliptta:
     capture_initial_state: false
     data:
       batch_size: 16
-      num_workers: 4
+      num_workers: 0
   batclip:
     capture_initial_state: false
     data:
       batch_size: 16
-      num_workers: 4
+      num_workers: 0
   iapl:
     checkpoint: ${IAPL_GENIMAGE_CHECKPOINT}
     adaptation_mode: full
@@ -121,7 +126,7 @@ method_configs:
     smooth: true
     data:
       batch_size: 1
-      num_workers: 8
+      num_workers: 0
 
 reporting:
   primary_table: clip_vitl14_method_native_online

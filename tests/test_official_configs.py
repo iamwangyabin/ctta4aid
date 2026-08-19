@@ -163,18 +163,18 @@ class OfficialConfigTests(unittest.TestCase):
                         config["method_configs"]["tent"]["data"]["batch_size"],
                         16,
                     )
+                    self.assertEqual(config["data"]["num_workers"], 0)
+                    for method_name in expected_methods:
+                        self.assertEqual(
+                            config["method_configs"][method_name]["data"][
+                                "num_workers"
+                            ],
+                            0,
+                        )
                     if dataset == "genimage":
                         self.assertEqual(
                             config["data"]["worker_start_method"], "spawn"
                         )
-                        self.assertEqual(config["data"]["num_workers"], 0)
-                        for method_name in expected_methods:
-                            self.assertEqual(
-                                config["method_configs"][method_name]["data"][
-                                    "num_workers"
-                                ],
-                                0,
-                            )
                     else:
                         self.assertNotIn("worker_start_method", config["data"])
                     self.assertTrue(
