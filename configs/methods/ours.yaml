@@ -1,0 +1,123 @@
+methods: [ours_static, ours]
+
+method_configs:
+  ours_static:
+    capture_initial_state: false
+    adaptation_mode: static
+    architecture: ViT-L/14
+    clip_path: ${CLIP_VIT_L14_CHECKPOINT}
+    checkpoint: ${POUNDNET_CHECKPOINT}
+    image_size: 224
+    resize_size: 256
+    n_ctx: 16
+    prompt_num: 1
+    vision_depth: 8
+    text_depth: 8
+    semantic_class_names:
+      - airplane
+      - bird
+      - bottle
+      - car
+      - chair
+      - diningtable
+      - horse
+      - person
+      - sheep
+      - train
+      - bicycle
+      - boat
+      - bus
+      - cat
+      - cow
+      - dog
+      - motorbike
+      - pottedplant
+      - sofa
+      - tvmonitor
+    data:
+      batch_size: 16
+      num_workers: 0
+    reference:
+      role: exact_non_adaptive_control_for_ours
+      source_setup: published_poundnet_prompt_checkpoint_with_openai_clip_vitl14
+      protocol: predict_then_adapt
+
+  ours:
+    capture_initial_state: false
+    adaptation_mode: full
+    architecture: ViT-L/14
+    clip_path: ${CLIP_VIT_L14_CHECKPOINT}
+    checkpoint: ${POUNDNET_CHECKPOINT}
+    image_size: 224
+    resize_size: 256
+    n_ctx: 16
+    prompt_num: 1
+    vision_depth: 8
+    text_depth: 8
+    semantic_class_names:
+      - airplane
+      - bird
+      - bottle
+      - car
+      - chair
+      - diningtable
+      - horse
+      - person
+      - sheep
+      - train
+      - bicycle
+      - boat
+      - bus
+      - cat
+      - cow
+      - dog
+      - motorbike
+      - pottedplant
+      - sofa
+      - tvmonitor
+    data:
+      batch_size: 16
+      num_workers: 0
+    semantic_temperature: 0.07
+    prototype_temperature: 0.07
+    prototype_logit_scale: 3.0
+    prototype_weight: 1.0
+    max_adaptation_weight: 0.5
+    gate_threshold: 0.1
+    evidence_temperature: 1.0
+    max_logit_correction: 4.0
+    memory_size: 256
+    min_memory_per_class: 8
+    support_saturation: 32
+    candidate_queue_size: 512
+    promotion_delay: 1
+    min_vote_ratio: 0.6666666666666666
+    candidate_reliability: 0.55
+    promotion_reliability: 0.5
+    guard_fraction: 0.2
+    use_horizontal_flip: true
+    use_scale_view: true
+    scale_ratio: 0.875
+    eviction_age_weight: 1.0
+    eviction_unreliability_weight: 1.0
+    eviction_redundancy_weight: 1.0
+    adapter_rank: 16
+    adapter_weight: 1.0
+    adapter_learning_rate: 0.001
+    adapter_weight_decay: 0.0001
+    adapter_update_frequency: 8
+    adapter_steps: 1
+    adapter_batch_size: 64
+    adapter_min_per_class: 4
+    adapter_regularization: 0.001
+    adapter_guard_tolerance: 0.0001
+    adapter_deviation_budget: 2.0
+    reference:
+      profile: pound_semantic_conditioned_residual_memory_v1
+      source_method: PoundNet
+      source_repository: https://github.com/iamwangyabin/PoundNet
+      source_commit: a504acf8c1cf5273128d8ce3278929b85a32bdd1
+      protocol: predict_then_adapt
+      target_labels_used: false
+      adaptive_scope: residual_memory_and_low_rank_residual_adapter
+      frozen_scope: clip_backbone_and_poundnet_prompts

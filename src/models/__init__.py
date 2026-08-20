@@ -11,6 +11,7 @@ from .clip_detector import (
 )
 from .iapl import IAPL_COMMIT, build_iapl_detector
 from .ost import OST_COMMIT, build_ost_detector, build_ost_training_detector
+from .poundnet import POUNDNET_COMMIT, build_poundnet_detector
 
 __all__ = [
     "BinaryDetector",
@@ -18,6 +19,7 @@ __all__ = [
     "OPENAI_CLIP_VIT_L14_SHA256",
     "IAPL_COMMIT",
     "OST_COMMIT",
+    "POUNDNET_COMMIT",
     "build_detector",
     "build_clip_source_detector",
     "build_clip_vlm_detector",
@@ -26,6 +28,7 @@ __all__ = [
     "build_iapl_detector",
     "build_ost_detector",
     "build_ost_training_detector",
+    "build_poundnet_detector",
     "load_checkpoint",
     "save_checkpoint",
 ]

@@ -19,6 +19,7 @@ from src.models import (
     build_detector,
     build_iapl_detector,
     build_ost_detector,
+    build_poundnet_detector,
     load_checkpoint,
 )
 
@@ -113,6 +114,32 @@ def build_fresh_method(
             "sha256": checkpoint_sha256(checkpoint_path),
         }
         method.source_model_metadata = metadata
+        return method, metadata
+    if normalized_name in {"ours", "oursstatic", "poundtta", "poundttastatic"}:
+        if normalized_name in {"oursstatic", "poundttastatic"}:
+            effective_method_config.setdefault("adaptation_mode", "static")
+        model, metadata = build_poundnet_detector(
+            effective_method_config, device=device
+        )
+        method = build_method(name, model, device, effective_method_config)
+        checkpoint_path = str(
+            Path(effective_method_config["checkpoint"]).expanduser().resolve()
+        )
+        clip_checkpoint_path = str(
+            Path(effective_method_config["clip_path"]).expanduser().resolve()
+        )
+        method.source_checkpoint_identity = {
+            "path": checkpoint_path,
+            "sha256": checkpoint_sha256(checkpoint_path),
+        }
+        method.source_model_metadata = {
+            **metadata,
+            "task_checkpoint": method.source_checkpoint_identity,
+            "clip_checkpoint": {
+                "path": clip_checkpoint_path,
+                "sha256": checkpoint_sha256(clip_checkpoint_path),
+            },
+        }
         return method, metadata
 
     require(experiment_config, "model")

@@ -154,7 +154,18 @@ def main() -> None:
     args = parser.parse_args()
     config = load_config(args.config)
     require(config, "data", "methods", "output_dir")
-    if any(str(name).lower() != "iapl" for name in config["methods"]):
+    dedicated_models = {
+        "iapl",
+        "ours",
+        "oursstatic",
+        "poundtta",
+        "poundttastatic",
+    }
+    normalized_methods = {
+        str(name).lower().replace("_", "").replace("-", "")
+        for name in config["methods"]
+    }
+    if any(name not in dedicated_models for name in normalized_methods):
         require(config, "model")
     require(config["data"], "format", "root", "stream")
 

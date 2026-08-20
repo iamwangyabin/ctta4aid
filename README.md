@@ -16,14 +16,14 @@ configs/
   datasets/       数据集、checkpoint 和目标域
   protocols/      Single-target 与 Continual 协议
   methods/        各方法参数
-  experiments/    Controlled CTTA、IAPL 与 OST 实验入口
+  experiments/    CLIP 主实验、Controlled CTTA、IAPL 与 OST 实验入口
   train/          公共源模型训练配置
 src/
   cli/            公共命令行辅助逻辑
   data/           数据集、变换和数据流
   evaluation/     指标与在线评估
   methods/        统一 TTA 方法接口
-  models/         检测器及 IAPL、OST loader
+  models/         检测器及 IAPL、OST、PoundNet loader
   official/       固定版本的第三方算法核心
 results/          仅保存重新完成后的最终实验结果
 scripts/          数据检查和必要下载脚本
@@ -90,7 +90,7 @@ CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fish
 | CLIPTTA | CLIP 文本原型 | 官方 closed-set 对比适配及 batch 机制 | 使用二分类类别语义与作者原生文本构造 |
 | BATCLIP | CLIP 图像与文本两端 | 双模态目标及原生在线更新 | 换成固定 ViT-L/14；不得退化成只更新视觉端 |
 | TTC | 已训练 AIGC detector | 课程式伪标签适配 | 作者公开实现可固定前结果单元格留空并加脚注，不得自写后冒充复现 |
-| Ours | 固定 ViT-L/14 初始化的本方法 detector | 本方法完整训练与 CTTA 机制 | 只统一数据、初始化与 evaluator |
+| Ours | PoundNet 的配对真实/伪造 prompt detector | 冻结语义路由、延迟残差记忆、条件原型与受保护低秩适配 | 严格 Predict-Then-Adapt；同时报告同 checkpoint 的 Ours-Static |
 
 所有 target hidden labels 始终只进入 evaluator。CLIP-native 方法的类别语义属于任务定义，
 但 template 或 prompt 不得使用目标标签选择。主结果不再把一个数据集压缩成单个数值：
@@ -365,6 +365,31 @@ GenImage 的三个入口读取同一个作者 checkpoint。`static` 只预测标
 `views_only` 使用 32 views 和 OIS 但不更新 prompt，默认入口再加入两步 prompt
 adaptation。三者用于拆分多视图选择和参数更新各自带来的收益，不用于与其他 backbone
 比较绝对分数。
+
+## PoundTTA（Ours）
+
+PoundTTA 使用已训练 PoundNet 的成对真实/伪造 prompts。对每个语义类别，两个单位文本
+特征的中点作为冻结语义索引，其差向量作为真伪方向；测试时只在这些真伪方向张成的
+残差空间中建立记忆和更新低秩 adapter，不更新 CLIP backbone 或 PoundNet prompts。
+新样本必须先由旧状态完成预测，之后才经过原图、水平翻转和尺度视图投票进入候选队列；
+候选还需经过至少一个 batch 的延迟确认才能进入按 real/fake 预留容量的稳定记忆。只有
+双类记忆支持、语义覆盖、残差证据和适应需求同时充分时才启用校正，否则输出严格退回
+PoundNet source prediction。
+
+正式配置总是成对运行 `ours_static` 与 `ours`。前者加载完全相同的 PoundNet 和 OpenAI
+CLIP ViT-L/14 checkpoint，但关闭候选队列、记忆和 adapter；两行的差值才表示在线适应
+收益。设置：
+
+```bash
+export CLIP_VIT_L14_CHECKPOINT=/weights/ViT-L-14.pt
+export POUNDNET_CHECKPOINT=/weights/poundnet_ViTL_Progan_20240506_23_30_25.ckpt
+python run_single_target.py \
+  --config configs/experiments/clip_vlm/genimage_seed0.yaml
+```
+
+当前主版本只使用 PoundNet 内部的 CLIP 语义类别库，不调用额外 captioner。目标标签、
+generator identity 和未来样本都不会进入候选筛选、记忆、门控或 adapter loss。完整三 seed
+结果验收前，论文表格仍不得填入 Ours 数值。
 
 ## OST
 

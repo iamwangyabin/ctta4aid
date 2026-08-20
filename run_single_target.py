@@ -142,7 +142,14 @@ def main() -> None:
     args = parser.parse_args()
     config = load_config(args.config)
     require(config, "data", "methods", "output_dir")
-    dedicated_models = {"iapl", "ost"}
+    dedicated_models = {
+        "iapl",
+        "ost",
+        "ours",
+        "oursstatic",
+        "poundtta",
+        "poundttastatic",
+    }
     normalized_methods = {
         str(name).lower().replace("_", "").replace("-", "")
         for name in config["methods"]

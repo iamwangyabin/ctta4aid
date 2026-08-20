@@ -137,6 +137,8 @@ class OfficialConfigTests(unittest.TestCase):
             "cliptta",
             "batclip",
             "iapl",
+            "ours_static",
+            "ours",
         ]
         for dataset, target_count in expected_targets.items():
             for seed in (0, 1, 2):
@@ -200,6 +202,21 @@ class OfficialConfigTests(unittest.TestCase):
                     self.assertEqual(
                         config["method_configs"]["iapl"]["data"]["batch_size"],
                         1,
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["ours"]["adaptation_mode"],
+                        "full",
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["ours_static"]["adaptation_mode"],
+                        "static",
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["ours"]["memory_size"], 256
+                    )
+                    self.assertEqual(
+                        config["reporting"]["paired_static_baselines"]["ours"],
+                        "ours_static",
                     )
                     self.assertTrue(
                         config["method_configs"]["batclip"]["vlm"]

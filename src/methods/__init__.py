@@ -11,6 +11,7 @@ from .eata import EATA
 from .iapl import IAPL
 from .lame import LAME
 from .ost import OST
+from .pound_tta import PoundTTA
 from .rotta import RoTTA
 from .sar import SAR
 from .source import SourceOnly
@@ -43,6 +44,11 @@ def build_method(
         return IAPL(model, device, config)
     if normalized == "ost":
         return OST(model, device, config)
+    if normalized in {"ours", "oursstatic", "poundtta", "poundttastatic"}:
+        effective_config = dict(config)
+        if normalized in {"oursstatic", "poundttastatic"}:
+            effective_config.setdefault("adaptation_mode", "static")
+        return PoundTTA(model, device, effective_config)
     if normalized == "cotta":
         return CoTTA(model, device, config)
     if normalized == "rotta":
@@ -75,6 +81,7 @@ __all__ = [
     "EATA",
     "IAPL",
     "OST",
+    "PoundTTA",
     "CoTTA",
     "RoTTA",
     "LAME",

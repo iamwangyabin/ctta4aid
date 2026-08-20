@@ -13,6 +13,7 @@ extends:
   - ../../methods/cliptta.yaml
   - ../../methods/batclip.yaml
   - ../../methods/iapl.yaml
+  - ../../methods/ours.yaml
 
 device: auto
 methods:
@@ -29,6 +30,8 @@ methods:
   - cliptta
   - batclip
   - iapl
+  - ours_static
+  - ours
 
 model:
   family: clip_vlm_main
@@ -127,8 +130,18 @@ method_configs:
     data:
       batch_size: 1
       num_workers: 0
+  ours_static:
+    data:
+      batch_size: 16
+      num_workers: 0
+  ours:
+    data:
+      batch_size: 16
+      num_workers: 0
 
 reporting:
   primary_table: clip_vitl14_method_native_online
   source_setup_column: required
-  excluded_from_main_quantitative_table: [rotta, ttc, ours]
+  excluded_from_main_quantitative_table: [rotta, ttc]
+  paired_static_baselines:
+    ours: ours_static
