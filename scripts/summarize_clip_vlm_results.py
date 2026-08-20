@@ -123,6 +123,7 @@ TABLE_GROUPS = (
         (
             TableRow("iapl", "IAPL", None),
             TableRow("ttc", "TTC$^{\\S}$", None, available=False),
+            TableRow("ours_static", "Ours-Static", None),
             TableRow("ours", "Ours", None),
         ),
     ),
@@ -184,6 +185,29 @@ def _seed_summary(
     return expected_targets, methods
 
 
+def _seed_experiment_identity(summary_path: Path) -> dict[str, Any] | None:
+    identity_path = summary_path.parent / "experiment_identity.json"
+    if identity_path.is_file():
+        with identity_path.open(encoding="utf-8") as handle:
+            identity = json.load(handle)
+        if not isinstance(identity, dict):
+            raise ValueError(f"Invalid experiment identity: {identity_path}")
+        return identity
+
+    effective_config_path = summary_path.parent / "effective_config.json"
+    if not effective_config_path.is_file():
+        return None
+    with effective_config_path.open(encoding="utf-8") as handle:
+        effective_config = json.load(handle)
+    data_profile = effective_config.get("data", {}).get("bias_control_profile")
+    if data_profile is not None:
+        raise ValueError(
+            "Bias-controlled result is missing experiment_identity.json: "
+            f"{summary_path.parent}"
+        )
+    return {"campaign": "raw", "data_profile": "raw"}
+
+
 def aggregate_dataset(
     results_root: Path, *, expected_targets: tuple[str, ...] | None = None
 ) -> dict[str, Any]:
@@ -200,9 +224,11 @@ def aggregate_dataset(
         )
 
     per_seed: dict[str, dict[str, dict[str, dict[str, float]]]] = {}
+    identities: list[dict[str, Any] | None] = []
     observed_targets: list[str] | None = None
     expected_methods: list[str] | None = None
     for summary_path in summaries:
+        identities.append(_seed_experiment_identity(summary_path))
         targets, methods = _seed_summary(summary_path)
         if observed_targets is None:
             observed_targets = targets
@@ -217,6 +243,14 @@ def aggregate_dataset(
 
     assert observed_targets is not None
     assert expected_methods is not None
+    present_identities = [identity for identity in identities if identity is not None]
+    if present_identities and len(present_identities) != len(identities):
+        raise ValueError(
+            f"Experiment identity is missing for some seeds below {results_root}"
+        )
+    experiment_identity = present_identities[0] if present_identities else None
+    if any(identity != experiment_identity for identity in present_identities[1:]):
+        raise ValueError(f"Experiment identities differ below {results_root}")
     if expected_targets is not None and observed_targets != list(expected_targets):
         raise ValueError(
             f"Target order below {results_root} does not match the locked dataset order"
@@ -258,6 +292,7 @@ def aggregate_dataset(
         "per_seed": per_seed,
         "per_target_aggregate": per_target_aggregate,
         "aggregate": aggregate,
+        "experiment_identity": experiment_identity,
     }
 
 
@@ -271,17 +306,26 @@ def aggregate_results(dataset_roots: Mapping[str, Path]) -> dict[str, Any]:
         if unexpected:
             messages.append("unexpected=" + ", ".join(unexpected))
         raise ValueError("Dataset roots must match the CLIP main-table set: " + "; ".join(messages))
+    datasets = {
+        name: aggregate_dataset(
+            Path(dataset_roots[name]).expanduser().resolve(),
+            expected_targets=tuple(target for target, _label in DATASET_TARGETS[name]),
+        )
+        for name in DATASET_ORDER
+    }
+    identities = [datasets[name]["experiment_identity"] for name in DATASET_ORDER]
+    present_identities = [identity for identity in identities if identity is not None]
+    if present_identities and len(present_identities) != len(identities):
+        raise ValueError("Cannot mix identified and unidentified experiment campaigns")
+    experiment_identity = present_identities[0] if present_identities else None
+    if any(identity != experiment_identity for identity in present_identities[1:]):
+        raise ValueError("Cannot mix raw data or different bias-control profiles")
     return {
         "backbone": "OpenAI CLIP ViT-L/14",
         "metric": "macro_target_auc",
         "table_metrics": list(TABLE_METRICS),
-        "datasets": {
-            name: aggregate_dataset(
-                Path(dataset_roots[name]).expanduser().resolve(),
-                expected_targets=tuple(target for target, _label in DATASET_TARGETS[name]),
-            )
-            for name in DATASET_ORDER
-        },
+        "experiment_identity": experiment_identity,
+        "datasets": datasets,
     }
 
 

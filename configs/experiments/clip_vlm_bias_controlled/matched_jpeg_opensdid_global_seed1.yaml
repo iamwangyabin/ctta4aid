@@ -1,0 +1,8 @@
+extends:
+  - ../clip_vlm/opensdid_global_seed1.yaml
+  - matched_jpeg.yaml
+
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/opensdid_global/seed1
+
+data:
+  root: ${OPENSDID_GLOBAL_MATCHED_JPEG_ARROW_ROOT}

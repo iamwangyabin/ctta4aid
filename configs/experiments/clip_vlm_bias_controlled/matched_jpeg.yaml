@@ -1,0 +1,7 @@
+campaign:
+  name: clip_vlm_bias_controlled
+  data_profile: matched_jpeg
+  source_setup: unchanged_from_clip_vlm_main
+
+data:
+  bias_control_profile: matched_jpeg

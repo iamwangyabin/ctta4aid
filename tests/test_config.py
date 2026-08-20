@@ -2,7 +2,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.config import deep_merge, load_config, method_config
+from src.config import (
+    deep_merge,
+    load_config,
+    method_config,
+    validate_experiment_identity,
+)
 
 
 class ConfigTest(unittest.TestCase):
@@ -48,6 +53,29 @@ class ConfigTest(unittest.TestCase):
             self.assertEqual(config["data"], {"batch_size": 16, "shuffle": True})
             self.assertEqual(config["method_configs"]["tent"]["lr"], 0.001)
             self.assertEqual(len(config["_config_sources"]), 3)
+
+    def test_bias_control_identity_requires_matching_campaign_and_output_path(self):
+        config = {
+            "campaign": {
+                "name": "clip_vlm_bias_controlled",
+                "data_profile": "all_jpeg_q90",
+            },
+            "data": {"bias_control_profile": "all_jpeg_q90"},
+            "output_dir": "/runs/clip_vlm_bias_controlled/all_jpeg_q90/genimage/seed0",
+        }
+        identity = validate_experiment_identity(config)
+        self.assertEqual(identity["data_profile"], "all_jpeg_q90")
+        self.assertIn("profile_spec_sha256", identity)
+
+        bad_output = deep_merge(config, {"output_dir": "/runs/clip_vlm/genimage/seed0"})
+        with self.assertRaisesRegex(ValueError, "output_dir"):
+            validate_experiment_identity(bad_output)
+
+        bad_campaign = deep_merge(
+            config, {"campaign": {"data_profile": "matched_jpeg"}}
+        )
+        with self.assertRaisesRegex(ValueError, "campaign.data_profile"):
+            validate_experiment_identity(bad_campaign)
 
 
 if __name__ == "__main__":

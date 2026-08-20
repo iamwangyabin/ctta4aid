@@ -136,6 +136,67 @@ python scripts/summarize_clip_vlm_results.py \
   --output-dir /data/results/clip_vlm_vitl14
 ```
 
+## JPEG 偏差控制复现实验
+
+原始编码的 CLIP campaign 不覆盖、不改名。新的复现实验只替换 target Arrow 中的图像
+字节，模型 checkpoint、source setup、方法原生配置、锁定样本身份与顺序、三个 seed、阈值
+和 evaluator 都继承 `configs/experiments/clip_vlm/`。当前固定两个互不混用的 profile：
+
+| Profile | 所有 real/fake 共同处理 | 用途 |
+|---|---|---|
+| `all_jpeg_q90` | EXIF orientation、RGB、JPEG Q90；保留视觉尺寸 | 单一质量的编码格式敏感性审计 |
+| `matched_jpeg` | EXIF orientation、RGB、center-crop/resize 到 256x256；从 75/80/85/90/95 中按不含类别目录的逻辑路径确定性取值 | 同分布压缩与固定几何审计 |
+
+两套处理都不能只压缩 fake。`matched_jpeg` 的质量选择不读取二分类标签；同名 real/fake
+逻辑样本会得到相同质量。原始 JPEG 会被再次编码，因此仍可能有 double-compression，
+这是一项偏差控制审计，不等价于证明所有数据偏差已经消失。
+
+每个原始 Arrow 根分别离线转换，输出路径必须显式包含 profile 名。转换不覆盖输入，并在
+根目录和每个 bundle 写入 `bias_control_manifest.json`：
+
+```bash
+python scripts/build_bias_controlled_arrow.py \
+  --profile all_jpeg_q90 \
+  --input-root /data/arrow/raw/genimage \
+  --output-root /data/arrow/bias_controlled/all_jpeg_q90/genimage
+
+python scripts/build_bias_controlled_arrow.py \
+  --profile matched_jpeg \
+  --input-root /data/arrow/raw/genimage \
+  --output-root /data/arrow/bias_controlled/matched_jpeg/genimage
+
+python scripts/check_arrow_datasets.py genimage \
+  /data/arrow/bias_controlled/matched_jpeg/genimage \
+  --bias-control-profile matched_jpeg
+```
+
+四个数据集分别设置独立环境变量。其他三个数据集使用同样的后缀规则：
+
+```bash
+export GENIMAGE_ALL_JPEG_Q90_ARROW_ROOT=/data/arrow/bias_controlled/all_jpeg_q90/genimage
+export AIGC_DETECTION_BENCHMARK_ALL_JPEG_Q90_ARROW_ROOT=/data/arrow/bias_controlled/all_jpeg_q90/aigc_detection_benchmark
+export AIGI_HOLMES_P3_ALL_JPEG_Q90_ARROW_ROOT=/data/arrow/bias_controlled/all_jpeg_q90/aigi_holmes_p3
+export OPENSDID_GLOBAL_ALL_JPEG_Q90_ARROW_ROOT=/data/arrow/bias_controlled/all_jpeg_q90/opensdid_global
+
+export GENIMAGE_MATCHED_JPEG_ARROW_ROOT=/data/arrow/bias_controlled/matched_jpeg/genimage
+export AIGC_DETECTION_BENCHMARK_MATCHED_JPEG_ARROW_ROOT=/data/arrow/bias_controlled/matched_jpeg/aigc_detection_benchmark
+export AIGI_HOLMES_P3_MATCHED_JPEG_ARROW_ROOT=/data/arrow/bias_controlled/matched_jpeg/aigi_holmes_p3
+export OPENSDID_GLOBAL_MATCHED_JPEG_ARROW_ROOT=/data/arrow/bias_controlled/matched_jpeg/opensdid_global
+```
+
+以 `matched_jpeg`、GenImage seed 0 为例：
+
+```bash
+python run_single_target.py \
+  --config configs/experiments/clip_vlm_bias_controlled/matched_jpeg_genimage_seed0.yaml
+```
+
+运行前会同时校验配置 profile、bundle 规范哈希和输出路径。输出固定写到
+`${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/<profile>/<dataset>/seed<seed>`；
+任何缺失、错配或试图写回原始 `clip_vlm/` 目录的运行都会直接失败。四数据集三 seed
+完整验收前，`all_jpeg_q90` 与 `matched_jpeg` 都不替换原始论文表；完成后也必须按 profile
+分别汇总。
+
 ## Controlled CTTA 补充实验
 
 这条 CNN 补充轨道读取符合项目数据契约的 UniversalFakeDetect Arrow bundle。运行前设置：

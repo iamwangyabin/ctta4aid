@@ -55,6 +55,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
             self.assertIn("\\textbf{81.30 $\\pm$ 1.00}", table)
             self.assertIn("RoTTA$^{\\ddagger}$ & -- & -- & -- & -- & --", table)
             self.assertIn("TTC$^{\\S}$ & -- & -- & -- & -- & --", table)
+            self.assertIn("Ours-Static & -- & -- & -- & -- & --", table)
             self.assertIn("Ours & -- & -- & -- & -- & --", table)
 
             auc_table = SUMMARY_SCRIPT.render_dataset_table(
@@ -91,6 +92,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
             ) as handle:
                 rows = {row["method"]: row for row in csv.DictReader(handle)}
             self.assertEqual(rows["ours"]["genimage"], "")
+            self.assertEqual(rows["ours_static"]["genimage"], "")
             self.assertIn("61.30", rows["source_ft"]["genimage"])
             self.assertEqual(rows["rotta"]["genimage"], "")
             self.assertEqual(rows["ttc"]["mean"], "")
@@ -159,6 +161,38 @@ class ClipVlmSummaryTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Expected complete seeds"):
                 SUMMARY_SCRIPT.aggregate_dataset(root)
 
+    def test_rejects_mixed_bias_control_profiles(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            dataset_roots = {}
+            for dataset in SUMMARY_SCRIPT.DATASET_ORDER:
+                dataset_root = root / dataset
+                dataset_roots[dataset] = dataset_root
+                profile = (
+                    "matched_jpeg"
+                    if dataset == "opensdid_global"
+                    else "all_jpeg_q90"
+                )
+                for seed in range(3):
+                    _write_seed(
+                        dataset_root,
+                        f"seed{seed}",
+                        dataset=dataset,
+                        source_ft_auc=0.6,
+                        sar_auc=0.7,
+                        frozen_clip_auc=0.8,
+                        tda_auc=0.75,
+                        iapl_auc=0.8,
+                        experiment_identity={
+                            "campaign": "clip_vlm_bias_controlled",
+                            "data_profile": profile,
+                            "profile_spec_sha256": profile,
+                        },
+                    )
+
+            with self.assertRaisesRegex(ValueError, "different bias-control profiles"):
+                SUMMARY_SCRIPT.aggregate_results(dataset_roots)
+
 
 def _write_seed(
     dataset_root: Path,
@@ -171,6 +205,7 @@ def _write_seed(
     tda_auc: float,
     iapl_auc: float,
     reverse_targets: bool = False,
+    experiment_identity: dict[str, str] | None = None,
 ) -> None:
     summary = {}
     targets = [
@@ -201,3 +236,7 @@ def _write_seed(
     (seed_root / "single_target_summary.json").write_text(
         json.dumps(summary), encoding="utf-8"
     )
+    if experiment_identity is not None:
+        (seed_root / "experiment_identity.json").write_text(
+            json.dumps(experiment_identity), encoding="utf-8"
+        )

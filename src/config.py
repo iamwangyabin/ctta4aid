@@ -7,6 +7,12 @@ from typing import Any
 
 import yaml
 
+from src.data.bias_control import (
+    BIAS_CONTROL_CAMPAIGN,
+    get_bias_control_profile,
+    profile_spec_sha256,
+)
+
 
 class ConfigError(ValueError):
     """Raised when an experiment configuration is incomplete or invalid."""
@@ -90,3 +96,52 @@ def method_config(config: dict[str, Any], name: str) -> dict[str, Any]:
     common = config.get("method_defaults", {})
     specific = config.get("method_configs", {}).get(name, {})
     return deep_merge(common, specific)
+
+
+def validate_experiment_identity(config: dict[str, Any]) -> dict[str, Any]:
+    """Return a stable run identity and reject ambiguous bias-control outputs."""
+
+    data_profile = config.get("data", {}).get("bias_control_profile")
+    campaign = config.get("campaign", {})
+    if not isinstance(campaign, dict):
+        raise ValueError("campaign must be a mapping")
+    campaign_name = campaign.get("name")
+    if data_profile is None:
+        if campaign_name == BIAS_CONTROL_CAMPAIGN:
+            raise ValueError(
+                f"{BIAS_CONTROL_CAMPAIGN} requires data.bias_control_profile"
+            )
+        return {
+            "campaign": str(campaign_name or "raw"),
+            "data_profile": "raw",
+        }
+
+    profile = get_bias_control_profile(str(data_profile))
+    if campaign_name != BIAS_CONTROL_CAMPAIGN:
+        raise ValueError(
+            "Bias-controlled data requires "
+            f"campaign.name: {BIAS_CONTROL_CAMPAIGN}"
+        )
+    if campaign.get("data_profile") != profile.name:
+        raise ValueError(
+            "campaign.data_profile must match data.bias_control_profile"
+        )
+    output_parts = Path(str(config.get("output_dir", ""))).parts
+    expected_pair = (BIAS_CONTROL_CAMPAIGN, profile.name)
+    if not any(
+        tuple(output_parts[index : index + 2]) == expected_pair
+        for index in range(max(0, len(output_parts) - 1))
+    ):
+        raise ValueError(
+            "Bias-controlled output_dir must contain "
+            f"{BIAS_CONTROL_CAMPAIGN}/{profile.name} as adjacent path components"
+        )
+    return {
+        "campaign": BIAS_CONTROL_CAMPAIGN,
+        "data_profile": profile.name,
+        "profile_spec_sha256": profile_spec_sha256(profile),
+        "target_bytes": "offline_transformed",
+        "source_setup": str(
+            campaign.get("source_setup", "unchanged_from_clip_vlm_main")
+        ),
+    }

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import csv
 import gc
+import json
 import math
 from pathlib import Path
 from statistics import fmean
@@ -14,7 +15,8 @@ from src.cli.common import (
     seed_everything,
     write_json,
 )
-from src.config import load_config, require
+from src.config import load_config, require, validate_experiment_identity
+from src.data.arrow import validate_arrow_data_profile
 from src.data.streams import (
     as_stream,
     build_domain_loader,
@@ -148,6 +150,10 @@ def main() -> None:
     if any(name not in dedicated_models for name in normalized_methods):
         require(config, "model")
     require(config["data"], "format", "root", "targets")
+    experiment_identity = validate_experiment_identity(config)
+    validate_arrow_data_profile(
+        config["data"]["root"], config["data"].get("bias_control_profile")
+    )
 
     seed = int(config.get("seed", 0))
     seed_everything(seed)
@@ -164,6 +170,15 @@ def main() -> None:
         curve_window_batches=int(evaluation_config.get("curve_window_batches", 20)),
     )
     output_root = Path(config["output_dir"])
+    identity_path = output_root / "experiment_identity.json"
+    if identity_path.is_file():
+        with identity_path.open(encoding="utf-8") as handle:
+            existing_identity = json.load(handle)
+        if existing_identity != experiment_identity:
+            raise ValueError(
+                f"Refusing to mix experiment identities below {output_root}"
+            )
+    write_json(identity_path, experiment_identity)
     write_json(output_root / "effective_config.json", config)
     aggregate = {}
     all_pairwise_rows: list[dict] = []
@@ -225,6 +240,7 @@ def main() -> None:
             result["protocol"] = getattr(method, "protocol_name", "predict_then_adapt")
             result["method"] = method_name
             result["target"] = target
+            result["experiment_identity"] = experiment_identity
             if initial_holdout is not None:
                 cross_holdout = evaluate_without_adaptation(
                     method,

@@ -12,6 +12,8 @@ from typing import Any, Iterable, Sequence
 
 from PIL import Image
 
+from .bias_control import validate_bias_control_bundles
+
 
 ARROW_FORMAT = "arrow"
 
@@ -66,6 +68,7 @@ class ArrowDataset:
         seed: int = 0,
         locked_sample_ids: Sequence[str] | None = None,
         exclude_image_paths: Sequence[str] | None = None,
+        bias_control_profile: str | None = None,
     ) -> None:
         if not generator:
             raise ValueError("Arrow format requires a generator/domain name")
@@ -73,7 +76,7 @@ class ArrowDataset:
             raise ValueError("Arrow format requires a split")
 
         with _preserve_global_rng_state():
-            roots = _resolve_dataset_roots(root)
+            roots = validate_arrow_data_profile(root, bias_control_profile)
             records = [
                 record
                 for dataset_root in roots
@@ -199,6 +202,7 @@ def build_dataset(
     seed: int = 0,
     locked_sample_ids: Sequence[str] | None = None,
     exclude_image_paths: Sequence[str] | None = None,
+    bias_control_profile: str | None = None,
 ) -> ArrowDataset:
     if data_format != ARROW_FORMAT:
         raise ValueError(
@@ -219,7 +223,16 @@ def build_dataset(
         seed=seed,
         locked_sample_ids=locked_sample_ids,
         exclude_image_paths=exclude_image_paths,
+        bias_control_profile=bias_control_profile,
     )
+
+
+def validate_arrow_data_profile(
+    root: str | Path | Sequence[str | Path], expected_profile: str | None
+) -> list[Path]:
+    roots = _resolve_dataset_roots(root)
+    validate_bias_control_bundles(roots, expected_profile)
+    return roots
 
 
 def _normalize_excluded_image_paths(

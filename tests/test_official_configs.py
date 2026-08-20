@@ -243,6 +243,62 @@ class OfficialConfigTests(unittest.TestCase):
             ["source_ft", "tent", "eata", "sar", "cotta", "lame", "t2a"],
         )
 
+    def test_clip_vlm_bias_controlled_configs_are_isolated_from_raw_runs(self) -> None:
+        expected_roots = {
+            "all_jpeg_q90": {
+                "genimage": "${GENIMAGE_ALL_JPEG_Q90_ARROW_ROOT}",
+                "aigc_detection_benchmark": (
+                    "${AIGC_DETECTION_BENCHMARK_ALL_JPEG_Q90_ARROW_ROOT}"
+                ),
+                "aigi_holmes_p3": "${AIGI_HOLMES_P3_ALL_JPEG_Q90_ARROW_ROOT}",
+                "opensdid_global": "${OPENSDID_GLOBAL_ALL_JPEG_Q90_ARROW_ROOT}",
+            },
+            "matched_jpeg": {
+                "genimage": "${GENIMAGE_MATCHED_JPEG_ARROW_ROOT}",
+                "aigc_detection_benchmark": (
+                    "${AIGC_DETECTION_BENCHMARK_MATCHED_JPEG_ARROW_ROOT}"
+                ),
+                "aigi_holmes_p3": "${AIGI_HOLMES_P3_MATCHED_JPEG_ARROW_ROOT}",
+                "opensdid_global": "${OPENSDID_GLOBAL_MATCHED_JPEG_ARROW_ROOT}",
+            },
+        }
+        raw_methods = self.load(
+            "configs/experiments/clip_vlm/genimage_seed0.yaml"
+        )["methods"]
+        for profile, dataset_roots in expected_roots.items():
+            for dataset, expected_root in dataset_roots.items():
+                for seed in (0, 1, 2):
+                    filename = (
+                        "configs/experiments/clip_vlm_bias_controlled/"
+                        f"{profile}_{dataset}_seed{seed}.yaml"
+                    )
+                    with self.subTest(filename=filename):
+                        config = self.load(filename)
+                        self.assertEqual(config["methods"], raw_methods)
+                        self.assertEqual(config["seed"], seed)
+                        self.assertEqual(
+                            config["campaign"],
+                            {
+                                "name": "clip_vlm_bias_controlled",
+                                "data_profile": profile,
+                                "source_setup": "unchanged_from_clip_vlm_main",
+                            },
+                        )
+                        self.assertEqual(
+                            config["data"]["bias_control_profile"], profile
+                        )
+                        self.assertEqual(config["data"]["root"], expected_root)
+                        self.assertEqual(
+                            config["output_dir"],
+                            "${CTTA4AID_EXPERIMENT_ROOT}/"
+                            f"clip_vlm_bias_controlled/{profile}/{dataset}/seed{seed}",
+                        )
+                        manifest = (
+                            Path(config["_config_path"]).parent
+                            / config["data"]["locked_online_manifest"]
+                        ).resolve()
+                        self.assertTrue(manifest.is_file())
+
     def test_every_cnn_wrapper_points_to_a_vendored_official_core(self) -> None:
         sources = self.load("configs/official_sources.yaml")
         for method in ("tent", "eata", "cotta", "rotta", "lame", "t2a"):

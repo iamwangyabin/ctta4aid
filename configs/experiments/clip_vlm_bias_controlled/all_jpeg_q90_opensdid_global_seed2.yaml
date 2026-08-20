@@ -1,0 +1,8 @@
+extends:
+  - ../clip_vlm/opensdid_global_seed2.yaml
+  - all_jpeg_q90.yaml
+
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/all_jpeg_q90/opensdid_global/seed2
+
+data:
+  root: ${OPENSDID_GLOBAL_ALL_JPEG_Q90_ARROW_ROOT}

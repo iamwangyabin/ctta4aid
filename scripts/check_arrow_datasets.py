@@ -15,6 +15,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.data.arrow import ArrowDataset
+from src.data.bias_control import BIAS_CONTROL_PROFILES
 
 UFD_DOMAINS = [
     "crn",
@@ -95,6 +96,9 @@ def main() -> None:
     parser.add_argument("suite", choices=sorted(SUITE_DOMAINS))
     parser.add_argument("roots", nargs="+")
     parser.add_argument("--output")
+    parser.add_argument(
+        "--bias-control-profile", choices=sorted(BIAS_CONTROL_PROFILES)
+    )
     args = parser.parse_args()
 
     domains = SUITE_DOMAINS[args.suite]
@@ -105,6 +109,7 @@ def main() -> None:
             root=args.roots,
             generator=domain,
             split=split,
+            bias_control_profile=args.bias_control_profile,
         )
         real = sum(record.label == 0 for record in dataset.records)
         fake = sum(record.label == 1 for record in dataset.records)
@@ -129,6 +134,7 @@ def main() -> None:
     summary = {
         "suite": args.suite,
         "roots": [str(Path(root).expanduser().resolve()) for root in args.roots],
+        "bias_control_profile": args.bias_control_profile or "raw",
         "domains": results,
         "total_samples": sum(item["samples"] for item in results.values()),
     }

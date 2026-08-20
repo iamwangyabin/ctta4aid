@@ -202,6 +202,7 @@ def build_domain_loader(
         ),
         seed=seed if sample_seed is None else sample_seed,
         locked_sample_ids=locked_sample_ids,
+        bias_control_profile=data_config.get("bias_control_profile"),
     )
     effective_shuffle = False if locked_sample_ids is not None else (
         bool(data_config.get("shuffle", True)) if shuffle is None else shuffle

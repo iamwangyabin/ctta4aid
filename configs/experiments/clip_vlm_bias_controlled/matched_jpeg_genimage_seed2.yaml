@@ -1,0 +1,8 @@
+extends:
+  - ../clip_vlm/genimage_seed2.yaml
+  - matched_jpeg.yaml
+
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/genimage/seed2
+
+data:
+  root: ${GENIMAGE_MATCHED_JPEG_ARROW_ROOT}
