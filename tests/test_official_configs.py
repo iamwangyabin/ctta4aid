@@ -215,6 +215,10 @@ class OfficialConfigTests(unittest.TestCase):
                         config["method_configs"]["ours"]["memory_size"], 256
                     )
                     self.assertEqual(
+                        config["method_configs"]["ours"]["checkpoint_sha256"],
+                        "a3f15593bf3a46d3ce318a5e160b33372a27d0712baf66906592065890edc9d4",
+                    )
+                    self.assertEqual(
                         config["reporting"]["paired_static_baselines"]["ours"],
                         "ours_static",
                     )

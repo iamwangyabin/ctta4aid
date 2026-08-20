@@ -6,6 +6,8 @@ at commit ``a504acf8c1cf5273128d8ce3278929b85a32bdd1``.
 
 from __future__ import annotations
 
+import hashlib
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -16,6 +18,9 @@ from .clip_vlm import OPENAI_CLIP_VIT_L14_SHA256, load_openai_clip_model
 
 POUNDNET_COMMIT = "a504acf8c1cf5273128d8ce3278929b85a32bdd1"
 POUNDNET_REPOSITORY = "https://github.com/iamwangyabin/PoundNet"
+POUNDNET_PROGAN_20240506_SHA256 = (
+    "a3f15593bf3a46d3ce318a5e160b33372a27d0712baf66906592065890edc9d4"
+)
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_POUNDNET_CLASSES = (
     "airplane",
@@ -46,6 +51,15 @@ def _resolve_path(value: str | Path) -> Path:
     if not path.is_absolute():
         path = PROJECT_ROOT / path
     return path.resolve()
+
+
+@lru_cache(maxsize=4)
+def _sha256(path: str) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def _normalize_state_dict(checkpoint: Any) -> tuple[dict[str, Any], list[str]]:
@@ -492,6 +506,23 @@ def build_poundnet_detector(
         raise FileNotFoundError(f"CLIP checkpoint does not exist: {clip_path}")
     if not checkpoint_path.is_file():
         raise FileNotFoundError(f"PoundNet checkpoint does not exist: {checkpoint_path}")
+    expected_clip_sha256 = str(
+        config.get("clip_sha256", OPENAI_CLIP_VIT_L14_SHA256)
+    ).lower()
+    expected_checkpoint_sha256 = str(
+        config.get("checkpoint_sha256", POUNDNET_PROGAN_20240506_SHA256)
+    ).lower()
+    clip_sha256 = _sha256(str(clip_path))
+    checkpoint_sha256 = _sha256(str(checkpoint_path))
+    if clip_sha256 != expected_clip_sha256:
+        raise ValueError(
+            "Unexpected OpenAI CLIP ViT-L/14 checkpoint SHA-256: "
+            f"{clip_sha256}"
+        )
+    if checkpoint_sha256 != expected_checkpoint_sha256:
+        raise ValueError(
+            f"Unexpected PoundNet checkpoint SHA-256: {checkpoint_sha256}"
+        )
 
     class_names = tuple(config.get("semantic_class_names", DEFAULT_POUNDNET_CLASSES))
     if not class_names or any(not str(name).strip() for name in class_names):
@@ -548,8 +579,11 @@ def build_poundnet_detector(
         "architecture": "ViT-L/14",
         "checkpoint_keys": checkpoint_keys,
         "checkpoint_path": str(checkpoint_path),
+        "checkpoint_sha256": checkpoint_sha256,
+        "checkpoint_sha256_expected": expected_checkpoint_sha256,
         "clip_checkpoint_path": str(clip_path),
-        "clip_checkpoint_sha256_expected": OPENAI_CLIP_VIT_L14_SHA256,
+        "clip_checkpoint_sha256": clip_sha256,
+        "clip_checkpoint_sha256_expected": expected_clip_sha256,
         "source_setup": "published_poundnet_prompt_checkpoint_with_openai_clip_vitl14",
         "semantic_class_names": list(class_names),
         "n_ctx": n_ctx,
@@ -566,6 +600,7 @@ def build_poundnet_detector(
 __all__ = [
     "DEFAULT_POUNDNET_CLASSES",
     "POUNDNET_COMMIT",
+    "POUNDNET_PROGAN_20240506_SHA256",
     "POUNDNET_REPOSITORY",
     "build_poundnet_detector",
     "pound_prompt_components",

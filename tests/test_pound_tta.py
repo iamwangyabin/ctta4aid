@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import importlib.util
+import tempfile
 import unittest
+from pathlib import Path
 
 
 TORCH_AVAILABLE = importlib.util.find_spec("torch") is not None
@@ -227,6 +229,24 @@ class PoundTTATests(unittest.TestCase):
                 self.assertIsInstance(method, PoundTTA)
                 expected_mode = "static" if "static" in name else "full"
                 self.assertEqual(method.adaptation_mode, expected_mode)
+
+    def test_model_loader_rejects_unpinned_files_before_deserialization(self) -> None:
+        from src.models.poundnet import build_poundnet_detector
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            clip_path = root / "ViT-L-14.pt"
+            checkpoint_path = root / "poundnet.ckpt"
+            clip_path.write_bytes(b"not-the-pinned-clip")
+            checkpoint_path.write_bytes(b"not-the-pinned-poundnet")
+            with self.assertRaisesRegex(ValueError, "Unexpected OpenAI CLIP"):
+                build_poundnet_detector(
+                    {
+                        "clip_path": str(clip_path),
+                        "checkpoint": str(checkpoint_path),
+                    },
+                    device="cpu",
+                )
 
 
 if __name__ == "__main__":

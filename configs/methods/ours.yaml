@@ -6,7 +6,9 @@ method_configs:
     adaptation_mode: static
     architecture: ViT-L/14
     clip_path: ${CLIP_VIT_L14_CHECKPOINT}
+    clip_sha256: b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836
     checkpoint: ${POUNDNET_CHECKPOINT}
+    checkpoint_sha256: a3f15593bf3a46d3ce318a5e160b33372a27d0712baf66906592065890edc9d4
     image_size: 224
     resize_size: 256
     n_ctx: 16
@@ -47,7 +49,9 @@ method_configs:
     adaptation_mode: full
     architecture: ViT-L/14
     clip_path: ${CLIP_VIT_L14_CHECKPOINT}
+    clip_sha256: b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836
     checkpoint: ${POUNDNET_CHECKPOINT}
+    checkpoint_sha256: a3f15593bf3a46d3ce318a5e160b33372a27d0712baf66906592065890edc9d4
     image_size: 224
     resize_size: 256
     n_ctx: 16

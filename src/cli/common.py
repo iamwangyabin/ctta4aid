@@ -130,14 +130,14 @@ def build_fresh_method(
         )
         method.source_checkpoint_identity = {
             "path": checkpoint_path,
-            "sha256": checkpoint_sha256(checkpoint_path),
+            "sha256": metadata["checkpoint_sha256"],
         }
         method.source_model_metadata = {
             **metadata,
             "task_checkpoint": method.source_checkpoint_identity,
             "clip_checkpoint": {
                 "path": clip_checkpoint_path,
-                "sha256": checkpoint_sha256(clip_checkpoint_path),
+                "sha256": metadata["clip_checkpoint_sha256"],
             },
         }
         return method, metadata
