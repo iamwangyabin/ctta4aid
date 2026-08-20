@@ -17,7 +17,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.data.bias_control import (
+from src.data.bias_control import (  # noqa: E402
     BIAS_CONTROL_CAMPAIGN,
     BIAS_CONTROL_MANIFEST,
     BIAS_CONTROL_PROFILES,
