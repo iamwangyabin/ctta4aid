@@ -117,8 +117,8 @@ def _attach_ivlp_prompts(
                 prompt = torch.empty(
                     context_tokens,
                     int(self.ln_1.weight.numel()),
-                    device=self.ln_1.weight.device,
-                    dtype=self.ln_1.weight.dtype,
+                    device=self.attn.in_proj_weight.device,
+                    dtype=self.attn.in_proj_weight.dtype,
                 )
                 nn.init.normal_(prompt, std=0.02)
                 self.VPT_shallow = nn.Parameter(prompt)
@@ -131,7 +131,9 @@ def _attach_ivlp_prompts(
 
         def forward(self, values: Any) -> Any:
             if self.add_prompt:
-                prompt = self.VPT_shallow[:, None].expand(-1, values.shape[1], -1)
+                prompt = self.VPT_shallow.to(
+                    device=values.device, dtype=values.dtype
+                )[:, None].expand(-1, values.shape[1], -1)
                 if self.text_layer:
                     values = torch.cat(
                         (values[:1], prompt, values[1 + self.n_ctx :]), dim=0
@@ -208,7 +210,9 @@ def _attach_ivlp_prompts(
             )
             values = torch.cat((class_token, values), dim=1)
             values = values + self.positional_embedding.to(values.dtype)
-            prompt = self.VPT[None].expand(values.shape[0], -1, -1)
+            prompt = self.VPT.to(device=values.device, dtype=values.dtype)[None].expand(
+                values.shape[0], -1, -1
+            )
             values = torch.cat((values, prompt), dim=1)
             values = self.ln_pre(values).permute(1, 0, 2)
             values = self.transformer(values).permute(1, 0, 2)
@@ -244,12 +248,14 @@ def _poundnet_classes() -> Any:
 
         @property
         def dtype(self) -> Any:
-            return self.ln_final.weight.dtype
+            return self.text_projection.dtype
 
         def forward(self, prompts: Any, tokenized_prompts: Any) -> Any:
             if prompts.ndim == 4:
                 prompts = torch.flatten(prompts, start_dim=0, end_dim=1)
-            values = prompts + self.positional_embedding.to(dtype=self.dtype)
+            values = prompts.to(
+                device=self.positional_embedding.device, dtype=self.dtype
+            ) + self.positional_embedding.to(dtype=self.dtype)
             values = values.permute(1, 0, 2)
             values = self.transformer(values)
             values = values.permute(1, 0, 2)
@@ -276,8 +282,8 @@ def _poundnet_classes() -> Any:
             self.n_cls = len(class_names)
             self.n_ctx = n_ctx
             self.prompt_num = prompt_num
-            dtype = clip_model.ln_final.weight.dtype
-            device = clip_model.ln_final.weight.device
+            dtype = clip_model.text_projection.dtype
+            device = clip_model.text_projection.device
             context_dim = int(clip_model.ln_final.weight.shape[0])
             context = torch.empty(
                 prompt_num * 2,

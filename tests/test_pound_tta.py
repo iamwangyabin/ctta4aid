@@ -176,6 +176,48 @@ class PoundTTATests(unittest.TestCase):
             )
         )
 
+    def test_text_encoder_uses_clip_compute_dtype_not_layernorm_dtype(self) -> None:
+        from types import SimpleNamespace
+
+        from src.models.poundnet import _poundnet_classes
+
+        torch = self.torch
+        nn = self.nn
+
+        class DtypeCheckingTransformer(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.anchor = nn.Parameter(torch.ones((), dtype=torch.float64))
+
+            def forward(self, values):
+                if values.dtype != self.anchor.dtype:
+                    raise RuntimeError(
+                        f"transformer expected {self.anchor.dtype}, got {values.dtype}"
+                    )
+                return values
+
+        class IdentityFinalNorm(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.weight = nn.Parameter(torch.ones(3, dtype=torch.float32))
+
+            def forward(self, values):
+                return values
+
+        fake_clip = SimpleNamespace(
+            transformer=DtypeCheckingTransformer(),
+            positional_embedding=nn.Parameter(torch.zeros(4, 3, dtype=torch.float64)),
+            ln_final=IdentityFinalNorm(),
+            text_projection=nn.Parameter(torch.eye(3, 2, dtype=torch.float64)),
+        )
+        text_encoder, _prompt_learner, _detector = _poundnet_classes()
+        encoded = text_encoder(fake_clip)(
+            torch.zeros(2, 4, 3, dtype=torch.float32),
+            torch.tensor([[1, 2, 3, 9], [1, 5, 3, 2]]),
+        )
+        self.assertEqual(encoded.dtype, torch.float64)
+        self.assertEqual(tuple(encoded.shape), (2, 2))
+
     def test_registry_accepts_paper_and_explicit_method_names(self) -> None:
         from src.methods import PoundTTA, build_method
 
