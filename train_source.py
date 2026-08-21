@@ -10,6 +10,7 @@ from src.cli.common import resolve_device, seed_everything, write_json
 from src.config import load_config, require
 from src.data import (
     build_clip_eval_transform,
+    build_clip_lora_train_transform,
     build_clip_train_transform,
     build_dataset,
     build_eval_transform,
@@ -17,6 +18,7 @@ from src.data import (
 )
 from src.evaluation.metrics import MetricAccumulator
 from src.models import (
+    build_clip_lora_detector,
     build_clip_source_detector,
     build_detector,
     build_ost_training_detector,
@@ -397,6 +399,153 @@ def estimate_bn_fishers(
     }
 
 
+# Fixed offset so anchor calibration draws view randomness from a reproducible
+# stream independent of the training loop's final RNG state.
+CALIBRATION_SEED_OFFSET = 1_000_000
+
+
+def calibrate_score_anchors(
+    model: Any,
+    data_config: dict[str, Any],
+    training: dict[str, Any],
+    device: Any,
+    *,
+    seed: int,
+    val_generator: str,
+) -> dict[str, Any]:
+    """Fit ASCAL's frozen score anchors on the source validation split.
+
+    Two passes over the same validation data: a deterministic single-view pass
+    for the scalar temperature, then a multi-view pass through the same view
+    transform used at deployment for the real Gaussian and fake GMM anchors.
+    """
+
+    import numpy as np
+    import torch
+
+    from src.data.transforms import CLIP_MEAN, CLIP_STD
+    from src.data.views import ASCALViewTransform
+    from src.methods.ascal import (
+        binary_score,
+        fit_gaussian_ml,
+        fit_gmm_bic,
+        fit_temperature,
+    )
+
+    calibration = dict(training.get("calibration") or {})
+    views = int(calibration.get("views", 5))
+    jpeg_qualities = tuple(int(q) for q in calibration.get("jpeg_qualities", (75, 85, 95)))
+    max_samples_per_class = int(calibration.get("max_samples_per_class", 2000))
+    image_size = int(data_config.get("image_size", 224))
+    resize_size = int(data_config.get("resize_size", round(image_size / 0.875)))
+    calibration_seed = seed + CALIBRATION_SEED_OFFSET
+
+    # Pass 1: temperature on the deterministic eval view.
+    seed_everything(calibration_seed)
+    eval_dataset = build_dataset(
+        data_format=data_config["format"],
+        root=data_config.get("val_root", data_config.get("root")),
+        generator=val_generator,
+        split=data_config["val_split"],
+        transform=build_clip_eval_transform(image_size, resize_size=resize_size),
+        max_samples_per_class=max_samples_per_class,
+        seed=seed,
+        exclude_image_paths=excluded_image_paths(data_config, "val"),
+    )
+    eval_loader = build_loader(eval_dataset, data_config, shuffle=False, drop_last=False)
+    model.eval()
+    flat_scores: list[Any] = []
+    flat_labels: list[Any] = []
+    with torch.no_grad():
+        for images, labels, _ in eval_loader:
+            logits = model(images.to(device, non_blocking=True))
+            flat_scores.append(binary_score(logits).cpu().numpy())
+            flat_labels.append(labels.numpy())
+    scores = np.concatenate(flat_scores).astype(np.float64)
+    labels = np.concatenate(flat_labels).astype(np.int64)
+    temperature = fit_temperature(scores, labels)
+
+    # Pass 2: deployment-view aggregation for anchors and admission thresholds.
+    seed_everything(calibration_seed)
+    view_dataset = build_dataset(
+        data_format=data_config["format"],
+        root=data_config.get("val_root", data_config.get("root")),
+        generator=val_generator,
+        split=data_config["val_split"],
+        transform=ASCALViewTransform(
+            views=views,
+            image_size=image_size,
+            resize_size=resize_size,
+            mean=CLIP_MEAN,
+            std=CLIP_STD,
+            jpeg_qualities=jpeg_qualities,
+        ),
+        max_samples_per_class=max_samples_per_class,
+        seed=seed,
+        exclude_image_paths=excluded_image_paths(data_config, "val"),
+    )
+    view_loader = build_loader(view_dataset, data_config, shuffle=False, drop_last=False)
+    view_scores: list[Any] = []
+    view_consistency: list[Any] = []
+    view_labels: list[Any] = []
+    with torch.no_grad():
+        for images, labels, _ in view_loader:
+            if images.dim() != 5:
+                raise RuntimeError("ASCAL calibration expects stacked view tensors")
+            batch, view_count = int(images.shape[0]), int(images.shape[1])
+            flat = images.reshape(batch * view_count, *images.shape[2:])
+            logits = model(flat.to(device, non_blocking=True))
+            margins = (
+                binary_score(logits).view(batch, view_count).cpu().numpy().astype(np.float64)
+            )
+            view_scores.append(margins.mean(axis=1))
+            view_consistency.append(margins.var(axis=1))
+            view_labels.append(labels.numpy())
+    scores = np.concatenate(view_scores)
+    consistency = np.concatenate(view_consistency)
+    labels = np.concatenate(view_labels).astype(np.int64)
+
+    real_mu, real_sigma = fit_gaussian_ml(scores[labels == 0])
+    fake = fit_gmm_bic(
+        scores[labels == 1],
+        max_components=int(calibration.get("fake_max_components", 4)),
+        seed=seed,
+    )
+    probabilities = 1.0 / (1.0 + np.exp(-np.clip(scores / temperature, -60.0, 60.0)))
+    quality = np.abs(probabilities - 0.5)
+    theta_a = float(
+        np.quantile(consistency, float(calibration.get("consistency_quantile", 0.95)))
+    )
+    theta_q = float(
+        np.quantile(quality, 1.0 - float(calibration.get("target_admission_rate", 0.8)))
+    )
+    return {
+        "version": 1,
+        "profile": "ascal_score_anchor_v1",
+        "temperature": float(temperature),
+        "real": {"mu": real_mu, "sigma": real_sigma},
+        "fake": {
+            "weights": fake["weights"],
+            "mus": fake["mus"],
+            "sigmas": fake["sigmas"],
+            "components": fake["components"],
+        },
+        "theta_a": theta_a,
+        "theta_q": theta_q,
+        "anchor_kappa": float(calibration.get("anchor_kappa", 100.0)),
+        "fuse_sigma_multiplier": float(calibration.get("fuse_sigma_multiplier", 3.0)),
+        "views": views,
+        "jpeg_qualities": list(jpeg_qualities),
+        "consistency_quantile": float(calibration.get("consistency_quantile", 0.95)),
+        "target_admission_rate": float(calibration.get("target_admission_rate", 0.8)),
+        "calibration_seed": int(calibration_seed),
+        "source_validation_generator": val_generator,
+        "samples": int(scores.size),
+        "real_samples": int((labels == 0).sum()),
+        "fake_samples": int((labels == 1).sum()),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train a source detector or OST meta-model")
     parser.add_argument("--config", default="configs/train/source.yaml")
@@ -427,17 +576,28 @@ def main() -> None:
 
     image_size = int(data_config.get("image_size", 224))
     clip_source_detector = model_family == "clip_source_detector"
-    train_transform = (
-        build_clip_train_transform(image_size)
-        if clip_source_detector
-        else build_train_transform(image_size)
-    )
+    clip_lora_detector = model_family == "clip_lora_source_detector"
+    clip_family = clip_source_detector or clip_lora_detector
+    if clip_lora_detector:
+        lora_training = config.get("training", {})
+        train_transform = build_clip_lora_train_transform(
+            image_size,
+            jpeg_prob=float(lora_training.get("jpeg_prob", 0.1)),
+            blur_prob=float(lora_training.get("blur_prob", 0.1)),
+            jpeg_quality_range=tuple(lora_training.get("jpeg_quality_range", (70, 95))),
+        )
+    else:
+        train_transform = (
+            build_clip_train_transform(image_size)
+            if clip_source_detector
+            else build_train_transform(image_size)
+        )
     val_transform = (
         build_clip_eval_transform(
             image_size,
             resize_size=int(data_config.get("resize_size", round(image_size / 0.875))),
         )
-        if clip_source_detector
+        if clip_family
         else build_eval_transform(
             image_size,
             resize_before_crop=bool(data_config.get("resize_before_crop", True)),
@@ -467,7 +627,11 @@ def main() -> None:
     val_loader = build_loader(val_dataset, data_config, shuffle=False)
 
     initialization_metadata: dict[str, Any] | None = None
-    if clip_source_detector:
+    if clip_lora_detector:
+        model, initialization_metadata = build_clip_lora_detector(
+            model_config, device=device
+        )
+    elif clip_source_detector:
         model, initialization_metadata = build_clip_source_detector(
             model_config, device=device
         )
@@ -553,6 +717,33 @@ def main() -> None:
     output_root = Path(config["output_dir"])
     write_json(output_root / "effective_config.json", config)
     output_path = output_root / "source.pt"
+    score_anchors = None
+    if training.get("calibration") is not None:
+        if not clip_lora_detector:
+            raise ValueError(
+                "score anchor calibration requires model family clip_lora_source_detector"
+            )
+        score_anchors = calibrate_score_anchors(
+            model,
+            data_config,
+            training,
+            device,
+            seed=seed,
+            val_generator=val_generator,
+        )
+        print(
+            "anchors: "
+            f"tau={score_anchors['temperature']:.4f} "
+            f"real=({score_anchors['real']['mu']:.4f}, {score_anchors['real']['sigma']:.4f}) "
+            f"fake_components={score_anchors['fake']['components']} "
+            f"theta_q={score_anchors['theta_q']:.4f} "
+            f"theta_a={score_anchors['theta_a']:.6f}"
+        )
+    extra_metadata: dict[str, Any] = {}
+    if score_anchors is not None:
+        extra_metadata["score_anchors"] = score_anchors
+        extra_metadata["lora_rank"] = int(getattr(model, "lora_rank", 0))
+        extra_metadata["lora_alpha"] = float(getattr(model, "lora_alpha", 0.0))
     save_checkpoint(
         model,
         output_path,
@@ -571,6 +762,7 @@ def main() -> None:
         initialization=initialization_metadata,
         fisher_parameter_scope=str(training.get("fisher_parameter_scope", "batchnorm")),
         seed=seed,
+        **extra_metadata,
     )
     print(f"saved={output_path}")
 

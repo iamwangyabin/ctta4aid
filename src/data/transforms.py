@@ -51,6 +51,86 @@ def build_clip_train_transform(image_size: int = 224) -> Any:
     )
 
 
+def jpeg_reencode(image: Any, quality: int) -> Any:
+    """Re-encode a PIL image as JPEG in memory and decode it back to RGB."""
+
+    from io import BytesIO
+
+    from PIL import Image
+
+    buffer = BytesIO()
+    image.convert("RGB").save(buffer, format="JPEG", quality=int(quality))
+    buffer.seek(0)
+    return Image.open(buffer).convert("RGB")
+
+
+class _RandomJPEGCompression:
+    """Torchvision-compatible JPEG recompression with a torch-seeded quality."""
+
+    def __init__(self, quality_range: tuple[int, int] = (70, 95)) -> None:
+        low, high = int(quality_range[0]), int(quality_range[1])
+        if not 1 <= low <= high <= 100:
+            raise ValueError("JPEG quality range must satisfy 1 <= min <= max <= 100")
+        self.low = low
+        self.high = high
+
+    def __call__(self, image: Any) -> Any:
+        import torch
+
+        quality = int(torch.randint(self.low, self.high + 1, (1,)).item())
+        return jpeg_reencode(image, quality)
+
+
+def build_clip_lora_train_transform(
+    image_size: int = 224,
+    *,
+    jpeg_prob: float = 0.1,
+    blur_prob: float = 0.1,
+    jpeg_quality_range: tuple[int, int] = (70, 95),
+) -> Any:
+    """CLIP train augmentation with light JPEG/blur degradation for ASCAL's base.
+
+    The degradation branch compresses deployment-time perturbation jitter into
+    the training phase so the calibrated score anchors stay compact.
+    """
+
+    if not 0.0 <= jpeg_prob <= 1.0 or not 0.0 <= blur_prob <= 1.0:
+        raise ValueError("jpeg_prob and blur_prob must be in [0, 1]")
+    transforms = _torchvision_transforms()
+    try:
+        interpolation = transforms.InterpolationMode.BICUBIC
+    except AttributeError:
+        from PIL import Image
+
+        interpolation = Image.BICUBIC
+    operations: list[Any] = [
+        transforms.RandomResizedCrop(
+            image_size, scale=(0.8, 1.0), interpolation=interpolation
+        ),
+        transforms.RandomHorizontalFlip(),
+    ]
+    if jpeg_prob > 0.0:
+        operations.append(
+            transforms.RandomApply(
+                [_RandomJPEGCompression(jpeg_quality_range)], p=jpeg_prob
+            )
+        )
+    if blur_prob > 0.0:
+        operations.append(
+            transforms.RandomApply(
+                [transforms.GaussianBlur(kernel_size=5, sigma=(0.1, 2.0))],
+                p=blur_prob,
+            )
+        )
+    operations.extend(
+        [
+            transforms.ToTensor(),
+            transforms.Normalize(CLIP_MEAN, CLIP_STD),
+        ]
+    )
+    return transforms.Compose(operations)
+
+
 def build_eval_transform(image_size: int = 224, *, resize_before_crop: bool = True) -> Any:
     transforms = _torchvision_transforms()
     resize_size = int(round(image_size / 0.875))

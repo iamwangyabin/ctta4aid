@@ -1,0 +1,63 @@
+# Train ASCAL's method-specific LoRA source detector on GenImage SD v1.4 once.
+# The frozen OpenAI CLIP ViT-L/14 backbone only receives small-rank LoRA
+# branches on visual MLP projections plus a binary head; after training, score
+# anchors are calibrated on the source validation split and stored in the
+# checkpoint. This checkpoint is ASCAL-only and never shared with the public
+# source-detector track.
+seed: 0
+device: auto
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vitl14_lora_ascal_source_train
+
+model:
+  family: clip_lora_source_detector
+  architecture: ViT-L/14
+  checkpoint: ${CLIP_VIT_L14_CHECKPOINT}
+  image_size: 224
+  resize_size: 256
+  lora_rank: 4
+  lora_alpha: 8
+
+data:
+  format: arrow
+  train_root: ${GENIMAGE_SD14_TRAIN_ARROW_ROOT}
+  val_root: ${GENIMAGE_ARROW_ROOT}
+  generator: stable_diffusion_v_1_4
+  train_generator: SDv14
+  val_generator: stable_diffusion_v_1_4
+  train_split: train
+  val_split: test
+  image_size: 224
+  resize_size: 256
+  batch_size: 16
+  num_workers: 8
+  # The offline preflight found these three zero-byte source payloads. They are
+  # excluded before sampling rather than substituted with synthetic pixels.
+  train_exclude_image_paths:
+    - SDv14/train/ai/033_sdv4_00134.png
+    - SDv14/train/ai/033_sdv4_00137.png
+    - SDv14/train/ai/033_sdv4_00152.png
+
+training:
+  profile: ascal_lora_r4_source_detector
+  checkpoint_role: method_specific_source_detector_for_ascal
+  intended_methods: [ascal, ascal_static]
+  epochs: 3
+  max_steps_per_epoch: null
+  optimizer: adamw
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  amp: true
+  compute_fisher: false
+  jpeg_prob: 0.1
+  blur_prob: 0.1
+  jpeg_quality_range: [70, 95]
+  calibration:
+    profile: ascal_score_anchor_v1
+    views: 5
+    jpeg_qualities: [75, 85, 95]
+    max_samples_per_class: 2000
+    fake_max_components: 4
+    consistency_quantile: 0.95
+    target_admission_rate: 0.8
+    anchor_kappa: 100
+    fuse_sigma_multiplier: 3.0

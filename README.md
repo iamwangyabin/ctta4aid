@@ -391,6 +391,35 @@ python run_single_target.py \
 generator identity 和未来样本都不会进入候选筛选、记忆、门控或 adapter loss。完整三 seed
 结果验收前，论文表格仍不得填入 Ours 数值。
 
+## ASCAL（锚定分数校准，独立新方法）
+
+ASCAL 是与 PoundTTA 并存的独立方法轨道：base 为固定 OpenAI CLIP ViT-L/14 + 视觉
+MLP 投影上的小 rank LoRA + 二分类 head（注意力 `out_proj` 不注入 LoRA，因为
+`nn.MultiheadAttention` 走 functional 路径直接消费其权重）。部署时模型参数完全冻结，
+方法只在线维护真/假分数分布的锚定记忆：real 单高斯、fake 多分量 GMM；窗口更新永远以
+source 锚点为 MAP 先验，并由双峰性、入库率和 3σ 漂移保险丝守门。`ascal_static` 与
+`ascal` 加载同一 checkpoint 成对运行，前者关闭入库与更新，两行差值才是在线适应收益。
+
+训练与标定（一次离线完成，温度、锚点、入库阈值全部写入 checkpoint 的
+`score_anchors`；缺失锚点的 checkpoint 会被拒绝启动）：
+
+```bash
+export CLIP_VIT_L14_CHECKPOINT=/weights/ViT-L-14.pt
+export GENIMAGE_SD14_TRAIN_ARROW_ROOT=/data/DF-arrow/SDv14_train
+export GENIMAGE_ARROW_ROOT=/data/DF-arrow/GenImage_test
+python train_source.py --config configs/train/genimage_sd14_clip_vitl14_lora_ascal.yaml
+```
+
+运行时把产物路径暴露给方法配置（`configs/methods/ascal.yaml`），再以任意
+single-target 或 continual 实验配置调用 `ascal_static` / `ascal`：
+
+```bash
+export ASCAL_LORA_SOURCE_CHECKPOINT=/outputs/clip_vitl14_lora_ascal_source_train/source.pt
+```
+
+完整三 seed 结果验收前，论文表格不得填入 ASCAL 数值；其 source setup 属于
+method-specific source training 区块，不与公共源域 detector 区块跨块比较。
+
 ## OST
 
 OST 是独立的逐样本 Adapt-Then-Predict 协议，不加入公共 ResNet-50 的 Controlled CTTA 表。它对每张测试图执行作者论文 Algorithm 1 的核心步骤：从源训练集随机抽取一个带标签模板，生成已知为假的伪样本，用 `{伪样本, 模板}` 的 AM-Softmax loss 做一次 fast-weight 更新，再预测原图。目标 hidden label 始终只进入 evaluator。

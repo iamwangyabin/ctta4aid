@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from .ascal import ASCAL
 from .base import TTAMethod
 from .batclip import BATCLIP
 from .cotta import CoTTA
@@ -49,6 +50,11 @@ def build_method(
         if normalized in {"oursstatic", "poundttastatic"}:
             effective_config.setdefault("adaptation_mode", "static")
         return PoundTTA(model, device, effective_config)
+    if normalized in {"ascal", "ascalstatic"}:
+        effective_config = dict(config)
+        if normalized == "ascalstatic":
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCAL(model, device, effective_config)
     if normalized == "cotta":
         return CoTTA(model, device, config)
     if normalized == "rotta":
@@ -72,6 +78,7 @@ def build_method(
 
 __all__ = [
     "TTAMethod",
+    "ASCAL",
     "BATCLIP",
     "CLIPTTA",
     "DynaPrompt",

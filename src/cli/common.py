@@ -14,6 +14,7 @@ from src.config import deep_merge, method_config, require
 from src.data.ost import OSTTemplateSampler
 from src.methods import build_method
 from src.models import (
+    build_clip_lora_detector,
     build_clip_source_detector,
     build_clip_vlm_detector,
     build_detector,
@@ -140,6 +141,53 @@ def build_fresh_method(
                 "sha256": metadata["clip_checkpoint_sha256"],
             },
         }
+        return method, metadata
+    if normalized_name in {"ascal", "ascalstatic"}:
+        if normalized_name == "ascalstatic":
+            effective_method_config.setdefault("adaptation_mode", "static")
+        model, metadata = build_clip_lora_detector(
+            effective_method_config, device=device
+        )
+        checkpoint_path = str(
+            Path(effective_method_config["source_checkpoint"]).expanduser().resolve()
+        )
+        checkpoint_metadata = load_checkpoint(model, checkpoint_path, device=device)
+        anchors = checkpoint_metadata.get("score_anchors")
+        if not isinstance(anchors, dict):
+            raise ValueError(
+                "ASCAL requires a calibrated LoRA source checkpoint carrying "
+                "score_anchors; train one with "
+                "configs/train/genimage_sd14_clip_vitl14_lora_ascal.yaml"
+            )
+        checkpoint_rank = checkpoint_metadata.get("lora_rank")
+        if checkpoint_rank is not None and int(checkpoint_rank) != int(
+            effective_method_config.get("lora_rank", 4)
+        ):
+            raise ValueError(
+                "ASCAL lora_rank does not match the LoRA source checkpoint"
+            )
+        # Anchors travel inside the effective method config so the evaluator's
+        # reproduction block always records the exact calibration identity.
+        effective_method_config["score_anchors"] = anchors
+        method = build_method(name, model, device, effective_method_config)
+        clip_checkpoint_path = str(
+            Path(effective_method_config["checkpoint"]).expanduser().resolve()
+        )
+        method.source_checkpoint_identity = {
+            "path": checkpoint_path,
+            "sha256": checkpoint_sha256(checkpoint_path),
+        }
+        method.source_model_metadata = {
+            **metadata,
+            **checkpoint_metadata,
+            "task_checkpoint": method.source_checkpoint_identity,
+            "clip_checkpoint": {
+                "path": clip_checkpoint_path,
+                "sha256": checkpoint_sha256(clip_checkpoint_path),
+            },
+        }
+        if hasattr(model, "input_transform") and not hasattr(method, "input_transform"):
+            method.input_transform = model.input_transform
         return method, metadata
 
     require(experiment_config, "model")

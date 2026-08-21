@@ -160,6 +160,8 @@ def main() -> None:
         "oursstatic",
         "poundtta",
         "poundttastatic",
+        "ascal",
+        "ascalstatic",
     }
     normalized_methods = {
         str(name).lower().replace("_", "").replace("-", "")
