@@ -15,6 +15,59 @@ from .utils import (
 )
 
 
+def _layernorm_core_class(official_rotta: Any) -> type:
+    class RoTTALayerNormCore(official_rotta.RoTTA):
+        """Preserve the RoTTA update while accumulating its memory loss."""
+
+        def __init__(self, *args: Any, update_micro_batch_size: int, **kwargs: Any) -> None:
+            super().__init__(*args, **kwargs)
+            self.update_micro_batch_size = update_micro_batch_size
+            self.last_update_microbatches = 0
+
+        def reset(self) -> None:
+            super().reset()
+            self.last_update_microbatches = 0
+
+        def update_model(self) -> None:
+            import torch
+
+            self.model.train()
+            self.model_ema.train()
+            memory_data, ages = self.mem.get_memory()
+            if not memory_data:
+                self.last_update_microbatches = 0
+                self.update_ema_variables(self.model_ema, self.model, self.nu)
+                return
+
+            memory_data = torch.stack(memory_data)
+            strong_augmented = self.transform(memory_data)
+            weights = official_rotta.timeliness_reweighting(
+                ages, memory_data.device
+            )
+            sample_count = int(memory_data.shape[0])
+            self.optimizer.zero_grad()
+            total_loss = torch.zeros((), device=memory_data.device)
+            self.last_update_microbatches = 0
+            for start in range(0, sample_count, self.update_micro_batch_size):
+                stop = min(start + self.update_micro_batch_size, sample_count)
+                with torch.no_grad():
+                    ema_output = self.model_ema(memory_data[start:stop])
+                student_output = self.model(strong_augmented[start:stop])
+                loss_sum = (
+                    official_rotta.softmax_entropy(student_output, ema_output)
+                    * weights[start:stop]
+                ).sum()
+                (loss_sum / sample_count).backward()
+                total_loss += loss_sum.detach()
+                self.last_update_microbatches += 1
+            self.optimizer.step()
+            self.last_loss = float((total_loss / sample_count).cpu())
+            self.update_count += 1
+            self.update_ema_variables(self.model_ema, self.model, self.nu)
+
+    return RoTTALayerNormCore
+
+
 class RoTTA(TTAMethod):
     """Expose RoTTA through Predict-Then-Adapt, with an explicit CLIP-LN port."""
 
@@ -49,7 +102,25 @@ class RoTTA(TTAMethod):
         self.steps = int(self.config.get("steps", 1))
         if self.steps < 1:
             raise ValueError("Official RoTTA requires steps >= 1")
-        self.core = official_rotta.RoTTA(
+        configured_micro_batch_size = self.config.get(
+            "update_micro_batch_size", 2 if self.clip_visual_layernorm else None
+        )
+        self.update_micro_batch_size = (
+            None
+            if configured_micro_batch_size is None
+            else int(configured_micro_batch_size)
+        )
+        if self.update_micro_batch_size is not None and self.update_micro_batch_size < 1:
+            raise ValueError("RoTTA update_micro_batch_size must be positive")
+        core_class = (
+            _layernorm_core_class(official_rotta)
+            if self.update_micro_batch_size is not None
+            else official_rotta.RoTTA
+        )
+        core_kwargs = {
+            "update_micro_batch_size": self.update_micro_batch_size
+        } if self.update_micro_batch_size is not None else {}
+        self.core = core_class(
             self.model,
             self.optimizer,
             num_classes=int(self.config.get("num_classes", 2)),
@@ -61,6 +132,7 @@ class RoTTA(TTAMethod):
             image_size=int(self.config.get("image_size", 224)),
             gaussian_std=float(self.config.get("gaussian_std", 0.005)),
             soft=bool(self.config.get("soft_augmentation", False)),
+            **core_kwargs,
         )
         self._input_mean, self._input_std = model_input_normalization(self.model)
         self._bridge_pixel_transform()
@@ -82,6 +154,8 @@ class RoTTA(TTAMethod):
                 "by OpenAI CLIP visual LayerNorm affine adaptation",
                 "RobustBN source/target statistic interpolation has no LayerNorm "
                 "equivalent and is therefore absent",
+                "the unchanged full CSTU weighted-mean loss is accumulated in "
+                "execution microbatches before one optimizer step and EMA update",
             ]
             if self.clip_visual_layernorm
             else []
@@ -102,6 +176,12 @@ class RoTTA(TTAMethod):
             "stream_batch_size": int(
                 self.config.get("data", {}).get("batch_size", 64)
             ),
+            "update_micro_batch_size": self.update_micro_batch_size,
+            "microbatch_validation": (
+                "unit_tested_against_single_batch_update"
+                if self.update_micro_batch_size is not None
+                else None
+            ),
             "intentional_changes": [
                 "class count changed from CIFAR-10/100 to binary detection",
                 "input resolution changed from CIFAR 32 to common AIGC 224",
@@ -118,6 +198,7 @@ class RoTTA(TTAMethod):
                 "timeliness reweighting",
                 "entropy objective",
                 "official optimizer and update frequency",
+                "single optimizer step and EMA update per full CSTU memory loss",
             ],
         }
 
@@ -158,6 +239,9 @@ class RoTTA(TTAMethod):
                 "memory_occupancy": self.core.mem.get_occupancy(),
                 "memory_per_class": self.core.mem.per_class_dist(),
                 "optimizer_updates": self.core.update_count - updates_before,
+                "last_update_microbatches": getattr(
+                    self.core, "last_update_microbatches", 1
+                ),
                 "instances_seen": self.core.current_instance,
             },
         )

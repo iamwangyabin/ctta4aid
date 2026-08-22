@@ -46,6 +46,7 @@ class OfficialConfigTests(unittest.TestCase):
                 self.assertEqual(methods["rotta"]["nu"], 0.001)
                 self.assertEqual(methods["rotta"]["alpha"], 0.05)
                 self.assertFalse(methods["rotta"]["clip_visual_layernorm"])
+                self.assertIsNone(methods["rotta"]["update_micro_batch_size"])
                 self.assertEqual(
                     methods["rotta"]["layernorm_transfer"]["result_label"],
                     "RoTTA-LN",
@@ -201,6 +202,12 @@ class OfficialConfigTests(unittest.TestCase):
                     )
                     self.assertEqual(
                         config["method_configs"]["rotta"]["data"]["batch_size"],
+                        2,
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["rotta"][
+                            "update_micro_batch_size"
+                        ],
                         2,
                     )
                     self.assertEqual(

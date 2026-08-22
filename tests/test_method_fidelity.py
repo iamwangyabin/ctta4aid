@@ -469,10 +469,12 @@ class MethodFidelityTests(unittest.TestCase):
                 "num_classes": 2,
                 "image_size": 8,
                 "clip_visual_layernorm": True,
+                "update_micro_batch_size": 1,
             },
         )
 
-        self.assertEqual(method.core.__class__.__module__, "src.official.rotta")
+        self.assertIsInstance(method.core, method.official_module.RoTTA)
+        self.assertEqual(method.core.__class__.__name__, "RoTTALayerNormCore")
         self.assertEqual(
             method.normalization_mapping,
             "RobustBatchNorm_to_CLIP_visual_LayerNorm_affine",
@@ -497,11 +499,71 @@ class MethodFidelityTests(unittest.TestCase):
         self.assertEqual(stats.selected, 2)
         self.assertEqual(stats.extra["memory_occupancy"], 2)
         self.assertEqual(stats.extra["optimizer_updates"], 1)
+        self.assertEqual(stats.extra["last_update_microbatches"], 2)
         self.assertTrue(self.torch.isfinite(self.torch.tensor(stats.loss)))
 
         method.reset()
         self.assertEqual(method.core.mem.get_occupancy(), 0)
         self.assertEqual(method.core.transform.mean, model.input_mean)
+        self.assertEqual(method.core.last_update_microbatches, 0)
+
+    def test_rotta_ln_microbatch_matches_single_batch_weighted_mean_update(
+        self,
+    ) -> None:
+        from copy import deepcopy
+
+        from src.methods.rotta import RoTTA
+
+        base_model = self.clip_vlm()
+        common = {
+            "optimizer": "sgd",
+            "lr": 0.001,
+            "momentum": 0.0,
+            "memory_size": 4,
+            "update_frequency": 4,
+            "num_classes": 2,
+            "image_size": 8,
+            "clip_visual_layernorm": True,
+        }
+        single_batch = RoTTA(
+            deepcopy(base_model),
+            "cpu",
+            {**common, "update_micro_batch_size": 4},
+        )
+        microbatched = RoTTA(
+            deepcopy(base_model),
+            "cpu",
+            {**common, "update_micro_batch_size": 1},
+        )
+        single_batch.core.transform = lambda images: images
+        microbatched.core.transform = lambda images: images
+        images = self.torch.randn(4, 3, 8, 8)
+
+        single_batch.predict(images)
+        single_stats = single_batch.adapt(images)
+        microbatched.predict(images)
+        micro_stats = microbatched.adapt(images)
+
+        self.assertEqual(single_batch.core.last_update_microbatches, 1)
+        self.assertEqual(
+            microbatched.core.last_update_microbatches,
+            micro_stats.extra["memory_occupancy"],
+        )
+        self.assertGreater(microbatched.core.last_update_microbatches, 1)
+        self.assertEqual(
+            single_stats.extra["memory_occupancy"],
+            micro_stats.extra["memory_occupancy"],
+        )
+        for name, single_value in single_batch.model.state_dict().items():
+            self.assertTrue(
+                self.torch.allclose(
+                    single_value,
+                    microbatched.model.state_dict()[name],
+                    atol=1e-6,
+                    rtol=1e-5,
+                ),
+                name,
+            )
 
     def test_lame_runs_official_parameter_free_laplacian_output_update(self) -> None:
         from src.methods.lame import LAME

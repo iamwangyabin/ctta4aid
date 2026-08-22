@@ -90,6 +90,9 @@ method_configs:
   rotta:
     capture_initial_state: false
     clip_visual_layernorm: true
+    # Accumulate the unchanged 64-sample CSTU weighted-mean loss and execute
+    # one optimizer/EMA update after all microbatches.
+    update_micro_batch_size: 2
     data:
       # FP32 ViT-L/14 student + EMA teacher + backward activations use about
       # 20 GiB at batch 2 on a 24 GiB RTX 4090. The official instance-based

@@ -542,8 +542,9 @@ def render_dataset_table(
             "mapped to LayerNorm affine parameters. $^{\\ddagger}$RoTTA-LN "
             "explicitly replaces RobustBN with CLIP visual LayerNorm affine "
             "adaptation while retaining CSTU, teacher/student EMA, entropy loss, "
-            "and the 64-instance online update schedule. It uses batch 2 to fit "
-            "the FP32 ViT-L/14 student/teacher pair on 24 GB GPUs and is a "
+            "and the 64-instance online update schedule. It uses stream/update "
+            "microbatch 2 on 24 GB GPUs, accumulating the full weighted-mean loss "
+            "before one optimizer/EMA update, and is a "
             "disclosed ViT transfer, not the original RobustBN method. "
             "Target labels are used only by the evaluator.}",
             "\\end{table*}",
@@ -635,8 +636,9 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
             "logic. $^{\\ddagger}$RoTTA-LN explicitly replaces RobustBN with CLIP "
             "visual LayerNorm affine adaptation while retaining CSTU, "
             "teacher/student EMA, entropy loss, and the online update schedule; "
-            "its batch size is 2 on 24 GB GPUs while the official 64-instance "
-            "update frequency is unchanged. It is a disclosed ViT transfer rather "
+            "its stream/update microbatch is 2 on 24 GB GPUs, while the full "
+            "64-sample weighted-mean loss still receives one optimizer/EMA update. "
+            "It is a disclosed ViT transfer rather "
             "than the original RobustBN method. Target labels are never used for "
             "prompt or hyperparameter "
             "selection.}",

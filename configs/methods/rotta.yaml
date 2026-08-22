@@ -22,6 +22,7 @@ method_configs:
     # The CLIP main experiment overrides this with an explicitly named
     # RoTTA-LN transfer while retaining the official online core.
     clip_visual_layernorm: false
+    update_micro_batch_size: null
     official_symbols:
       NU: 0.001
       MEMORY_SIZE: 64

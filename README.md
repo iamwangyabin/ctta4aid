@@ -87,7 +87,7 @@ CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fish
 | EATA | 公共源域二分类 detector | 可靠/非冗余筛选、熵最小化、Fisher 防遗忘 | `BN -> LN`；Fisher 必须由同一源 checkpoint 与源数据计算 |
 | SAR | 公共源域二分类 detector | 可靠样本筛选、SAM 与恢复机制 | 使用作者公开的 ViT/LayerNorm 路径 |
 | CoTTA | 公共源域二分类 detector | student/EMA teacher、增强平均、随机恢复 | 保留作者全参数更新；只将像素增强的归一化桥接为 CLIP 输入归一化 |
-| RoTTA-LN | 公共源域二分类 detector | CSTU memory、teacher/student、EMA 与熵目标 | 显式以 CLIP visual LayerNorm affine 替代 RobustBN；无统计插值等价物；24 GB GPU 上固定 batch 2、官方 64-instance 更新频率不变，表格不得写成原版 RoTTA |
+| RoTTA-LN | 公共源域二分类 detector | CSTU memory、teacher/student、EMA 与熵目标 | 显式以 CLIP visual LayerNorm affine 替代 RobustBN；无统计插值等价物；24 GB GPU 上 stream/update microbatch 均为 2，完整 64-sample 加权均值只 step/EMA 一次，表格不得写成原版 RoTTA |
 | LAME | 公共源域 detector 的特征与 logits | 参数无关的 Laplacian 输出适配 | 仅接入 CLIP 特征；保留其 batch contract |
 | T2A | 公共源域二分类 detector | 不确定性选择、negative learning、gradient masking | 归一化梯度参照由 BN 最小映射为 LayerNorm，其他逻辑不动 |
 | IAPL | IAPL 原生源训练得到的 CLIP detector | 32 views、2 steps、OIS、逐图 prompt/optimizer reset | 只替换统一数据接口，不改为公共 binary head |

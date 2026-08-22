@@ -69,7 +69,7 @@ src/
 - IAPL 与 Ours 保留各自方法要求的源训练，但底层初始化仍必须来自同一固定 ViT-L/14 权重。主表必须把这类 method-specific source training 与前两组分块披露，不得跨 source setup 加粗全局最佳。
 - TENT、EATA 与 T2A 的公开实现将 BatchNorm 作为关键参数参照时，可最小映射到 CLIP visual LayerNorm affine 参数；目标函数、样本筛选、teacher、Fisher、gradient masking、更新顺序及在线状态不得随之重写，表格与 metadata 必须加脚注披露该必要迁移。CoTTA 保留作者 ImageNet 分支的全参数 student/teacher 更新，只把像素空间增强的归一化桥接为 CLIP 的输入归一化。
 - SAR 使用其官方 ViT LayerNorm 路径；其 ViT-B 最后三块过滤映射到 ViT-L/14 的最后三块必须在 metadata 中披露。
-- RoTTA 在纯 ViT-L/14 主实验中使用经用户明确批准的 `RoTTA-LN` 迁移：只将 RobustBN 的可适应归一化参数替换为 CLIP visual LayerNorm affine 参数，保留 CSTU memory、teacher/student、EMA、entropy objective、optimizer、64-instance 更新频率和在线顺序。RobustBN 的源/目标统计插值没有 LayerNorm 等价物，因此明确缺失；FP32 ViT-L/14 student/teacher 在 24 GB GPU 上固定 batch size 2。表格、配置和 metadata 必须披露这些差异并标为 `RoTTA-LN`，不得冒充原版 RobustBN RoTTA。
+- RoTTA 在纯 ViT-L/14 主实验中使用经用户明确批准的 `RoTTA-LN` 迁移：只将 RobustBN 的可适应归一化参数替换为 CLIP visual LayerNorm affine 参数，保留 CSTU memory、teacher/student、EMA、entropy objective、optimizer、64-instance 更新频率和在线顺序。RobustBN 的源/目标统计插值没有 LayerNorm 等价物，因此明确缺失；FP32 ViT-L/14 student/teacher 在 24 GB GPU 上固定 stream batch 与 update microbatch size 2，但完整 64-sample weighted-mean loss 仍只执行一次 optimizer step 和 EMA update。表格、配置和 metadata 必须披露这些差异并标为 `RoTTA-LN`，不得冒充原版 RobustBN RoTTA。
 - EATA 必须有与公共源域 CLIP detector 匹配的 source Fisher 才可标为 EATA；没有 Fisher 的运行只能标为 ETA 消融。
 - TTC 在作者公开实现可固定前只保留在 related work，不得出现在定量表中，也不得用项目自写实现生成复现数值。
 - 主表按“公共源域 CLIP detector”“CLIP-native”“method-specific source training”分块；只有前两块可分别在块内比较最佳结果。
