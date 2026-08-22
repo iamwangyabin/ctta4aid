@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
@@ -570,6 +571,44 @@ class ASCALGMMMethodTests(unittest.TestCase):
             "cpu",
             {"score_anchors": self.anchors()},
         )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_density_shift_with_the_ascal_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import ASCALGMMDensityShift
+
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {
+                "ascal_gmm_density_shift_static": {"adaptation_mode": "static"},
+            },
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(
+                config,
+                "ascal_gmm_density_shift_static",
+                "cpu",
+            )
+
+        self.assertIsInstance(method, ASCALGMMDensityShift)
         self.assertEqual(method.adaptation_mode, "static")
 
 
