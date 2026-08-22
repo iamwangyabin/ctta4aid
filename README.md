@@ -1,13 +1,13 @@
 # Online TTA for AI-Generated Image Detection
 
-这是一个用于 AI 生成图像检测的在线测试时适应项目。论文专项只纳入有作者公开实现的方法，当前保留四条实验轨道：
+这是一个用于 AI 生成图像检测的在线测试时适应项目。论文专项只纳入有作者公开实现的方法，当前保留四条方法轨道，并将 `matched_jpeg` 固定为正文 target 输入协议：
 
-- **CLIP ViT-L/14 论文主实验**：唯一预训练模型固定为 OpenAI CLIP ViT-L/14，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上按方法原生训练及适配方式比较通用 TTA、CLIP-native 与任务专用方法，只做接入 ViT-L/14 和二分类数据所必需的最小修改。
+- **CLIP ViT-L/14 论文主实验**：唯一预训练模型固定为 OpenAI CLIP ViT-L/14，正式 target 输入固定为 `matched_jpeg`，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上按方法原生训练及适配方式比较通用 TTA、CLIP-native 与任务专用方法，只做接入 ViT-L/14 和二分类数据所必需的最小修改。
 - **Controlled CTTA 补充实验**：Source、TENT、EATA、CoTTA、RoTTA、LAME 和 T2A 共用同一个 ResNet-50 源模型，保留为 CNN 对照与补充材料。
 - **IAPL 独立能力**：从同一 CLIP ViT-L/14 预训练底座按 IAPL 原生源训练流程得到任务 checkpoint，再按逐图 Adapt-Then-Predict 协议运行；主表中必须显式标出其 source setup 与 Frozen CLIP 不同。
 - **OST 补充实验**：使用作者的 MetaXception、AM-Softmax 和单步 fast weights；每张测试图从源训练集抽取带标签模板，合成伪样本后 Adapt-Then-Predict。
 
-已确认的 ResNet-50 结果仍按独立目录保存在 `results/`，只提交最终汇总、复现身份和结论，不提交运行日志或中间产物。新的 CLIP 主表结果必须写入新的 `results/clip_vlm_*` 目录，绝不覆盖这些补充材料。
+已确认的 ResNet-50 结果仍按独立目录保存在 `results/`，只提交最终汇总、复现身份和结论，不提交运行日志或中间产物。新的 CLIP 正文结果必须写入明确标识 `matched_jpeg` 的 `results/clip_vlm_bias_controlled_*` 目录，绝不覆盖这些补充材料。
 
 ## 项目结构
 
@@ -63,6 +63,12 @@ pip install -e ".[dev]"
 batch/views、状态转移、预测/适应顺序和 prompt 构造，只做接入固定 ViT-L/14 与二分类
 数据所必需的最小修改。
 
+正文的正式 target 输入采用 `matched_jpeg` profile：real 与 fake 都执行相同的
+256x256 center-crop/resize，再从 75/80/85/90/95 中按不含类别目录的逻辑路径
+确定性选择 JPEG 质量。原始编码与 `all_jpeg_q90` 只作为独立补充审计，不能与
+`matched_jpeg` 主结果混表。四个数据集的逐 target AUC 与 Accuracy 详细表均保留在正文；
+版面压缩在结果完整后再处理。
+
 主表按 source setup 分为三个区块：
 
 | 区块 | 起点 | 方法 | 比较规则 |
@@ -117,8 +123,10 @@ python scripts/summarize_clip_vlm_results.py \
 从完整 GenImage SD v1.4 训练集微调一次：3 epoch、全 visual tower 和二分类 head、
 AdamW、CLIP 训练增强，并在相同 source checkpoint 的干净 source holdout 上计算 EATA
 所需的 LayerNorm Fisher。这个 checkpoint 在全部三个 online seed 和所有公共 detector
-方法之间共享。`configs/experiments/clip_vlm/` 是正式入口；每种方法的分类器或 prompt
-构造、可训练参数、batch/views、更新步数、状态重置和预测/适应顺序均由其方法配置锁定。
+方法之间共享。每种方法的分类器或 prompt 构造、可训练参数、batch/views、更新步数、
+状态重置和预测/适应顺序均由其方法配置锁定。`configs/experiments/clip_vlm/` 提供这些
+方法原生基础配置，正文正式运行入口是
+`configs/experiments/clip_vlm_bias_controlled/matched_jpeg_<dataset>_seed<seed>.yaml`。
 训练配置还固定排除了 preflight 检出的三条零字节 SD v1.4 源图逻辑路径；不会用空白或
 合成像素替代损坏样本。
 八张新表在完整三 seed campaign 验收前仍全部保持空白；此前完成的 ResNet-50 数值表原样
@@ -129,27 +137,28 @@ AdamW、CLIP 训练增强，并在相同 source checkpoint 的干净 source hold
 
 ```bash
 python scripts/summarize_clip_vlm_results.py \
-  --dataset genimage=/data/experiments/clip_vlm/genimage \
-  --dataset aigc_detection_benchmark=/data/experiments/clip_vlm/aigc_detection_benchmark \
-  --dataset aigi_holmes_p3=/data/experiments/clip_vlm/aigi_holmes_p3 \
-  --dataset opensdid_global=/data/experiments/clip_vlm/opensdid_global \
-  --output-dir /data/results/clip_vlm_vitl14
+  --dataset genimage=/data/experiments/clip_vlm_bias_controlled/matched_jpeg/genimage \
+  --dataset aigc_detection_benchmark=/data/experiments/clip_vlm_bias_controlled/matched_jpeg/aigc_detection_benchmark \
+  --dataset aigi_holmes_p3=/data/experiments/clip_vlm_bias_controlled/matched_jpeg/aigi_holmes_p3 \
+  --dataset opensdid_global=/data/experiments/clip_vlm_bias_controlled/matched_jpeg/opensdid_global \
+  --output-dir /data/results/clip_vlm_bias_controlled_matched_jpeg_vitl14
 ```
 
-## JPEG 偏差控制复现实验
+## Matched-JPEG 正文协议与编码审计
 
-原始编码的 CLIP campaign 不覆盖、不改名。新的复现实验只替换 target Arrow 中的图像
-字节，模型 checkpoint、source setup、方法原生配置、锁定样本身份与顺序、三个 seed、阈值
-和 evaluator 都继承 `configs/experiments/clip_vlm/`。当前固定两个互不混用的 profile：
+`matched_jpeg` 是 CLIP ViT-L/14 正文主实验的正式输入协议。原始编码的 CLIP campaign
+不覆盖、不改名，降为补充对照；`all_jpeg_q90` 也是独立敏感性审计。各 profile 只替换
+target Arrow 中的图像字节，模型 checkpoint、source setup、方法原生配置、锁定样本身份与
+顺序、三个 seed、阈值和 evaluator 都继承 `configs/experiments/clip_vlm/`。
 
 | Profile | 所有 real/fake 共同处理 | 用途 |
 |---|---|---|
 | `all_jpeg_q90` | EXIF orientation、RGB、JPEG Q90；保留视觉尺寸 | 单一质量的编码格式敏感性审计 |
-| `matched_jpeg` | EXIF orientation、RGB、center-crop/resize 到 256x256；从 75/80/85/90/95 中按不含类别目录的逻辑路径确定性取值 | 同分布压缩与固定几何审计 |
+| `matched_jpeg` | EXIF orientation、RGB、center-crop/resize 到 256x256；从 75/80/85/90/95 中按不含类别目录的逻辑路径确定性取值 | 正文主实验的编码与几何匹配协议 |
 
 两套处理都不能只压缩 fake。`matched_jpeg` 的质量选择不读取二分类标签；同名 real/fake
 逻辑样本会得到相同质量。原始 JPEG 会被再次编码，因此仍可能有 double-compression，
-这是一项偏差控制审计，不等价于证明所有数据偏差已经消失。
+因此正文将它准确描述为编码与几何匹配协议，不声称所有数据偏差已经消失。
 
 每个原始 Arrow 根分别离线转换，输出路径必须显式包含 profile 名。转换不覆盖输入，并在
 根目录和每个 bundle 写入 `bias_control_manifest.json`：
@@ -194,8 +203,8 @@ python run_single_target.py \
 运行前会同时校验配置 profile、bundle 规范哈希和输出路径。输出固定写到
 `${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/<profile>/<dataset>/seed<seed>`；
 任何缺失、错配或试图写回原始 `clip_vlm/` 目录的运行都会直接失败。四数据集三 seed
-完整验收前，`all_jpeg_q90` 与 `matched_jpeg` 都不替换原始论文表；完成后也必须按 profile
-分别汇总。
+完整验收前，正文八张详细表仍保持空白；验收后只填入 `matched_jpeg` 汇总。原始编码与
+`all_jpeg_q90` 必须按 profile 分别汇总并仅作为补充结果。
 
 ## Controlled CTTA 补充实验
 

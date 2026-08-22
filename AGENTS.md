@@ -6,13 +6,13 @@
 
 ## 1. 项目范围
 
-项目必须同时保留四条实验轨道：
+项目必须同时保留五条实验轨道：
 
-1. **CLIP ViT-L/14 论文主实验**：唯一预训练模型固定为 OpenAI CLIP ViT-L/14，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上报告方法原生的在线结果。候选方法为 Source、TENT、EATA、SAR、CoTTA、RoTTA、LAME、T2A、Frozen CLIP、TDA、DynaPrompt、CLIPTTA、BATCLIP、IAPL、TTC 和 Ours；只有满足下述最小迁移与公开实现约束的方法才产生数值。
+1. **CLIP ViT-L/14 论文主实验**：唯一预训练模型固定为 OpenAI CLIP ViT-L/14，正式 target 输入固定为 `matched_jpeg` profile，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上报告方法原生的在线结果。候选方法为 Source、TENT、EATA、SAR、CoTTA、RoTTA、LAME、T2A、Frozen CLIP、TDA、DynaPrompt、CLIPTTA、BATCLIP、IAPL、TTC 和 Ours；只有满足下述最小迁移与公开实现约束的方法才产生数值。四个数据集的逐 target AUC 与 Accuracy 详细表均属于正文主结果，版面压缩问题后续单独处理。
 2. **Controlled CTTA 补充实验**：公共 ResNet-50 checkpoint 下的 Source、TENT、EATA、CoTTA、RoTTA、LAME 和 T2A。已确认结果保持不可变，作为 CNN 对照与补充材料，不再作为论文主表。
 3. **IAPL 补充轨道**：CLIP ViT-L/14、逐图 Adapt-Then-Predict 的独立方法能力；主表若列出 IAPL，必须标注其作者发布的任务 checkpoint，不能写成与 Frozen CLIP 相同的 source state。
 4. **OST 补充实验**：MetaXception、源训练模板、逐图一次 fast-weight 更新的独立方法轨道。
-5. **JPEG 偏差控制复现实验**：保留 CLIP ViT-L/14 主实验的模型、方法原生协议、目标样本身份、顺序和三个 seed，只将 target Arrow 离线复制为明确标识的 `all_jpeg_q90` 或 `matched_jpeg` profile。原始 Arrow 和原始编码结果不得覆盖或混入该轨道。
+5. **JPEG 输入协议与补充审计**：`matched_jpeg` 是 CLIP ViT-L/14 正文主实验的正式输入协议；原始编码和 `all_jpeg_q90` 仅作为分离的补充敏感性审计。三者必须保留独立 Arrow、运行目录、metadata 和汇总，任何结果不得互相覆盖或混入。
 
 IAPL 和 OST 都是正式项目能力。不得因为当前机器缺少权重或当前没有结果，就把其配置、核心、loader、方法、测试、依赖或说明判定为垃圾。论文专项方法只加入有作者公开实现且来源可固定的方法；没有作者公开实现的方法不得用项目自写实现冒充复现。TTC 在作者公开实现可固定前只能作为 related work，不得生成量化复现行。
 
@@ -44,7 +44,7 @@ src/
 - `configs/protocols/`：Single-target 与 Continual 协议。
 - `configs/methods/`：方法参数。
 - `configs/experiments/`：组合配置、seed 和输出目录。
-- `configs/experiments/clip_vlm_bias_controlled/`：JPEG 偏差控制复现实验的独立入口。
+- `configs/experiments/clip_vlm_bias_controlled/`：正文 `matched_jpeg` 主实验及 JPEG 补充审计的独立入口。
 - `configs/train/`：源模型训练配置。
 
 这些层级是职责分离，不得为了减少目录数量而混放或合并。
@@ -62,6 +62,7 @@ src/
 ### CLIP VLM 主实验
 
 - backbone 固定为 OpenAI CLIP ViT-L/14，checkpoint SHA-256 固定为 `b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836`。
+- 正文主结果固定使用 `matched_jpeg` target profile：real 与 fake 执行相同的 256x256 center-crop/resize，并从 `[75, 80, 85, 90, 95]` 按不含类别目录的逻辑路径确定性选择 JPEG 质量。原始编码与 `all_jpeg_q90` 不得替换或混入正文主表。
 - 所有方法共享目标样本身份、目标内顺序、三个正式 seed 与 target-label embargo；各方法保留论文原生的 source training、batch/views、状态转移、预测/适应顺序和 prompt 构造，只做接入固定 CLIP、二分类数据与统一 evaluator 所必需的改动。
 - 通用检测器适配方法 Source、TENT、EATA、SAR、CoTTA、LAME 与 T2A 必须共享一个从固定 ViT-L/14 权重开始训练的源域二分类 checkpoint。它们不得被强行改成固定文本 prompt 分类器。
 - CLIP-native 方法 Frozen CLIP、TDA、DynaPrompt、CLIPTTA 与 BATCLIP 直接从相同预训练 checkpoint 出发，保留各自论文的文本分类器、template 或 prompt learner。它们只共享二分类类别语义，不共享一条人为固定的最终 prompt；不得使用目标标签选择文本或超参数。
@@ -75,7 +76,7 @@ src/
 - 四个数据集必须分别生成逐 target 的 AUC 表和 Accuracy 表，不能只报告数据集级平均值。target 列及顺序固定为现有数据配置；Accuracy 使用阈值 0.5。每个 target 单元格报告三个正式 seed 的均值，Mean 报告 target-macro 均值及跨 seed 标准差。
 - 新 CLIP ViT-L/14 表格在完整三 seed campaign 验收前不得出现任何实验数值。既有 ResNet-50 数值表必须原样保留在论文补充材料中，并明确标为上一轮 CNN controlled results，不得与新 CLIP 结果混写。
 - 每个 `method x target x seed` 必须重新构建方法；单目标结果使用已确认的 online manifest 锁定样本身份，批大小变化不得改变样本顺序。
-- `configs/experiments/clip_vlm/` 是经审定的正式入口：公共 detector 组加载同一 SD v1.4 源训练 checkpoint；CLIP-native 组加载各自声明的文本分类器或 prompt profile；IAPL 加载作者任务 checkpoint。启动前必须完成对应 GPU smoke test，并在结果 metadata 中记录该 profile。
+- `configs/experiments/clip_vlm/` 定义方法原生的公共基础配置；经审定的正文正式入口为 `configs/experiments/clip_vlm_bias_controlled/matched_jpeg_<dataset>_seed<seed>.yaml`。公共 detector 组加载同一 SD v1.4 源训练 checkpoint；CLIP-native 组加载各自声明的文本分类器或 prompt profile；IAPL 加载作者任务 checkpoint。启动前必须完成对应 GPU smoke test，并在结果 metadata 中记录 `matched_jpeg` profile identity。
 
 ### Controlled CTTA 补充实验
 
@@ -88,15 +89,15 @@ src/
 - EATA 默认必须加载源域 Fisher；没有 Fisher 的运行只能标作 ETA 消融。
 - 不得静默修改目标域列表、stream 顺序、采样数量、指标定义、阈值或三个正式 seed。
 
-### JPEG 偏差控制复现实验
+### JPEG 输入协议与补充审计
 
-- 原始 `clip_vlm` campaign 保持不变；偏差控制运行只能写入 `clip_vlm_bias_controlled/<profile>/<dataset>/seed<seed>`，不得写入或读取原始 campaign 的运行目录。
+- `matched_jpeg` campaign 是论文正文主实验；只能写入 `clip_vlm_bias_controlled/matched_jpeg/<dataset>/seed<seed>`。原始 `clip_vlm` campaign 保持不变并降为补充对照，不得写入、读取或补齐正文主实验目录。
 - `all_jpeg_q90` 对 real 和 fake 都执行 EXIF orientation、RGB canonicalization 和单次 JPEG Q90 编码，保留视觉尺寸；不得只压缩 fake。
 - `matched_jpeg` 对 real 和 fake 都执行相同的 256x256 center-crop/resize，再从固定 `[75, 80, 85, 90, 95]` 质量集合按不含类别目录的逻辑路径确定性取值；质量选择不得读取二分类标签。
 - 两个 profile 都只改变 target image bytes。模型 checkpoint、source setup、方法配置、target/sample identity、锁定顺序、seed、阈值和 evaluator 必须继承对应的 `configs/experiments/clip_vlm/` 正式入口。
 - 每个转换后 bundle 必须包含 `bias_control_manifest.json`，记录 profile 规范哈希、逻辑路径哈希、输入/输出字节哈希、格式、质量和几何统计；运行配置和 loader 必须验证 profile，缺失或不匹配时拒绝启动。
-- 原始 JPEG 再编码会产生 double-compression，因而该实验是编码/尺寸偏差控制审计，不得声称完全消除了所有数据集偏差。
-- `all_jpeg_q90` 作为固定质量敏感性审计；`matched_jpeg` 作为候选正式去偏设置。任何 profile 在四个数据集三个 seed 全量验收前不得替换论文主结果，原始编码结果后续可独立放入补充材料但不得与新结果混表。
+- 原始 JPEG 再编码会产生 double-compression；正文必须将 `matched_jpeg` 准确描述为编码与几何匹配协议，不得声称它完全消除了所有数据集偏差。
+- `matched_jpeg` 是正式正文设置，`all_jpeg_q90` 与原始编码仅作为补充敏感性对照。正文表格仍须在四个数据集三个 seed 全量验收前保持空白；全量验收后只填入 `matched_jpeg` 汇总，其他 profile 不得混表。
 
 ### IAPL
 
@@ -135,8 +136,8 @@ src/
 当前没有冻结的正式结果。新的实验完成后，`results/` 只接收最终结果：
 
 - `results/controlled_ctta_genimage_20260812/` 与 `results/controlled_ctta_external_20260816/` 是已确认的 ResNet-50 补充材料；不得移动、覆盖、重算后回写或改动其 JSON 数值。
-- CLIP VLM 主表必须写入新的、明确命名的 `results/clip_vlm_*` 目录，并保留 per-seed summary、跨 seed summary、CLIP checkpoint 身份、每种方法的分类器或 prompt 构造、source setup 与最终总表。
-- JPEG 偏差控制结果必须写入新的 `results/clip_vlm_bias_controlled_*` 目录，并在每个最终汇总中保留 profile 名称与规范哈希；不同 profile 及原始编码结果不得合并汇总。
+- CLIP VLM 正文主表必须写入新的、明确命名的 `results/clip_vlm_bias_controlled_*` 目录，并保留 `matched_jpeg` profile 名称与规范哈希、per-seed summary、跨 seed summary、CLIP checkpoint 身份、每种方法的分类器或 prompt 构造、source setup 与最终总表。
+- 原始编码与 `all_jpeg_q90` 补充结果必须写入各自明确命名的结果目录；不同 profile 不得合并汇总，也不得回填正文 `matched_jpeg` 表。
 - 正式结果至少保留 per-seed summary、跨 seed summary、源模型记录和最终总表。
 - 结果文件一旦确认，不得修改已有 JSON 数值来匹配后续代码变化。
 - 不得覆盖已经确认的结果；新实验必须写入新的、明确命名的结果文件。
