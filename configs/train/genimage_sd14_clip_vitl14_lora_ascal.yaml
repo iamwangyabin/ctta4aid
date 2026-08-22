@@ -47,6 +47,8 @@ training:
     - ascal_gmm_static
     - ascal_gmm_shift
     - ascal_gmm_shift_static
+    - ascal_gmm_median_shift
+    - ascal_gmm_median_shift_static
   epochs: 3
   max_steps_per_epoch: null
   optimizer: adamw

@@ -80,6 +80,37 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertNotIn("window_size", adaptive)
                 self.assertNotIn("gates", adaptive)
 
+    def test_median_shift_seed1_configs_add_no_stability_knobs(self) -> None:
+        from src.config import load_config, method_config
+
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / f"matched_jpeg_ascal_gmm_median_shift_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    ["ascal_gmm_median_shift_static", "ascal_gmm_median_shift"],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertEqual(config["data"]["bias_control_profile"], "matched_jpeg")
+                self.assertIn(
+                    "clip_vlm_bias_controlled/matched_jpeg/"
+                    f"ascal_gmm_median_shift/{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(config, "ascal_gmm_median_shift")
+                for key in ("ema", "momentum", "window_size", "gates", "threshold"):
+                    self.assertNotIn(key, adaptive)
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -90,6 +121,11 @@ class ASCALGMMConfigTests(unittest.TestCase):
         self.assertIn("ascal_gmm_static", config["training"]["intended_methods"])
         self.assertIn("ascal_gmm_shift", config["training"]["intended_methods"])
         self.assertIn("ascal_gmm_shift_static", config["training"]["intended_methods"])
+        self.assertIn("ascal_gmm_median_shift", config["training"]["intended_methods"])
+        self.assertIn(
+            "ascal_gmm_median_shift_static",
+            config["training"]["intended_methods"],
+        )
 
 
 @unittest.skipUnless(TORCH_AVAILABLE, "PyTorch is required to import the methods package")
@@ -198,6 +234,18 @@ class ASCALGMMMethodTests(unittest.TestCase):
         from src.methods.ascal_gmm import ASCALGMMShift
 
         return ASCALGMMShift(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def median_shift_method(self, *, adaptation_mode: str = "full"):
+        from src.methods.ascal_gmm import ASCALGMMMedianShift
+
+        return ASCALGMMMedianShift(
             self.detector(),
             "cpu",
             {
@@ -351,6 +399,62 @@ class ASCALGMMMethodTests(unittest.TestCase):
 
         method = build_method(
             "ascal_gmm_shift_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_median_shift_rejects_a_latest_boundary_outlier(self) -> None:
+        method = self.median_shift_method()
+        for means in ([-10.0, 0.0], [-8.0, 0.0], [-6.0, 0.0], [10.0, 30.0]):
+            method._mixture = {
+                "weights": [0.5, 0.5],
+                "mus": means,
+                "sigmas": [1.0, 1.0],
+                "components": 2,
+                "bic": 0.0,
+            }
+            method._after_successful_fit()
+
+        scores = np.array([-4.0, 0.0, 4.0])
+        prediction = method.predict(self.score_batch(scores))
+        expected = 1.0 / (1.0 + np.exp(-(scores + 3.5)))
+        np.testing.assert_allclose(prediction.prob_fake.numpy(), expected, atol=1e-6)
+        self.assertAlmostEqual(method._pending["prediction_candidate_boundary"], 20.0)
+        self.assertAlmostEqual(method._pending["prediction_boundary"], -3.5)
+
+        stats = method._state_stats()
+        self.assertEqual(stats["boundary_samples"], 4)
+        self.assertAlmostEqual(stats["candidate_boundary"], 20.0)
+        self.assertAlmostEqual(stats["stabilized_boundary"], -3.5)
+        self.assertAlmostEqual(stats["decision_boundary"], -3.5)
+
+    def test_median_shift_fit_is_causal_and_reset_clears_boundaries(self) -> None:
+        rng = np.random.default_rng(6)
+        scores = np.concatenate(
+            [rng.normal(-8.0, 0.2, 80), rng.normal(-2.0, 0.2, 80)]
+        )
+        method = self.median_shift_method()
+        method.predict(self.score_batch(scores))
+        stats = method.adapt(self.score_batch(scores))
+        self.assertEqual(stats.extra["prediction_mode"], "source_fallback")
+        self.assertEqual(stats.extra["boundary_samples"], 1)
+        self.assertAlmostEqual(
+            float(stats.extra["decision_boundary"]),
+            float(stats.extra["candidate_boundary"]),
+        )
+
+        method.predict(self.score_batch(np.array([-8.0, -2.0])))
+        self.assertEqual(method._pending["prediction_mode"], "median_gmm_shift")
+        method.reset()
+        self.assertEqual(method.boundary_history, [])
+
+    def test_method_factory_maps_median_shift_static_alias(self) -> None:
+        from src.methods import build_method
+
+        method = build_method(
+            "ascal_gmm_median_shift_static",
             self.detector(),
             "cpu",
             {"score_anchors": self.anchors()},

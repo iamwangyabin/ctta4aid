@@ -457,6 +457,14 @@ real、高分连续块视为 fake，并取该间隔两端均值的中点作为�
 阈值或融合超参数，并与 `ascal_gmm_shift_static` 成对运行。seed1 诊断入口位于
 `matched_jpeg_ascal_gmm_shift_*_seed1.yaml`，完整三 seed 验收前仍不得进入正文主表。
 
+`ascal_gmm_median_shift` 保留同一个最大间隔候选边界，但不允许最新一次拟合直接替换部署
+边界。每次多分量 GMM 拟合成功后，只把因果候选边界追加到历史中；下一批预测使用全部
+历史候选边界的累计中位数。它不需要 EMA 系数、稳定窗口或截断阈值，并能抑制 BIC 分量
+重排造成的单批边界跳变。当前 GMM 退回单分量时仍精确使用 source 输出。该变体与
+`ascal_gmm_median_shift_static` 成对运行，seed1 诊断入口位于
+`matched_jpeg_ascal_gmm_median_shift_*_seed1.yaml`，同样不能在三 seed 验收前进入正文
+主表。
+
 ## OST
 
 OST 是独立的逐样本 Adapt-Then-Predict 协议，不加入公共 ResNet-50 的 Controlled CTTA 表。它对每张测试图执行作者论文 Algorithm 1 的核心步骤：从源训练集随机抽取一个带标签模板，生成已知为假的伪样本，用 `{伪样本, 模板}` 的 AM-Softmax loss 做一次 fast-weight 更新，再预测原图。目标 hidden label 始终只进入 evaluator。

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from .ascal import ASCAL
-from .ascal_gmm import ASCALGMM, ASCALGMMShift
+from .ascal_gmm import ASCALGMM, ASCALGMMMedianShift, ASCALGMMShift
 from .base import TTAMethod
 from .batclip import BATCLIP
 from .cotta import CoTTA
@@ -66,6 +66,11 @@ def build_method(
         if normalized == "ascalgmmshiftstatic":
             effective_config.setdefault("adaptation_mode", "static")
         return ASCALGMMShift(model, device, effective_config)
+    if normalized in {"ascalgmmmedianshift", "ascalgmmmedianshiftstatic"}:
+        effective_config = dict(config)
+        if normalized == "ascalgmmmedianshiftstatic":
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMMedianShift(model, device, effective_config)
     if normalized == "cotta":
         return CoTTA(model, device, config)
     if normalized == "rotta":
@@ -91,6 +96,7 @@ __all__ = [
     "TTAMethod",
     "ASCAL",
     "ASCALGMM",
+    "ASCALGMMMedianShift",
     "ASCALGMMShift",
     "BATCLIP",
     "CLIPTTA",

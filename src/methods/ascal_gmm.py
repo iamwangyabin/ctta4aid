@@ -4,7 +4,9 @@ BIC decides whether arrived unlabeled scores support one or more components.
 The original readout treats the lowest component as real and sums all other
 responsibilities as fake. The monotone-shift readout instead finds the largest
 gap between component means, uses it as the real/fake block boundary, and only
-shifts the source score. A one-component fit falls back to the source detector.
+shifts the source score. Its median-shift variant stabilizes that boundary with
+the cumulative median of all causal boundary estimates. A one-component fit
+falls back to the source detector.
 """
 
 from __future__ import annotations
@@ -217,6 +219,9 @@ class ASCALGMM(TTAMethod):
             "fit_failures": self._fit_failures,
         }
 
+    def _after_successful_fit(self) -> None:
+        """Allow readout variants to record state before adaptation is reported."""
+
     def adapt(self, images: Any) -> AdaptationStats:
         del images
         if self.adaptation_mode == "static":
@@ -246,6 +251,7 @@ class ASCALGMM(TTAMethod):
                     seed=0,
                 )
                 self._refits += 1
+                self._after_successful_fit()
             except (FloatingPointError, RuntimeError, ValueError) as exc:
                 self._fit_failures += 1
                 fit_error = f"{type(exc).__name__}: {exc}"
@@ -326,8 +332,92 @@ class ASCALGMMShift(ASCALGMM):
         return self._prediction_batch(scores, probability, **pending_state)
 
 
+class ASCALGMMMedianShift(ASCALGMMShift):
+    """Stabilize causal GMM boundaries with their cumulative median."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.boundary_history: list[float] = []
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": "unlabeled_median_stabilized_monotone_score_shift",
+                "boundary_stabilization": (
+                    "cumulative_median_of_all_causal_dominant_gap_boundaries"
+                ),
+                "prediction_rule": (
+                    "sigmoid((source_margin-causal_boundary_median)"
+                    "/source_temperature)"
+                ),
+                "hyperparameter_rule": "no_new_stabilization_hyperparameters",
+            }
+        )
+        return metadata
+
+    def _after_successful_fit(self) -> None:
+        if self._mixture_active():
+            partition = dominant_gap_boundary(self._mixture)
+            self.boundary_history.append(float(partition["decision_boundary"]))
+
+    def _stabilized_boundary(self, candidate: float) -> float:
+        if not self.boundary_history:
+            return float(candidate)
+        return float(np.median(np.asarray(self.boundary_history, dtype=np.float64)))
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        candidate = stats["decision_boundary"]
+        historical = (
+            None
+            if not self.boundary_history
+            else float(np.median(np.asarray(self.boundary_history, dtype=np.float64)))
+        )
+        stats.update(
+            {
+                "candidate_boundary": candidate,
+                "stabilized_boundary": historical,
+                "decision_boundary": (
+                    None
+                    if candidate is None
+                    else self._stabilized_boundary(float(candidate))
+                ),
+                "boundary_samples": len(self.boundary_history),
+            }
+        )
+        return stats
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores = self._batch_scores(images)
+        if self.adaptation_mode == "full" and self._mixture_active():
+            partition = dominant_gap_boundary(self._mixture)
+            candidate = float(partition["decision_boundary"])
+            boundary = self._stabilized_boundary(candidate)
+            probability = self._source_probability(scores - boundary)
+            pending_state = {
+                "prediction_mode": "median_gmm_shift",
+                "prediction_boundary": boundary,
+                "prediction_candidate_boundary": candidate,
+                "prediction_real_components": int(partition["real_components"]),
+                "prediction_fake_components": int(partition["fake_components"]),
+            }
+        else:
+            probability = self._source_probability(scores)
+            pending_state = {
+                "prediction_mode": "source_fallback",
+                "prediction_boundary": 0.0,
+                "prediction_candidate_boundary": None,
+                "prediction_real_components": 0,
+                "prediction_fake_components": 0,
+            }
+        return self._prediction_batch(scores, probability, **pending_state)
+
+
 __all__ = [
     "ASCALGMM",
+    "ASCALGMMMedianShift",
     "ASCALGMMShift",
     "asymmetric_fake_posterior",
     "dominant_gap_boundary",
