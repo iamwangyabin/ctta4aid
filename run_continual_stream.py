@@ -172,6 +172,8 @@ def main() -> None:
         "ascalgmmdensityshiftstatic",
         "ascalgmmsegmentedshift",
         "ascalgmmsegmentedshiftstatic",
+        "ascalgmmsegmentedhandoffshift",
+        "ascalgmmsegmentedhandoffshiftstatic",
     }
     normalized_methods = {
         str(name).lower().replace("_", "").replace("-", "")

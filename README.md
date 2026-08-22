@@ -485,6 +485,16 @@ batch 只是一次时间观测，至少连续两批才构成最小的持续变�
 对照入口为 `matched_jpeg_ascal_gmm_segmented_shift_continual_*_seed1.yaml`，两者均属于
 诊断实验，完整三 seed 验收前不能进入正文主表。
 
+`ascal_gmm_segmented_handoff_shift` 保留上述 BIC 分段判据，只改变变点后的边界交接。
+触发分段时，方法记录变点前最后一次实际输出的边界作为锚点；新段得到第 `j` 个有效
+GMM 边界后，以 `1/j` 的锚点权重和 `(j-1)/j` 的新段累计中位数权重产生部署边界。
+因此新段第一次预测仍使用旧边界，随后旧边界权重按证据计数自然消失，不需要 EMA、
+平滑率或交接长度。分段后的 GMM 若暂时退回单分量，则保持最后一次已输出边界而不发生
+第二次跳变；初始阶段仍保持精确 source fallback。该方法仍冻结 detector、LoRA、分类头
+与 source 温度，不使用 target label、生成器边界或语义信息。与未分段和硬分段版本的
+continual seed1 三方法对照入口为
+`matched_jpeg_ascal_gmm_segmented_handoff_shift_continual_*_seed1.yaml`，仍只属于诊断实验。
+
 ## OST
 
 OST 是独立的逐样本 Adapt-Then-Predict 协议，不加入公共 ResNet-50 的 Controlled CTTA 表。它对每张测试图执行作者论文 Algorithm 1 的核心步骤：从源训练集随机抽取一个带标签模板，生成已知为假的伪样本，用 `{伪样本, 模板}` 的 AM-Softmax loss 做一次 fast-weight 更新，再预测原图。目标 hidden label 始终只进入 evaluator。

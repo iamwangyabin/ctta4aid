@@ -230,6 +230,68 @@ class ASCALGMMConfigTests(unittest.TestCase):
                     config["data"]["locked_final_holdout_manifest"],
                 )
 
+    def test_segmented_handoff_continual_configs_add_no_smoothing_knobs(self) -> None:
+        from src.config import load_config, method_config
+
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_handoff_shift_continual_"
+                f"{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [
+                        "ascal_gmm_median_shift",
+                        "ascal_gmm_segmented_shift",
+                        "ascal_gmm_segmented_handoff_shift",
+                    ],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                self.assertIn(
+                    "seed1_online_manifest.csv",
+                    config["data"]["locked_online_manifest"],
+                )
+                self.assertIn(
+                    "seed1_final_holdout_manifest.csv",
+                    config["data"]["locked_final_holdout_manifest"],
+                )
+                self.assertIn(
+                    "ascal_gmm_segmented_handoff_shift_continual/"
+                    f"{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(
+                    config, "ascal_gmm_segmented_handoff_shift"
+                )
+                for key in (
+                    "change_threshold",
+                    "ema",
+                    "handoff_length",
+                    "momentum",
+                    "smoothing_rate",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                self.assertFalse(adaptive["reference"]["target_labels_used"])
+                self.assertFalse(
+                    adaptive["reference"]["generator_boundaries_used"]
+                )
+                self.assertFalse(adaptive["reference"]["semantic_features_used"])
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -259,6 +321,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_shift_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_handoff_shift",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_handoff_shift_static",
             config["training"]["intended_methods"],
         )
 
@@ -420,6 +490,18 @@ class ASCALGMMMethodTests(unittest.TestCase):
         from src.methods.ascal_gmm import ASCALGMMSegmentedShift
 
         return ASCALGMMSegmentedShift(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_handoff_shift_method(self, *, adaptation_mode: str = "full"):
+        from src.methods.ascal_gmm import ASCALGMMSegmentedHandoffShift
+
+        return ASCALGMMSegmentedHandoffShift(
             self.detector(),
             "cpu",
             {
@@ -785,6 +867,114 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(stats.extra["segment_changes"], 0)
         self.assertGreater(stats.extra["segment_unimodal_suffixes"], 0)
 
+    def test_segmented_handoff_keeps_the_first_new_boundary_continuous(self) -> None:
+        rng = np.random.default_rng(10)
+        method = self.segmented_handoff_shift_method()
+        for _ in range(4):
+            scores = np.concatenate(
+                [rng.normal(-8.0, 0.2, 48), rng.normal(-3.0, 0.2, 48)]
+            )
+            rng.shuffle(scores)
+            images = self.score_batch(scores)
+            method.predict(images)
+            method.adapt(images)
+
+        stats = None
+        boundary_before_change = None
+        for _ in range(2):
+            scores = np.concatenate(
+                [rng.normal(2.0, 0.2, 48), rng.normal(7.0, 0.2, 48)]
+            )
+            rng.shuffle(scores)
+            images = self.score_batch(scores)
+            method.predict(images)
+            boundary_before_change = float(method._pending["prediction_boundary"])
+            stats = method.adapt(images)
+
+        self.assertIsNotNone(stats)
+        self.assertTrue(stats.extra["segment_changed"])
+        self.assertTrue(stats.extra["handoff_active"])
+        self.assertEqual(stats.extra["handoff_boundary_samples"], 1)
+        self.assertEqual(stats.extra["handoff_weight"], 0.0)
+        self.assertAlmostEqual(
+            float(stats.extra["handoff_anchor_boundary"]),
+            float(boundary_before_change),
+        )
+        self.assertAlmostEqual(
+            float(stats.extra["decision_boundary"]),
+            float(boundary_before_change),
+        )
+
+        next_images = self.score_batch(np.array([2.0, 7.0]))
+        method.predict(next_images)
+        self.assertAlmostEqual(
+            float(method._pending["prediction_boundary"]),
+            float(boundary_before_change),
+        )
+
+    def test_segmented_handoff_uses_parameter_free_evidence_weights(self) -> None:
+        method = self.segmented_handoff_shift_method()
+        method.handoff_active = True
+        method.handoff_anchor_boundary = -4.0
+        method._mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [4.0, 8.0],
+            "sigmas": [1.0, 1.0],
+            "components": 2,
+            "bic": 0.0,
+        }
+
+        method.boundary_history = [6.0]
+        method.predict(self.score_batch(np.array([1.0])))
+        self.assertEqual(method._pending["prediction_handoff_weight"], 0.0)
+        self.assertAlmostEqual(method._pending["prediction_boundary"], -4.0)
+
+        method.boundary_history.append(6.0)
+        method.predict(self.score_batch(np.array([1.0])))
+        self.assertEqual(method._pending["prediction_handoff_weight"], 0.5)
+        self.assertAlmostEqual(method._pending["prediction_boundary"], 1.0)
+
+        method.boundary_history.append(6.0)
+        method.predict(self.score_batch(np.array([1.0])))
+        self.assertAlmostEqual(
+            method._pending["prediction_handoff_weight"],
+            2.0 / 3.0,
+        )
+        self.assertAlmostEqual(method._pending["prediction_boundary"], 8.0 / 3.0)
+
+    def test_segmented_handoff_holds_the_last_boundary_when_fit_is_unimodal(self) -> None:
+        method = self.segmented_handoff_shift_method()
+        method.handoff_active = True
+        method.handoff_anchor_boundary = 1.25
+        method.last_emitted_boundary = 1.25
+        method.boundary_history = [1.25]
+        method._mixture = {
+            "weights": [1.0],
+            "mus": [0.0],
+            "sigmas": [1.0],
+            "components": 1,
+            "bic": 0.0,
+        }
+
+        scores = np.array([1.25, 2.25])
+        prediction = method.predict(self.score_batch(scores))
+        expected = 1.0 / (1.0 + np.exp(-(scores - 1.25)))
+        np.testing.assert_allclose(prediction.prob_fake.numpy(), expected, atol=1e-6)
+        self.assertEqual(method._pending["prediction_mode"], "segmented_handoff_hold")
+        self.assertAlmostEqual(method._pending["prediction_boundary"], 1.25)
+
+    def test_segmented_handoff_reset_clears_boundary_state(self) -> None:
+        method = self.segmented_handoff_shift_method()
+        method.handoff_active = True
+        method.handoff_anchor_boundary = 2.0
+        method.last_emitted_boundary = 2.0
+        method.reset()
+
+        self.assertFalse(method.handoff_active)
+        self.assertEqual(method.handoff_anchor_boundary, 0.0)
+        self.assertEqual(method.last_emitted_boundary, 0.0)
+        self.assertIsNone(method.handoff_start_batch)
+
     def test_method_factory_maps_segmented_shift_static_alias(self) -> None:
         from src.methods import build_method
         from src.methods.ascal_gmm import ASCALGMMSegmentedShift
@@ -796,6 +986,19 @@ class ASCALGMMMethodTests(unittest.TestCase):
             {"score_anchors": self.anchors()},
         )
         self.assertIsInstance(method, ASCALGMMSegmentedShift)
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_method_factory_maps_segmented_handoff_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import ASCALGMMSegmentedHandoffShift
+
+        method = build_method(
+            "ascal_gmm_segmented_handoff_shift_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(method, ASCALGMMSegmentedHandoffShift)
         self.assertEqual(method.adaptation_mode, "static")
 
     def test_cli_builds_density_shift_with_the_ascal_lora_profile(self) -> None:
@@ -872,6 +1075,46 @@ class ASCALGMMMethodTests(unittest.TestCase):
             )
 
         self.assertIsInstance(method, ASCALGMMSegmentedShift)
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_segmented_handoff_with_the_ascal_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import ASCALGMMSegmentedHandoffShift
+
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {
+                "ascal_gmm_segmented_handoff_shift_static": {
+                    "adaptation_mode": "static"
+                },
+            },
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(
+                config,
+                "ascal_gmm_segmented_handoff_shift_static",
+                "cpu",
+            )
+
+        self.assertIsInstance(method, ASCALGMMSegmentedHandoffShift)
         self.assertEqual(method.adaptation_mode, "static")
 
 

@@ -9,8 +9,10 @@ the cumulative median of all causal boundary estimates. The density-shift
 variant keeps the same non-semantic block partition but replaces the gap
 midpoint with the equal-prior density crossing of the two normalized blocks.
 The segmented variant uses BIC to forget an obsolete score segment after an
-unlabeled distribution change. A one-component fit falls back to the source
-detector.
+unlabeled distribution change. Its handoff variant keeps the last emitted
+boundary as a one-count anchor so the new segment cannot introduce an immediate
+score-coordinate jump; after that first change, an uncertain one-component fit
+holds the last emitted boundary instead of jumping back to the source detector.
 """
 
 from __future__ import annotations
@@ -791,10 +793,147 @@ class ASCALGMMSegmentedShift(ASCALGMMMedianShift):
         return stats
 
 
+class ASCALGMMSegmentedHandoffShift(ASCALGMMSegmentedShift):
+    """Keep the emitted score boundary continuous after a segment change."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.handoff_active = False
+        self.handoff_anchor_boundary = 0.0
+        self.handoff_start_batch: int | None = None
+        self.last_emitted_boundary = 0.0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "unlabeled_bic_segmented_continuous_handoff_score_shift"
+                ),
+                "boundary_handoff": (
+                    "anchor_weight_1_over_j_and_segment_median_weight_"
+                    "j_minus_1_over_j"
+                ),
+                "handoff_anchor": "last_boundary_emitted_before_the_change",
+                "handoff_evidence_count": (
+                    "active_gmm_boundary_estimates_in_the_new_segment"
+                ),
+                "uncertain_fit_behavior": (
+                    "hold_last_emitted_boundary_after_the_first_segment_change"
+                ),
+                "prediction_rule": (
+                    "sigmoid((source_margin-continuous_segment_boundary)"
+                    "/source_temperature)"
+                ),
+                "hyperparameter_rule": (
+                    "no_target_smoothing_rate_window_or_handoff_length"
+                ),
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_handoff_gmm_shift"
+
+    def _handoff_weight(self) -> float:
+        if not self.handoff_active:
+            return 1.0
+        samples = len(self.boundary_history)
+        if samples <= 1:
+            return 0.0
+        return float(samples - 1) / float(samples)
+
+    def _stabilized_boundary(self, candidate: float) -> float:
+        target = super()._stabilized_boundary(candidate)
+        if not self.handoff_active:
+            return target
+        weight = self._handoff_weight()
+        return float(
+            self.handoff_anchor_boundary
+            + weight * (target - self.handoff_anchor_boundary)
+        )
+
+    def _detect_segment_change(self) -> None:
+        previous_changes = self.segment_changes
+        anchor = float(self.last_emitted_boundary)
+        super()._detect_segment_change()
+        if self.segment_changes > previous_changes:
+            self.handoff_active = True
+            self.handoff_anchor_boundary = anchor
+            self.handoff_start_batch = self.total_score_batches
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores = self._batch_scores(images)
+        if self.adaptation_mode == "full" and self._mixture_active():
+            partition = self._candidate_partition()
+            candidate = float(partition["decision_boundary"])
+            target = super()._stabilized_boundary(candidate)
+            boundary = self._stabilized_boundary(candidate)
+            probability = self._source_probability(scores - boundary)
+            pending_state = {
+                "prediction_mode": self._prediction_mode_name,
+                "prediction_boundary": boundary,
+                "prediction_candidate_boundary": candidate,
+                "prediction_handoff_target_boundary": target,
+                "prediction_handoff_weight": self._handoff_weight(),
+                "prediction_real_components": int(partition["real_components"]),
+                "prediction_fake_components": int(partition["fake_components"]),
+            }
+        elif self.adaptation_mode == "full" and self.handoff_active:
+            boundary = float(self.last_emitted_boundary)
+            probability = self._source_probability(scores - boundary)
+            pending_state = {
+                "prediction_mode": "segmented_handoff_hold",
+                "prediction_boundary": boundary,
+                "prediction_candidate_boundary": None,
+                "prediction_handoff_target_boundary": None,
+                "prediction_handoff_weight": self._handoff_weight(),
+                "prediction_real_components": 0,
+                "prediction_fake_components": 0,
+            }
+        else:
+            boundary = 0.0
+            probability = self._source_probability(scores)
+            pending_state = {
+                "prediction_mode": "source_fallback",
+                "prediction_boundary": boundary,
+                "prediction_candidate_boundary": None,
+                "prediction_handoff_target_boundary": None,
+                "prediction_handoff_weight": 0.0,
+                "prediction_real_components": 0,
+                "prediction_fake_components": 0,
+            }
+        prediction = self._prediction_batch(scores, probability, **pending_state)
+        self.last_emitted_boundary = float(boundary)
+        return prediction
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(
+            {
+                "handoff_active": self.handoff_active,
+                "handoff_anchor_boundary": (
+                    self.handoff_anchor_boundary if self.handoff_active else None
+                ),
+                "handoff_start_batch": self.handoff_start_batch,
+                "handoff_boundary_samples": (
+                    len(self.boundary_history) if self.handoff_active else 0
+                ),
+                "handoff_weight": self._handoff_weight(),
+                "handoff_target_boundary": stats.get("stabilized_boundary"),
+                "last_emitted_boundary": self.last_emitted_boundary,
+            }
+        )
+        return stats
+
+
 __all__ = [
     "ASCALGMM",
     "ASCALGMMDensityShift",
     "ASCALGMMMedianShift",
+    "ASCALGMMSegmentedHandoffShift",
     "ASCALGMMSegmentedShift",
     "ASCALGMMShift",
     "asymmetric_fake_posterior",

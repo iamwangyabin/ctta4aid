@@ -1,0 +1,15 @@
+extends:
+  - ../controlled_ctta/opensdid_global_continual_seed1.yaml
+  - matched_jpeg.yaml
+  - ../../methods/ascal_gmm_segmented_handoff_shift.yaml
+
+methods:
+  - ascal_gmm_median_shift
+  - ascal_gmm_segmented_shift
+  - ascal_gmm_segmented_handoff_shift
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/ascal_gmm_segmented_handoff_shift_continual/opensdid_global/seed1
+
+data:
+  root: ${OPENSDID_GLOBAL_MATCHED_JPEG_ARROW_ROOT}
+  num_workers: 0
+  shuffle: false
