@@ -448,6 +448,15 @@ ASCAL 消融。它使用单个标准 CLIP 视图，并把每个已经到达的 t
 `configs/experiments/clip_vlm_bias_controlled/matched_jpeg_ascal_gmm_*_seed1.yaml`；它们
 不是完整三 seed 正式结果，不能回填论文主表。
 
+`ascal_gmm_shift` 进一步把 GMM 限制为一个在线阈值估计器，不再直接输出 mixture
+posterior。BIC 仍拟合全部历史无标签分数，但按相邻分量均值的最大间隔把低分连续块视为
+real、高分连续块视为 fake，并取该间隔两端均值的中点作为决策边界。这样 real 的单个
+紧凑分数块可以由多个高斯近似，而不会把其第二个分量强行判成 fake。最终输出固定为
+`sigmoid((source_score - target_boundary) / source_temperature)`，所以每个因果状态内严格
+保留 source score 排序；BIC 只有一个分量时仍精确退回 source。该变体同样没有新增窗口、
+阈值或融合超参数，并与 `ascal_gmm_shift_static` 成对运行。seed1 诊断入口位于
+`matched_jpeg_ascal_gmm_shift_*_seed1.yaml`，完整三 seed 验收前仍不得进入正文主表。
+
 ## OST
 
 OST 是独立的逐样本 Adapt-Then-Predict 协议，不加入公共 ResNet-50 的 Controlled CTTA 表。它对每张测试图执行作者论文 Algorithm 1 的核心步骤：从源训练集随机抽取一个带标签模板，生成已知为假的伪样本，用 `{伪样本, 模板}` 的 AM-Softmax loss 做一次 fast-weight 更新，再预测原图。目标 hidden label 始终只进入 evaluator。

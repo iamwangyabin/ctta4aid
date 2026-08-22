@@ -1,10 +1,10 @@
 """Causal asymmetric GMM calibration over a frozen detector's scores.
 
-The lowest-mean target component represents the compact real distribution;
-every higher-mean component belongs to the heterogeneous fake distribution.
-BIC decides whether the arrived unlabeled scores support one or more total
-components. A one-component fit is treated as insufficient evidence, so the
-method falls back exactly to the source detector until a split is supported.
+BIC decides whether arrived unlabeled scores support one or more components.
+The original readout treats the lowest component as real and sums all other
+responsibilities as fake. The monotone-shift readout instead finds the largest
+gap between component means, uses it as the real/fake block boundary, and only
+shifts the source score. A one-component fit falls back to the source detector.
 """
 
 from __future__ import annotations
@@ -44,6 +44,24 @@ def asymmetric_fake_posterior(scores: Any, mixture: dict[str, Any]) -> Any:
     log_joint -= np.max(log_joint, axis=1, keepdims=True)
     joint = np.exp(log_joint)
     return joint[:, 1:].sum(axis=1) / joint.sum(axis=1)
+
+
+def dominant_gap_boundary(mixture: dict[str, Any]) -> dict[str, float | int]:
+    """Split sorted components at their largest mean gap and return its midpoint."""
+
+    mus = np.asarray(mixture["mus"], dtype=np.float64).reshape(-1)
+    if mus.size < 2:
+        raise ValueError("Dominant-gap calibration requires at least two components")
+    if np.any(np.diff(mus) < 0.0):
+        raise ValueError("Mixture components must be sorted by mean")
+    gaps = np.diff(mus)
+    split = int(np.argmax(gaps)) + 1
+    return {
+        "decision_boundary": float(0.5 * (mus[split - 1] + mus[split])),
+        "dominant_gap": float(gaps[split - 1]),
+        "real_components": split,
+        "fake_components": int(mus.size - split),
+    }
 
 
 class ASCALGMM(TTAMethod):
@@ -146,9 +164,28 @@ class ASCALGMM(TTAMethod):
     def _mixture_active(self) -> bool:
         return self._mixture is not None and int(self._mixture["components"]) >= 2
 
-    def predict(self, images: Any) -> PredictionBatch:
+    def _prediction_batch(
+        self,
+        scores: Any,
+        probability: Any,
+        **pending_state: Any,
+    ) -> PredictionBatch:
         import torch
 
+        probability = np.clip(probability, 1e-6, 1.0 - 1e-6)
+        logit_margin = np.log(probability / (1.0 - probability))
+        logits = torch.from_numpy(
+            np.stack([-0.5 * logit_margin, 0.5 * logit_margin], axis=1)
+        ).float()
+        prob_fake = torch.from_numpy(probability).float()
+        self._pending = {"scores": scores, **pending_state}
+        return PredictionBatch(
+            logits=logits,
+            prob_fake=prob_fake,
+            pred_label=(prob_fake >= 0.5).long(),
+        )
+
+    def predict(self, images: Any) -> PredictionBatch:
         scores = self._batch_scores(images)
         if self.adaptation_mode == "full" and self._mixture_active():
             probability = asymmetric_fake_posterior(scores, self._mixture)
@@ -156,17 +193,10 @@ class ASCALGMM(TTAMethod):
         else:
             probability = self._source_probability(scores)
             prediction_mode = "source_fallback"
-        probability = np.clip(probability, 1e-6, 1.0 - 1e-6)
-        logit_margin = np.log(probability / (1.0 - probability))
-        logits = torch.from_numpy(
-            np.stack([-0.5 * logit_margin, 0.5 * logit_margin], axis=1)
-        ).float()
-        prob_fake = torch.from_numpy(probability).float()
-        self._pending = {"scores": scores, "prediction_mode": prediction_mode}
-        return PredictionBatch(
-            logits=logits,
-            prob_fake=prob_fake,
-            pred_label=(prob_fake >= 0.5).long(),
+        return self._prediction_batch(
+            scores,
+            probability,
+            prediction_mode=prediction_mode,
         )
 
     def discard_pending_prediction(self) -> None:
@@ -199,7 +229,9 @@ class ASCALGMM(TTAMethod):
             raise RuntimeError("ASCAL-GMM adapt requires a matching predict call")
 
         scores = np.asarray(self._pending["scores"], dtype=np.float64).reshape(-1)
-        prediction_mode = str(self._pending["prediction_mode"])
+        prediction_state = {
+            key: value for key, value in self._pending.items() if key != "scores"
+        }
         self._pending = None
         self.score_history.extend(float(score) for score in scores)
 
@@ -220,7 +252,7 @@ class ASCALGMM(TTAMethod):
 
         extra = {
             "adaptation_mode": "full",
-            "prediction_mode": prediction_mode,
+            **prediction_state,
             **self._state_stats(),
         }
         if fit_error is not None:
@@ -231,4 +263,72 @@ class ASCALGMM(TTAMethod):
         self._reset_state()
 
 
-__all__ = ["ASCALGMM", "asymmetric_fake_posterior"]
+class ASCALGMMShift(ASCALGMM):
+    """Use the target mixture only to shift the frozen detector's score boundary."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": "unlabeled_monotone_score_shift_only",
+                "component_rule": (
+                    "largest_adjacent_mean_gap_separates_the_real_and_fake_blocks"
+                ),
+                "prediction_rule": "sigmoid((source_margin-target_boundary)/source_temperature)",
+                "ranking_rule": "source_margin_order_is_preserved_within_each_causal_state",
+                "intentional_changes": [
+                    "the detector stays frozen during deployment",
+                    "all arrived scores enter the fit without pseudo-label admission",
+                    "one selected component means insufficient evidence and exact source fallback",
+                    "the target mixture changes only one additive score boundary",
+                    "predictions use only the boundary fitted after earlier batches",
+                ],
+            }
+        )
+        return metadata
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        if not self._mixture_active():
+            stats.update(
+                {
+                    "decision_boundary": None,
+                    "dominant_gap": None,
+                    "real_components": 0,
+                    "fake_components": 0,
+                }
+            )
+            return stats
+        stats.update(dominant_gap_boundary(self._mixture))
+        return stats
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores = self._batch_scores(images)
+        if self.adaptation_mode == "full" and self._mixture_active():
+            partition = dominant_gap_boundary(self._mixture)
+            boundary = float(partition["decision_boundary"])
+            probability = self._source_probability(scores - boundary)
+            pending_state = {
+                "prediction_mode": "monotone_gmm_shift",
+                "prediction_boundary": boundary,
+                "prediction_real_components": int(partition["real_components"]),
+                "prediction_fake_components": int(partition["fake_components"]),
+            }
+        else:
+            probability = self._source_probability(scores)
+            pending_state = {
+                "prediction_mode": "source_fallback",
+                "prediction_boundary": 0.0,
+                "prediction_real_components": 0,
+                "prediction_fake_components": 0,
+            }
+        return self._prediction_batch(scores, probability, **pending_state)
+
+
+__all__ = [
+    "ASCALGMM",
+    "ASCALGMMShift",
+    "asymmetric_fake_posterior",
+    "dominant_gap_boundary",
+]
