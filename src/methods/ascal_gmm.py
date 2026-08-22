@@ -8,7 +8,9 @@ shifts the source score. Its median-shift variant stabilizes that boundary with
 the cumulative median of all causal boundary estimates. The density-shift
 variant keeps the same non-semantic block partition but replaces the gap
 midpoint with the equal-prior density crossing of the two normalized blocks.
-A one-component fit falls back to the source detector.
+The segmented variant uses BIC to forget an obsolete score segment after an
+unlabeled distribution change. A one-component fit falls back to the source
+detector.
 """
 
 from __future__ import annotations
@@ -320,6 +322,9 @@ class ASCALGMM(TTAMethod):
     def _after_successful_fit(self) -> None:
         """Allow readout variants to record state before adaptation is reported."""
 
+    def _append_scores(self, scores: Any) -> None:
+        self.score_history.extend(float(score) for score in scores)
+
     def adapt(self, images: Any) -> AdaptationStats:
         del images
         if self.adaptation_mode == "static":
@@ -336,7 +341,7 @@ class ASCALGMM(TTAMethod):
             key: value for key, value in self._pending.items() if key != "scores"
         }
         self._pending = None
-        self.score_history.extend(float(score) for score in scores)
+        self._append_scores(scores)
 
         fit_error = None
         if len(self.score_history) >= 2:
@@ -555,10 +560,242 @@ class ASCALGMMDensityShift(ASCALGMMMedianShift):
         return equal_density_boundary(self._mixture)
 
 
+def _gmm_parameter_count(mixture: dict[str, Any]) -> int:
+    """Return the free-parameter count of a one-dimensional full-covariance GMM."""
+
+    components = int(mixture["components"])
+    if components < 1:
+        raise ValueError("GMM parameter counting requires at least one component")
+    return 3 * components - 1
+
+
+def _segmented_bic(
+    left: dict[str, Any],
+    left_samples: int,
+    right: dict[str, Any],
+    right_samples: int,
+) -> float:
+    """Score two independent GMM segments with one BIC change-point penalty."""
+
+    if left_samples < 2 or right_samples < 2:
+        raise ValueError("Segmented BIC requires at least two samples on each side")
+    total_samples = left_samples + right_samples
+    left_parameters = _gmm_parameter_count(left)
+    right_parameters = _gmm_parameter_count(right)
+    negative_twice_log_likelihood = (
+        float(left["bic"]) - left_parameters * math.log(left_samples)
+        + float(right["bic"])
+        - right_parameters * math.log(right_samples)
+    )
+    return float(
+        negative_twice_log_likelihood
+        + (left_parameters + right_parameters + 1) * math.log(total_samples)
+    )
+
+
+class ASCALGMMSegmentedShift(ASCALGMMMedianShift):
+    """Reset score calibration at causal, unlabeled BIC-selected change points."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.score_batches: list[np.ndarray] = []
+        self.total_score_samples = 0
+        self.total_score_batches = 0
+        self.segment_changes = 0
+        self.segment_checks = 0
+        self.segment_candidate_fits = 0
+        self.segment_fit_failures = 0
+        self.segment_unimodal_suffixes = 0
+        self.segment_unstable_suffixes = 0
+        self.segment_discarded_samples = 0
+        self.last_segment_gain: float | None = None
+        self.last_change_batch: int | None = None
+        self.last_change_suffix_batches: int | None = None
+        self._segment_changed = False
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "unlabeled_bic_segmented_median_stabilized_score_shift"
+                ),
+                "segmentation_rule": (
+                    "binary_scheduled_bic_comparison_with_an_active_unsplit_causal_suffix"
+                ),
+                "change_point_penalty": (
+                    "one_additional_bic_parameter_no_tuned_change_threshold"
+                ),
+                "segment_reset_scope": (
+                    "score_mixture_and_boundary_history_only_detector_remains_frozen"
+                ),
+                "generator_boundaries_used": False,
+                "semantic_features_used": False,
+                "hyperparameter_rule": "no_new_target_hyperparameters",
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_median_gmm_shift"
+
+    def _append_scores(self, scores: Any) -> None:
+        values = np.asarray(scores, dtype=np.float64).reshape(-1)
+        super()._append_scores(values)
+        self.score_batches.append(values.copy())
+        self.total_score_samples += int(values.size)
+        self.total_score_batches += 1
+        self._segment_changed = False
+
+    def _suffix_candidates(self) -> list[int]:
+        segment_batches = len(self.score_batches)
+        if segment_batches < 4 or segment_batches % 2:
+            return []
+
+        largest = segment_batches // 2
+        suffix_batches = segment_batches & -segment_batches
+        while suffix_batches > largest:
+            suffix_batches //= 2
+        return [max(2, suffix_batches)]
+
+    def _detect_segment_change(self) -> None:
+        if self._mixture is None:
+            return
+        candidates = self._suffix_candidates()
+        if not candidates:
+            return
+
+        self.segment_checks += 1
+        values = np.asarray(self.score_history, dtype=np.float64)
+        full_bic = float(self._mixture["bic"])
+        best: dict[str, Any] | None = None
+        for suffix_batches in candidates:
+            suffix_samples = sum(
+                int(batch.size) for batch in self.score_batches[-suffix_batches:]
+            )
+            left_values = values[:-suffix_samples]
+            right_values = values[-suffix_samples:]
+            if left_values.size < 2 or right_values.size < 2:
+                continue
+            self.segment_candidate_fits += 2
+            try:
+                left = fit_gmm_bic(
+                    left_values,
+                    max_components=min(self.max_total_components, left_values.size),
+                    seed=0,
+                )
+                right = fit_gmm_bic(
+                    right_values,
+                    max_components=min(self.max_total_components, right_values.size),
+                    seed=0,
+                )
+                split_bic = _segmented_bic(
+                    left,
+                    int(left_values.size),
+                    right,
+                    int(right_values.size),
+                )
+            except (FloatingPointError, RuntimeError, ValueError):
+                self.segment_fit_failures += 1
+                continue
+            if int(right["components"]) < 2:
+                self.segment_unimodal_suffixes += 1
+                continue
+            gain = full_bic - split_bic
+            if gain > 0.0:
+                half_batches = suffix_batches // 2
+                half_samples = sum(
+                    int(batch.size) for batch in self.score_batches[-half_batches:]
+                )
+                older_right = right_values[:-half_samples]
+                newer_right = right_values[-half_samples:]
+                self.segment_candidate_fits += 2
+                try:
+                    older_mixture = fit_gmm_bic(
+                        older_right,
+                        max_components=min(
+                            self.max_total_components, older_right.size
+                        ),
+                        seed=0,
+                    )
+                    newer_mixture = fit_gmm_bic(
+                        newer_right,
+                        max_components=min(
+                            self.max_total_components, newer_right.size
+                        ),
+                        seed=0,
+                    )
+                    internal_split_bic = _segmented_bic(
+                        older_mixture,
+                        int(older_right.size),
+                        newer_mixture,
+                        int(newer_right.size),
+                    )
+                except (FloatingPointError, RuntimeError, ValueError):
+                    self.segment_fit_failures += 1
+                    continue
+                if internal_split_bic < float(right["bic"]):
+                    self.segment_unstable_suffixes += 1
+                    continue
+            if best is None or gain > float(best["gain"]):
+                best = {
+                    "gain": float(gain),
+                    "right": right,
+                    "suffix_batches": suffix_batches,
+                    "suffix_samples": suffix_samples,
+                }
+
+        self.last_segment_gain = None if best is None else float(best["gain"])
+        if best is None or float(best["gain"]) <= 0.0:
+            return
+
+        suffix_batches = int(best["suffix_batches"])
+        suffix_samples = int(best["suffix_samples"])
+        discarded_samples = len(self.score_history) - suffix_samples
+        self.score_batches = self.score_batches[-suffix_batches:]
+        self.score_history = values[-suffix_samples:].tolist()
+        self._mixture = best["right"]
+        self.boundary_history = []
+        self.segment_changes += 1
+        self.segment_discarded_samples += discarded_samples
+        self.last_change_batch = self.total_score_batches
+        self.last_change_suffix_batches = suffix_batches
+        self._segment_changed = True
+
+    def _after_successful_fit(self) -> None:
+        self._detect_segment_change()
+        super()._after_successful_fit()
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(
+            {
+                "segment_changed": self._segment_changed,
+                "segment_changes": self.segment_changes,
+                "segment_batches": len(self.score_batches),
+                "total_score_batches": self.total_score_batches,
+                "total_score_samples": self.total_score_samples,
+                "segment_checks": self.segment_checks,
+                "segment_candidate_fits": self.segment_candidate_fits,
+                "segment_fit_failures": self.segment_fit_failures,
+                "segment_unimodal_suffixes": self.segment_unimodal_suffixes,
+                "segment_unstable_suffixes": self.segment_unstable_suffixes,
+                "segment_discarded_samples": self.segment_discarded_samples,
+                "last_segment_gain": self.last_segment_gain,
+                "last_change_batch": self.last_change_batch,
+                "last_change_suffix_batches": self.last_change_suffix_batches,
+            }
+        )
+        return stats
+
+
 __all__ = [
     "ASCALGMM",
     "ASCALGMMDensityShift",
     "ASCALGMMMedianShift",
+    "ASCALGMMSegmentedShift",
     "ASCALGMMShift",
     "asymmetric_fake_posterior",
     "dominant_gap_boundary",

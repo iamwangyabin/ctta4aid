@@ -153,6 +153,8 @@ def build_fresh_method(
         "ascalgmmmedianshiftstatic",
         "ascalgmmdensityshift",
         "ascalgmmdensityshiftstatic",
+        "ascalgmmsegmentedshift",
+        "ascalgmmsegmentedshiftstatic",
     }:
         if normalized_name in {
             "ascalstatic",
@@ -160,6 +162,7 @@ def build_fresh_method(
             "ascalgmmshiftstatic",
             "ascalgmmmedianshiftstatic",
             "ascalgmmdensityshiftstatic",
+            "ascalgmmsegmentedshiftstatic",
         }:
             effective_method_config.setdefault("adaptation_mode", "static")
         model, metadata = build_clip_lora_detector(

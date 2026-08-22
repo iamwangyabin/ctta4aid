@@ -471,6 +471,20 @@ real 块与高分 fake 块划分，也保留候选边界的累计中位数，但
 target 阈值、窗口、融合系数或语义输入，并与 `ascal_gmm_density_shift_static` 成对运行；
 seed1 诊断入口为 `matched_jpeg_ascal_gmm_density_shift_*_seed1.yaml`。
 
+`ascal_gmm_segmented_shift` 在中位数边界版本上加入无标签的因果分段，专门处理 continual
+stream 中旧域分数长期拖住新域边界的问题。每批仍先用旧状态预测；预测后，方法用 BIC
+比较“当前整段一个 GMM”和“一个因果后缀段 GMM”。后缀由固定二进制调度在 2、4、8、
+... 批尺度间选择：2 批最频繁，更长尺度周期性检查，每个偶数批只拟合一个尺度。单个
+batch 只是一次时间观测，至少连续两批才构成最小的持续变化证据；分段模型还要支付一个
+变点参数的 BIC 惩罚，只有总 BIC 严格更低才触发，因此没有可调窗口长度或人为漂移阈值。
+候选新段还必须由 BIC 选出至少两个分量，且自身不支持再次二分；单分量仍按原规则视为
+证据不足，避免把局部类别波动或一个尚未稳定的过渡批次误当成完整新域。
+触发后只丢弃旧段的分数与边界历史，冻结 detector、LoRA 和 source 温度均不重置，也不
+读取 target label、生成器边界或语义特征。single-target seed1 入口为
+`matched_jpeg_ascal_gmm_segmented_shift_*_seed1.yaml`；与未分段中位数版本的 continual
+对照入口为 `matched_jpeg_ascal_gmm_segmented_shift_continual_*_seed1.yaml`，两者均属于
+诊断实验，完整三 seed 验收前不能进入正文主表。
+
 ## OST
 
 OST 是独立的逐样本 Adapt-Then-Predict 协议，不加入公共 ResNet-50 的 Controlled CTTA 表。它对每张测试图执行作者论文 Algorithm 1 的核心步骤：从源训练集随机抽取一个带标签模板，生成已知为假的伪样本，用 `{伪样本, 模板}` 的 AM-Softmax loss 做一次 fast-weight 更新，再预测原图。目标 hidden label 始终只进入 evaluator。

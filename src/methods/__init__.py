@@ -7,6 +7,7 @@ from .ascal_gmm import (
     ASCALGMM,
     ASCALGMMDensityShift,
     ASCALGMMMedianShift,
+    ASCALGMMSegmentedShift,
     ASCALGMMShift,
 )
 from .base import TTAMethod
@@ -81,6 +82,11 @@ def build_method(
         if normalized == "ascalgmmdensityshiftstatic":
             effective_config.setdefault("adaptation_mode", "static")
         return ASCALGMMDensityShift(model, device, effective_config)
+    if normalized in {"ascalgmmsegmentedshift", "ascalgmmsegmentedshiftstatic"}:
+        effective_config = dict(config)
+        if normalized == "ascalgmmsegmentedshiftstatic":
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMSegmentedShift(model, device, effective_config)
     if normalized == "cotta":
         return CoTTA(model, device, config)
     if normalized == "rotta":
@@ -108,6 +114,7 @@ __all__ = [
     "ASCALGMM",
     "ASCALGMMDensityShift",
     "ASCALGMMMedianShift",
+    "ASCALGMMSegmentedShift",
     "ASCALGMMShift",
     "BATCLIP",
     "CLIPTTA",

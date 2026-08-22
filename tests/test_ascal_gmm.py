@@ -154,6 +154,82 @@ class ASCALGMMConfigTests(unittest.TestCase):
                     self.assertNotIn(key, adaptive)
                 self.assertFalse(adaptive["reference"]["semantic_features_used"])
 
+    def test_segmented_shift_seed1_configs_add_no_change_threshold(self) -> None:
+        from src.config import load_config, method_config
+
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / f"matched_jpeg_ascal_gmm_segmented_shift_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [
+                        "ascal_gmm_segmented_shift_static",
+                        "ascal_gmm_segmented_shift",
+                    ],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertEqual(config["data"]["bias_control_profile"], "matched_jpeg")
+                self.assertIn(
+                    "clip_vlm_bias_controlled/matched_jpeg/"
+                    f"ascal_gmm_segmented_shift/{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(config, "ascal_gmm_segmented_shift")
+                for key in (
+                    "change_threshold",
+                    "ema",
+                    "gates",
+                    "momentum",
+                    "semantic_features",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                self.assertFalse(adaptive["reference"]["target_labels_used"])
+                self.assertFalse(adaptive["reference"]["generator_boundaries_used"])
+                self.assertFalse(adaptive["reference"]["semantic_features_used"])
+
+    def test_segmented_shift_continual_configs_preserve_locked_seed1_streams(self) -> None:
+        from src.config import load_config
+
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_shift_continual_"
+                f"{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    ["ascal_gmm_median_shift", "ascal_gmm_segmented_shift"],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(config["protocol"]["generator_id_available_to_method"])
+                self.assertTrue(config["evaluation"]["evaluate_future_generators"])
+                self.assertIn("seed1_online_manifest.csv", config["data"]["locked_online_manifest"])
+                self.assertIn(
+                    "seed1_final_holdout_manifest.csv",
+                    config["data"]["locked_final_holdout_manifest"],
+                )
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -175,6 +251,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_density_shift_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_shift",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_shift_static",
             config["training"]["intended_methods"],
         )
 
@@ -324,6 +408,18 @@ class ASCALGMMMethodTests(unittest.TestCase):
         from src.methods.ascal_gmm import ASCALGMMDensityShift
 
         return ASCALGMMDensityShift(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_shift_method(self, *, adaptation_mode: str = "full"):
+        from src.methods.ascal_gmm import ASCALGMMSegmentedShift
+
+        return ASCALGMMSegmentedShift(
             self.detector(),
             "cpu",
             {
@@ -573,6 +669,135 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
         self.assertEqual(method.adaptation_mode, "static")
 
+    def test_segmented_shift_does_not_split_a_stationary_stream(self) -> None:
+        rng = np.random.default_rng(7)
+        method = self.segmented_shift_method()
+        stats = None
+        for _ in range(6):
+            scores = np.concatenate(
+                [rng.normal(-7.0, 0.25, 48), rng.normal(-2.0, 0.25, 48)]
+            )
+            rng.shuffle(scores)
+            images = self.score_batch(scores)
+            method.predict(images)
+            stats = method.adapt(images)
+
+        self.assertIsNotNone(stats)
+        self.assertEqual(stats.extra["segment_changes"], 0)
+        self.assertEqual(stats.extra["segment_batches"], 6)
+        self.assertGreater(stats.extra["segment_checks"], 0)
+
+    def test_segmented_shift_uses_one_deterministic_binary_scale(self) -> None:
+        method = self.segmented_shift_method()
+        expected = {
+            3: [],
+            4: [2],
+            5: [],
+            6: [2],
+            8: [4],
+            10: [2],
+            12: [4],
+            16: [8],
+        }
+        for batches, candidates in expected.items():
+            with self.subTest(batches=batches):
+                method.score_batches = [np.zeros(16)] * batches
+                self.assertEqual(method._suffix_candidates(), candidates)
+
+    def test_segmented_shift_forgets_an_obsolete_score_segment_causally(self) -> None:
+        rng = np.random.default_rng(8)
+        method = self.segmented_shift_method()
+        for _ in range(4):
+            scores = np.concatenate(
+                [rng.normal(-8.0, 0.2, 48), rng.normal(-3.0, 0.2, 48)]
+            )
+            rng.shuffle(scores)
+            images = self.score_batch(scores)
+            method.predict(images)
+            method.adapt(images)
+
+        first_shifted = np.concatenate(
+            [rng.normal(2.0, 0.2, 48), rng.normal(7.0, 0.2, 48)]
+        )
+        rng.shuffle(first_shifted)
+        first_shifted_images = self.score_batch(first_shifted)
+        method.predict(first_shifted_images)
+        old_boundary = float(method._pending["prediction_boundary"])
+        first_stats = method.adapt(first_shifted_images)
+
+        second_shifted = np.concatenate(
+            [rng.normal(2.0, 0.2, 48), rng.normal(7.0, 0.2, 48)]
+        )
+        rng.shuffle(second_shifted)
+        second_shifted_images = self.score_batch(second_shifted)
+        method.predict(second_shifted_images)
+        stats = method.adapt(second_shifted_images)
+
+        self.assertLess(old_boundary, 0.0)
+        self.assertFalse(first_stats.extra["segment_changed"])
+        self.assertTrue(stats.extra["segment_changed"])
+        self.assertEqual(stats.extra["segment_changes"], 1)
+        self.assertEqual(stats.extra["segment_batches"], 2)
+        self.assertEqual(
+            stats.extra["score_samples"],
+            len(first_shifted) + len(second_shifted),
+        )
+        self.assertEqual(stats.extra["boundary_samples"], 1)
+        self.assertGreater(float(stats.extra["last_segment_gain"]), 0.0)
+
+        method.predict(self.score_batch(np.array([2.0, 7.0])))
+        self.assertGreater(float(method._pending["prediction_boundary"]), 0.0)
+
+    def test_segmented_shift_reset_clears_change_state(self) -> None:
+        method = self.segmented_shift_method()
+        images = self.score_batch(np.array([-4.0, -3.0, 2.0, 3.0]))
+        method.predict(images)
+        method.adapt(images)
+        method.reset()
+
+        stats = method._state_stats()
+        self.assertEqual(stats["segment_changes"], 0)
+        self.assertEqual(stats["segment_batches"], 0)
+        self.assertEqual(stats["total_score_samples"], 0)
+        self.assertIsNone(stats["last_segment_gain"])
+
+    def test_segmented_shift_does_not_reset_to_a_unimodal_suffix(self) -> None:
+        rng = np.random.default_rng(9)
+        method = self.segmented_shift_method()
+        for _ in range(12):
+            scores = np.concatenate(
+                [rng.normal(-8.0, 0.2, 48), rng.normal(-3.0, 0.2, 48)]
+            )
+            rng.shuffle(scores)
+            images = self.score_batch(scores)
+            method.predict(images)
+            method.adapt(images)
+
+        stats = None
+        for _ in range(2):
+            scores = rng.normal(-3.8, 0.2, 96)
+            images = self.score_batch(scores)
+            method.predict(images)
+            stats = method.adapt(images)
+
+        self.assertIsNotNone(stats)
+        self.assertFalse(stats.extra["segment_changed"])
+        self.assertEqual(stats.extra["segment_changes"], 0)
+        self.assertGreater(stats.extra["segment_unimodal_suffixes"], 0)
+
+    def test_method_factory_maps_segmented_shift_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import ASCALGMMSegmentedShift
+
+        method = build_method(
+            "ascal_gmm_segmented_shift_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(method, ASCALGMMSegmentedShift)
+        self.assertEqual(method.adaptation_mode, "static")
+
     def test_cli_builds_density_shift_with_the_ascal_lora_profile(self) -> None:
         from src.cli.common import build_fresh_method
         from src.methods.ascal_gmm import ASCALGMMDensityShift
@@ -609,6 +834,44 @@ class ASCALGMMMethodTests(unittest.TestCase):
             )
 
         self.assertIsInstance(method, ASCALGMMDensityShift)
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_segmented_shift_with_the_ascal_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import ASCALGMMSegmentedShift
+
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {
+                "ascal_gmm_segmented_shift_static": {"adaptation_mode": "static"},
+            },
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(
+                config,
+                "ascal_gmm_segmented_shift_static",
+                "cpu",
+            )
+
+        self.assertIsInstance(method, ASCALGMMSegmentedShift)
         self.assertEqual(method.adaptation_mode, "static")
 
 

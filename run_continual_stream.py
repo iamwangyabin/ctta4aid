@@ -162,6 +162,16 @@ def main() -> None:
         "poundttastatic",
         "ascal",
         "ascalstatic",
+        "ascalgmm",
+        "ascalgmmstatic",
+        "ascalgmmshift",
+        "ascalgmmshiftstatic",
+        "ascalgmmmedianshift",
+        "ascalgmmmedianshiftstatic",
+        "ascalgmmdensityshift",
+        "ascalgmmdensityshiftstatic",
+        "ascalgmmsegmentedshift",
+        "ascalgmmsegmentedshiftstatic",
     }
     normalized_methods = {
         str(name).lower().replace("_", "").replace("-", "")
