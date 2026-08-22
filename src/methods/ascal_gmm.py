@@ -5,8 +5,10 @@ The original readout treats the lowest component as real and sums all other
 responsibilities as fake. The monotone-shift readout instead finds the largest
 gap between component means, uses it as the real/fake block boundary, and only
 shifts the source score. Its median-shift variant stabilizes that boundary with
-the cumulative median of all causal boundary estimates. A one-component fit
-falls back to the source detector.
+the cumulative median of all causal boundary estimates. The density-shift
+variant keeps the same non-semantic block partition but replaces the gap
+midpoint with the equal-prior density crossing of the two normalized blocks.
+A one-component fit falls back to the source detector.
 """
 
 from __future__ import annotations
@@ -63,6 +65,102 @@ def dominant_gap_boundary(mixture: dict[str, Any]) -> dict[str, float | int]:
         "dominant_gap": float(gaps[split - 1]),
         "real_components": split,
         "fake_components": int(mus.size - split),
+    }
+
+
+def _log_mixture_density(
+    value: float,
+    weights: Any,
+    mus: Any,
+    sigmas: Any,
+) -> float:
+    weights = np.asarray(weights, dtype=np.float64).reshape(-1)
+    mus = np.asarray(mus, dtype=np.float64).reshape(-1)
+    sigmas = np.asarray(sigmas, dtype=np.float64).reshape(-1)
+    terms = (
+        np.log(weights)
+        - np.log(sigmas)
+        - 0.5 * math.log(2.0 * math.pi)
+        - 0.5 * ((float(value) - mus) / sigmas) ** 2
+    )
+    maximum = float(np.max(terms))
+    return maximum + float(np.log(np.exp(terms - maximum).sum()))
+
+
+def equal_density_boundary(mixture: dict[str, Any]) -> dict[str, Any]:
+    """Find the equal-prior real/fake density crossing inside the dominant gap."""
+
+    partition = dominant_gap_boundary(mixture)
+    weights = np.asarray(mixture["weights"], dtype=np.float64).reshape(-1)
+    mus = np.asarray(mixture["mus"], dtype=np.float64).reshape(-1)
+    sigmas = np.asarray(mixture["sigmas"], dtype=np.float64).reshape(-1)
+    if not (weights.size == mus.size == sigmas.size):
+        raise ValueError("Density boundary requires matching mixture arrays")
+    if np.any(weights <= 0.0) or np.any(sigmas <= 0.0):
+        raise ValueError("Density boundary requires positive weights and sigmas")
+
+    split = int(partition["real_components"])
+    real_weights = weights[:split] / weights[:split].sum()
+    fake_weights = weights[split:] / weights[split:].sum()
+
+    def log_ratio(value: float) -> float:
+        return _log_mixture_density(
+            value,
+            real_weights,
+            mus[:split],
+            sigmas[:split],
+        ) - _log_mixture_density(
+            value,
+            fake_weights,
+            mus[split:],
+            sigmas[split:],
+        )
+
+    left = float(mus[split - 1])
+    right = float(mus[split])
+    midpoint = float(partition["decision_boundary"])
+    grid = np.linspace(left, right, 257, dtype=np.float64)
+    ratios = np.asarray([log_ratio(float(value)) for value in grid])
+    exact = np.flatnonzero(np.isclose(ratios, 0.0, atol=1e-12, rtol=0.0))
+    crossing_found = False
+    if exact.size:
+        candidates = grid[exact]
+        boundary = float(candidates[np.argmin(np.abs(candidates - midpoint))])
+        crossing_found = True
+    else:
+        changes = np.flatnonzero(np.signbit(ratios[:-1]) != np.signbit(ratios[1:]))
+        if changes.size:
+            index = int(
+                min(
+                    changes,
+                    key=lambda candidate: abs(
+                        float(0.5 * (grid[candidate] + grid[candidate + 1]))
+                        - midpoint
+                    ),
+                )
+            )
+            lower = float(grid[index])
+            upper = float(grid[index + 1])
+            lower_ratio = float(ratios[index])
+            for _ in range(60):
+                candidate = 0.5 * (lower + upper)
+                candidate_ratio = log_ratio(candidate)
+                if (candidate_ratio < 0.0) == (lower_ratio < 0.0):
+                    lower = candidate
+                    lower_ratio = candidate_ratio
+                else:
+                    upper = candidate
+            boundary = float(0.5 * (lower + upper))
+            crossing_found = True
+        else:
+            boundary = midpoint
+
+    return {
+        **partition,
+        "decision_boundary": boundary,
+        "gap_midpoint": midpoint,
+        "density_crossing": crossing_found,
+        "density_log_ratio": float(log_ratio(boundary)),
     }
 
 
@@ -306,13 +404,18 @@ class ASCALGMMShift(ASCALGMM):
                 }
             )
             return stats
-        stats.update(dominant_gap_boundary(self._mixture))
+        stats.update(self._candidate_partition())
         return stats
+
+    def _candidate_partition(self) -> dict[str, Any]:
+        if self._mixture is None:
+            raise RuntimeError("ASCAL-GMM boundary requires an active mixture")
+        return dominant_gap_boundary(self._mixture)
 
     def predict(self, images: Any) -> PredictionBatch:
         scores = self._batch_scores(images)
         if self.adaptation_mode == "full" and self._mixture_active():
-            partition = dominant_gap_boundary(self._mixture)
+            partition = self._candidate_partition()
             boundary = float(partition["decision_boundary"])
             probability = self._source_probability(scores - boundary)
             pending_state = {
@@ -359,8 +462,12 @@ class ASCALGMMMedianShift(ASCALGMMShift):
 
     def _after_successful_fit(self) -> None:
         if self._mixture_active():
-            partition = dominant_gap_boundary(self._mixture)
+            partition = self._candidate_partition()
             self.boundary_history.append(float(partition["decision_boundary"]))
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "median_gmm_shift"
 
     def _stabilized_boundary(self, candidate: float) -> float:
         if not self.boundary_history:
@@ -392,12 +499,12 @@ class ASCALGMMMedianShift(ASCALGMMShift):
     def predict(self, images: Any) -> PredictionBatch:
         scores = self._batch_scores(images)
         if self.adaptation_mode == "full" and self._mixture_active():
-            partition = dominant_gap_boundary(self._mixture)
+            partition = self._candidate_partition()
             candidate = float(partition["decision_boundary"])
             boundary = self._stabilized_boundary(candidate)
             probability = self._source_probability(scores - boundary)
             pending_state = {
-                "prediction_mode": "median_gmm_shift",
+                "prediction_mode": self._prediction_mode_name,
                 "prediction_boundary": boundary,
                 "prediction_candidate_boundary": candidate,
                 "prediction_real_components": int(partition["real_components"]),
@@ -415,10 +522,45 @@ class ASCALGMMMedianShift(ASCALGMMShift):
         return self._prediction_batch(scores, probability, **pending_state)
 
 
+class ASCALGMMDensityShift(ASCALGMMMedianShift):
+    """Use a median-stabilized equal-density boundary without semantic features."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "unlabeled_median_stabilized_equal_density_score_shift"
+                ),
+                "component_semantics": "none_dominant_gap_partition_only",
+                "boundary_rule": (
+                    "equal_prior_crossing_of_normalized_real_and_fake_block_densities"
+                ),
+                "boundary_fallback": (
+                    "dominant_gap_midpoint_when_no_crossing_exists_inside_the_gap"
+                ),
+                "hyperparameter_rule": "no_new_target_hyperparameters",
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "density_gmm_shift"
+
+    def _candidate_partition(self) -> dict[str, Any]:
+        if self._mixture is None:
+            raise RuntimeError("ASCAL-GMM density boundary requires an active mixture")
+        return equal_density_boundary(self._mixture)
+
+
 __all__ = [
     "ASCALGMM",
+    "ASCALGMMDensityShift",
     "ASCALGMMMedianShift",
     "ASCALGMMShift",
     "asymmetric_fake_posterior",
     "dominant_gap_boundary",
+    "equal_density_boundary",
 ]

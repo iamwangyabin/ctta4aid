@@ -42,7 +42,10 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 config = load_config(path)
                 self.assertEqual(config["methods"], ["ascal_gmm_static", "ascal_gmm"])
                 self.assertEqual(config["seed"], 1)
-                self.assertEqual(config["data"]["bias_control_profile"], "matched_jpeg")
+                self.assertEqual(
+                    config["data"]["bias_control_profile"],
+                    "matched_jpeg",
+                )
                 self.assertIn(
                     f"clip_vlm_bias_controlled/matched_jpeg/ascal_gmm/{dataset}/seed1",
                     config["output_dir"],
@@ -111,6 +114,45 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 for key in ("ema", "momentum", "window_size", "gates", "threshold"):
                     self.assertNotIn(key, adaptive)
 
+    def test_density_shift_seed1_configs_add_no_target_or_semantic_knobs(self) -> None:
+        from src.config import load_config, method_config
+
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / f"matched_jpeg_ascal_gmm_density_shift_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    ["ascal_gmm_density_shift_static", "ascal_gmm_density_shift"],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertEqual(config["data"]["bias_control_profile"], "matched_jpeg")
+                self.assertIn(
+                    "clip_vlm_bias_controlled/matched_jpeg/"
+                    f"ascal_gmm_density_shift/{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(config, "ascal_gmm_density_shift")
+                for key in (
+                    "ema",
+                    "momentum",
+                    "window_size",
+                    "gates",
+                    "threshold",
+                    "semantic_features",
+                ):
+                    self.assertNotIn(key, adaptive)
+                self.assertFalse(adaptive["reference"]["semantic_features_used"])
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -124,6 +166,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         self.assertIn("ascal_gmm_median_shift", config["training"]["intended_methods"])
         self.assertIn(
             "ascal_gmm_median_shift_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_density_shift",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_density_shift_static",
             config["training"]["intended_methods"],
         )
 
@@ -174,6 +224,21 @@ class AsymmetricPosteriorTests(unittest.TestCase):
             dominant_gap_boundary({"mus": [0.0]})
         with self.assertRaises(ValueError):
             dominant_gap_boundary({"mus": [0.0, -1.0]})
+
+    def test_equal_density_boundary_uses_variance_not_only_the_gap_midpoint(self) -> None:
+        from src.methods.ascal_gmm import equal_density_boundary
+
+        boundary = equal_density_boundary(
+            {
+                "weights": [0.5, 0.5],
+                "mus": [-2.0, 2.0],
+                "sigmas": [0.5, 2.0],
+            }
+        )
+        self.assertTrue(boundary["density_crossing"])
+        self.assertAlmostEqual(float(boundary["gap_midpoint"]), 0.0)
+        self.assertAlmostEqual(float(boundary["decision_boundary"]), -0.897, delta=0.01)
+        self.assertAlmostEqual(float(boundary["density_log_ratio"]), 0.0, places=8)
 
 
 @unittest.skipUnless(
@@ -246,6 +311,18 @@ class ASCALGMMMethodTests(unittest.TestCase):
         from src.methods.ascal_gmm import ASCALGMMMedianShift
 
         return ASCALGMMMedianShift(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def density_shift_method(self, *, adaptation_mode: str = "full"):
+        from src.methods.ascal_gmm import ASCALGMMDensityShift
+
+        return ASCALGMMDensityShift(
             self.detector(),
             "cpu",
             {
@@ -455,6 +532,40 @@ class ASCALGMMMethodTests(unittest.TestCase):
 
         method = build_method(
             "ascal_gmm_median_shift_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_density_shift_uses_the_median_stabilized_density_crossing(self) -> None:
+        method = self.density_shift_method()
+        method._mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-2.0, 2.0],
+            "sigmas": [0.5, 2.0],
+            "components": 2,
+            "bic": 0.0,
+        }
+        method._after_successful_fit()
+
+        scores = np.array([-2.0, 0.0, 2.0])
+        prediction = method.predict(self.score_batch(scores))
+        boundary = float(method._pending["prediction_boundary"])
+        expected = 1.0 / (1.0 + np.exp(-(scores - boundary)))
+        np.testing.assert_allclose(prediction.prob_fake.numpy(), expected, atol=1e-6)
+        self.assertAlmostEqual(boundary, -0.897, delta=0.01)
+        self.assertEqual(method._pending["prediction_mode"], "density_gmm_shift")
+        self.assertEqual(
+            method.reproduction_metadata["component_semantics"],
+            "none_dominant_gap_partition_only",
+        )
+
+    def test_method_factory_maps_density_shift_static_alias(self) -> None:
+        from src.methods import build_method
+
+        method = build_method(
+            "ascal_gmm_density_shift_static",
             self.detector(),
             "cpu",
             {"score_anchors": self.anchors()},

@@ -1,0 +1,27 @@
+extends: ascal_gmm.yaml
+
+methods: [ascal_gmm_density_shift_static, ascal_gmm_density_shift]
+
+method_configs:
+  ascal_gmm_density_shift_static:
+    adaptation_mode: static
+    reference:
+      role: exact_single_view_non_adaptive_control_for_ascal_gmm_density_shift
+      source_setup: lora_r4_binary_detector_from_fixed_clip_vitl14_with_score_anchors
+      protocol: predict_then_adapt
+
+  ascal_gmm_density_shift:
+    adaptation_mode: full
+    reference:
+      profile: ascal_asymmetric_online_gmm_density_shift_v1
+      protocol: predict_then_adapt
+      target_labels_used: false
+      semantic_features_used: false
+      adaptive_scope: one_unlabeled_median_stabilized_score_boundary
+      frozen_scope: clip_backbone_lora_branches_binary_head_and_source_temperature
+      partition_rule: largest_adjacent_component_mean_gap
+      boundary_rule: equal_prior_density_crossing_between_normalized_blocks
+      boundary_fallback: dominant_gap_midpoint_when_no_in_gap_crossing_exists
+      stabilization_rule: cumulative_median_of_all_causal_boundaries
+      prediction_rule: monotone_shift_of_raw_detector_score
+      source_fallback: exact_when_bic_selects_one_component

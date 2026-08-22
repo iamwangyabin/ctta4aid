@@ -465,6 +465,13 @@ real、高分连续块视为 fake，并取该间隔两端均值的中点作为�
 `matched_jpeg_ascal_gmm_median_shift_*_seed1.yaml`，同样不能在三 seed 验收前进入正文
 主表。
 
+`ascal_gmm_density_shift` 是不使用语义特征的边界规则消融。它保留最大间隔给出的低分
+real 块与高分 fake 块划分，也保留候选边界的累计中位数，但分别归一化两侧 GMM 权重，
+以等先验 real/fake 条件密度在最大间隔内的交点替代分量均值中点。若间隔内不存在交点，
+则确定性退回原最大间隔中点；BIC 只选出一个分量时仍精确退回 source。该变体不引入
+target 阈值、窗口、融合系数或语义输入，并与 `ascal_gmm_density_shift_static` 成对运行；
+seed1 诊断入口为 `matched_jpeg_ascal_gmm_density_shift_*_seed1.yaml`。
+
 ## OST
 
 OST 是独立的逐样本 Adapt-Then-Predict 协议，不加入公共 ResNet-50 的 Controlled CTTA 表。它对每张测试图执行作者论文 Algorithm 1 的核心步骤：从源训练集随机抽取一个带标签模板，生成已知为假的伪样本，用 `{伪样本, 模板}` 的 AM-Softmax loss 做一次 fast-weight 更新，再预测原图。目标 hidden label 始终只进入 evaluator。
