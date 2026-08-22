@@ -450,6 +450,59 @@ class MethodFidelityTests(unittest.TestCase):
             method.core.transform.__class__.__name__, "NormalizedInputTransform"
         )
 
+    def test_rotta_ln_keeps_online_core_and_adapts_only_clip_visual_norms(
+        self,
+    ) -> None:
+        from src.methods.rotta import RoTTA
+
+        model = self.clip_vlm()
+        model.input_mean = (0.48145466, 0.4578275, 0.40821073)
+        model.input_std = (0.26862954, 0.26130258, 0.27577711)
+        method = RoTTA(
+            model,
+            "cpu",
+            {
+                "optimizer": "adam",
+                "lr": 0.001,
+                "memory_size": 4,
+                "update_frequency": 2,
+                "num_classes": 2,
+                "image_size": 8,
+                "clip_visual_layernorm": True,
+            },
+        )
+
+        self.assertEqual(method.core.__class__.__module__, "src.official.rotta")
+        self.assertEqual(
+            method.normalization_mapping,
+            "RobustBatchNorm_to_CLIP_visual_LayerNorm_affine",
+        )
+        self.assertTrue(
+            all(
+                name.startswith("clip.visual.")
+                for name in method.official_parameter_names
+            )
+        )
+        self.assertFalse(method.model.head.weight.requires_grad)
+        self.assertEqual(method.core.transform.mean, model.input_mean)
+        self.assertEqual(method.core.transform.std, model.input_std)
+        self.assertEqual(
+            method.reproduction_metadata["reported_method_name"], "RoTTA-LN"
+        )
+
+        images = self.torch.randn(2, 3, 8, 8)
+        prediction = method.predict(images)
+        self.assertEqual(tuple(prediction.logits.shape), (2, 2))
+        stats = method.adapt(images)
+        self.assertEqual(stats.selected, 2)
+        self.assertEqual(stats.extra["memory_occupancy"], 2)
+        self.assertEqual(stats.extra["optimizer_updates"], 1)
+        self.assertTrue(self.torch.isfinite(self.torch.tensor(stats.loss)))
+
+        method.reset()
+        self.assertEqual(method.core.mem.get_occupancy(), 0)
+        self.assertEqual(method.core.transform.mean, model.input_mean)
+
     def test_lame_runs_official_parameter_free_laplacian_output_update(self) -> None:
         from src.methods.lame import LAME
 

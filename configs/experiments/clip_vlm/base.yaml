@@ -5,6 +5,7 @@ extends:
   - ../../methods/eata.yaml
   - ../../methods/sar.yaml
   - ../../methods/cotta.yaml
+  - ../../methods/rotta.yaml
   - ../../methods/lame.yaml
   - ../../methods/t2a.yaml
   - ../../methods/frozen_clip.yaml
@@ -22,6 +23,7 @@ methods:
   - eata
   - sar
   - cotta
+  - rotta
   - lame
   - t2a
   - frozen_clip
@@ -85,6 +87,15 @@ method_configs:
     data:
       batch_size: 16
       num_workers: 0
+  rotta:
+    capture_initial_state: false
+    clip_visual_layernorm: true
+    data:
+      # FP32 ViT-L/14 student + EMA teacher + backward activations use about
+      # 20 GiB at batch 2 on a 24 GiB RTX 4090. The official instance-based
+      # update frequency remains 64, so only delivery granularity changes.
+      batch_size: 2
+      num_workers: 0
   lame:
     capture_initial_state: false
     data:
@@ -142,6 +153,6 @@ method_configs:
 reporting:
   primary_table: clip_vitl14_method_native_online
   source_setup_column: required
-  excluded_from_main_quantitative_table: [rotta, ttc]
+  related_work_only: [ttc]
   paired_static_baselines:
     ours: ours_static

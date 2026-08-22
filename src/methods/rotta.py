@@ -7,25 +7,44 @@ from typing import Any
 from src.types import AdaptationStats, PredictionBatch
 
 from .base import TTAMethod
-from .utils import NormalizedInputTransform, build_optimizer
+from .utils import (
+    NormalizedInputTransform,
+    build_optimizer,
+    model_input_normalization,
+    select_clip_visual_norm_parameters,
+)
 
 
 class RoTTA(TTAMethod):
-    """Expose RobustBN/CSTU/teacher-student RoTTA through Predict-Then-Adapt."""
+    """Expose RoTTA through Predict-Then-Adapt, with an explicit CLIP-LN port."""
 
     def __init__(self, model: Any, device: Any, config: dict[str, Any] | None = None) -> None:
         super().__init__(model, device, config)
         from src.official import rotta as official_rotta
 
         self.official_module = official_rotta
-        official_rotta.configure_model(
-            self.model, alpha=float(self.config.get("alpha", 0.05))
+        self.clip_visual_layernorm = bool(
+            self.config.get("clip_visual_layernorm", False)
         )
-        parameters, self.official_parameter_names = official_rotta.collect_params(
-            self.model
-        )
+        self.normalization_mapping = None
+        if self.clip_visual_layernorm:
+            self.model.train()
+            self.model.requires_grad_(False)
+            parameters, self.official_parameter_names = (
+                select_clip_visual_norm_parameters(self.model)
+            )
+            self.normalization_mapping = (
+                "RobustBatchNorm_to_CLIP_visual_LayerNorm_affine"
+            )
+        else:
+            official_rotta.configure_model(
+                self.model, alpha=float(self.config.get("alpha", 0.05))
+            )
+            parameters, self.official_parameter_names = official_rotta.collect_params(
+                self.model
+            )
         if not parameters:
-            raise RuntimeError("Official RoTTA did not collect RobustBN parameters")
+            raise RuntimeError("RoTTA did not collect adaptation parameters")
         self.optimizer = build_optimizer(parameters, self.config)
         self.steps = int(self.config.get("steps", 1))
         if self.steps < 1:
@@ -43,24 +62,62 @@ class RoTTA(TTAMethod):
             gaussian_std=float(self.config.get("gaussian_std", 0.005)),
             soft=bool(self.config.get("soft_augmentation", False)),
         )
-        self.core.transform = NormalizedInputTransform(self.core.transform)
+        self._input_mean, self._input_std = model_input_normalization(self.model)
+        self._bridge_pixel_transform()
         self._pending_teacher_output: Any = None
         self._pending_batch_id: int | None = None
 
+    def _bridge_pixel_transform(self) -> None:
+        self.core.transform = NormalizedInputTransform(
+            self.core.transform,
+            mean=self._input_mean,
+            std=self._input_std,
+        )
+
     @property
     def reproduction_metadata(self) -> dict[str, Any]:
+        layernorm_changes = (
+            [
+                "RobustBN is unavailable in ViT-L/14 and is explicitly replaced "
+                "by OpenAI CLIP visual LayerNorm affine adaptation",
+                "RobustBN source/target statistic interpolation has no LayerNorm "
+                "equivalent and is therefore absent",
+            ]
+            if self.clip_visual_layernorm
+            else []
+        )
         return {
-            "level": "vendored_official_core_with_binary_protocol_wrapper",
+            "level": (
+                "vendored_official_core_with_explicit_layernorm_transfer"
+                if self.clip_visual_layernorm
+                else "vendored_official_core_with_binary_protocol_wrapper"
+            ),
             "official_commit": "67e34c900cdd355fc07e55edd4c577ea7b8ebcc9",
             "official_core": "src.official.rotta",
             "numerical_validation": "not_run_requires_official_data_and_weights",
             "protocol_wrapper": "predict_then_adapt",
+            "reported_method_name": (
+                "RoTTA-LN" if self.clip_visual_layernorm else "RoTTA"
+            ),
+            "stream_batch_size": int(
+                self.config.get("data", {}).get("batch_size", 64)
+            ),
             "intentional_changes": [
                 "class count changed from CIFAR-10/100 to binary detection",
                 "input resolution changed from CIFAR 32 to common AIGC 224",
                 "torchvision interpolation and hard-coded CUDA compatibility patches",
-                "ImageNet normalization bridge around official pixel augmentation",
+                "model-specific normalization bridge around official pixel augmentation",
                 "EMA prediction cached before the official memory/update path",
+                *layernorm_changes,
+            ],
+            "normalization_mapping": self.normalization_mapping,
+            "retained_rotta_components": [
+                "CSTU memory",
+                "teacher/student update",
+                "EMA update",
+                "timeliness reweighting",
+                "entropy objective",
+                "official optimizer and update frequency",
             ],
         }
 
@@ -107,7 +164,7 @@ class RoTTA(TTAMethod):
 
     def reset(self) -> None:
         self.core.reset()
-        self.core.transform = NormalizedInputTransform(self.core.transform)
+        self._bridge_pixel_transform()
         self._pending_teacher_output = None
         self._pending_batch_id = None
 

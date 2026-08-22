@@ -45,6 +45,11 @@ class OfficialConfigTests(unittest.TestCase):
                 self.assertEqual(methods["rotta"]["num_classes"], 2)
                 self.assertEqual(methods["rotta"]["nu"], 0.001)
                 self.assertEqual(methods["rotta"]["alpha"], 0.05)
+                self.assertFalse(methods["rotta"]["clip_visual_layernorm"])
+                self.assertEqual(
+                    methods["rotta"]["layernorm_transfer"]["result_label"],
+                    "RoTTA-LN",
+                )
                 self.assertEqual(
                     methods["rotta"]["official_symbols"]["UPDATE_FREQUENCY"],
                     64,
@@ -129,6 +134,7 @@ class OfficialConfigTests(unittest.TestCase):
             "eata",
             "sar",
             "cotta",
+            "rotta",
             "lame",
             "t2a",
             "frozen_clip",
@@ -187,6 +193,18 @@ class OfficialConfigTests(unittest.TestCase):
                     )
                     self.assertTrue(
                         config["method_configs"]["t2a"]["clip_visual_layernorm"]
+                    )
+                    self.assertTrue(
+                        config["method_configs"]["rotta"][
+                            "clip_visual_layernorm"
+                        ]
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["rotta"]["data"]["batch_size"],
+                        2,
+                    )
+                    self.assertEqual(
+                        config["reporting"]["related_work_only"], ["ttc"]
                     )
                     self.assertEqual(
                         config["method_configs"]["sar"]["data"]["batch_size"], 16

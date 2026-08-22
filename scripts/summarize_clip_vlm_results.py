@@ -101,7 +101,7 @@ TABLE_GROUPS = (
             TableRow("eata", "EATA$^{\\dagger}$", "source_trained"),
             TableRow("sar", "SAR", "source_trained"),
             TableRow("cotta", "CoTTA", "source_trained"),
-            TableRow("rotta", "RoTTA$^{\\ddagger}$", None, available=False),
+            TableRow("rotta", "RoTTA-LN$^{\\ddagger}$", "source_trained"),
             TableRow("lame", "LAME", "source_trained"),
             TableRow("t2a", "T$^2$A$^{\\dagger}$", "source_trained"),
         ),
@@ -122,7 +122,6 @@ TABLE_GROUPS = (
         "Method-specific source training",
         (
             TableRow("iapl", "IAPL", None),
-            TableRow("ttc", "TTC$^{\\S}$", None, available=False),
             TableRow("ours_static", "Ours-Static", None),
             TableRow("ours", "Ours", None),
         ),
@@ -540,9 +539,12 @@ def render_dataset_table(
             "\\parbox{\\textwidth}{\\footnotesize Blocks distinguish source "
             "setup; bold is restricted to the two blocks with shared starting "
             "states. $^{\\dagger}$BatchNorm parameter selection is minimally "
-            "mapped to LayerNorm affine parameters. $^{\\ddagger}$RoTTA remains "
-            "blank because robust BatchNorm is a core component. $^{\\S}$TTC "
-            "remains blank until an authors' implementation can be pinned. "
+            "mapped to LayerNorm affine parameters. $^{\\ddagger}$RoTTA-LN "
+            "explicitly replaces RobustBN with CLIP visual LayerNorm affine "
+            "adaptation while retaining CSTU, teacher/student EMA, entropy loss, "
+            "and the 64-instance online update schedule. It uses batch 2 to fit "
+            "the FP32 ViT-L/14 student/teacher pair on 24 GB GPUs and is a "
+            "disclosed ViT transfer, not the original RobustBN method. "
             "Target labels are used only by the evaluator.}",
             "\\end{table*}",
             "",
@@ -630,10 +632,13 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
             "best result only within a shared-source block. $^{\\dagger}$The "
             "method's BatchNorm parameter selection is minimally mapped to CLIP "
             "LayerNorm affine parameters without changing its objective or online "
-            "logic. $^{\\ddagger}$RoTTA is not run because robust BatchNorm is a "
-            "core component and replacing it would redesign the method. "
-            "$^{\\S}$TTC is not reported until an authors' implementation can "
-            "be pinned. Target labels are never used for prompt or hyperparameter "
+            "logic. $^{\\ddagger}$RoTTA-LN explicitly replaces RobustBN with CLIP "
+            "visual LayerNorm affine adaptation while retaining CSTU, "
+            "teacher/student EMA, entropy loss, and the online update schedule; "
+            "its batch size is 2 on 24 GB GPUs while the official 64-instance "
+            "update frequency is unchanged. It is a disclosed ViT transfer rather "
+            "than the original RobustBN method. Target labels are never used for "
+            "prompt or hyperparameter "
             "selection.}",
             "\\end{table*}",
             "",

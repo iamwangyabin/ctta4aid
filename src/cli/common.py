@@ -217,6 +217,7 @@ def build_fresh_method(
             "eata",
             "sar",
             "cotta",
+            "rotta",
             "lame",
             "t2a",
         }

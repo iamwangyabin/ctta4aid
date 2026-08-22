@@ -73,9 +73,9 @@ batch/views、状态转移、预测/适应顺序和 prompt 构造，只做接入
 
 | 区块 | 起点 | 方法 | 比较规则 |
 |---|---|---|---|
-| 公共源域 CLIP detector | 固定 ViT-L/14 初始化后，在同一源数据上训练的公共二分类 checkpoint | Source、TENT、EATA、SAR、CoTTA、LAME、T2A | 共享源 checkpoint，可在块内比较最佳结果 |
+| 公共源域 CLIP detector | 固定 ViT-L/14 初始化后，在同一源数据上训练的公共二分类 checkpoint | Source、TENT、EATA、SAR、CoTTA、RoTTA-LN、LAME、T2A | 共享源 checkpoint，可在块内比较最佳结果 |
 | CLIP-native | 未做任务微调的固定 ViT-L/14 checkpoint | Frozen CLIP、TDA、DynaPrompt、CLIPTTA、BATCLIP | 共享二分类类别语义，各自保留原生 template、文本分类器或 prompt learner |
-| Method-specific source training | 固定 ViT-L/14 初始化后，按方法自己的源训练流程得到的 checkpoint | IAPL、TTC、Ours | source state 不同，只披露数值，不做跨块最佳排名 |
+| Method-specific source training | 固定 ViT-L/14 初始化后，按方法自己的源训练流程得到的 checkpoint | IAPL、Ours | source state 不同，只披露数值，不做跨块最佳排名 |
 
 各方法的冻结运行约定如下。`BN -> LN` 只表示把公开实现中的归一化参数枚举映射到
 CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fisher、gradient masking
@@ -87,7 +87,7 @@ CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fish
 | EATA | 公共源域二分类 detector | 可靠/非冗余筛选、熵最小化、Fisher 防遗忘 | `BN -> LN`；Fisher 必须由同一源 checkpoint 与源数据计算 |
 | SAR | 公共源域二分类 detector | 可靠样本筛选、SAM 与恢复机制 | 使用作者公开的 ViT/LayerNorm 路径 |
 | CoTTA | 公共源域二分类 detector | student/EMA teacher、增强平均、随机恢复 | 保留作者全参数更新；只将像素增强的归一化桥接为 CLIP 输入归一化 |
-| RoTTA | 需要源域 detector | robust BatchNorm、memory 与 teacher | robust BatchNorm 是方法核心，不能最小迁移；结果单元格留空并加脚注 |
+| RoTTA-LN | 公共源域二分类 detector | CSTU memory、teacher/student、EMA 与熵目标 | 显式以 CLIP visual LayerNorm affine 替代 RobustBN；无统计插值等价物；24 GB GPU 上固定 batch 2、官方 64-instance 更新频率不变，表格不得写成原版 RoTTA |
 | LAME | 公共源域 detector 的特征与 logits | 参数无关的 Laplacian 输出适配 | 仅接入 CLIP 特征；保留其 batch contract |
 | T2A | 公共源域二分类 detector | 不确定性选择、negative learning、gradient masking | 归一化梯度参照由 BN 最小映射为 LayerNorm，其他逻辑不动 |
 | IAPL | IAPL 原生源训练得到的 CLIP detector | 32 views、2 steps、OIS、逐图 prompt/optimizer reset | 只替换统一数据接口，不改为公共 binary head |
@@ -95,7 +95,6 @@ CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fish
 | DynaPrompt | CLIP 类别名与在线 context | 多视图 prompt tuning、动态 prompt buffer | 换成 ViT-L/14；不固定最终 prompt |
 | CLIPTTA | CLIP 文本原型 | 官方 closed-set 对比适配及 batch 机制 | 使用二分类类别语义与作者原生文本构造 |
 | BATCLIP | CLIP 图像与文本两端 | 双模态目标及原生在线更新 | 换成固定 ViT-L/14；不得退化成只更新视觉端 |
-| TTC | 已训练 AIGC detector | 课程式伪标签适配 | 作者公开实现可固定前结果单元格留空并加脚注，不得自写后冒充复现 |
 | Ours | PoundNet 的配对真实/伪造 prompt detector | 冻结语义路由、延迟残差记忆、条件原型与受保护低秩适配 | 严格 Predict-Then-Adapt；同时报告同 checkpoint 的 Ours-Static |
 
 所有 target hidden labels 始终只进入 evaluator。CLIP-native 方法的类别语义属于任务定义，
@@ -130,8 +129,8 @@ AdamW、CLIP 训练增强，并在相同 source checkpoint 的干净 source hold
 训练配置还固定排除了 preflight 检出的三条零字节 SD v1.4 源图逻辑路径；不会用空白或
 合成像素替代损坏样本。
 八张新表在完整三 seed campaign 验收前仍全部保持空白；此前完成的 ResNet-50 数值表原样
-保留在论文补充材料中。RoTTA 与 TTC 的结果单元格保持空白并由脚注解释，不得为了填表
-放宽上述约束。
+保留在论文补充材料中。RoTTA-LN 只有在独立运行并通过结果身份核验后才可填值；TTC
+因没有可固定的作者公开实现而从定量表删除，只在 related work 中讨论。
 
 四个数据集的三 seed 全部完成后，写入最终结果目录并生成论文主表：
 
@@ -561,8 +560,8 @@ EATA、T2A 和 OST 的参数适应在这轮配对实验中均未提高宏平均 
 ## 实验边界
 
 - CLIP 主结果只使用固定 OpenAI CLIP ViT-L/14 预训练权重，并锁定目标样本 identity、目标内顺序和 seed；每种方法保留原生 source training、分类器或 prompt 构造、batch/views、在线状态与预测/适应顺序。每个数据集分别报告逐 target AUC 和阈值 0.5 的 Accuracy；target 单元格为三 seed 均值，Mean 为 target-macro 均值及跨 seed 标准差。
-- TENT、EATA 和 T2A 只允许把公开实现中的 BN 参数参照最小映射到 CLIP visual LayerNorm affine；其余方法逻辑不得重写。CoTTA 保留作者 ImageNet 分支的全参数 student/teacher 更新，只将其像素空间增强桥接到 CLIP 输入归一化。EATA 必须包含匹配公共源域 CLIP detector 的 Fisher。RoTTA 因 robust BatchNorm 是核心而不生成结果，原因只在脚注披露。
-- CLIP-native 方法只共享类别语义，不共享人为固定的一句最终 prompt。IAPL 与 Ours 使用各自原生源训练并单独披露 source setup；TTC 在作者公开实现可固定前不生成结果，原因只在脚注披露。
+- TENT、EATA 和 T2A 只允许把公开实现中的 BN 参数参照最小映射到 CLIP visual LayerNorm affine；其余方法逻辑不得重写。CoTTA 保留作者 ImageNet 分支的全参数 student/teacher 更新，只将其像素空间增强桥接到 CLIP 输入归一化。EATA 必须包含匹配公共源域 CLIP detector 的 Fisher。RoTTA-LN 显式以 visual LayerNorm affine 替代 RobustBN，但保留 CSTU、teacher/student EMA、熵目标和在线更新频率；由于没有 RobustBN 统计插值，它只能按迁移版本名称披露。
+- CLIP-native 方法只共享类别语义，不共享人为固定的一句最终 prompt。IAPL 与 Ours 使用各自原生源训练并单独披露 source setup；TTC 在作者公开实现可固定前仅保留在 related work，不进入定量表。
 - CNN Controlled CTTA 方法共享 backbone、源 checkpoint、输入顺序、batch size 和 Predict-Then-Adapt 协议；既有数值表原样保留为补充材料，不得被新 CLIP 空表覆盖或删除。
 - OST 使用自己的 MetaXception checkpoint、源训练模板和 Adapt-Then-Predict 协议，只能单独披露；当前通用 alpha 合成结果不等价于作者的人脸实验。
 - T2A 使用经过必要运行修复的作者公开核心，不能描述为未经修改的官方实现。

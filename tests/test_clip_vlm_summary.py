@@ -34,6 +34,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
                         frozen_clip_auc=0.80 + dataset_index * 0.01 + offset,
                         tda_auc=0.75 + dataset_index * 0.01 + offset,
                         iapl_auc=0.80 + dataset_index * 0.01 + offset,
+                        rotta_auc=0.68 + dataset_index * 0.01 + offset,
                     )
 
             summary = SUMMARY_SCRIPT.aggregate_results(dataset_roots)
@@ -53,8 +54,10 @@ class ClipVlmSummaryTests(unittest.TestCase):
             self.assertIn("CLIP-native", table)
             self.assertIn("\\textbf{71.30 $\\pm$ 1.00}", table)
             self.assertIn("\\textbf{81.30 $\\pm$ 1.00}", table)
-            self.assertIn("RoTTA$^{\\ddagger}$ & -- & -- & -- & -- & --", table)
-            self.assertIn("TTC$^{\\S}$ & -- & -- & -- & -- & --", table)
+            self.assertIn(
+                "RoTTA-LN$^{\\ddagger}$ & 69.30 $\\pm$ 1.00", table
+            )
+            self.assertNotIn("TTC", table)
             self.assertIn("Ours-Static & -- & -- & -- & -- & --", table)
             self.assertIn("Ours & -- & -- & -- & -- & --", table)
 
@@ -94,8 +97,8 @@ class ClipVlmSummaryTests(unittest.TestCase):
             self.assertEqual(rows["ours"]["genimage"], "")
             self.assertEqual(rows["ours_static"]["genimage"], "")
             self.assertIn("61.30", rows["source_ft"]["genimage"])
-            self.assertEqual(rows["rotta"]["genimage"], "")
-            self.assertEqual(rows["ttc"]["mean"], "")
+            self.assertIn("69.30", rows["rotta"]["genimage"])
+            self.assertNotIn("ttc", rows)
 
     def test_blank_detailed_templates_keep_every_result_cell_empty(self) -> None:
         genimage_auc = SUMMARY_SCRIPT.render_dataset_table("genimage", "auc")
@@ -111,7 +114,9 @@ class ClipVlmSummaryTests(unittest.TestCase):
         )
         self.assertIn("Frozen CLIP & -- & --", genimage_auc)
         self.assertIn("Tent$^{\\dagger}$", genimage_auc)
+        self.assertIn("RoTTA-LN$^{\\ddagger}$", genimage_auc)
         self.assertIn("IAPL & -- & --", genimage_auc)
+        self.assertNotIn("TTC", genimage_auc)
         self.assertIn("Result cells remain blank", genimage_auc)
         self.assertIn("fixed 0.5 decision threshold", genimage_accuracy)
         self.assertIn("DALL-E2 & SDXL & Mean", aigc_auc)
@@ -204,6 +209,7 @@ def _write_seed(
     frozen_clip_auc: float,
     tda_auc: float,
     iapl_auc: float,
+    rotta_auc: float | None = None,
     reverse_targets: bool = False,
     experiment_identity: dict[str, str] | None = None,
 ) -> None:
@@ -213,13 +219,17 @@ def _write_seed(
     ]
     if reverse_targets:
         targets.reverse()
-    for method, auc in (
+    method_values = [
         ("source_ft", source_ft_auc),
         ("sar", sar_auc),
+        ("rotta", rotta_auc),
         ("frozen_clip", frozen_clip_auc),
         ("tda", tda_auc),
         ("iapl", iapl_auc),
-    ):
+    ]
+    for method, auc in method_values:
+        if auc is None:
+            continue
         summary[method] = {}
         for target_offset, target in enumerate(targets):
             value = auc + target_offset * 0.001
