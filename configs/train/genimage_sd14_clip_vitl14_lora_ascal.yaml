@@ -40,7 +40,7 @@ data:
 training:
   profile: ascal_lora_r4_source_detector
   checkpoint_role: method_specific_source_detector_for_ascal
-  intended_methods: [ascal, ascal_static]
+  intended_methods: [ascal, ascal_static, ascal_gmm, ascal_gmm_static]
   epochs: 3
   max_steps_per_epoch: null
   optimizer: adamw

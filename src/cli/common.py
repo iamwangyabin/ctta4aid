@@ -142,8 +142,13 @@ def build_fresh_method(
             },
         }
         return method, metadata
-    if normalized_name in {"ascal", "ascalstatic"}:
-        if normalized_name == "ascalstatic":
+    if normalized_name in {
+        "ascal",
+        "ascalstatic",
+        "ascalgmm",
+        "ascalgmmstatic",
+    }:
+        if normalized_name in {"ascalstatic", "ascalgmmstatic"}:
             effective_method_config.setdefault("adaptation_mode", "static")
         model, metadata = build_clip_lora_detector(
             effective_method_config, device=device
@@ -155,7 +160,7 @@ def build_fresh_method(
         anchors = checkpoint_metadata.get("score_anchors")
         if not isinstance(anchors, dict):
             raise ValueError(
-                "ASCAL requires a calibrated LoRA source checkpoint carrying "
+                "The ASCAL family requires a calibrated LoRA source checkpoint carrying "
                 "score_anchors; train one with "
                 "configs/train/genimage_sd14_clip_vitl14_lora_ascal.yaml"
             )

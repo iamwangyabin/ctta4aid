@@ -429,6 +429,25 @@ export ASCAL_LORA_SOURCE_CHECKPOINT=/outputs/clip_vitl14_lora_ascal_source_train
 完整三 seed 结果验收前，论文表格不得填入 ASCAL 数值；其 source setup 属于
 method-specific source training 区块，不与公共源域 detector 区块跨块比较。
 
+### ASCAL-GMM（简化的非对称在线校准）
+
+`ascal_gmm` 是在同一 LoRA source detector 上独立保留的简化方案，不改写上面的原始
+ASCAL 消融。它使用单个标准 CLIP 视图，并把每个已经到达的 target 原始分数全部加入
+一维 GMM；没有置信度入库阈值、窗口、类别容量、连续通过次数、漂移门控或融合系数。
+每次预测严格使用前一批结束后得到的状态，当前 batch 只在预测完成后进入拟合。
+
+分量数由 BIC 在 `1..(1 + K_source_fake)` 中自动选择，其中 source fake-GMM 的分量数
+只提供一个不读取 target label 的复杂度上限。BIC 只选出一个分量时，证据不足，输出
+严格退回 source 温度校准概率；选出两个或更多分量时，按均值排序，将最低均值分量视为
+单峰 real，其余所有分量的责任度相加作为 fake 概率。因此方法会自然从“一块 real +
+一块 fake”开始，只有无标签分数本身支持时 fake 才增加更多模式。source 锚点只用于
+温度回退、分数方向确认和上述复杂度上限，不参与 target MAP 锁定。
+
+`ascal_gmm_static` 是同 checkpoint、同单视图输入的精确非适应对照。当前用于诊断的
+`matched_jpeg` seed1 入口位于
+`configs/experiments/clip_vlm_bias_controlled/matched_jpeg_ascal_gmm_*_seed1.yaml`；它们
+不是完整三 seed 正式结果，不能回填论文主表。
+
 ## OST
 
 OST 是独立的逐样本 Adapt-Then-Predict 协议，不加入公共 ResNet-50 的 Controlled CTTA 表。它对每张测试图执行作者论文 Algorithm 1 的核心步骤：从源训练集随机抽取一个带标签模板，生成已知为假的伪样本，用 `{伪样本, 模板}` 的 AM-Softmax loss 做一次 fast-weight 更新，再预测原图。目标 hidden label 始终只进入 evaluator。
