@@ -15,7 +15,9 @@ score-coordinate jump; after that first change, an uncertain one-component fit
 holds the last emitted boundary instead of jumping back to the source detector.
 The segmented-memory variant instead stores each completed score regime as a
 compact GMM episode and uses predictive description length to recall a matching
-episode when a previously observed regime returns.
+episode when a previously observed regime returns. Its joint-density posterior
+variant reads the two dominant-gap blocks as equal-prior class-conditional
+densities and pools a recalled episode with current evidence in log-odds space.
 """
 
 from __future__ import annotations
@@ -73,6 +75,53 @@ def dominant_gap_boundary(mixture: dict[str, Any]) -> dict[str, float | int]:
         "real_components": split,
         "fake_components": int(mus.size - split),
     }
+
+
+def _joint_density_log_odds(scores: Any, mixture: dict[str, Any]) -> Any:
+    """Return log p(score|fake) - log p(score|real) for two GMM blocks."""
+
+    values = np.asarray(scores, dtype=np.float64).reshape(-1)
+    weights = np.asarray(mixture["weights"], dtype=np.float64).reshape(-1)
+    mus = np.asarray(mixture["mus"], dtype=np.float64).reshape(-1)
+    sigmas = np.asarray(mixture["sigmas"], dtype=np.float64).reshape(-1)
+    if weights.size < 2 or not (weights.size == mus.size == sigmas.size):
+        raise ValueError(
+            "Joint-density posterior requires at least two matching components"
+        )
+    if np.any(weights <= 0.0) or np.any(sigmas <= 0.0):
+        raise ValueError("Joint-density posterior requires positive weights and sigmas")
+    if np.any(np.diff(mus) < 0.0):
+        raise ValueError("Mixture components must be sorted by mean")
+
+    partition = dominant_gap_boundary(mixture)
+    split = int(partition["real_components"])
+    real_weights = weights[:split] / weights[:split].sum()
+    fake_weights = weights[split:] / weights[split:].sum()
+
+    def log_density(
+        block_weights: np.ndarray,
+        block_mus: np.ndarray,
+        block_sigmas: np.ndarray,
+    ) -> np.ndarray:
+        z = (values[:, None] - block_mus[None, :]) / block_sigmas[None, :]
+        log_joint = (
+            np.log(block_weights)[None, :]
+            - np.log(block_sigmas)[None, :]
+            - 0.5 * math.log(2.0 * math.pi)
+            - 0.5 * z * z
+        )
+        return np.logaddexp.reduce(log_joint, axis=1)
+
+    log_real = log_density(real_weights, mus[:split], sigmas[:split])
+    log_fake = log_density(fake_weights, mus[split:], sigmas[split:])
+    return log_fake - log_real
+
+
+def joint_density_fake_posterior(scores: Any, mixture: dict[str, Any]) -> Any:
+    """Return the equal-prior Bayes posterior of the dominant-gap fake block."""
+
+    log_odds = _joint_density_log_odds(scores, mixture)
+    return 1.0 / (1.0 + np.exp(-np.clip(log_odds, -60.0, 60.0)))
 
 
 def _log_mixture_density(
@@ -1088,6 +1137,130 @@ class ASCALGMMSegmentedMemoryShift(ASCALGMMSegmentedShift):
         return stats
 
 
+class ASCALGMMSegmentedMemoryPosterior(ASCALGMMSegmentedMemoryShift):
+    """Read current and recalled score regimes as class-density posteriors."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "unlabeled_bic_segmented_episodic_joint_density_posterior"
+                ),
+                "component_rule": (
+                    "largest_adjacent_mean_gap_separates_multicomponent_real_"
+                    "and_fake_blocks"
+                ),
+                "class_density_rule": (
+                    "mixture_weights_are_normalized_independently_inside_each_block"
+                ),
+                "class_prior_rule": "equal_real_and_fake_priors",
+                "prediction_rule": (
+                    "bayes_posterior_from_real_and_fake_block_joint_densities"
+                ),
+                "recalled_posterior_rule": (
+                    "one_episode_log_likelihood_ratio_vote_then_current_evidence"
+                ),
+                "posterior_pooling": "evidence_counted_geometric_pool_in_log_odds",
+                "ranking_rule": (
+                    "density_likelihood_ratio_is_not_constrained_to_preserve_source_order"
+                ),
+                "hyperparameter_rule": (
+                    "no_class_prior_fusion_weight_or_posterior_temperature"
+                ),
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_joint_density_posterior"
+
+    def _recalled_mixture(self) -> dict[str, Any] | None:
+        if self.recall_anchor_boundary is None or self.active_memory_index is None:
+            return None
+        if not 0 <= self.active_memory_index < len(self.segment_memories):
+            raise RuntimeError("Active ASCAL-GMM posterior memory is out of range")
+        mixture = self.segment_memories[self.active_memory_index]["mixture"]
+        if int(mixture["components"]) < 2:
+            return None
+        return mixture
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores = self._batch_scores(images)
+        memory_mixture = None
+        memory_weight = 0.0
+        if self.adaptation_mode == "full" and self._mixture_active():
+            if self._mixture is None:
+                raise RuntimeError("ASCAL-GMM posterior requires an active mixture")
+            partition = dominant_gap_boundary(self._mixture)
+            current_log_odds = _joint_density_log_odds(scores, self._mixture)
+            log_odds = current_log_odds
+            memory_mixture = self._recalled_mixture()
+            memory_weight = self._recall_anchor_weight()
+            if memory_mixture is not None and memory_weight > 0.0:
+                memory_log_odds = _joint_density_log_odds(scores, memory_mixture)
+                log_odds = (
+                    memory_weight * memory_log_odds
+                    + (1.0 - memory_weight) * current_log_odds
+                )
+                prediction_mode = "recalled_joint_density_posterior"
+            else:
+                prediction_mode = self._prediction_mode_name
+            probability = 1.0 / (
+                1.0 + np.exp(-np.clip(log_odds, -60.0, 60.0))
+            )
+            current_density = equal_density_boundary(self._mixture)
+            pending_state = {
+                "prediction_mode": prediction_mode,
+                "prediction_boundary": None,
+                "prediction_current_density_boundary": float(
+                    current_density["decision_boundary"]
+                ),
+                "prediction_real_components": int(partition["real_components"]),
+                "prediction_fake_components": int(partition["fake_components"]),
+            }
+        else:
+            probability = self._source_probability(scores)
+            pending_state = {
+                "prediction_mode": "source_fallback",
+                "prediction_boundary": 0.0,
+                "prediction_current_density_boundary": None,
+                "prediction_real_components": 0,
+                "prediction_fake_components": 0,
+            }
+
+        pending_state.update(
+            {
+                "prediction_memory_index": self.active_memory_index,
+                "prediction_memory_recalled": memory_mixture is not None,
+                "prediction_memory_anchor_boundary": self.recall_anchor_boundary,
+                "prediction_memory_anchor_weight": memory_weight,
+                "prediction_memory_density_boundary": (
+                    None
+                    if memory_mixture is None
+                    else float(
+                        equal_density_boundary(memory_mixture)["decision_boundary"]
+                    )
+                ),
+            }
+        )
+        return self._prediction_batch(scores, probability, **pending_state)
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(
+            {
+                "joint_density_posterior_active": (
+                    self.adaptation_mode == "full" and self._mixture_active()
+                ),
+                "posterior_memory_weight": self._recall_anchor_weight(),
+            }
+        )
+        return stats
+
+
 class ASCALGMMSegmentedHandoffShift(ASCALGMMSegmentedShift):
     """Keep the emitted score boundary continuous after a segment change."""
 
@@ -1229,10 +1402,12 @@ __all__ = [
     "ASCALGMMDensityShift",
     "ASCALGMMMedianShift",
     "ASCALGMMSegmentedHandoffShift",
+    "ASCALGMMSegmentedMemoryPosterior",
     "ASCALGMMSegmentedMemoryShift",
     "ASCALGMMSegmentedShift",
     "ASCALGMMShift",
     "asymmetric_fake_posterior",
     "dominant_gap_boundary",
     "equal_density_boundary",
+    "joint_density_fake_posterior",
 ]

@@ -508,6 +508,20 @@ continual seed1 对照入口为
 `matched_jpeg_ascal_gmm_segmented_memory_shift_continual_*_seed1.yaml`；它仍是诊断变体，
 完整三 seed 验收前不得写入正文主表。
 
+`ascal_gmm_segmented_memory_posterior` 在同一分段与 episodic memory 上把“只移动一个
+边界”进一步改成联合密度 posterior。最大分量间隔仍只负责把有序 GMM 分成连续的低分
+real 块和高分 fake 块；两块内部的分量权重分别重新归一化，所以 real 与 fake 都允许由
+多个高斯描述，尤其不会假设所有 fake 只有一个模式。预测采用等类别先验的 Bayes 规则
+`p(fake|s) = p(s|fake) / (p(s|real) + p(s|fake))`，GMM 在 target stream 中观测到的两块
+总质量不会被偷换成类别先验。若描述长度判据召回历史段，方法不平均两个概率，而是在
+log-odds 空间把历史 likelihood ratio 当作一票证据：第一次使用历史 posterior，之后其
+权重随当前段有效 GMM 证据数按倒数自然衰减。该版本没有新增 class prior、融合系数、
+posterior temperature 或 target 阈值；单分量时仍精确退回 source。与边界版的 continual
+seed1 对照入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_continual_*_seed1.yaml`。由于密度比
+不强制保持 source score 排序，这一版本同时检验多峰建模能否在 Accuracy 优先的前提下
+进一步改善 AUC，仍属于三 seed 正式验收前的诊断实验。
+
 ## OST
 
 OST 是独立的逐样本 Adapt-Then-Predict 协议，不加入公共 ResNet-50 的 Controlled CTTA 表。它对每张测试图执行作者论文 Algorithm 1 的核心步骤：从源训练集随机抽取一个带标签模板，生成已知为假的伪样本，用 `{伪样本, 模板}` 的 AM-Softmax loss 做一次 fast-weight 更新，再预测原图。目标 hidden label 始终只进入 evaluator。
