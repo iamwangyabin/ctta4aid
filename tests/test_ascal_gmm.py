@@ -292,6 +292,68 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 )
                 self.assertFalse(adaptive["reference"]["semantic_features_used"])
 
+    def test_segmented_memory_continual_configs_use_parameter_free_recall(self) -> None:
+        from src.config import load_config, method_config
+
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_shift_continual_"
+                f"{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [
+                        "ascal_gmm_segmented_shift",
+                        "ascal_gmm_segmented_memory_shift",
+                    ],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                self.assertIn(
+                    "seed1_online_manifest.csv",
+                    config["data"]["locked_online_manifest"],
+                )
+                self.assertIn(
+                    "seed1_final_holdout_manifest.csv",
+                    config["data"]["locked_final_holdout_manifest"],
+                )
+                self.assertIn(
+                    "ascal_gmm_segmented_memory_shift_continual/"
+                    f"{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(
+                    config, "ascal_gmm_segmented_memory_shift"
+                )
+                for key in (
+                    "capacity",
+                    "change_threshold",
+                    "memory_size",
+                    "recall_threshold",
+                    "similarity_threshold",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                self.assertFalse(adaptive["reference"]["target_labels_used"])
+                self.assertFalse(
+                    adaptive["reference"]["generator_boundaries_used"]
+                )
+                self.assertFalse(adaptive["reference"]["semantic_features_used"])
+                self.assertFalse(adaptive["reference"]["raw_images_stored"])
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -329,6 +391,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_handoff_shift_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_shift",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_shift_static",
             config["training"]["intended_methods"],
         )
 
@@ -502,6 +572,18 @@ class ASCALGMMMethodTests(unittest.TestCase):
         from src.methods.ascal_gmm import ASCALGMMSegmentedHandoffShift
 
         return ASCALGMMSegmentedHandoffShift(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_shift_method(self, *, adaptation_mode: str = "full"):
+        from src.methods.ascal_gmm import ASCALGMMSegmentedMemoryShift
+
+        return ASCALGMMSegmentedMemoryShift(
             self.detector(),
             "cpu",
             {
@@ -867,6 +949,99 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(stats.extra["segment_changes"], 0)
         self.assertGreater(stats.extra["segment_unimodal_suffixes"], 0)
 
+    def test_segmented_memory_recalls_a_completed_a_b_a_regime(self) -> None:
+        rng = np.random.default_rng(10)
+        method = self.segmented_memory_shift_method()
+
+        def adapt_regime(low: float, high: float, batches: int):
+            stats = None
+            for _ in range(batches):
+                scores = np.concatenate(
+                    [rng.normal(low, 0.2, 48), rng.normal(high, 0.2, 48)]
+                )
+                rng.shuffle(scores)
+                images = self.score_batch(scores)
+                method.predict(images)
+                stats = method.adapt(images)
+            return stats
+
+        adapt_regime(-8.0, -3.0, 4)
+        first_change = adapt_regime(2.0, 7.0, 2)
+        self.assertTrue(first_change.extra["segment_changed"])
+        self.assertEqual(first_change.extra["memory_size"], 1)
+        self.assertEqual(first_change.extra["memory_novel_events"], 1)
+        self.assertEqual(first_change.extra["memory_recall_events"], 0)
+        self.assertIsNone(first_change.extra["active_memory_index"])
+
+        recalled = adapt_regime(-8.0, -3.0, 2)
+        self.assertTrue(recalled.extra["segment_changed"])
+        self.assertEqual(recalled.extra["segment_changes"], 2)
+        self.assertEqual(recalled.extra["memory_size"], 2)
+        self.assertEqual(recalled.extra["memory_recall_events"], 1)
+        self.assertTrue(recalled.extra["memory_recalled_this_change"])
+        self.assertEqual(recalled.extra["active_memory_index"], 0)
+        self.assertEqual(recalled.extra["last_recalled_memory_index"], 0)
+        self.assertGreater(float(recalled.extra["last_memory_recall_gain"]), 0.0)
+
+        next_images = self.score_batch(np.array([-8.0, -3.0]))
+        method.predict(next_images)
+        self.assertTrue(method._pending["prediction_memory_recalled"])
+        self.assertEqual(method._pending["prediction_memory_index"], 0)
+        self.assertEqual(method._pending["prediction_memory_anchor_weight"], 1.0)
+        self.assertAlmostEqual(
+            float(method._pending["prediction_boundary"]),
+            float(method.segment_memories[0]["boundary"]),
+        )
+
+    def test_segmented_memory_rejects_a_novel_score_regime(self) -> None:
+        rng = np.random.default_rng(11)
+        method = self.segmented_memory_shift_method()
+
+        for low, high, batches in (
+            (-8.0, -3.0, 4),
+            (2.0, 7.0, 2),
+            (12.0, 17.0, 2),
+        ):
+            for _ in range(batches):
+                scores = np.concatenate(
+                    [rng.normal(low, 0.2, 48), rng.normal(high, 0.2, 48)]
+                )
+                rng.shuffle(scores)
+                images = self.score_batch(scores)
+                method.predict(images)
+                stats = method.adapt(images)
+
+        self.assertTrue(stats.extra["segment_changed"])
+        self.assertEqual(stats.extra["memory_size"], 2)
+        self.assertEqual(stats.extra["memory_recall_events"], 0)
+        self.assertEqual(stats.extra["memory_novel_events"], 2)
+        self.assertFalse(stats.extra["memory_recalled_this_change"])
+        self.assertIsNone(stats.extra["active_memory_index"])
+        self.assertLess(float(stats.extra["last_memory_recall_gain"]), 0.0)
+
+    def test_segmented_memory_reset_clears_episodic_state(self) -> None:
+        method = self.segmented_memory_shift_method()
+        method.segment_memories.append(
+            {
+                "mixture": {},
+                "boundary": 1.0,
+                "latest_samples": 2,
+                "total_samples": 2,
+                "visits": 1,
+                "recalls": 0,
+            }
+        )
+        method.active_memory_index = 0
+        method.recall_anchor_boundary = 1.0
+        method.memory_recall_events = 1
+        method.reset()
+
+        stats = method._state_stats()
+        self.assertEqual(stats["memory_size"], 0)
+        self.assertEqual(stats["memory_recall_events"], 0)
+        self.assertIsNone(stats["active_memory_index"])
+        self.assertIsNone(stats["recall_anchor_boundary"])
+
     def test_segmented_handoff_keeps_the_first_new_boundary_continuous(self) -> None:
         rng = np.random.default_rng(10)
         method = self.segmented_handoff_shift_method()
@@ -1001,6 +1176,19 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertIsInstance(method, ASCALGMMSegmentedHandoffShift)
         self.assertEqual(method.adaptation_mode, "static")
 
+    def test_method_factory_maps_segmented_memory_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import ASCALGMMSegmentedMemoryShift
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_shift_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(method, ASCALGMMSegmentedMemoryShift)
+        self.assertEqual(method.adaptation_mode, "static")
+
     def test_cli_builds_density_shift_with_the_ascal_lora_profile(self) -> None:
         from src.cli.common import build_fresh_method
         from src.methods.ascal_gmm import ASCALGMMDensityShift
@@ -1115,6 +1303,46 @@ class ASCALGMMMethodTests(unittest.TestCase):
             )
 
         self.assertIsInstance(method, ASCALGMMSegmentedHandoffShift)
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_segmented_memory_with_the_ascal_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import ASCALGMMSegmentedMemoryShift
+
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {
+                "ascal_gmm_segmented_memory_shift_static": {
+                    "adaptation_mode": "static"
+                },
+            },
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(
+                config,
+                "ascal_gmm_segmented_memory_shift_static",
+                "cpu",
+            )
+
+        self.assertIsInstance(method, ASCALGMMSegmentedMemoryShift)
         self.assertEqual(method.adaptation_mode, "static")
 
 

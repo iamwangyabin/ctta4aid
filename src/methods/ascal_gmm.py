@@ -13,6 +13,9 @@ unlabeled distribution change. Its handoff variant keeps the last emitted
 boundary as a one-count anchor so the new segment cannot introduce an immediate
 score-coordinate jump; after that first change, an uncertain one-component fit
 holds the last emitted boundary instead of jumping back to the source detector.
+The segmented-memory variant instead stores each completed score regime as a
+compact GMM episode and uses predictive description length to recall a matching
+episode when a previously observed regime returns.
 """
 
 from __future__ import annotations
@@ -595,6 +598,43 @@ def _segmented_bic(
     )
 
 
+def _fixed_gmm_deviance(values: Any, mixture: dict[str, Any]) -> float:
+    """Return -2 log likelihood for values under a fixed one-dimensional GMM."""
+
+    values = np.asarray(values, dtype=np.float64).reshape(-1)
+    weights = np.asarray(mixture["weights"], dtype=np.float64).reshape(-1)
+    mus = np.asarray(mixture["mus"], dtype=np.float64).reshape(-1)
+    sigmas = np.asarray(mixture["sigmas"], dtype=np.float64).reshape(-1)
+    if values.size < 1:
+        raise ValueError("Fixed GMM scoring requires at least one sample")
+    if not (weights.size == mus.size == sigmas.size):
+        raise ValueError("Fixed GMM scoring requires matching mixture arrays")
+    if np.any(weights <= 0.0) or np.any(sigmas <= 0.0):
+        raise ValueError("Fixed GMM scoring requires positive weights and sigmas")
+
+    z = (values[:, None] - mus[None, :]) / sigmas[None, :]
+    log_joint = (
+        np.log(weights)[None, :]
+        - np.log(sigmas)[None, :]
+        - 0.5 * math.log(2.0 * math.pi)
+        - 0.5 * z * z
+    )
+    log_density = np.logaddexp.reduce(log_joint, axis=1)
+    return float(-2.0 * log_density.sum())
+
+
+def _copy_gmm(mixture: dict[str, Any]) -> dict[str, Any]:
+    """Copy the serializable fields needed for an episodic score model."""
+
+    return {
+        "weights": [float(value) for value in mixture["weights"]],
+        "mus": [float(value) for value in mixture["mus"]],
+        "sigmas": [float(value) for value in mixture["sigmas"]],
+        "components": int(mixture["components"]),
+        "bic": float(mixture["bic"]),
+    }
+
+
 class ASCALGMMSegmentedShift(ASCALGMMMedianShift):
     """Reset score calibration at causal, unlabeled BIC-selected change points."""
 
@@ -661,6 +701,16 @@ class ASCALGMMSegmentedShift(ASCALGMMMedianShift):
         while suffix_batches > largest:
             suffix_batches //= 2
         return [max(2, suffix_batches)]
+
+    def _on_segment_change(
+        self,
+        *,
+        old_mixture: dict[str, Any],
+        old_samples: int,
+        new_mixture: dict[str, Any],
+        new_scores: np.ndarray,
+    ) -> None:
+        """Allow variants to retain state before the obsolete segment is reset."""
 
     def _detect_segment_change(self) -> None:
         if self._mixture is None:
@@ -744,6 +794,7 @@ class ASCALGMMSegmentedShift(ASCALGMMMedianShift):
             if best is None or gain > float(best["gain"]):
                 best = {
                     "gain": float(gain),
+                    "left": left,
                     "right": right,
                     "suffix_batches": suffix_batches,
                     "suffix_samples": suffix_samples,
@@ -756,6 +807,12 @@ class ASCALGMMSegmentedShift(ASCALGMMMedianShift):
         suffix_batches = int(best["suffix_batches"])
         suffix_samples = int(best["suffix_samples"])
         discarded_samples = len(self.score_history) - suffix_samples
+        self._on_segment_change(
+            old_mixture=best["left"],
+            old_samples=discarded_samples,
+            new_mixture=best["right"],
+            new_scores=values[-suffix_samples:].copy(),
+        )
         self.score_batches = self.score_batches[-suffix_batches:]
         self.score_history = values[-suffix_samples:].tolist()
         self._mixture = best["right"]
@@ -788,6 +845,244 @@ class ASCALGMMSegmentedShift(ASCALGMMMedianShift):
                 "last_segment_gain": self.last_segment_gain,
                 "last_change_batch": self.last_change_batch,
                 "last_change_suffix_batches": self.last_change_suffix_batches,
+            }
+        )
+        return stats
+
+
+class ASCALGMMSegmentedMemoryShift(ASCALGMMSegmentedShift):
+    """Recall completed score regimes with predictive description length."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.segment_memories: list[dict[str, Any]] = []
+        self.active_memory_index: int | None = None
+        self.recall_anchor_boundary: float | None = None
+        self.recall_start_batch: int | None = None
+        self.memory_segments_created = 0
+        self.memory_segments_updated = 0
+        self.memory_recall_events = 0
+        self.memory_novel_events = 0
+        self.memory_comparisons = 0
+        self.last_recalled_memory_index: int | None = None
+        self.last_memory_fixed_score: float | None = None
+        self.last_memory_new_bic: float | None = None
+        self.last_memory_identity_penalty: float | None = None
+        self.last_memory_recall_gain: float | None = None
+        self._memory_recalled_this_change = False
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "unlabeled_bic_segmented_episodic_score_memory_shift"
+                ),
+                "long_term_memory": (
+                    "one_fixed_gmm_boundary_count_summary_per_discovered_score_regime"
+                ),
+                "recall_rule": (
+                    "minimum_fixed_episode_deviance_plus_model_identity_code_"
+                    "versus_new_segment_bic"
+                ),
+                "memory_identity_code": "two_log_number_of_eligible_episodes",
+                "recalled_boundary_rule": (
+                    "one_episode_anchor_vote_then_current_segment_evidence"
+                ),
+                "memory_merge_rule": (
+                    "a_recalled_episode_is_replaced_by_its_latest_completed_visit"
+                ),
+                "raw_images_stored": False,
+                "target_labels_used": False,
+                "generator_boundaries_used": False,
+                "semantic_features_used": False,
+                "hyperparameter_rule": (
+                    "no_memory_capacity_similarity_threshold_or_recall_weight"
+                ),
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_gmm_shift"
+
+    def _append_scores(self, scores: Any) -> None:
+        super()._append_scores(scores)
+        self._memory_recalled_this_change = False
+
+    def _store_completed_segment(
+        self,
+        mixture: dict[str, Any],
+        samples: int,
+    ) -> int | None:
+        finalized_index = self.active_memory_index
+        if int(mixture["components"]) < 2:
+            return finalized_index
+
+        boundary = float(dominant_gap_boundary(mixture)["decision_boundary"])
+        if finalized_index is None:
+            self.segment_memories.append(
+                {
+                    "mixture": _copy_gmm(mixture),
+                    "boundary": boundary,
+                    "latest_samples": int(samples),
+                    "total_samples": int(samples),
+                    "visits": 1,
+                    "recalls": 0,
+                }
+            )
+            self.memory_segments_created += 1
+            return len(self.segment_memories) - 1
+
+        if not 0 <= finalized_index < len(self.segment_memories):
+            raise RuntimeError("Active ASCAL-GMM memory index is out of range")
+        episode = self.segment_memories[finalized_index]
+        episode.update(
+            {
+                "mixture": _copy_gmm(mixture),
+                "boundary": boundary,
+                "latest_samples": int(samples),
+                "total_samples": int(episode["total_samples"]) + int(samples),
+                "visits": int(episode["visits"]) + 1,
+            }
+        )
+        self.memory_segments_updated += 1
+        return finalized_index
+
+    def _select_recalled_memory(
+        self,
+        scores: np.ndarray,
+        new_mixture: dict[str, Any],
+        *,
+        excluded_index: int | None,
+    ) -> int | None:
+        eligible = [
+            index
+            for index, episode in enumerate(self.segment_memories)
+            if index != excluded_index
+            and int(episode["mixture"]["components"]) >= 2
+        ]
+        self.last_memory_fixed_score = None
+        self.last_memory_new_bic = float(new_mixture["bic"])
+        self.last_memory_identity_penalty = None
+        self.last_memory_recall_gain = None
+        if not eligible:
+            return None
+
+        identity_penalty = 2.0 * math.log(len(eligible))
+        self.last_memory_identity_penalty = float(identity_penalty)
+        best_index = None
+        best_score = math.inf
+        for index in eligible:
+            self.memory_comparisons += 1
+            episode_score = _fixed_gmm_deviance(
+                scores,
+                self.segment_memories[index]["mixture"],
+            ) + identity_penalty
+            if episode_score < best_score:
+                best_score = float(episode_score)
+                best_index = index
+
+        self.last_memory_fixed_score = float(best_score)
+        self.last_memory_recall_gain = float(new_mixture["bic"]) - float(best_score)
+        if best_score < float(new_mixture["bic"]):
+            return best_index
+        return None
+
+    def _on_segment_change(
+        self,
+        *,
+        old_mixture: dict[str, Any],
+        old_samples: int,
+        new_mixture: dict[str, Any],
+        new_scores: np.ndarray,
+    ) -> None:
+        finalized_index = self._store_completed_segment(old_mixture, old_samples)
+        recalled_index = self._select_recalled_memory(
+            new_scores,
+            new_mixture,
+            excluded_index=finalized_index,
+        )
+        self.active_memory_index = recalled_index
+        self.recall_anchor_boundary = None
+        self.recall_start_batch = None
+        self.last_recalled_memory_index = recalled_index
+        if recalled_index is None:
+            self.memory_novel_events += 1
+            return
+
+        episode = self.segment_memories[recalled_index]
+        episode["recalls"] = int(episode["recalls"]) + 1
+        self.recall_anchor_boundary = float(episode["boundary"])
+        self.recall_start_batch = self.total_score_batches
+        self.memory_recall_events += 1
+        self._memory_recalled_this_change = True
+
+    def _recall_anchor_weight(self) -> float:
+        if self.recall_anchor_boundary is None:
+            return 0.0
+        evidence = len(self.boundary_history)
+        if evidence <= 1:
+            return 1.0
+        return 1.0 / float(evidence)
+
+    def _stabilized_boundary(self, candidate: float) -> float:
+        target = super()._stabilized_boundary(candidate)
+        if self.recall_anchor_boundary is None:
+            return target
+        anchor_weight = self._recall_anchor_weight()
+        return float(
+            anchor_weight * self.recall_anchor_boundary
+            + (1.0 - anchor_weight) * target
+        )
+
+    def predict(self, images: Any) -> PredictionBatch:
+        prediction = super().predict(images)
+        if self._pending is not None:
+            self._pending.update(
+                {
+                    "prediction_memory_index": self.active_memory_index,
+                    "prediction_memory_recalled": (
+                        self.recall_anchor_boundary is not None
+                    ),
+                    "prediction_memory_anchor_boundary": self.recall_anchor_boundary,
+                    "prediction_memory_anchor_weight": self._recall_anchor_weight(),
+                }
+            )
+        return prediction
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(
+            {
+                "memory_size": len(self.segment_memories),
+                "memory_segments_created": self.memory_segments_created,
+                "memory_segments_updated": self.memory_segments_updated,
+                "memory_recall_events": self.memory_recall_events,
+                "memory_novel_events": self.memory_novel_events,
+                "memory_comparisons": self.memory_comparisons,
+                "memory_recalled_this_change": self._memory_recalled_this_change,
+                "active_memory_index": self.active_memory_index,
+                "recall_anchor_boundary": self.recall_anchor_boundary,
+                "recall_anchor_weight": self._recall_anchor_weight(),
+                "recall_start_batch": self.recall_start_batch,
+                "last_recalled_memory_index": self.last_recalled_memory_index,
+                "last_memory_fixed_score": self.last_memory_fixed_score,
+                "last_memory_new_bic": self.last_memory_new_bic,
+                "last_memory_identity_penalty": self.last_memory_identity_penalty,
+                "last_memory_recall_gain": self.last_memory_recall_gain,
+                "memory_boundaries": [
+                    float(episode["boundary"])
+                    for episode in self.segment_memories
+                ],
+                "memory_visits": [
+                    int(episode["visits"]) for episode in self.segment_memories
+                ],
+                "memory_recalls": [
+                    int(episode["recalls"]) for episode in self.segment_memories
+                ],
             }
         )
         return stats
@@ -934,6 +1229,7 @@ __all__ = [
     "ASCALGMMDensityShift",
     "ASCALGMMMedianShift",
     "ASCALGMMSegmentedHandoffShift",
+    "ASCALGMMSegmentedMemoryShift",
     "ASCALGMMSegmentedShift",
     "ASCALGMMShift",
     "asymmetric_fake_posterior",

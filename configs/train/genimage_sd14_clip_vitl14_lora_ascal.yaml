@@ -55,6 +55,8 @@ training:
     - ascal_gmm_segmented_shift_static
     - ascal_gmm_segmented_handoff_shift
     - ascal_gmm_segmented_handoff_shift_static
+    - ascal_gmm_segmented_memory_shift
+    - ascal_gmm_segmented_memory_shift_static
   epochs: 3
   max_steps_per_epoch: null
   optimizer: adamw

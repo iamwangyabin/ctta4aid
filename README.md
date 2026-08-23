@@ -495,6 +495,19 @@ GMM 边界后，以 `1/j` 的锚点权重和 `(j-1)/j` 的新段累计中位数�
 continual seed1 三方法对照入口为
 `matched_jpeg_ascal_gmm_segmented_handoff_shift_continual_*_seed1.yaml`，仍只属于诊断实验。
 
+`ascal_gmm_segmented_memory_shift` 保留硬分段的因果 BIC 变点判据，但不再永久删除每个
+完成段学到的目标分布。变点触发时，旧段被压缩为 GMM、最大间隔边界和样本计数，不保存
+target 图片、标签或生成器身份；若当前段曾由历史记忆召回，则用它最近一次完成的访问更新
+同一条记忆，而不是不断产生重复条目。对新的稳定后缀，方法比较“直接使用某个固定历史
+GMM”的负二倍预测对数似然与“在当前后缀重新拟合 GMM”的 BIC，并为历史条目身份支付
+`2 log M` 描述长度；固定历史模型得分严格更低时才召回，否则创建新的分布状态。被召回
+边界只作为一个证据票：新段第一个有效边界仍使用历史边界，之后其权重按有效边界数量的
+倒数自然消失。该规则没有 memory capacity、相似度阈值或手工召回权重，能在
+`A -> B -> A` 流中复用 A 的校准，同时让未匹配的新段保持原硬分段行为。与硬分段的
+continual seed1 对照入口为
+`matched_jpeg_ascal_gmm_segmented_memory_shift_continual_*_seed1.yaml`；它仍是诊断变体，
+完整三 seed 验收前不得写入正文主表。
+
 ## OST
 
 OST 是独立的逐样本 Adapt-Then-Predict 协议，不加入公共 ResNet-50 的 Controlled CTTA 表。它对每张测试图执行作者论文 Algorithm 1 的核心步骤：从源训练集随机抽取一个带标签模板，生成已知为假的伪样本，用 `{伪样本, 模板}` 的 AM-Softmax loss 做一次 fast-weight 更新，再预测原图。目标 hidden label 始终只进入 evaluator。

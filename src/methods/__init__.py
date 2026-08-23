@@ -8,6 +8,7 @@ from .ascal_gmm import (
     ASCALGMMDensityShift,
     ASCALGMMMedianShift,
     ASCALGMMSegmentedHandoffShift,
+    ASCALGMMSegmentedMemoryShift,
     ASCALGMMSegmentedShift,
     ASCALGMMShift,
 )
@@ -96,6 +97,14 @@ def build_method(
         if normalized == "ascalgmmsegmentedhandoffshiftstatic":
             effective_config.setdefault("adaptation_mode", "static")
         return ASCALGMMSegmentedHandoffShift(model, device, effective_config)
+    if normalized in {
+        "ascalgmmsegmentedmemoryshift",
+        "ascalgmmsegmentedmemoryshiftstatic",
+    }:
+        effective_config = dict(config)
+        if normalized == "ascalgmmsegmentedmemoryshiftstatic":
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMSegmentedMemoryShift(model, device, effective_config)
     if normalized == "cotta":
         return CoTTA(model, device, config)
     if normalized == "rotta":
@@ -124,6 +133,7 @@ __all__ = [
     "ASCALGMMDensityShift",
     "ASCALGMMMedianShift",
     "ASCALGMMSegmentedHandoffShift",
+    "ASCALGMMSegmentedMemoryShift",
     "ASCALGMMSegmentedShift",
     "ASCALGMMShift",
     "BATCLIP",
