@@ -1204,6 +1204,15 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method._pending["prediction_fake_components"], 2)
         self.assertFalse(method._pending["prediction_memory_recalled"])
         self.assertIsNone(method._pending["prediction_boundary"])
+        metadata = method.reproduction_metadata
+        self.assertIn("not_applied", metadata["boundary_stabilization"])
+        self.assertIn("log_odds", metadata["recalled_boundary_rule"])
+        self.assertFalse(
+            any(
+                "additive score boundary" in change
+                for change in metadata["intentional_changes"]
+            )
+        )
 
     def test_segmented_memory_posterior_pools_recall_in_log_odds(self) -> None:
         from src.methods.ascal_gmm import joint_density_fake_posterior

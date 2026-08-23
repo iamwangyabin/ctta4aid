@@ -1163,12 +1163,27 @@ class ASCALGMMSegmentedMemoryPosterior(ASCALGMMSegmentedMemoryShift):
                     "one_episode_log_likelihood_ratio_vote_then_current_evidence"
                 ),
                 "posterior_pooling": "evidence_counted_geometric_pool_in_log_odds",
+                "boundary_stabilization": (
+                    "not_applied_to_posterior_readout_boundary_history_counts_"
+                    "current_segment_evidence_only"
+                ),
+                "recalled_boundary_rule": (
+                    "not_applied_recalled_gmm_votes_in_log_odds_instead"
+                ),
                 "ranking_rule": (
                     "density_likelihood_ratio_is_not_constrained_to_preserve_source_order"
                 ),
                 "hyperparameter_rule": (
                     "no_class_prior_fusion_weight_or_posterior_temperature"
                 ),
+                "intentional_changes": [
+                    "the detector stays frozen during deployment",
+                    "all arrived scores enter the fit without pseudo-label admission",
+                    "one selected component means insufficient evidence and exact source fallback",
+                    "dominant-gap blocks become independently normalized class densities",
+                    "a recalled GMM contributes one decaying log-likelihood-ratio vote",
+                    "predictions use only GMMs fitted after earlier batches",
+                ],
             }
         )
         return metadata
