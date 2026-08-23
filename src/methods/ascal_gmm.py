@@ -20,6 +20,9 @@ variant reads the two dominant-gap blocks as equal-prior class-conditional
 densities and pools a recalled episode with current evidence in log-odds space.
 Its posterior-projection variant keeps only the equal-density decision surface
 from that Bayes model and applies it as a monotone shift of the source score.
+Its current-projection variant recognizes that each active-segment GMM refit
+already contains all causal segment scores, so it removes the redundant median
+over nested refits while retaining one-vote episodic recall.
 """
 
 from __future__ import annotations
@@ -1154,6 +1157,8 @@ class ASCALGMMSegmentedMemoryPosteriorProjection(ASCALGMMSegmentedMemoryShift):
                     "unlabeled_bic_segmented_episodic_joint_density_"
                     "boundary_projection"
                 ),
+                "research_name": "ASCAL-JMP-Median",
+                "research_version": "R01",
                 "component_rule": (
                     "largest_adjacent_mean_gap_separates_multicomponent_real_"
                     "and_fake_blocks"
@@ -1211,6 +1216,79 @@ class ASCALGMMSegmentedMemoryPosteriorProjection(ASCALGMMSegmentedMemoryShift):
 
     def _memory_boundary(self, mixture: dict[str, Any]) -> float:
         return float(equal_density_boundary(mixture)["decision_boundary"])
+
+
+class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
+    ASCALGMMSegmentedMemoryPosteriorProjection
+):
+    """Use the latest cumulative-segment density boundary without median lag."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "unlabeled_bic_segmented_episodic_current_joint_density_"
+                    "boundary_projection"
+                ),
+                "research_name": "ASCAL-JMP-Current",
+                "research_version": "R02",
+                "boundary_stabilization": (
+                    "no_nested_refit_median_the_latest_active_segment_gmm_"
+                    "already_contains_all_causally_arrived_segment_scores"
+                ),
+                "current_evidence_rule": (
+                    "use_the_equal_density_boundary_of_the_latest_cumulative_"
+                    "active_segment_gmm"
+                ),
+                "recalled_boundary_rule": (
+                    "one_episode_projected_bayes_boundary_vote_then_latest_"
+                    "cumulative_segment_boundary"
+                ),
+                "hyperparameter_rule": (
+                    "removes_nested_median_and_adds_no_target_hyperparameters"
+                ),
+                "intentional_changes": [
+                    "the detector stays frozen during deployment",
+                    "all arrived scores enter the fit without pseudo-label admission",
+                    "one selected component means insufficient evidence and exact source fallback",
+                    "joint densities determine only their equal-prior decision boundary",
+                    "the latest GMM fit already accumulates the current segment history",
+                    "nested cumulative-fit boundaries are not aggregated a second time",
+                    "a recalled projected boundary contributes one decaying evidence vote",
+                    "predictions use only GMMs fitted after earlier batches",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_current_projection"
+
+    def _stabilized_boundary(self, candidate: float) -> float:
+        target = float(candidate)
+        if self.recall_anchor_boundary is None:
+            return target
+        anchor_weight = self._recall_anchor_weight()
+        return float(
+            anchor_weight * self.recall_anchor_boundary
+            + (1.0 - anchor_weight) * target
+        )
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        nested_median = stats.get("stabilized_boundary")
+        candidate = stats.get("candidate_boundary")
+        stats.update(
+            {
+                "nested_boundary_median": nested_median,
+                "stabilized_boundary": candidate,
+                "current_fit_boundary": candidate,
+            }
+        )
+        return stats
 
 
 class ASCALGMMSegmentedMemoryPosterior(ASCALGMMSegmentedMemoryShift):
@@ -1494,6 +1572,7 @@ __all__ = [
     "ASCALGMMMedianShift",
     "ASCALGMMSegmentedHandoffShift",
     "ASCALGMMSegmentedMemoryPosterior",
+    "ASCALGMMSegmentedMemoryPosteriorCurrentProjection",
     "ASCALGMMSegmentedMemoryPosteriorProjection",
     "ASCALGMMSegmentedMemoryShift",
     "ASCALGMMSegmentedShift",

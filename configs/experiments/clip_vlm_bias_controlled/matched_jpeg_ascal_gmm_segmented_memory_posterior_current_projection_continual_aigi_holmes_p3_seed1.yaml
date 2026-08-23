@@ -1,0 +1,14 @@
+extends:
+  - ../controlled_ctta/aigi_holmes_p3_continual_seed1.yaml
+  - matched_jpeg.yaml
+  - ../../methods/ascal_gmm_segmented_memory_posterior_current_projection.yaml
+
+methods:
+  - ascal_gmm_segmented_memory_posterior_projection
+  - ascal_gmm_segmented_memory_posterior_current_projection
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/ascal_gmm_segmented_memory_posterior_current_projection_continual/aigi_holmes_p3/seed1
+
+data:
+  root: ${AIGI_HOLMES_P3_MATCHED_JPEG_ARROW_ROOT}
+  num_workers: 0
+  shuffle: false

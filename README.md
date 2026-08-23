@@ -522,7 +522,8 @@ seed1 对照入口为
 不强制保持 source score 排序，这一版本同时检验多峰建模能否在 Accuracy 优先的前提下
 进一步改善 AUC，仍属于三 seed 正式验收前的诊断实验。
 
-`ascal_gmm_segmented_memory_posterior_projection` 保留上述联合密度对 real/fake 多峰块的
+`ascal_gmm_segmented_memory_posterior_projection` 的研究版本名为
+**ASCAL-JMP-Median（R01）**。它保留上述联合密度对 real/fake 多峰块的
 建模，但只取等先验 posterior 为 0.5 时、位于最大分量间隔内的 Bayes 分界；若该间隔内
 不存在密度交点，则确定性退回间隔中点。最终概率仍由冻结 detector 的原始 score 减去
 这个分界后，经 source temperature 的 sigmoid 得到，因此同一因果状态内严格保留源模型
@@ -532,6 +533,20 @@ seed1 对照入口为
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_projection_continual_*_seed1.yaml`；它用于
 检验能否保留联合密度带来的 Accuracy 校准，同时避免尾部密度比破坏 target-macro AUC，
 仍不属于完整三 seed 正式结果。
+
+`ascal_gmm_segmented_memory_posterior_current_projection` 的研究版本名为
+**ASCAL-JMP-Current（R02）**。它注意到当前段的每次 GMM 重拟合已经包含该段全部因果历史
+分数，因此不再对一串彼此嵌套的累计拟合边界重复取中位数，而直接使用最新累计段 GMM 的
+等密度分界。若召回历史 episode，历史分界仍只作为一票证据，并按当前段有效拟合次数自然
+衰减；分段、描述长度召回、source fallback、单调 score 投影和冻结范围均保持 R01 不变。
+该版本删除一种滞后来源且不增加阈值、窗口、温度、融合权重或其他 target 超参数。与 R01
+的 seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_current_projection_continual_*_seed1.yaml`。
+
+ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
+依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
+固定配置、commit、源码归档和 `run_record.json`。只有同时不损害 Accuracy 与
+target-macro AUC 的候选才进入 seed2/seed3 确认，完整确认前仍不得写入正文正式表。
 
 ## OST
 

@@ -61,6 +61,8 @@ training:
     - ascal_gmm_segmented_memory_posterior_static
     - ascal_gmm_segmented_memory_posterior_projection
     - ascal_gmm_segmented_memory_posterior_projection_static
+    - ascal_gmm_segmented_memory_posterior_current_projection
+    - ascal_gmm_segmented_memory_posterior_current_projection_static
   epochs: 3
   max_steps_per_epoch: null
   optimizer: adamw

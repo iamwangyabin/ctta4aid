@@ -9,6 +9,7 @@ from .ascal_gmm import (
     ASCALGMMMedianShift,
     ASCALGMMSegmentedHandoffShift,
     ASCALGMMSegmentedMemoryPosterior,
+    ASCALGMMSegmentedMemoryPosteriorCurrentProjection,
     ASCALGMMSegmentedMemoryPosteriorProjection,
     ASCALGMMSegmentedMemoryShift,
     ASCALGMMSegmentedShift,
@@ -123,6 +124,16 @@ def build_method(
         if normalized == "ascalgmmsegmentedmemoryposteriorprojectionstatic":
             effective_config.setdefault("adaptation_mode", "static")
         return ASCALGMMSegmentedMemoryPosteriorProjection(
+            model, device, effective_config
+        )
+    if normalized in {
+        "ascalgmmsegmentedmemoryposteriorcurrentprojection",
+        "ascalgmmsegmentedmemoryposteriorcurrentprojectionstatic",
+    }:
+        effective_config = dict(config)
+        if normalized == "ascalgmmsegmentedmemoryposteriorcurrentprojectionstatic":
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
             model, device, effective_config
         )
     if normalized == "cotta":
