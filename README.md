@@ -542,6 +542,19 @@ seed1 对照入口为
 该版本删除一种滞后来源且不增加阈值、窗口、温度、融合权重或其他 target 超参数。与 R01
 的 seed1 成对入口为
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_current_projection_continual_*_seed1.yaml`。
+R02 的四数据集 seed1 诊断没有通过预注册的 Accuracy 与 target-macro AUC Pareto 晋级门槛，
+因此不会进入 seed2/seed3，R01 继续作为当前候选基线。该负结果保留独立提交、源码归档和
+结构化运行记录，不通过覆盖配置或针对单数据集修改规则来回收。
+
+`ascal_gmm_segmented_memory_posterior_guarded_projection` 的研究版本名为
+**ASCAL-JMP-GuardedScan（R03）**。它保留 R01 的累计中位数、联合密度边界、分段记忆和
+单调 source-score 投影；普通时刻仍只执行原有的一个二进制调度后缀检查。只有已经部署的
+历史/召回融合边界离开当前 GMM 最大分量间隔时，才把这次 MDL 变点搜索扩展为从 2 batch
+到当前段一半长度的全部二次幂后缀。扩展搜索中的每个候选仍必须通过原有 segmented BIC、
+多分量新段和后缀内部稳定性规则，边界越界本身不会直接重置或裁剪预测。这样把“历史状态
+与当前无标签密度不相容”只当作一次更完整的变点检验触发器，而不是新增阈值或直接相信
+最新拟合；target 超参数仍为零。与 R01 的 seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_guarded_projection_continual_*_seed1.yaml`。
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须

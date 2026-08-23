@@ -23,6 +23,9 @@ from that Bayes model and applies it as a monotone shift of the source score.
 Its current-projection variant recognizes that each active-segment GMM refit
 already contains all causal segment scores, so it removes the redundant median
 over nested refits while retaining one-vote episodic recall.
+Its guarded-scan variant instead retains the robust median and only expands the
+MDL change-point search to every dyadic suffix when that deployed boundary has
+left the dominant gap of the current target GMM.
 """
 
 from __future__ import annotations
@@ -1291,6 +1294,117 @@ class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
         return stats
 
 
+class ASCALGMMSegmentedMemoryPosteriorGuardedProjection(
+    ASCALGMMSegmentedMemoryPosteriorProjection
+):
+    """Run a complete dyadic MDL scan only on density-inconsistent boundaries."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.guarded_scan_events = 0
+        self.guarded_scan_candidate_scales = 0
+        self._guarded_scan_triggered = False
+        self._guarded_scan_boundary: float | None = None
+        self._guarded_scan_gap_lower: float | None = None
+        self._guarded_scan_gap_upper: float | None = None
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "unlabeled_density_guarded_complete_dyadic_mdl_segmented_"
+                    "episodic_joint_density_boundary_projection"
+                ),
+                "research_name": "ASCAL-JMP-GuardedScan",
+                "research_version": "R03",
+                "boundary_stabilization": (
+                    "retain_the_cumulative_median_of_causal_active_segment_"
+                    "density_boundaries"
+                ),
+                "segmentation_guard": (
+                    "expand_the_mdl_search_only_when_the_deployed_boundary_"
+                    "leaves_the_current_dominant_component_gap"
+                ),
+                "guarded_candidate_scales": (
+                    "every_power_of_two_suffix_from_two_batches_to_half_the_"
+                    "active_segment"
+                ),
+                "change_evidence": (
+                    "the_existing_segmented_bic_and_stable_multimodal_suffix_"
+                    "rules_remain_unchanged"
+                ),
+                "hyperparameter_rule": (
+                    "uses_gmm_gap_feasibility_and_mdl_only_no_new_target_"
+                    "hyperparameters"
+                ),
+                "intentional_changes": [
+                    "the R01 median boundary and monotone source-score readout remain unchanged",
+                    "the ordinary binary-scheduled MDL check remains unchanged",
+                    "an out-of-gap deployed boundary triggers a complete dyadic suffix scan",
+                    "every candidate still pays the existing BIC change-point penalty",
+                    "the detector stays frozen and predictions use only earlier-batch state",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_guarded_projection"
+
+    def _append_scores(self, scores: Any) -> None:
+        super()._append_scores(scores)
+        self._guarded_scan_triggered = False
+        self._guarded_scan_boundary = None
+        self._guarded_scan_gap_lower = None
+        self._guarded_scan_gap_upper = None
+
+    def _suffix_candidates(self) -> list[int]:
+        scheduled = super()._suffix_candidates()
+        if not scheduled or not self._mixture_active():
+            return scheduled
+
+        partition = self._candidate_partition()
+        candidate = float(partition["decision_boundary"])
+        deployed = self._stabilized_boundary(candidate)
+        split = int(partition["real_components"])
+        mus = np.asarray(self._mixture["mus"], dtype=np.float64).reshape(-1)
+        lower = float(mus[split - 1])
+        upper = float(mus[split])
+        self._guarded_scan_boundary = float(deployed)
+        self._guarded_scan_gap_lower = lower
+        self._guarded_scan_gap_upper = upper
+        if lower <= deployed <= upper:
+            return scheduled
+
+        largest = len(self.score_batches) // 2
+        suffix_batches = 2
+        candidates = []
+        while suffix_batches <= largest:
+            candidates.append(suffix_batches)
+            suffix_batches *= 2
+        self._guarded_scan_triggered = True
+        self.guarded_scan_events += 1
+        self.guarded_scan_candidate_scales += len(candidates)
+        return candidates
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(
+            {
+                "guarded_scan_triggered": self._guarded_scan_triggered,
+                "guarded_scan_events": self.guarded_scan_events,
+                "guarded_scan_candidate_scales": self.guarded_scan_candidate_scales,
+                "guarded_scan_boundary": self._guarded_scan_boundary,
+                "guarded_scan_gap_lower": self._guarded_scan_gap_lower,
+                "guarded_scan_gap_upper": self._guarded_scan_gap_upper,
+            }
+        )
+        return stats
+
+
 class ASCALGMMSegmentedMemoryPosterior(ASCALGMMSegmentedMemoryShift):
     """Read current and recalled score regimes as class-density posteriors."""
 
@@ -1573,6 +1687,7 @@ __all__ = [
     "ASCALGMMSegmentedHandoffShift",
     "ASCALGMMSegmentedMemoryPosterior",
     "ASCALGMMSegmentedMemoryPosteriorCurrentProjection",
+    "ASCALGMMSegmentedMemoryPosteriorGuardedProjection",
     "ASCALGMMSegmentedMemoryPosteriorProjection",
     "ASCALGMMSegmentedMemoryShift",
     "ASCALGMMSegmentedShift",

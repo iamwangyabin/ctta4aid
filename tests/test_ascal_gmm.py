@@ -564,6 +564,74 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["semantic_features_used"])
                 self.assertFalse(reference["raw_images_stored"])
 
+    def test_guarded_projection_configs_add_no_target_hyperparameters(self) -> None:
+        from src.config import load_config, method_config
+
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_posterior_guarded_"
+                f"projection_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [
+                        "ascal_gmm_segmented_memory_posterior_projection",
+                        "ascal_gmm_segmented_memory_posterior_guarded_projection",
+                    ],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                self.assertIn(
+                    "seed1_online_manifest.csv",
+                    config["data"]["locked_online_manifest"],
+                )
+                self.assertIn(
+                    "seed1_final_holdout_manifest.csv",
+                    config["data"]["locked_final_holdout_manifest"],
+                )
+                self.assertIn(
+                    "posterior_guarded_projection_continual/"
+                    f"{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(
+                    config,
+                    "ascal_gmm_segmented_memory_posterior_guarded_projection",
+                )
+                for key in (
+                    "change_threshold",
+                    "fusion_weight",
+                    "lambda",
+                    "median_window",
+                    "posterior_temperature",
+                    "recall_threshold",
+                    "smoothing",
+                    "target_threshold",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                reference = adaptive["reference"]
+                self.assertEqual(reference["research_name"], "ASCAL-JMP-GuardedScan")
+                self.assertEqual(reference["research_version"], "R03")
+                self.assertEqual(reference["new_target_hyperparameters"], 0)
+                self.assertFalse(reference["target_labels_used"])
+                self.assertFalse(reference["generator_boundaries_used"])
+                self.assertFalse(reference["semantic_features_used"])
+                self.assertFalse(reference["raw_images_stored"])
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -633,6 +701,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_memory_posterior_current_projection_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_guarded_projection",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_guarded_projection_static",
             config["training"]["intended_methods"],
         )
 
@@ -909,6 +985,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_posterior_guarded_projection_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorGuardedProjection,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorGuardedProjection(
             self.detector(),
             "cpu",
             {
@@ -1575,6 +1667,69 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
         self.assertEqual(method._pending["prediction_memory_anchor_weight"], 0.5)
 
+    def test_guarded_projection_keeps_the_r01_median_prediction(self) -> None:
+        method = self.segmented_memory_posterior_guarded_projection_method()
+        method._mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-2.0, 2.0],
+            "sigmas": [1.0, 1.0],
+            "components": 2,
+            "bic": 0.0,
+        }
+        method.boundary_history = [-5.0, -5.0, -5.0]
+        scores = np.array([-1.0, 0.0, 1.0])
+
+        prediction = method.predict(self.score_batch(scores))
+        expected = method._source_probability(scores + 5.0)
+        np.testing.assert_allclose(prediction.prob_fake.numpy(), expected, atol=1e-6)
+        self.assertAlmostEqual(method._pending["prediction_boundary"], -5.0)
+        self.assertEqual(
+            method._pending["prediction_mode"],
+            "segmented_memory_posterior_guarded_projection",
+        )
+
+    def test_guarded_projection_keeps_the_ordinary_scheduled_scan_inside_gap(
+        self,
+    ) -> None:
+        method = self.segmented_memory_posterior_guarded_projection_method()
+        method._mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-2.0, 2.0],
+            "sigmas": [1.0, 1.0],
+            "components": 2,
+            "bic": 0.0,
+        }
+        method.boundary_history = [0.0, 0.1, -0.1]
+        method.score_batches = [np.zeros(2)] * 16
+
+        self.assertEqual(method._suffix_candidates(), [8])
+        self.assertFalse(method._guarded_scan_triggered)
+        self.assertEqual(method.guarded_scan_events, 0)
+        self.assertEqual(method.guarded_scan_candidate_scales, 0)
+
+    def test_guarded_projection_scans_every_dyadic_suffix_outside_gap(self) -> None:
+        method = self.segmented_memory_posterior_guarded_projection_method()
+        method._mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-2.0, 2.0],
+            "sigmas": [1.0, 1.0],
+            "components": 2,
+            "bic": 0.0,
+        }
+        method.boundary_history = [-5.0, -5.0, -5.0]
+        method.score_batches = [np.zeros(2)] * 16
+
+        self.assertEqual(method._suffix_candidates(), [2, 4, 8])
+        self.assertTrue(method._guarded_scan_triggered)
+        self.assertEqual(method.guarded_scan_events, 1)
+        self.assertEqual(method.guarded_scan_candidate_scales, 3)
+        self.assertAlmostEqual(method._guarded_scan_boundary, -5.0)
+        self.assertAlmostEqual(method._guarded_scan_gap_lower, -2.0)
+        self.assertAlmostEqual(method._guarded_scan_gap_upper, 2.0)
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_name"], "ASCAL-JMP-GuardedScan")
+        self.assertEqual(metadata["research_version"], "R03")
+
     def test_segmented_handoff_keeps_the_first_new_boundary_continuous(self) -> None:
         rng = np.random.default_rng(10)
         method = self.segmented_handoff_shift_method()
@@ -1764,6 +1919,23 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
         self.assertIsInstance(
             method, ASCALGMMSegmentedMemoryPosteriorCurrentProjection
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_method_factory_maps_guarded_projection_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorGuardedProjection,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_guarded_projection_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorGuardedProjection
         )
         self.assertEqual(method.adaptation_mode, "static")
 
@@ -2046,6 +2218,50 @@ class ASCALGMMMethodTests(unittest.TestCase):
 
         self.assertIsInstance(
             method, ASCALGMMSegmentedMemoryPosteriorCurrentProjection
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_guarded_projection_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorGuardedProjection,
+        )
+
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {
+                "ascal_gmm_segmented_memory_posterior_guarded_projection_static": {
+                    "adaptation_mode": "static"
+                },
+            },
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(
+                config,
+                "ascal_gmm_segmented_memory_posterior_guarded_projection_static",
+                "cpu",
+            )
+
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorGuardedProjection
         )
         self.assertEqual(method.adaptation_mode, "static")
 
