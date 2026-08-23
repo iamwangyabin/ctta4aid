@@ -522,6 +522,17 @@ seed1 对照入口为
 不强制保持 source score 排序，这一版本同时检验多峰建模能否在 Accuracy 优先的前提下
 进一步改善 AUC，仍属于三 seed 正式验收前的诊断实验。
 
+`ascal_gmm_segmented_memory_posterior_projection` 保留上述联合密度对 real/fake 多峰块的
+建模，但只取等先验 posterior 为 0.5 时、位于最大分量间隔内的 Bayes 分界；若该间隔内
+不存在密度交点，则确定性退回间隔中点。最终概率仍由冻结 detector 的原始 score 减去
+这个分界后，经 source temperature 的 sigmoid 得到，因此同一因果状态内严格保留源模型
+排序。历史段召回同样只贡献一票已投影的 Bayes 分界，不混合 posterior，也不引入融合
+系数、posterior temperature、目标阈值或额外先验。与直接 posterior 的 continual seed1
+成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_projection_continual_*_seed1.yaml`；它用于
+检验能否保留联合密度带来的 Accuracy 校准，同时避免尾部密度比破坏 target-macro AUC，
+仍不属于完整三 seed 正式结果。
+
 ## OST
 
 OST 是独立的逐样本 Adapt-Then-Predict 协议，不加入公共 ResNet-50 的 Controlled CTTA 表。它对每张测试图执行作者论文 Algorithm 1 的核心步骤：从源训练集随机抽取一个带标签模板，生成已知为假的伪样本，用 `{伪样本, 模板}` 的 AM-Softmax loss 做一次 fast-weight 更新，再预测原图。目标 hidden label 始终只进入 evaluator。

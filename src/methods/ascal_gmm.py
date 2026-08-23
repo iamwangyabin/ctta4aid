@@ -18,6 +18,8 @@ compact GMM episode and uses predictive description length to recall a matching
 episode when a previously observed regime returns. Its joint-density posterior
 variant reads the two dominant-gap blocks as equal-prior class-conditional
 densities and pools a recalled episode with current evidence in log-odds space.
+Its posterior-projection variant keeps only the equal-density decision surface
+from that Bayes model and applies it as a monotone shift of the source score.
 """
 
 from __future__ import annotations
@@ -961,6 +963,9 @@ class ASCALGMMSegmentedMemoryShift(ASCALGMMSegmentedShift):
         super()._append_scores(scores)
         self._memory_recalled_this_change = False
 
+    def _memory_boundary(self, mixture: dict[str, Any]) -> float:
+        return float(dominant_gap_boundary(mixture)["decision_boundary"])
+
     def _store_completed_segment(
         self,
         mixture: dict[str, Any],
@@ -970,7 +975,7 @@ class ASCALGMMSegmentedMemoryShift(ASCALGMMSegmentedShift):
         if int(mixture["components"]) < 2:
             return finalized_index
 
-        boundary = float(dominant_gap_boundary(mixture)["decision_boundary"])
+        boundary = self._memory_boundary(mixture)
         if finalized_index is None:
             self.segment_memories.append(
                 {
@@ -1135,6 +1140,77 @@ class ASCALGMMSegmentedMemoryShift(ASCALGMMSegmentedShift):
             }
         )
         return stats
+
+
+class ASCALGMMSegmentedMemoryPosteriorProjection(ASCALGMMSegmentedMemoryShift):
+    """Project a joint-density Bayes boundary onto the monotone source score."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "unlabeled_bic_segmented_episodic_joint_density_"
+                    "boundary_projection"
+                ),
+                "component_rule": (
+                    "largest_adjacent_mean_gap_separates_multicomponent_real_"
+                    "and_fake_blocks"
+                ),
+                "class_density_rule": (
+                    "mixture_weights_are_normalized_independently_inside_each_block"
+                ),
+                "class_prior_rule": "equal_real_and_fake_priors",
+                "boundary_rule": (
+                    "equal_prior_crossing_of_normalized_real_and_fake_block_densities"
+                ),
+                "boundary_fallback": (
+                    "dominant_gap_midpoint_when_no_crossing_exists_inside_the_gap"
+                ),
+                "projection_rule": (
+                    "retain_the_bayes_half_posterior_decision_surface_and_project_"
+                    "onto_the_source_margin"
+                ),
+                "prediction_rule": (
+                    "sigmoid((source_margin-projected_bayes_boundary)"
+                    "/source_temperature)"
+                ),
+                "ranking_rule": (
+                    "source_margin_order_is_preserved_within_each_causal_state"
+                ),
+                "recalled_boundary_rule": (
+                    "one_episode_projected_bayes_boundary_vote_then_current_evidence"
+                ),
+                "hyperparameter_rule": (
+                    "no_class_prior_fusion_weight_posterior_temperature_or_target_threshold"
+                ),
+                "intentional_changes": [
+                    "the detector stays frozen during deployment",
+                    "all arrived scores enter the fit without pseudo-label admission",
+                    "one selected component means insufficient evidence and exact source fallback",
+                    "joint densities determine only their equal-prior decision boundary",
+                    "the final readout remains monotone in the frozen detector score",
+                    "a recalled projected boundary contributes one decaying evidence vote",
+                    "predictions use only GMMs fitted after earlier batches",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_projection"
+
+    def _candidate_partition(self) -> dict[str, Any]:
+        if self._mixture is None:
+            raise RuntimeError(
+                "ASCAL-GMM posterior projection requires an active mixture"
+            )
+        return equal_density_boundary(self._mixture)
+
+    def _memory_boundary(self, mixture: dict[str, Any]) -> float:
+        return float(equal_density_boundary(mixture)["decision_boundary"])
 
 
 class ASCALGMMSegmentedMemoryPosterior(ASCALGMMSegmentedMemoryShift):
@@ -1418,6 +1494,7 @@ __all__ = [
     "ASCALGMMMedianShift",
     "ASCALGMMSegmentedHandoffShift",
     "ASCALGMMSegmentedMemoryPosterior",
+    "ASCALGMMSegmentedMemoryPosteriorProjection",
     "ASCALGMMSegmentedMemoryShift",
     "ASCALGMMSegmentedShift",
     "ASCALGMMShift",
