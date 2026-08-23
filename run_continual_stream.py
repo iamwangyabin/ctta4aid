@@ -176,6 +176,8 @@ def main() -> None:
         "ascalgmmsegmentedhandoffshiftstatic",
         "ascalgmmsegmentedmemoryshift",
         "ascalgmmsegmentedmemoryshiftstatic",
+        "ascalgmmsegmentedmemoryposterior",
+        "ascalgmmsegmentedmemoryposteriorstatic",
     }
     normalized_methods = {
         str(name).lower().replace("_", "").replace("-", "")
