@@ -1111,6 +1111,77 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["semantic_features_used"])
                 self.assertFalse(reference["raw_images_stored"])
 
+    def test_mdl_route_configs_share_one_assignment_without_knobs(self) -> None:
+        from src.config import load_config, method_config
+
+        method_name = "ascal_gmm_segmented_memory_posterior_mdl_route"
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_posterior_"
+                f"mdl_route_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [
+                        "ascal_gmm_segmented_memory_posterior_projection",
+                        method_name,
+                    ],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                self.assertIn(
+                    f"posterior_mdl_route_continual/{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(config, method_name)
+                for key in (
+                    "confidence_threshold",
+                    "fusion_weight",
+                    "lambda",
+                    "memory_capacity",
+                    "recall_threshold",
+                    "routing_threshold",
+                    "similarity_threshold",
+                    "target_threshold",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                reference = adaptive["reference"]
+                self.assertEqual(reference["research_name"], "ASCAL-JMP-MDLRoute")
+                self.assertEqual(reference["research_version"], "R10")
+                self.assertEqual(reference["new_target_hyperparameters"], 0)
+                self.assertEqual(
+                    reference["assignment_consistency"],
+                    "same_admitted_expert_predicts_and_receives_adaptation",
+                )
+                self.assertEqual(reference["routing_threshold"], "none")
+                self.assertFalse(reference["prediction_mutates_experts"])
+                self.assertFalse(
+                    reference["routing_changes_learning_state_during_prediction"]
+                )
+                self.assertTrue(reference["batch_transductive_prediction"])
+                self.assertEqual(
+                    reference["seed1_promotion_rule"],
+                    "accuracy_noninferiority_0p2pp_auc_gain_0p1pp_and_above_r06",
+                )
+                self.assertFalse(reference["target_labels_used"])
+                self.assertFalse(reference["generator_boundaries_used"])
+                self.assertFalse(reference["semantic_features_used"])
+                self.assertFalse(reference["raw_images_stored"])
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -1236,6 +1307,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_memory_posterior_preroute_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_mdl_route",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_mdl_route_static",
             config["training"]["intended_methods"],
         )
 
@@ -1541,6 +1620,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorPreRoute(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_posterior_mdl_route_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorMDLRoute,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorMDLRoute(
             self.detector(),
             "cpu",
             {
@@ -2445,6 +2540,199 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.segment_memories, memory_before)
         self.assertLess(stats.extra["last_routing_handoff_gain"], 0.0)
 
+    def test_mdl_route_uses_one_confirmed_a_expert_for_predict_and_adapt(
+        self,
+    ) -> None:
+        rng = np.random.default_rng(59)
+        method = self.segmented_memory_posterior_mdl_route_method()
+
+        def adapt_regime(low: float, high: float, batches: int) -> None:
+            for _ in range(batches):
+                scores = np.concatenate(
+                    [rng.normal(low, 0.2, 48), rng.normal(high, 0.2, 48)]
+                )
+                rng.shuffle(scores)
+                images = self.score_batch(scores)
+                method.predict(images)
+                method.adapt(images)
+
+        adapt_regime(-8.0, -3.0, 4)
+        adapt_regime(2.0, 7.0, 2)
+        self.assertEqual(method.segment_changes, 1)
+        self.assertEqual(len(method.segment_memories), 1)
+        self.assertIsNone(method.active_memory_index)
+
+        active_before = copy.deepcopy(method._mixture)
+        memories_before = copy.deepcopy(method.segment_memories)
+        boundary_history_before = list(method.boundary_history)
+        checks_before = method.routing_handoff_checks
+        scores = np.concatenate(
+            [rng.normal(-8.0, 0.2, 48), rng.normal(-3.0, 0.2, 48)]
+        )
+        rng.shuffle(scores)
+        images = self.score_batch(scores)
+        prediction = method.predict(images)
+
+        pending = method._pending
+        self.assertEqual(
+            pending["prediction_routing_proposed_expert"], "episodic_memory"
+        )
+        self.assertEqual(pending["prediction_routing_proposed_memory_index"], 0)
+        self.assertTrue(pending["prediction_routing_admission_checked"])
+        self.assertTrue(pending["prediction_routing_admission_accepted"])
+        self.assertGreater(pending["prediction_routing_admission_gain"], 0.0)
+        self.assertEqual(pending["prediction_routing_expert"], "episodic_memory")
+        self.assertEqual(pending["prediction_routing_memory_index"], 0)
+        self.assertAlmostEqual(
+            pending["prediction_boundary"],
+            method.segment_memories[0]["boundary"],
+        )
+        expected = method._source_probability(
+            scores - float(method.segment_memories[0]["boundary"])
+        )
+        np.testing.assert_allclose(prediction.prob_fake.numpy(), expected, atol=1e-6)
+
+        self.assertEqual(method._mixture, active_before)
+        self.assertEqual(method.segment_memories, memories_before)
+        self.assertEqual(method.boundary_history, boundary_history_before)
+        self.assertEqual(method.routing_handoff_checks, checks_before)
+
+        stats = method.adapt(images)
+        self.assertEqual(stats.extra["routing_handoff_checks"], checks_before + 1)
+        self.assertEqual(stats.extra["routing_handoff_confirmations"], 1)
+        self.assertEqual(stats.extra["routing_handoff_rejections"], 0)
+        self.assertEqual(stats.extra["routing_memory_proposals"], 1)
+        self.assertEqual(stats.extra["routing_memory_admission_fallbacks"], 0)
+        self.assertEqual(stats.extra["routing_memory_selections"], 1)
+        self.assertEqual(stats.extra["active_memory_index"], 0)
+        self.assertTrue(stats.extra["routing_handoff_this_batch"])
+        self.assertEqual(stats.extra["last_routing_expert"], "episodic_memory")
+        self.assertEqual(
+            stats.extra["last_routing_proposed_expert"], "episodic_memory"
+        )
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_name"], "ASCAL-JMP-MDLRoute")
+        self.assertEqual(metadata["research_version"], "R10")
+        self.assertFalse(metadata["prediction_mutates_experts"])
+
+    def test_mdl_route_rejects_novel_memory_before_it_can_predict(self) -> None:
+        rng = np.random.default_rng(60)
+        method = self.segmented_memory_posterior_mdl_route_method()
+        active = {
+            "weights": [0.5, 0.5],
+            "mus": [20.0, 25.0],
+            "sigmas": [1.0, 1.0],
+            "components": 2,
+            "bic": 0.0,
+        }
+        memory = {
+            "weights": [0.5, 0.5],
+            "mus": [-8.0, -3.0],
+            "sigmas": [1.0, 1.0],
+            "components": 2,
+            "bic": 0.0,
+        }
+        old_scores = np.concatenate(
+            [rng.normal(20.0, 0.2, 48), rng.normal(25.0, 0.2, 48)]
+        )
+        method._mixture = active
+        method.score_history = old_scores.tolist()
+        method.score_batches = [old_scores.copy()]
+        method.total_score_samples = len(old_scores)
+        method.total_score_batches = 1
+        method.boundary_history = [22.5]
+        method.segment_memories = [
+            {
+                "mixture": memory,
+                "boundary": float(method._memory_boundary(memory)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 0,
+            }
+        ]
+        memory_before = copy.deepcopy(method.segment_memories)
+        scores = np.concatenate(
+            [rng.normal(2.0, 0.2, 48), rng.normal(7.0, 0.2, 48)]
+        )
+        rng.shuffle(scores)
+        images = self.score_batch(scores)
+
+        prediction = method.predict(images)
+        pending = method._pending
+        self.assertEqual(
+            pending["prediction_routing_proposed_expert"], "episodic_memory"
+        )
+        self.assertTrue(pending["prediction_routing_admission_checked"])
+        self.assertFalse(pending["prediction_routing_admission_accepted"])
+        self.assertLess(pending["prediction_routing_admission_gain"], 0.0)
+        self.assertEqual(
+            pending["prediction_routing_expert"], "active_learning_state"
+        )
+        self.assertIsNone(pending["prediction_routing_memory_index"])
+        expected = method._source_probability(scores - 22.5)
+        np.testing.assert_allclose(prediction.prob_fake.numpy(), expected, atol=1e-6)
+        self.assertEqual(method.segment_memories, memory_before)
+        self.assertEqual(method.routing_handoff_checks, 0)
+
+        stats = method.adapt(images)
+        self.assertFalse(stats.extra["routing_handoff_this_batch"])
+        self.assertEqual(stats.extra["routing_handoff_checks"], 1)
+        self.assertEqual(stats.extra["routing_handoff_confirmations"], 0)
+        self.assertEqual(stats.extra["routing_handoff_rejections"], 1)
+        self.assertEqual(stats.extra["routing_memory_proposals"], 1)
+        self.assertEqual(stats.extra["routing_memory_admission_fallbacks"], 1)
+        self.assertEqual(stats.extra["routing_memory_selections"], 0)
+        self.assertEqual(stats.extra["routing_active_selections"], 1)
+        self.assertEqual(stats.extra["last_routing_expert"], "active_learning_state")
+        self.assertIsNone(stats.extra["active_memory_index"])
+        self.assertEqual(method.segment_memories, memory_before)
+
+    def test_mdl_route_keeps_the_exact_r01_active_prediction_on_ties(self) -> None:
+        baseline = self.segmented_memory_posterior_projection_method()
+        method = self.segmented_memory_posterior_mdl_route_method()
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-2.0, 2.0],
+            "sigmas": [0.5, 2.0],
+            "components": 2,
+            "bic": 0.0,
+        }
+        boundary = float(method._memory_boundary(mixture))
+        episode = {
+            "mixture": copy.deepcopy(mixture),
+            "boundary": boundary,
+            "latest_samples": 96,
+            "total_samples": 96,
+            "visits": 1,
+            "recalls": 0,
+        }
+        baseline._mixture = copy.deepcopy(mixture)
+        method._mixture = copy.deepcopy(mixture)
+        baseline.boundary_history = [boundary]
+        method.boundary_history = [boundary]
+        method.segment_memories = [episode]
+        scores = np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
+        images = self.score_batch(scores)
+
+        expected = baseline.predict(images)
+        actual = method.predict(images)
+        np.testing.assert_allclose(
+            actual.prob_fake.numpy(), expected.prob_fake.numpy(), atol=1e-7
+        )
+        self.assertEqual(
+            method._pending["prediction_routing_proposed_expert"],
+            "active_learning_state",
+        )
+        self.assertEqual(
+            method._pending["prediction_routing_expert"], "active_learning_state"
+        )
+        self.assertFalse(method._pending["prediction_routing_admission_checked"])
+        self.assertEqual(
+            method._pending["prediction_routing_admission_reason"],
+            "active_state_wins_deviance",
+        )
+
     def test_current_projection_uses_latest_cumulative_fit_not_nested_median(
         self,
     ) -> None:
@@ -3235,6 +3523,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_mdl_route_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorMDLRoute,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_mdl_route_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(method, ASCALGMMSegmentedMemoryPosteriorMDLRoute)
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_method_factory_maps_current_projection_static_alias(self) -> None:
         from src.methods import build_method
         from src.methods.ascal_gmm import (
@@ -3751,6 +4055,41 @@ class ASCALGMMMethodTests(unittest.TestCase):
             method, _ = build_fresh_method(config, method_name, "cpu")
 
         self.assertIsInstance(method, ASCALGMMSegmentedMemoryPosteriorPreRoute)
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_mdl_route_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorMDLRoute,
+        )
+
+        method_name = "ascal_gmm_segmented_memory_posterior_mdl_route_static"
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {method_name: {"adaptation_mode": "static"}},
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(method, ASCALGMMSegmentedMemoryPosteriorMDLRoute)
         self.assertEqual(method.adaptation_mode, "static")
 
     def test_cli_builds_current_projection_with_lora_profile(self) -> None:

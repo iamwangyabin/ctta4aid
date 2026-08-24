@@ -23,6 +23,8 @@ from that Bayes model and applies it as a monotone shift of the source score.
 Its pre-route variant uses current-batch predictive likelihood to choose that
 active model or any completed episodic model before prediction, then lets the
 same choice propose an MDL-confirmed learning-state handoff after prediction.
+Its MDL-route variant moves that same parameter-free confirmation ahead of the
+readout, so one accepted expert assignment governs both prediction and learning.
 Its current-projection variant recognizes that each active-segment GMM refit
 already contains all causal segment scores, so it removes the redundant median
 over nested refits while retaining one-vote episodic recall.
@@ -1302,11 +1304,23 @@ class ASCALGMMSegmentedMemoryPosteriorPreRoute(
 ):
     """Route the current batch to a frozen score expert before prediction."""
 
+    _ROUTING_PENDING_FIELDS = (
+        "prediction_routing_expert",
+        "prediction_routing_memory_index",
+        "prediction_routing_candidate_count",
+        "prediction_routing_selected_deviance",
+        "prediction_routing_active_deviance",
+        "prediction_routing_second_deviance",
+        "prediction_routing_margin",
+        "prediction_routing_gain_over_active",
+    )
+
     def _reset_state(self) -> None:
         super()._reset_state()
         self.routing_decisions = 0
         self.routing_active_selections = 0
         self.routing_memory_selections = 0
+        self.routing_source_fallback_selections = 0
         self.routing_expert_evaluations = 0
         self.routing_score_samples = 0
         self.routing_memory_selection_counts: dict[int, int] = {}
@@ -1518,6 +1532,9 @@ class ASCALGMMSegmentedMemoryPosteriorPreRoute(
             "routing_decisions": self.routing_decisions,
             "routing_active_selections": self.routing_active_selections,
             "routing_memory_selections": self.routing_memory_selections,
+            "routing_source_fallback_selections": (
+                self.routing_source_fallback_selections
+            ),
             "routing_expert_evaluations": self.routing_expert_evaluations,
             "routing_score_samples": self.routing_score_samples,
             "routing_memory_selection_counts": [
@@ -1628,40 +1645,46 @@ class ASCALGMMSegmentedMemoryPosteriorPreRoute(
         self.last_change_suffix_batches = 1
         self._routing_handoff_this_batch = True
 
-    def adapt(self, images: Any) -> AdaptationStats:
-        routing_state = None
-        score_samples = 0
-        if self._pending is not None:
-            routing_state = {
+    def _pending_routing_state(self) -> tuple[dict[str, Any] | None, int]:
+        if self._pending is None:
+            return None, 0
+        return (
+            {
                 key: self._pending.get(key)
-                for key in (
-                    "prediction_routing_expert",
-                    "prediction_routing_memory_index",
-                    "prediction_routing_candidate_count",
-                    "prediction_routing_selected_deviance",
-                    "prediction_routing_active_deviance",
-                    "prediction_routing_second_deviance",
-                    "prediction_routing_margin",
-                    "prediction_routing_gain_over_active",
-                )
-            }
-            score_samples = int(np.asarray(self._pending["scores"]).size)
+                for key in self._ROUTING_PENDING_FIELDS
+            },
+            int(np.asarray(self._pending["scores"]).size),
+        )
+
+    def _apply_routing_learning_assignment(
+        self,
+        routing_state: dict[str, Any],
+        scores: np.ndarray,
+    ) -> None:
+        if routing_state["prediction_routing_expert"] != "episodic_memory":
+            return
+        memory_index = routing_state["prediction_routing_memory_index"]
+        if memory_index is None:
+            raise RuntimeError("ASCAL pre-route selected memory without an index")
+        memory_index = int(memory_index)
+        if memory_index != self.active_memory_index and self._confirm_routing_handoff(
+            scores,
+            memory_index,
+        ):
+            self._start_routed_memory_visit(memory_index)
+
+    def adapt(self, images: Any) -> AdaptationStats:
+        routing_state, score_samples = self._pending_routing_state()
 
         self._routing_handoff_this_batch = False
         if (
             self.adaptation_mode == "full"
             and routing_state is not None
-            and routing_state["prediction_routing_expert"] == "episodic_memory"
         ):
-            memory_index = routing_state["prediction_routing_memory_index"]
-            if memory_index is None:
-                raise RuntimeError("ASCAL pre-route selected memory without an index")
-            memory_index = int(memory_index)
-            if memory_index != self.active_memory_index and self._confirm_routing_handoff(
+            self._apply_routing_learning_assignment(
+                routing_state,
                 np.asarray(self._pending["scores"], dtype=np.float64).reshape(-1),
-                memory_index,
-            ):
-                self._start_routed_memory_visit(memory_index)
+            )
 
         stats = super().adapt(images)
         if self.adaptation_mode != "full" or routing_state is None:
@@ -1700,13 +1723,416 @@ class ASCALGMMSegmentedMemoryPosteriorPreRoute(
                 self.routing_memory_selection_counts[index] = (
                     self.routing_memory_selection_counts.get(index, 0) + 1
                 )
-            else:
+            elif self.last_routing_expert == "active_learning_state":
                 self.routing_active_selections += 1
+            else:
+                self.routing_source_fallback_selections += 1
         if self._routing_handoff_this_batch:
             self._segment_changed = True
             self._memory_recalled_this_change = True
             self.last_change_batch = self.total_score_batches
         stats.extra.update(self._state_stats())
+        return stats
+
+
+class ASCALGMMSegmentedMemoryPosteriorMDLRoute(
+    ASCALGMMSegmentedMemoryPosteriorPreRoute
+):
+    """Use one MDL-admitted expert assignment for prediction and adaptation."""
+
+    _ROUTING_PENDING_FIELDS = (
+        *ASCALGMMSegmentedMemoryPosteriorPreRoute._ROUTING_PENDING_FIELDS,
+        "prediction_routing_proposed_expert",
+        "prediction_routing_proposed_memory_index",
+        "prediction_routing_proposed_deviance",
+        "prediction_routing_proposed_margin",
+        "prediction_routing_proposed_gain_over_active",
+        "prediction_routing_admission_checked",
+        "prediction_routing_admission_accepted",
+        "prediction_routing_admission_reason",
+        "prediction_routing_admission_memory_index",
+        "prediction_routing_admission_fixed_score",
+        "prediction_routing_admission_new_bic",
+        "prediction_routing_admission_identity_penalty",
+        "prediction_routing_admission_gain",
+        "prediction_routing_admission_new_components",
+        "prediction_routing_admission_fit_failure",
+        "prediction_routing_admission_unimodal",
+    )
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.routing_memory_proposals = 0
+        self.routing_memory_admission_fallbacks = 0
+        self.routing_active_memory_identity_reuses = 0
+        self.last_routing_proposed_expert: str | None = None
+        self.last_routing_proposed_memory_index: int | None = None
+        self.last_routing_admission_reason: str | None = None
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "unlabeled_mdl_assigned_episodic_joint_density_"
+                    "boundary_projection"
+                ),
+                "research_name": "ASCAL-JMP-MDLRoute",
+                "research_version": "R10",
+                "routing_rule": (
+                    "minimum_fixed_deviance_proposes_a_memory_then_uniform_"
+                    "identity_mdl_must_beat_a_temporary_current_batch_gmm_bic"
+                ),
+                "routing_readout": (
+                    "only_the_mdl_admitted_expert_can_predict_the_current_batch"
+                ),
+                "routing_learning_separation": (
+                    "prediction_computes_one_immutable_assignment_without_state_"
+                    "mutation_and_adaptation_consumes_that_exact_assignment"
+                ),
+                "routing_adaptation_rule": (
+                    "the_same_deployed_expert_receives_the_current_batch_or_the_"
+                    "r01_active_novel_state_path_receives_it_when_reuse_is_rejected"
+                ),
+                "current_batch_gmm_role": (
+                    "temporary_description_length_null_only_never_used_for_"
+                    "classification_or_persisted"
+                ),
+                "assignment_consistency": "one_batch_one_expert_for_predict_and_adapt",
+                "prediction_mutates_experts": False,
+                "hyperparameter_rule": (
+                    "no_routing_threshold_similarity_metric_fusion_weight_"
+                    "memory_capacity_or_new_target_hyperparameter"
+                ),
+                "intentional_changes": [
+                    "the R09 likelihood winner is only a proposal",
+                    "a returning expert predicts only after parameter-free MDL admission",
+                    "a rejected proposal falls back before prediction rather than after it",
+                    "adaptation consumes the prediction-time assignment without refitting or rerouting",
+                    "the temporary current-batch GMM is neither a classifier nor persistent state",
+                    "all R01 expert construction and update rules remain unchanged",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_mdl_route"
+
+    def _memory_admission_evidence(
+        self,
+        scores: np.ndarray,
+        memory_index: int,
+    ) -> dict[str, Any]:
+        eligible_memories = sum(
+            int(episode["mixture"]["components"]) >= 2
+            for episode in self.segment_memories
+        )
+        if eligible_memories < 1:
+            raise RuntimeError("ASCAL MDL route has no eligible memory")
+        evidence: dict[str, Any] = {
+            "checked": True,
+            "accepted": False,
+            "reason": "fit_failure",
+            "memory_index": memory_index,
+            "fixed_score": None,
+            "new_bic": None,
+            "identity_penalty": None,
+            "gain": None,
+            "new_components": None,
+            "fit_failure": False,
+            "unimodal": False,
+        }
+        try:
+            new_mixture = fit_gmm_bic(
+                scores,
+                max_components=min(self.max_total_components, int(scores.size)),
+                seed=0,
+            )
+        except (FloatingPointError, RuntimeError, ValueError):
+            evidence["fit_failure"] = True
+            return evidence
+
+        components = int(new_mixture["components"])
+        evidence["new_bic"] = float(new_mixture["bic"])
+        evidence["new_components"] = components
+        if components < 2:
+            evidence["reason"] = "current_batch_unimodal"
+            evidence["unimodal"] = True
+            return evidence
+
+        identity_penalty = 2.0 * math.log(eligible_memories)
+        fixed_score = _fixed_gmm_deviance(
+            scores,
+            self.segment_memories[memory_index]["mixture"],
+        ) + identity_penalty
+        gain = float(new_mixture["bic"]) - float(fixed_score)
+        accepted = gain > 0.0
+        evidence.update(
+            {
+                "accepted": accepted,
+                "reason": (
+                    "memory_description_shorter"
+                    if accepted
+                    else "new_state_description_shorter_or_equal"
+                ),
+                "fixed_score": float(fixed_score),
+                "identity_penalty": float(identity_penalty),
+                "gain": float(gain),
+            }
+        )
+        return evidence
+
+    @staticmethod
+    def _empty_admission(reason: str) -> dict[str, Any]:
+        return {
+            "checked": False,
+            "accepted": False,
+            "reason": reason,
+            "memory_index": None,
+            "fixed_score": None,
+            "new_bic": None,
+            "identity_penalty": None,
+            "gain": None,
+            "new_components": None,
+            "fit_failure": False,
+            "unimodal": False,
+        }
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores = self._batch_scores(images)
+        candidates: list[dict[str, Any]] = []
+        proposal: dict[str, Any] | None = None
+        selected: dict[str, Any] | None = None
+        active: dict[str, Any] | None = None
+        admission = self._empty_admission("no_routing_candidate")
+        if self.adaptation_mode == "full":
+            candidates = self._routing_candidates(scores)
+
+        if candidates:
+            proposal = min(candidates, key=lambda candidate: candidate["deviance"])
+            active = next(
+                (
+                    candidate
+                    for candidate in candidates
+                    if candidate["expert"] == "active_learning_state"
+                ),
+                None,
+            )
+            if proposal["expert"] == "episodic_memory":
+                memory_index = int(proposal["memory_index"])
+                if memory_index == self.active_memory_index:
+                    selected = proposal
+                    admission = self._empty_admission(
+                        "already_active_memory_identity"
+                    )
+                    admission.update(
+                        {"accepted": True, "memory_index": memory_index}
+                    )
+                else:
+                    admission = self._memory_admission_evidence(
+                        scores,
+                        memory_index,
+                    )
+                    selected = proposal if admission["accepted"] else active
+            else:
+                selected = proposal
+                admission = self._empty_admission("active_state_wins_deviance")
+
+        ordered_deviances = sorted(float(item["deviance"]) for item in candidates)
+        active_deviance = None if active is None else float(active["deviance"])
+        proposal_margin = None
+        proposal_gain = None
+        if proposal is not None:
+            if len(ordered_deviances) > 1:
+                proposal_margin = (
+                    float(ordered_deviances[1]) - float(proposal["deviance"])
+                )
+            if active_deviance is not None:
+                proposal_gain = active_deviance - float(proposal["deviance"])
+
+        second_deviance = None
+        routing_margin = None
+        routing_gain = None
+        if selected is not None:
+            alternatives = [
+                float(candidate["deviance"])
+                for candidate in candidates
+                if candidate is not selected
+            ]
+            if alternatives:
+                second_deviance = min(alternatives)
+                routing_margin = second_deviance - float(selected["deviance"])
+            if active_deviance is not None:
+                routing_gain = active_deviance - float(selected["deviance"])
+            boundary = float(selected["boundary"])
+            probability = self._source_probability(scores - boundary)
+            prediction_mode = self._prediction_mode_name
+            candidate_boundary = float(selected["candidate_boundary"])
+            real_components = int(selected["real_components"])
+            fake_components = int(selected["fake_components"])
+        else:
+            boundary = 0.0
+            probability = self._source_probability(scores)
+            prediction_mode = "source_fallback"
+            candidate_boundary = None
+            real_components = 0
+            fake_components = 0
+
+        selected_expert = None if selected is None else str(selected["expert"])
+        selected_memory_index = None if selected is None else selected["memory_index"]
+        proposed_expert = None if proposal is None else str(proposal["expert"])
+        proposed_memory_index = None if proposal is None else proposal["memory_index"]
+        return self._prediction_batch(
+            scores,
+            probability,
+            prediction_mode=prediction_mode,
+            prediction_boundary=boundary,
+            prediction_candidate_boundary=candidate_boundary,
+            prediction_real_components=real_components,
+            prediction_fake_components=fake_components,
+            prediction_memory_index=self.active_memory_index,
+            prediction_memory_recalled=self.recall_anchor_boundary is not None,
+            prediction_memory_anchor_boundary=self.recall_anchor_boundary,
+            prediction_memory_anchor_weight=self._recall_anchor_weight(),
+            prediction_routing_expert=selected_expert,
+            prediction_routing_memory_index=selected_memory_index,
+            prediction_routing_candidate_count=len(candidates),
+            prediction_routing_memory_candidate_count=sum(
+                candidate["expert"] == "episodic_memory"
+                for candidate in candidates
+            ),
+            prediction_routing_selected_deviance=(
+                None if selected is None else float(selected["deviance"])
+            ),
+            prediction_routing_selected_deviance_per_sample=(
+                None
+                if selected is None
+                else float(selected["deviance"]) / float(len(scores))
+            ),
+            prediction_routing_active_deviance=active_deviance,
+            prediction_routing_second_deviance=second_deviance,
+            prediction_routing_margin=routing_margin,
+            prediction_routing_gain_over_active=routing_gain,
+            prediction_routing_proposed_expert=proposed_expert,
+            prediction_routing_proposed_memory_index=proposed_memory_index,
+            prediction_routing_proposed_deviance=(
+                None if proposal is None else float(proposal["deviance"])
+            ),
+            prediction_routing_proposed_margin=proposal_margin,
+            prediction_routing_proposed_gain_over_active=proposal_gain,
+            prediction_routing_admission_checked=bool(admission["checked"]),
+            prediction_routing_admission_accepted=bool(admission["accepted"]),
+            prediction_routing_admission_reason=str(admission["reason"]),
+            prediction_routing_admission_memory_index=admission["memory_index"],
+            prediction_routing_admission_fixed_score=admission["fixed_score"],
+            prediction_routing_admission_new_bic=admission["new_bic"],
+            prediction_routing_admission_identity_penalty=(
+                admission["identity_penalty"]
+            ),
+            prediction_routing_admission_gain=admission["gain"],
+            prediction_routing_admission_new_components=(
+                admission["new_components"]
+            ),
+            prediction_routing_admission_fit_failure=bool(
+                admission["fit_failure"]
+            ),
+            prediction_routing_admission_unimodal=bool(admission["unimodal"]),
+        )
+
+    def _apply_routing_learning_assignment(
+        self,
+        routing_state: dict[str, Any],
+        scores: np.ndarray,
+    ) -> None:
+        del scores
+        proposed_expert = routing_state["prediction_routing_proposed_expert"]
+        proposed_memory_index = routing_state[
+            "prediction_routing_proposed_memory_index"
+        ]
+        selected_expert = routing_state["prediction_routing_expert"]
+        selected_memory_index = routing_state["prediction_routing_memory_index"]
+        admission_checked = bool(
+            routing_state["prediction_routing_admission_checked"]
+        )
+        admission_accepted = bool(
+            routing_state["prediction_routing_admission_accepted"]
+        )
+
+        self.last_routing_proposed_expert = proposed_expert
+        self.last_routing_proposed_memory_index = proposed_memory_index
+        self.last_routing_admission_reason = routing_state[
+            "prediction_routing_admission_reason"
+        ]
+        if proposed_expert == "episodic_memory":
+            self.routing_memory_proposals += 1
+            if selected_expert != "episodic_memory":
+                self.routing_memory_admission_fallbacks += 1
+
+        if admission_checked:
+            memory_index = routing_state[
+                "prediction_routing_admission_memory_index"
+            ]
+            if memory_index is None:
+                raise RuntimeError("ASCAL MDL route checked memory without an index")
+            self.routing_handoff_checks += 1
+            self.last_routing_handoff_memory_index = int(memory_index)
+            self.last_routing_handoff_fixed_score = routing_state[
+                "prediction_routing_admission_fixed_score"
+            ]
+            self.last_routing_handoff_new_bic = routing_state[
+                "prediction_routing_admission_new_bic"
+            ]
+            self.last_routing_handoff_identity_penalty = routing_state[
+                "prediction_routing_admission_identity_penalty"
+            ]
+            self.last_routing_handoff_gain = routing_state[
+                "prediction_routing_admission_gain"
+            ]
+            if routing_state["prediction_routing_admission_fit_failure"]:
+                self.routing_handoff_fit_failures += 1
+            if routing_state["prediction_routing_admission_unimodal"]:
+                self.routing_handoff_unimodal_batches += 1
+            if admission_accepted:
+                self.routing_handoff_confirmations += 1
+            else:
+                self.routing_handoff_rejections += 1
+
+        if selected_expert != "episodic_memory":
+            return
+        if selected_memory_index is None:
+            raise RuntimeError("ASCAL MDL route selected memory without an index")
+        selected_memory_index = int(selected_memory_index)
+        if selected_memory_index == self.active_memory_index:
+            if not admission_checked:
+                self.routing_active_memory_identity_reuses += 1
+            return
+        if not admission_checked or not admission_accepted:
+            raise RuntimeError(
+                "ASCAL MDL route cannot adapt with an unconfirmed memory assignment"
+            )
+        self._start_routed_memory_visit(selected_memory_index)
+
+    def _routing_state_stats(self) -> dict[str, Any]:
+        stats = super()._routing_state_stats()
+        stats.update(
+            {
+                "routing_memory_proposals": self.routing_memory_proposals,
+                "routing_memory_admission_fallbacks": (
+                    self.routing_memory_admission_fallbacks
+                ),
+                "routing_active_memory_identity_reuses": (
+                    self.routing_active_memory_identity_reuses
+                ),
+                "last_routing_proposed_expert": self.last_routing_proposed_expert,
+                "last_routing_proposed_memory_index": (
+                    self.last_routing_proposed_memory_index
+                ),
+                "last_routing_admission_reason": self.last_routing_admission_reason,
+            }
+        )
         return stats
 
 

@@ -670,13 +670,26 @@ R09 的四数据集 seed1 正式运行和全部路由因果审计通过，证明
 adapt 拒绝的 353 次旧专家归属已经改变了当前批排序。下一版只能让 Predict 与 Adapt 共享
 同一个无参数归属结论，不能继续把“最像的历史专家”和“足以属于该专家”混为一谈。
 
+`ascal_gmm_segmented_memory_posterior_mdl_route` 的研究版本名为
+**ASCAL-JMP-MDLRoute（R10）**。它只修正 R09 暴露出的 Predict/Adapt 归属分裂，不改变 R01
+专家的构造、分界或更新规则。当前无标签批先以固定预测 deviance 找到最像的历史 GMM；这时
+它还只是 proposal。若 proposal 不是当前 active expert，方法在内存中临时拟合一个当前批
+GMM，并比较“旧专家 deviance 加均匀专家身份码 `2 log M`”与“新 GMM 的 BIC”。只有旧专家
+描述长度严格更短时，它才成为该批唯一的正式归属：立即负责当前预测，并在 Predict 完成后
+原样交给 Adapt，启动或继续该专家的一次 active visit。否则旧专家在预测前即被拒绝，当前批
+从一开始就使用 R01 active readout（无 active 时使用 source），随后也只进入同一 active/new
+state 学习路径。临时 GMM 只充当“这是新状态”的无标签描述长度基线，不参与分类、不写入
+memory，也不会在 Adapt 中重新拟合或重新投票。因而每批严格满足 one-batch-one-expert，且
+没有新增阈值、窗口、融合权重、学习率、memory capacity 或 target 超参数；seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_mdl_route_continual_*_seed1.yaml`。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
 target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
-最高值，R06 的直接比较对象是 R05，R07、R08 和 R09 的直接比较对象均是当前最佳 R06。
+最高值，R06 的直接比较对象是 R05，R07、R08、R09 和 R10 的直接比较对象均是当前最佳 R06。
 该门槛只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整
 确认前仍不得写入正文正式表。
 

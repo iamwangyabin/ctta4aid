@@ -14,6 +14,7 @@ from .ascal_gmm import (
     ASCALGMMSegmentedMemoryPosteriorGlobalResidual,
     ASCALGMMSegmentedMemoryPosteriorGuardedProjection,
     ASCALGMMSegmentedMemoryPosteriorMixtureResidual,
+    ASCALGMMSegmentedMemoryPosteriorMDLRoute,
     ASCALGMMSegmentedMemoryPosteriorPreRoute,
     ASCALGMMSegmentedMemoryPosteriorProjection,
     ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual,
@@ -144,6 +145,16 @@ def build_method(
             model, device, effective_config
         )
     if normalized in {
+        "ascalgmmsegmentedmemoryposteriormdlroute",
+        "ascalgmmsegmentedmemoryposteriormdlroutestatic",
+    }:
+        effective_config = dict(config)
+        if normalized == "ascalgmmsegmentedmemoryposteriormdlroutestatic":
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMSegmentedMemoryPosteriorMDLRoute(
+            model, device, effective_config
+        )
+    if normalized in {
         "ascalgmmsegmentedmemoryposteriorcurrentprojection",
         "ascalgmmsegmentedmemoryposteriorcurrentprojectionstatic",
     }:
@@ -247,6 +258,7 @@ __all__ = [
     "ASCALGMMSegmentedMemoryPosteriorGlobalResidual",
     "ASCALGMMSegmentedMemoryPosteriorGuardedProjection",
     "ASCALGMMSegmentedMemoryPosteriorMixtureResidual",
+    "ASCALGMMSegmentedMemoryPosteriorMDLRoute",
     "ASCALGMMSegmentedMemoryPosteriorPreRoute",
     "ASCALGMMSegmentedMemoryPosteriorProjection",
     "ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual",
