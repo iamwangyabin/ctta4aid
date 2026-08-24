@@ -608,8 +608,12 @@ learning rate、置信阈值、fusion weight 或 memory capacity。seed1 成对�
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
-固定配置、commit、源码归档和 `run_record.json`。只有同时不损害 Accuracy 与
-target-macro AUC 的候选才进入 seed2/seed3 确认，完整确认前仍不得写入正文正式表。
+固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
+target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
+Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
+target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过 R05。该门槛只决定是否
+进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整确认前仍不得写入
+正文正式表。
 
 ## OST
 

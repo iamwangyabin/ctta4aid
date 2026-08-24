@@ -851,6 +851,10 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertEqual(reference["new_target_hyperparameters"], 0)
                 self.assertEqual(reference["residual_count"], 1)
                 self.assertIn("bic", reference["fake_component_count_rule"])
+                self.assertEqual(
+                    reference["seed1_promotion_rule"],
+                    "accuracy_noninferiority_0p2pp_auc_gain_0p1pp_and_above_r05",
+                )
                 self.assertFalse(reference["adaptive_score_history_stored"])
                 self.assertEqual(reference["optimizer"], "none")
                 self.assertFalse(reference["target_labels_used"])

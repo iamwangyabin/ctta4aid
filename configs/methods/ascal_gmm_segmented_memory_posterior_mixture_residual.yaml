@@ -41,5 +41,6 @@ method_configs:
       adaptive_score_history_stored: false
       optimizer: none
       new_target_hyperparameters: 0
+      seed1_promotion_rule: accuracy_noninferiority_0p2pp_auc_gain_0p1pp_and_above_r05
       raw_images_stored: false
       source_fallback: exact_before_any_reliable_two_block_evidence
