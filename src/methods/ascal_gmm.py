@@ -26,6 +26,9 @@ over nested refits while retaining one-vote episodic recall.
 Its guarded-scan variant instead retains the robust median and only expands the
 MDL change-point search to every dyadic suffix when that deployed boundary has
 left the dominant gap of the current target GMM.
+Its support-median variant keeps the R01 trajectory and gives each nested GMM
+boundary vote weight equal to the causal segment samples summarized by that
+fit, replacing equal-fit voting without adding a target hyperparameter.
 """
 
 from __future__ import annotations
@@ -226,6 +229,30 @@ def equal_density_boundary(mixture: dict[str, Any]) -> dict[str, Any]:
         "density_crossing": crossing_found,
         "density_log_ratio": float(log_ratio(boundary)),
     }
+
+
+def support_weighted_median(values: Any, supports: Any) -> float:
+    """Return a deterministic weighted median, averaging an exact middle tie."""
+
+    values = np.asarray(values, dtype=np.float64).reshape(-1)
+    supports = np.asarray(supports, dtype=np.float64).reshape(-1)
+    if values.size < 1 or values.size != supports.size:
+        raise ValueError(
+            "Support-weighted median requires matching non-empty arrays"
+        )
+    if not np.all(np.isfinite(values)) or not np.all(np.isfinite(supports)):
+        raise ValueError("Support-weighted median requires finite values")
+    if np.any(supports <= 0.0):
+        raise ValueError("Support-weighted median requires positive supports")
+
+    order = np.argsort(values, kind="stable")
+    ordered_values = values[order]
+    cumulative = np.cumsum(supports[order])
+    midpoint = 0.5 * float(cumulative[-1])
+    index = int(np.searchsorted(cumulative, midpoint, side="left"))
+    if cumulative[index] == midpoint and index + 1 < ordered_values.size:
+        return float(0.5 * (ordered_values[index] + ordered_values[index + 1]))
+    return float(ordered_values[index])
 
 
 class ASCALGMM(TTAMethod):
@@ -1405,6 +1432,137 @@ class ASCALGMMSegmentedMemoryPosteriorGuardedProjection(
         return stats
 
 
+class ASCALGMMSegmentedMemoryPosteriorSupportProjection(
+    ASCALGMMSegmentedMemoryPosteriorProjection
+):
+    """Weight robust nested-fit boundary votes by their causal sample support."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.boundary_support_history: list[int] = []
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "unlabeled_sample_support_weighted_median_segmented_"
+                    "episodic_joint_density_boundary_projection"
+                ),
+                "research_name": "ASCAL-JMP-SupportMedian",
+                "research_version": "R04",
+                "boundary_stabilization": (
+                    "weighted_median_of_causal_active_segment_density_"
+                    "boundaries"
+                ),
+                "boundary_vote_support": (
+                    "number_of_causal_active_segment_scores_summarized_by_"
+                    "each_nested_gmm_fit"
+                ),
+                "weighted_median_tie_rule": (
+                    "midpoint_of_the_two_adjacent_values_when_support_is_"
+                    "split_exactly_in_half"
+                ),
+                "recalled_boundary_rule": (
+                    "retain_the_r01_one_episode_boundary_vote_and_fit_count_"
+                    "decay"
+                ),
+                "hyperparameter_rule": (
+                    "sample_support_is_observed_evidence_no_new_target_"
+                    "hyperparameters"
+                ),
+                "intentional_changes": [
+                    "the R01 detector segmentation memory and readout remain unchanged",
+                    "each nested boundary vote is weighted by its observed sample support",
+                    "the robust weighted median still prevents a latest-fit overwrite",
+                    "episodic recall remains one vote with the original fit-count decay",
+                    "predictions use only GMMs fitted after earlier batches",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_support_projection"
+
+    def _on_segment_change(
+        self,
+        *,
+        old_mixture: dict[str, Any],
+        old_samples: int,
+        new_mixture: dict[str, Any],
+        new_scores: np.ndarray,
+    ) -> None:
+        super()._on_segment_change(
+            old_mixture=old_mixture,
+            old_samples=old_samples,
+            new_mixture=new_mixture,
+            new_scores=new_scores,
+        )
+        self.boundary_support_history = []
+
+    def _after_successful_fit(self) -> None:
+        super()._after_successful_fit()
+        boundary_count = len(self.boundary_history)
+        support_count = len(self.boundary_support_history)
+        if boundary_count == support_count:
+            return
+        if boundary_count != support_count + 1:
+            raise RuntimeError(
+                "ASCAL support history lost alignment with boundary history"
+            )
+        self.boundary_support_history.append(len(self.score_history))
+
+    def _support_weighted_boundary(self, candidate: float) -> float:
+        if not self.boundary_history:
+            return float(candidate)
+        if len(self.boundary_history) != len(self.boundary_support_history):
+            raise RuntimeError(
+                "ASCAL support history must match the boundary history"
+            )
+        return support_weighted_median(
+            self.boundary_history,
+            self.boundary_support_history,
+        )
+
+    def _stabilized_boundary(self, candidate: float) -> float:
+        target = self._support_weighted_boundary(candidate)
+        if self.recall_anchor_boundary is None:
+            return target
+        anchor_weight = self._recall_anchor_weight()
+        return float(
+            anchor_weight * self.recall_anchor_boundary
+            + (1.0 - anchor_weight) * target
+        )
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        equal_vote_boundary = stats.get("stabilized_boundary")
+        candidate = stats.get("candidate_boundary")
+        support_boundary = (
+            None
+            if candidate is None
+            else self._support_weighted_boundary(float(candidate))
+        )
+        stats.update(
+            {
+                "equal_vote_boundary_median": equal_vote_boundary,
+                "stabilized_boundary": support_boundary,
+                "support_weighted_boundary": support_boundary,
+                "boundary_support_entries": len(self.boundary_support_history),
+                "boundary_support_total": sum(self.boundary_support_history),
+                "boundary_support_latest": (
+                    None
+                    if not self.boundary_support_history
+                    else self.boundary_support_history[-1]
+                ),
+            }
+        )
+        return stats
+
+
 class ASCALGMMSegmentedMemoryPosterior(ASCALGMMSegmentedMemoryShift):
     """Read current and recalled score regimes as class-density posteriors."""
 
@@ -1689,6 +1847,7 @@ __all__ = [
     "ASCALGMMSegmentedMemoryPosteriorCurrentProjection",
     "ASCALGMMSegmentedMemoryPosteriorGuardedProjection",
     "ASCALGMMSegmentedMemoryPosteriorProjection",
+    "ASCALGMMSegmentedMemoryPosteriorSupportProjection",
     "ASCALGMMSegmentedMemoryShift",
     "ASCALGMMSegmentedShift",
     "ASCALGMMShift",
@@ -1696,4 +1855,5 @@ __all__ = [
     "dominant_gap_boundary",
     "equal_density_boundary",
     "joint_density_fake_posterior",
+    "support_weighted_median",
 ]

@@ -555,6 +555,21 @@ R02 的四数据集 seed1 诊断没有通过预注册的 Accuracy 与 target-mac
 与当前无标签密度不相容”只当作一次更完整的变点检验触发器，而不是新增阈值或直接相信
 最新拟合；target 超参数仍为零。与 R01 的 seed1 成对入口为
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_guarded_projection_continual_*_seed1.yaml`。
+R03 的四数据集 seed1 诊断和复现审计均完整结束，但相对 R01 的平均 Accuracy 下降
+0.2068 个百分点，target-macro online AUC 下降 0.1618 个百分点，因此同样不进入
+seed2/seed3。无标签状态显示守卫实际触发 235 次，却只有 4 个非原调度尺度的变点；少数
+额外变点会改变后续分段与记忆轨迹，而没有形成稳定收益。R01 继续作为候选基线。
+
+`ascal_gmm_segmented_memory_posterior_support_projection` 的研究版本名为
+**ASCAL-JMP-SupportMedian（R04）**。它回到 R01 的原始分段、记忆、联合密度边界和
+单调投影，只改变嵌套 GMM 边界的中位数计票：每次拟合的票重等于该拟合实际汇总的当前段
+因果样本数，再取加权中位数；累计支持恰好平分时取相邻两个边界的中点。这样较晚、覆盖
+更多已到达样本的拟合拥有更高证据权重，但任何一个最新拟合仍不能像 R02 那样直接覆盖
+历史。R01 的 episodic recall 仍是一票并按有效拟合次数衰减，其他逻辑完全不变。该权重
+来自在线已观测样本数，不新增幂指数、平滑率、窗口或阈值，target 超参数仍为零。离线重放
+R01 的无标签状态时，它把边界落出当前 GMM 主间隔的次数从 462 降到 260；正式判断仍只看
+独立 seed1 成对运行。入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_support_projection_continual_*_seed1.yaml`。
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
