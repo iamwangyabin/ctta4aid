@@ -10,6 +10,7 @@ from .ascal_gmm import (
     ASCALGMMSegmentedHandoffShift,
     ASCALGMMSegmentedMemoryPosterior,
     ASCALGMMSegmentedMemoryPosteriorCurrentProjection,
+    ASCALGMMSegmentedMemoryPosteriorGlobalResidual,
     ASCALGMMSegmentedMemoryPosteriorGuardedProjection,
     ASCALGMMSegmentedMemoryPosteriorProjection,
     ASCALGMMSegmentedMemoryPosteriorSupportProjection,
@@ -158,6 +159,16 @@ def build_method(
         return ASCALGMMSegmentedMemoryPosteriorSupportProjection(
             model, device, effective_config
         )
+    if normalized in {
+        "ascalgmmsegmentedmemoryposteriorglobalresidual",
+        "ascalgmmsegmentedmemoryposteriorglobalresidualstatic",
+    }:
+        effective_config = dict(config)
+        if normalized == "ascalgmmsegmentedmemoryposteriorglobalresidualstatic":
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMSegmentedMemoryPosteriorGlobalResidual(
+            model, device, effective_config
+        )
     if normalized == "cotta":
         return CoTTA(model, device, config)
     if normalized == "rotta":
@@ -187,6 +198,11 @@ __all__ = [
     "ASCALGMMMedianShift",
     "ASCALGMMSegmentedHandoffShift",
     "ASCALGMMSegmentedMemoryPosterior",
+    "ASCALGMMSegmentedMemoryPosteriorCurrentProjection",
+    "ASCALGMMSegmentedMemoryPosteriorGlobalResidual",
+    "ASCALGMMSegmentedMemoryPosteriorGuardedProjection",
+    "ASCALGMMSegmentedMemoryPosteriorProjection",
+    "ASCALGMMSegmentedMemoryPosteriorSupportProjection",
     "ASCALGMMSegmentedMemoryShift",
     "ASCALGMMSegmentedShift",
     "ASCALGMMShift",

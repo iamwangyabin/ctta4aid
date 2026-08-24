@@ -29,6 +29,10 @@ left the dominant gap of the current target GMM.
 Its support-median variant keeps the R01 trajectory and gives each nested GMM
 boundary vote weight equal to the causal segment samples summarized by that
 fit, replacing equal-fit voting without adding a target hyperparameter.
+Its global-residual variant keeps the immutable source-margin GMM and R01
+boundary trajectory, then estimates one stream-wide feature residual from
+soft, source-score-derived class prototypes. The residual never rewrites the
+historical score coordinate and is updated only after each batch is predicted.
 """
 
 from __future__ import annotations
@@ -1561,6 +1565,298 @@ class ASCALGMMSegmentedMemoryPosteriorSupportProjection(
             }
         )
         return stats
+
+
+class ASCALGMMSegmentedMemoryPosteriorGlobalResidual(
+    ASCALGMMSegmentedMemoryPosteriorProjection
+):
+    """Add one causal prototype residual without changing score history."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        classifier = getattr(self.model, "classifier", None)
+        weight = getattr(classifier, "weight", None)
+        if weight is None or weight.ndim != 2 or int(weight.shape[0]) != 2:
+            raise TypeError(
+                "ASCAL global residual requires a two-class linear classifier"
+            )
+        direction = (
+            weight[1].detach().float().cpu().numpy()
+            - weight[0].detach().float().cpu().numpy()
+        ).astype(np.float64)
+        direction_norm = float(np.linalg.norm(direction))
+        if not math.isfinite(direction_norm) or direction_norm <= 0.0:
+            raise ValueError(
+                "ASCAL global residual requires a nonzero source score direction"
+            )
+        self._source_feature_direction = direction / direction_norm
+        self.residual_feature_dim = int(direction.size)
+        self.residual_real_sum = np.zeros(self.residual_feature_dim, dtype=np.float64)
+        self.residual_fake_sum = np.zeros(self.residual_feature_dim, dtype=np.float64)
+        self.residual_real_support = 0.0
+        self.residual_fake_support = 0.0
+        self.residual_vector: np.ndarray | None = None
+        self.residual_updates = 0
+        self.residual_candidate_samples = 0
+        self.residual_last_reliability = 0.0
+        self.residual_last_real_support = 0.0
+        self.residual_last_fake_support = 0.0
+        self._pending_residual_features: np.ndarray | None = None
+
+    @property
+    def trainable_parameters(self) -> int:
+        if self.adaptation_mode == "static":
+            return 0
+        return self.residual_feature_dim
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "immutable_source_score_gmm_with_one_causal_global_"
+                    "prototype_rank_residual"
+                ),
+                "research_name": "ASCAL-JMP-GlobalResidual",
+                "research_version": "R05",
+                "immutable_history_coordinate": "frozen_source_logit_margin_only",
+                "base_prediction_rule": (
+                    "exact_r01_median_stabilized_posterior_boundary_projection"
+                ),
+                "residual_count": 1,
+                "residual_scope": "one_shared_vector_for_the_entire_continual_stream",
+                "residual_input": (
+                    "l2_normalized_frozen_features_orthogonal_to_the_source_"
+                    "classifier_direction"
+                ),
+                "residual_teacher": (
+                    "equal_prior_joint_density_posterior_computed_only_from_"
+                    "the_current_immutable_source_score_gmm"
+                ),
+                "reliability_rule": "absolute_centered_soft_posterior_no_threshold",
+                "residual_update": (
+                    "cumulative_soft_real_and_fake_feature_prototypes_no_"
+                    "optimizer_or_learning_rate"
+                ),
+                "residual_readout": (
+                    "cosine_similarity_to_fake_prototype_minus_cosine_"
+                    "similarity_to_real_prototype"
+                ),
+                "prediction_rule": "r01_base_logit_plus_one_global_residual",
+                "adaptive_score_history_stored": False,
+                "raw_images_stored": False,
+                "target_labels_used": False,
+                "generator_boundaries_used": False,
+                "semantic_features_used": False,
+                "hyperparameter_rule": (
+                    "no_residual_learning_rate_loss_weight_confidence_threshold_"
+                    "memory_capacity_or_per_domain_router"
+                ),
+                "intentional_changes": [
+                    "the R01 source-score GMM segmentation memory and boundary trajectory remain unchanged",
+                    "only immutable source margins are appended to score history",
+                    "one zero-initialized stream-wide feature residual is estimated after prediction",
+                    "soft GMM evidence updates cumulative class prototypes without hard admission thresholds",
+                    "source-head orthogonalization prevents the residual from relearning the source margin",
+                    "the adaptive residual never teaches or rewrites its own pseudo labels",
+                    "predictions use only GMM and residual state learned from earlier batches",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_global_residual"
+
+    def _batch_scores_and_residual_features(self, images: Any) -> tuple[Any, Any]:
+        import torch
+
+        if images.dim() == 5:
+            batch, views = int(images.shape[0]), int(images.shape[1])
+            flat = images.reshape(batch * views, *images.shape[2:])
+        elif images.dim() == 4:
+            batch, views = int(images.shape[0]), 1
+            flat = images
+        else:
+            raise ValueError(
+                "ASCAL global residual expects (B, C, H, W) or "
+                "(B, V, C, H, W) images"
+            )
+        forward_features = getattr(self.model, "forward_features", None)
+        classifier = getattr(self.model, "classifier", None)
+        if not callable(forward_features) or not callable(classifier):
+            raise TypeError(
+                "ASCAL global residual requires forward_features and classifier"
+            )
+        with torch.no_grad():
+            features = forward_features(flat.to(self.device, non_blocking=True))
+            logits = classifier(features)
+        margins = (
+            binary_score(logits)
+            .view(batch, views)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        feature_values = (
+            features.detach()
+            .float()
+            .view(batch, views, -1)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        if int(feature_values.shape[1]) != self.residual_feature_dim:
+            raise ValueError(
+                "ASCAL global residual feature dimension does not match the source head"
+            )
+        direction = self._source_feature_direction
+        feature_values -= (feature_values @ direction)[:, None] * direction[None, :]
+        norms = np.linalg.norm(feature_values, axis=1, keepdims=True)
+        feature_values = np.divide(
+            feature_values,
+            norms,
+            out=np.zeros_like(feature_values),
+            where=norms > np.finfo(np.float64).eps,
+        )
+        return margins, feature_values
+
+    def _residual_scores(self, features: np.ndarray) -> np.ndarray:
+        if self.residual_vector is None:
+            return np.zeros(int(features.shape[0]), dtype=np.float64)
+        return np.asarray(features @ self.residual_vector, dtype=np.float64)
+
+    def _residual_state_stats(self) -> dict[str, Any]:
+        return {
+            "residual_ready": self.residual_vector is not None,
+            "residual_count": 1,
+            "residual_feature_dim": self.residual_feature_dim,
+            "residual_updates": self.residual_updates,
+            "residual_candidate_samples": self.residual_candidate_samples,
+            "residual_real_support": self.residual_real_support,
+            "residual_fake_support": self.residual_fake_support,
+            "residual_norm": (
+                0.0
+                if self.residual_vector is None
+                else float(np.linalg.norm(self.residual_vector))
+            ),
+            "residual_last_reliability": self.residual_last_reliability,
+            "residual_last_real_support": self.residual_last_real_support,
+            "residual_last_fake_support": self.residual_last_fake_support,
+        }
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(self._residual_state_stats())
+        return stats
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores, features = self._batch_scores_and_residual_features(images)
+        memory_weight = self._recall_anchor_weight()
+        if self.adaptation_mode == "full" and self._mixture_active():
+            partition = self._candidate_partition()
+            candidate = float(partition["decision_boundary"])
+            boundary = self._stabilized_boundary(candidate)
+            base_logit = (scores - boundary) / self.temperature
+            base_mode = self._prediction_mode_name
+            real_components = int(partition["real_components"])
+            fake_components = int(partition["fake_components"])
+        else:
+            candidate = None
+            boundary = 0.0
+            base_logit = scores / self.temperature
+            base_mode = "source_fallback"
+            real_components = 0
+            fake_components = 0
+
+        residual_scores = self._residual_scores(features)
+        final_logit = base_logit + residual_scores
+        probability = 1.0 / (
+            1.0 + np.exp(-np.clip(final_logit, -60.0, 60.0))
+        )
+        self._pending_residual_features = features
+        return self._prediction_batch(
+            scores,
+            probability,
+            prediction_mode=base_mode,
+            prediction_boundary=boundary,
+            prediction_candidate_boundary=candidate,
+            prediction_real_components=real_components,
+            prediction_fake_components=fake_components,
+            prediction_memory_index=self.active_memory_index,
+            prediction_memory_recalled=self.recall_anchor_boundary is not None,
+            prediction_memory_anchor_boundary=self.recall_anchor_boundary,
+            prediction_memory_anchor_weight=memory_weight,
+            prediction_residual_ready=self.residual_vector is not None,
+            prediction_residual_mean=float(np.mean(residual_scores)),
+            prediction_residual_abs_mean=float(np.mean(np.abs(residual_scores))),
+            prediction_residual_max_abs=float(np.max(np.abs(residual_scores))),
+        )
+
+    def _update_global_residual(
+        self,
+        scores: np.ndarray,
+        features: np.ndarray,
+    ) -> bool:
+        if self._mixture is None or not self._mixture_active():
+            return False
+        posterior = joint_density_fake_posterior(scores, self._mixture)
+        reliability = np.abs(2.0 * posterior - 1.0)
+        fake_weights = reliability * posterior
+        real_weights = reliability * (1.0 - posterior)
+        fake_support = float(fake_weights.sum())
+        real_support = float(real_weights.sum())
+        self.residual_candidate_samples += int(scores.size)
+        self.residual_last_reliability = float(np.mean(reliability))
+        self.residual_last_real_support = real_support
+        self.residual_last_fake_support = fake_support
+        epsilon = np.finfo(np.float64).eps
+        if fake_support <= epsilon or real_support <= epsilon:
+            return False
+
+        self.residual_fake_sum += np.sum(fake_weights[:, None] * features, axis=0)
+        self.residual_real_sum += np.sum(real_weights[:, None] * features, axis=0)
+        self.residual_fake_support += fake_support
+        self.residual_real_support += real_support
+        fake_mean = self.residual_fake_sum / self.residual_fake_support
+        real_mean = self.residual_real_sum / self.residual_real_support
+        fake_norm = float(np.linalg.norm(fake_mean))
+        real_norm = float(np.linalg.norm(real_mean))
+        if fake_norm <= epsilon or real_norm <= epsilon:
+            return False
+        self.residual_vector = fake_mean / fake_norm - real_mean / real_norm
+        self.residual_updates += 1
+        return True
+
+    def adapt(self, images: Any) -> AdaptationStats:
+        if self._pending is None:
+            return super().adapt(images)
+        scores = np.asarray(self._pending["scores"], dtype=np.float64).reshape(-1)
+        features = self._pending_residual_features
+        self._pending_residual_features = None
+        stats = super().adapt(images)
+        residual_updated = False
+        if self.adaptation_mode == "full":
+            if features is None or int(features.shape[0]) != int(scores.size):
+                raise RuntimeError(
+                    "ASCAL global residual lost its matching prediction features"
+                )
+            residual_updated = self._update_global_residual(scores, features)
+        stats.extra.update(
+            {
+                **self._residual_state_stats(),
+                "residual_updated": residual_updated,
+            }
+        )
+        return stats
+
+    def discard_pending_prediction(self) -> None:
+        super().discard_pending_prediction()
+        self._pending_residual_features = None
 
 
 class ASCALGMMSegmentedMemoryPosterior(ASCALGMMSegmentedMemoryShift):

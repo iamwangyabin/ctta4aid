@@ -169,6 +169,8 @@ def build_fresh_method(
         "ascalgmmsegmentedmemoryposteriorguardedprojectionstatic",
         "ascalgmmsegmentedmemoryposteriorsupportprojection",
         "ascalgmmsegmentedmemoryposteriorsupportprojectionstatic",
+        "ascalgmmsegmentedmemoryposteriorglobalresidual",
+        "ascalgmmsegmentedmemoryposteriorglobalresidualstatic",
     }:
         if normalized_name in {
             "ascalstatic",
@@ -184,6 +186,7 @@ def build_fresh_method(
             "ascalgmmsegmentedmemoryposteriorcurrentprojectionstatic",
             "ascalgmmsegmentedmemoryposteriorguardedprojectionstatic",
             "ascalgmmsegmentedmemoryposteriorsupportprojectionstatic",
+            "ascalgmmsegmentedmemoryposteriorglobalresidualstatic",
         }:
             effective_method_config.setdefault("adaptation_mode", "static")
         model, metadata = build_clip_lora_detector(

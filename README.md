@@ -570,6 +570,23 @@ seed2/seed3。无标签状态显示守卫实际触发 235 次，却只有 4 个�
 R01 的无标签状态时，它把边界落出当前 GMM 主间隔的次数从 462 降到 260；正式判断仍只看
 独立 seed1 成对运行。入口为
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_support_projection_continual_*_seed1.yaml`。
+R04 的四数据集运行与因果审计均已完成：相对 R01，target-macro online AUC 提升 0.0133
+个百分点，但平均 Accuracy 下降 0.1355 个百分点，fake Accuracy 下降 0.9616 个百分点；
+因此越界次数减少并没有形成 Accuracy 优先的 Pareto 收益，R04 不进入 seed2/seed3。
+
+`ascal_gmm_segmented_memory_posterior_global_residual` 的研究版本名为
+**ASCAL-JMP-GlobalResidual（R05）**。它完整保留 R01 的原始 source score、GMM 分段、
+episode memory、累计中位数和 Bayes 分界轨迹，只增加一个贯穿整条 continual stream 的
+全局 residual。历史 GMM 仍只记录冻结 detector 的 `fake_logit-real_logit`，adaptive score
+永远不会写回或改写历史。每批同时提取冻结视觉特征，并去除 source 二分类头方向后做 L2
+归一化；预测完成且当前 source-score GMM 支持 real/fake 两块后，以等先验 posterior 的
+`abs(2p-1)` 作为连续可靠度，分别累计 soft real/fake 特征原型。residual 是当前特征对 fake
+原型与 real 原型的余弦相似度差，最终唯一 logit 为 R01 的单调边界投影 logit 加这个 residual。
+它从零开始，只由上一批及更早的状态影响预测；GMM 单峰时不更新，但已经学到的一个全局
+residual 继续保留。该闭式原型更新不需要 optimizer、learning rate、硬置信阈值、loss 权重、
+memory capacity 或逐域 residual，且 residual 不参与自己的伪标签生成，避免移动 score 坐标
+和自证循环。seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_global_residual_continual_*_seed1.yaml`。
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须

@@ -186,6 +186,8 @@ def main() -> None:
         "ascalgmmsegmentedmemoryposteriorguardedprojectionstatic",
         "ascalgmmsegmentedmemoryposteriorsupportprojection",
         "ascalgmmsegmentedmemoryposteriorsupportprojectionstatic",
+        "ascalgmmsegmentedmemoryposteriorglobalresidual",
+        "ascalgmmsegmentedmemoryposteriorglobalresidualstatic",
     }
     normalized_methods = {
         str(name).lower().replace("_", "").replace("-", "")
