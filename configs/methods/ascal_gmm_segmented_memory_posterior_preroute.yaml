@@ -1,0 +1,49 @@
+extends: ascal_gmm_segmented_memory_posterior_projection.yaml
+
+methods:
+  - ascal_gmm_segmented_memory_posterior_preroute_static
+  - ascal_gmm_segmented_memory_posterior_preroute
+
+method_configs:
+  ascal_gmm_segmented_memory_posterior_preroute_static:
+    adaptation_mode: static
+    reference:
+      role: exact_single_view_non_adaptive_control_for_likelihood_prerouting
+      source_setup: lora_r4_binary_detector_from_fixed_clip_vitl14_with_score_anchors
+      protocol: predict_then_adapt
+
+  ascal_gmm_segmented_memory_posterior_preroute:
+    adaptation_mode: full
+    reference:
+      profile: ascal_jmp_likelihood_preroute_r09
+      research_name: ASCAL-JMP-PreRoute
+      research_version: R09
+      protocol: predict_then_adapt
+      target_labels_used: false
+      generator_boundaries_used: false
+      semantic_features_used: false
+      adaptive_scope: batch_likelihood_routing_over_r01_score_experts
+      frozen_scope: clip_backbone_lora_branches_binary_head_and_source_score
+      expert_type: frozen_gmm_plus_projected_bayes_boundary
+      expert_network_count: 0
+      routing_coordinate: immutable_frozen_source_logit_margin
+      routing_candidates: active_learning_state_plus_all_completed_memories
+      routing_granularity: one_current_unlabeled_stream_batch
+      routing_deviance: negative_two_sum_log_fixed_gmm_predictive_density
+      routing_rule: minimum_deviance_with_active_first_deterministic_tie_break
+      routing_threshold: none
+      routing_identity_penalty: none_fixed_experts_are_compared_out_of_sample
+      active_readout: exact_r01_deployed_boundary
+      memory_readout: frozen_episode_projected_bayes_boundary
+      adaptation_assignment: selected_memory_is_confirmed_by_fixed_deviance_vs_current_batch_bic
+      confirmed_memory_update: start_new_active_visit_then_replace_memory_when_visit_completes
+      rejected_memory_update: none_r01_novel_state_learning_continues
+      active_learning_state_update: route_conditioned_handoff_only_after_current_prediction
+      routing_changes_learning_state_during_prediction: false
+      batch_transductive_prediction: true
+      immutable_history_coordinate: frozen_source_logit_margin_only
+      optimizer: none
+      new_target_hyperparameters: 0
+      seed1_promotion_rule: accuracy_noninferiority_0p2pp_auc_gain_0p1pp_and_above_r06
+      raw_images_stored: false
+      source_fallback: exact_source_when_neither_active_nor_memory_expert_is_available

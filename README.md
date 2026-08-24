@@ -640,15 +640,37 @@ source 的部分才进入排序。其 innovation 在累计历史下均值为零�
 阈值、窗口、fusion weight、memory capacity 或 shrinkage 参数；seed1 成对入口为
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_conditional_residual_continual_*_seed1.yaml`。
 
+`ascal_gmm_segmented_memory_posterior_preroute` 的研究版本名为
+**ASCAL-JMP-PreRoute（R09）**。它把 R01 的 episodic memory 从“变点发生后才检索的档案”改成
+真正参与当前预测与后续学习归属的专家库。每个专家仍不是一套神经网络，而是一个只在不可变
+source margin 坐标上建模的冻结 GMM 及其投影 Bayes 分界；detector、LoRA 和分类头全程冻结。
+每个当前无标签 mini-batch 到达后，方法先计算 active learning GMM 和所有已完成 memory GMM
+对该批 score 的固定预测 deviance `-2 sum log p_e(s_i)`，不加相似度阈值或融合系数，直接选
+deviance 最小的专家；平局时保留 active state，再按最早 memory index 确定性打破平局。当前批
+立即用所选专家的分界预测，因此在 `A -> B -> A` 中，返回 A 的第一批就能使用 A，而不是等
+adapt 后再惠及下一批。路由使用整批而非单个 scalar score，是因为单图 score 同时混合类别与
+域信息；这是明确披露的 batch-transductive Predict，但没有利用标签，也没有用当前批更新后的
+状态回头重算自身预测。
+
+Predict 完成后，所选 memory 同时成为 adapt 的候选归属，但不会被无条件修改。方法复用原有
+无标签描述长度原则，比较“该固定 memory 的 deviance 加 `2 log M` 身份码”和“只对当前批
+重新拟合 GMM 的 BIC”；旧专家严格胜出时，才结束此前 active visit、把学习状态立即切到该
+memory，并以其历史分界启动一次新访问。后续批次累计拟合这次访问，流离开时再用最新访问
+替换该 memory；若当前批更像新状态，旧 memory 完全不动，继续由 R01 分段器学习并创建新
+专家。这样同一个路由决定同时服务预测和持续适应，又避免“任何新域都被迫选中最近旧专家”
+造成记忆污染。它没有新增网络、阈值、窗口、学习率、memory capacity 或 target 超参数；
+seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_preroute_continual_*_seed1.yaml`。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
 target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
-最高值，R06 的直接比较对象是 R05，R07 和 R08 的直接比较对象均是当前最佳 R06。该门槛
-只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整确认前
-仍不得写入正文正式表。
+最高值，R06 的直接比较对象是 R05，R07、R08 和 R09 的直接比较对象均是当前最佳 R06。
+该门槛只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整
+确认前仍不得写入正文正式表。
 
 ## OST
 
