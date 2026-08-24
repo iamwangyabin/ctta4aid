@@ -25,6 +25,8 @@ active model or any completed episodic model before prediction, then lets the
 same choice propose an MDL-confirmed learning-state handoff after prediction.
 Its MDL-route variant moves that same parameter-free confirmation ahead of the
 readout, so one accepted expert assignment governs both prediction and learning.
+Its live-route variant further removes the active expert's archived snapshot
+from routing whenever that expert already has an eligible live GMM.
 Its current-projection variant recognizes that each active-segment GMM refit
 already contains all causal segment scores, so it removes the redundant median
 over nested refits while retaining one-vote episodic recall.
@@ -2134,6 +2136,64 @@ class ASCALGMMSegmentedMemoryPosteriorMDLRoute(
             }
         )
         return stats
+
+
+class ASCALGMMSegmentedMemoryPosteriorLiveRoute(
+    ASCALGMMSegmentedMemoryPosteriorMDLRoute
+):
+    """Expose only one routable state for the currently active expert."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "unlabeled_unique_live_mdl_assigned_episodic_joint_"
+                    "density_boundary_projection"
+                ),
+                "research_name": "ASCAL-JMP-LiveRoute",
+                "research_version": "R11",
+                "expert_identity_rule": "one_expert_one_routable_live_state",
+                "active_snapshot_rule": (
+                    "hide_the_active_experts_archived_snapshot_when_its_live_"
+                    "gmm_is_eligible"
+                ),
+                "inactive_snapshot_rule": (
+                    "retain_the_archived_snapshot_as_a_same_identity_fallback_"
+                    "only_while_the_live_gmm_is_not_eligible"
+                ),
+                "routing_candidates": (
+                    "one_active_live_state_plus_archived_non_active_experts"
+                ),
+                "intentional_changes": [
+                    "R10 MDL proposal and admission equations are unchanged",
+                    "R10 prediction and adaptation assignment consumption are unchanged",
+                    "an eligible live expert suppresses only its own stale snapshot",
+                    "all non-active archived experts remain routable",
+                    "an ineligible live state may still read its own archived fallback",
+                    "no expert is deleted and no memory update rule changes",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_live_route"
+
+    def _routing_candidates(self, scores: np.ndarray) -> list[dict[str, Any]]:
+        candidates = super()._routing_candidates(scores)
+        if not self._mixture_active() or self.active_memory_index is None:
+            return candidates
+        return [
+            candidate
+            for candidate in candidates
+            if not (
+                candidate["expert"] == "episodic_memory"
+                and candidate["memory_index"] == self.active_memory_index
+            )
+        ]
 
 
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(

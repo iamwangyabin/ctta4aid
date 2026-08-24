@@ -1182,6 +1182,80 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["semantic_features_used"])
                 self.assertFalse(reference["raw_images_stored"])
 
+    def test_live_route_configs_expose_one_state_per_expert_without_knobs(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        method_name = "ascal_gmm_segmented_memory_posterior_live_route"
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_posterior_"
+                f"live_route_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [
+                        "ascal_gmm_segmented_memory_posterior_projection",
+                        method_name,
+                    ],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                self.assertIn(
+                    f"posterior_live_route_continual/{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(config, method_name)
+                for key in (
+                    "confidence_threshold",
+                    "fusion_weight",
+                    "lambda",
+                    "memory_capacity",
+                    "recall_threshold",
+                    "routing_threshold",
+                    "similarity_threshold",
+                    "target_threshold",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                reference = adaptive["reference"]
+                self.assertEqual(reference["research_name"], "ASCAL-JMP-LiveRoute")
+                self.assertEqual(reference["research_version"], "R11")
+                self.assertEqual(reference["new_target_hyperparameters"], 0)
+                self.assertEqual(
+                    reference["routing_candidates"],
+                    "active_live_state_plus_archived_non_active_experts",
+                )
+                self.assertIn("hidden", reference["active_snapshot_rule"])
+                self.assertEqual(reference["routing_threshold"], "none")
+                self.assertFalse(reference["prediction_mutates_experts"])
+                self.assertFalse(
+                    reference["routing_changes_learning_state_during_prediction"]
+                )
+                self.assertTrue(reference["batch_transductive_prediction"])
+                self.assertEqual(
+                    reference["seed1_promotion_rule"],
+                    "accuracy_noninferiority_0p2pp_auc_gain_0p1pp_and_above_r06",
+                )
+                self.assertFalse(reference["target_labels_used"])
+                self.assertFalse(reference["generator_boundaries_used"])
+                self.assertFalse(reference["semantic_features_used"])
+                self.assertFalse(reference["raw_images_stored"])
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -1315,6 +1389,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_memory_posterior_mdl_route_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_live_route",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_live_route_static",
             config["training"]["intended_methods"],
         )
 
@@ -1636,6 +1718,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorMDLRoute(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_posterior_live_route_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorLiveRoute,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorLiveRoute(
             self.detector(),
             "cpu",
             {
@@ -2733,6 +2831,174 @@ class ASCALGMMMethodTests(unittest.TestCase):
             "active_state_wins_deviance",
         )
 
+    def test_live_route_hides_the_active_experts_archived_snapshot(self) -> None:
+        rng = np.random.default_rng(61)
+        method = self.segmented_memory_posterior_live_route_method()
+        active = {
+            "weights": [0.5, 0.5],
+            "mus": [20.0, 25.0],
+            "sigmas": [1.0, 1.0],
+            "components": 2,
+            "bic": 0.0,
+        }
+        archived = {
+            "weights": [0.5, 0.5],
+            "mus": [-8.0, -3.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        method._mixture = active
+        method.boundary_history = [22.5]
+        method.active_memory_index = 0
+        method.segment_memories = [
+            {
+                "mixture": archived,
+                "boundary": float(method._memory_boundary(archived)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 1,
+            }
+        ]
+        scores = np.concatenate(
+            [rng.normal(-8.0, 0.2, 48), rng.normal(-3.0, 0.2, 48)]
+        )
+        rng.shuffle(scores)
+        images = self.score_batch(scores)
+
+        prediction = method.predict(images)
+        self.assertEqual(
+            method._pending["prediction_routing_proposed_expert"],
+            "active_learning_state",
+        )
+        self.assertEqual(
+            method._pending["prediction_routing_expert"], "active_learning_state"
+        )
+        self.assertEqual(method._pending["prediction_routing_candidate_count"], 1)
+        self.assertEqual(
+            method._pending["prediction_routing_memory_candidate_count"], 0
+        )
+        expected = method._source_probability(scores - 22.5)
+        np.testing.assert_allclose(prediction.prob_fake.numpy(), expected, atol=1e-6)
+
+        stats = method.adapt(images)
+        self.assertEqual(stats.extra["routing_memory_proposals"], 0)
+        self.assertEqual(stats.extra["routing_memory_selections"], 0)
+        self.assertEqual(stats.extra["routing_active_memory_identity_reuses"], 0)
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_name"], "ASCAL-JMP-LiveRoute")
+        self.assertEqual(metadata["research_version"], "R11")
+        self.assertEqual(
+            metadata["expert_identity_rule"], "one_expert_one_routable_live_state"
+        )
+
+    def test_live_route_keeps_its_archived_fallback_until_live_gmm_exists(
+        self,
+    ) -> None:
+        rng = np.random.default_rng(62)
+        method = self.segmented_memory_posterior_live_route_method()
+        archived = {
+            "weights": [0.5, 0.5],
+            "mus": [-8.0, -3.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        boundary = float(method._memory_boundary(archived))
+        method._mixture = None
+        method.active_memory_index = 0
+        method.segment_memories = [
+            {
+                "mixture": archived,
+                "boundary": boundary,
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 1,
+            }
+        ]
+        scores = np.concatenate(
+            [rng.normal(-8.0, 0.2, 48), rng.normal(-3.0, 0.2, 48)]
+        )
+        rng.shuffle(scores)
+        images = self.score_batch(scores)
+
+        prediction = method.predict(images)
+        self.assertEqual(
+            method._pending["prediction_routing_expert"], "episodic_memory"
+        )
+        self.assertEqual(method._pending["prediction_routing_memory_index"], 0)
+        self.assertFalse(method._pending["prediction_routing_admission_checked"])
+        self.assertEqual(
+            method._pending["prediction_routing_admission_reason"],
+            "already_active_memory_identity",
+        )
+        expected = method._source_probability(scores - boundary)
+        np.testing.assert_allclose(prediction.prob_fake.numpy(), expected, atol=1e-6)
+
+        stats = method.adapt(images)
+        self.assertEqual(stats.extra["routing_active_memory_identity_reuses"], 1)
+        self.assertTrue(stats.extra["mixture_active"])
+        self.assertEqual(stats.extra["active_memory_index"], 0)
+
+    def test_live_route_can_handoff_to_a_different_archived_expert(self) -> None:
+        rng = np.random.default_rng(63)
+        method = self.segmented_memory_posterior_live_route_method()
+        returning = {
+            "weights": [0.5, 0.5],
+            "mus": [-8.0, -3.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        active = {
+            "weights": [0.5, 0.5],
+            "mus": [20.0, 25.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        method._mixture = active
+        method.boundary_history = [22.5]
+        method.active_memory_index = 1
+        method.segment_memories = [
+            {
+                "mixture": returning,
+                "boundary": float(method._memory_boundary(returning)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 0,
+            },
+            {
+                "mixture": active,
+                "boundary": float(method._memory_boundary(active)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 1,
+            },
+        ]
+        scores = np.concatenate(
+            [rng.normal(-8.0, 0.2, 48), rng.normal(-3.0, 0.2, 48)]
+        )
+        rng.shuffle(scores)
+        images = self.score_batch(scores)
+
+        method.predict(images)
+        self.assertEqual(method._pending["prediction_routing_candidate_count"], 2)
+        self.assertEqual(
+            method._pending["prediction_routing_memory_candidate_count"], 1
+        )
+        self.assertEqual(method._pending["prediction_routing_memory_index"], 0)
+        self.assertTrue(method._pending["prediction_routing_admission_accepted"])
+
+        stats = method.adapt(images)
+        self.assertTrue(stats.extra["routing_handoff_this_batch"])
+        self.assertEqual(stats.extra["active_memory_index"], 0)
+        self.assertEqual(stats.extra["routing_handoff_confirmations"], 1)
+
     def test_current_projection_uses_latest_cumulative_fit_not_nested_median(
         self,
     ) -> None:
@@ -3539,6 +3805,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_live_route_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorLiveRoute,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_live_route_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(method, ASCALGMMSegmentedMemoryPosteriorLiveRoute)
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_method_factory_maps_current_projection_static_alias(self) -> None:
         from src.methods import build_method
         from src.methods.ascal_gmm import (
@@ -4090,6 +4372,41 @@ class ASCALGMMMethodTests(unittest.TestCase):
             method, _ = build_fresh_method(config, method_name, "cpu")
 
         self.assertIsInstance(method, ASCALGMMSegmentedMemoryPosteriorMDLRoute)
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_live_route_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorLiveRoute,
+        )
+
+        method_name = "ascal_gmm_segmented_memory_posterior_live_route_static"
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {method_name: {"adaptation_mode": "static"}},
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(method, ASCALGMMSegmentedMemoryPosteriorLiveRoute)
         self.assertEqual(method.adaptation_mode, "static")
 
     def test_cli_builds_current_projection_with_lora_profile(self) -> None:

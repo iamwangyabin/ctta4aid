@@ -65,6 +65,8 @@ training:
     - ascal_gmm_segmented_memory_posterior_preroute_static
     - ascal_gmm_segmented_memory_posterior_mdl_route
     - ascal_gmm_segmented_memory_posterior_mdl_route_static
+    - ascal_gmm_segmented_memory_posterior_live_route
+    - ascal_gmm_segmented_memory_posterior_live_route_static
     - ascal_gmm_segmented_memory_posterior_current_projection
     - ascal_gmm_segmented_memory_posterior_current_projection_static
     - ascal_gmm_segmented_memory_posterior_guarded_projection

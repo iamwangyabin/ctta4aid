@@ -693,13 +693,25 @@ proposal 中，353 次错误跨专家 proposal 已在预测前被拒绝，141 �
 one-expert-one-live-state。下一版应在 active GMM 可用时从候选中去掉同一 identity 的历史
 快照，只允许 archived memory 代表非当前专家或在 live state 暂不可用时充当回退。
 
+`ascal_gmm_segmented_memory_posterior_live_route` 的研究版本名为
+**ASCAL-JMP-LiveRoute（R11）**。它完整保留 R10 的 likelihood proposal、MDL admission、
+Predict/Adapt 唯一归属和后续 visit 更新，只修正同一专家被重复暴露的问题。若当前 active
+expert 已有双峰 live GMM，路由候选中只保留这个持续更新的 live state，并隐藏该 identity
+在 episodic memory 中尚未替换的 archived snapshot；其他历史专家照常参与路由。若 active
+visit 刚启动、live GMM 尚未形成双峰，则其 archived snapshot 仍可作为同 identity 的冷启动
+回退，避免突然退回 source。这个规则不删除 memory，也不改变任何 GMM、BIC、身份码、分界
+或更新公式，只让每个 expert 在任一时刻至多暴露一个可路由状态；因此仍没有新增 target
+超参数。seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_live_route_continual_*_seed1.yaml`。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
 target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
-最高值，R06 的直接比较对象是 R05，R07、R08、R09 和 R10 的直接比较对象均是当前最佳 R06。
+最高值，R06 的直接比较对象是 R05，R07、R08、R09、R10 和 R11 的直接比较对象均是当前
+最佳 R06。
 该门槛只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整
 确认前仍不得写入正文正式表。
 

@@ -1,0 +1,14 @@
+extends:
+  - ../controlled_ctta/aigc_detection_benchmark_continual_seed1.yaml
+  - matched_jpeg.yaml
+  - ../../methods/ascal_gmm_segmented_memory_posterior_live_route.yaml
+
+methods:
+  - ascal_gmm_segmented_memory_posterior_projection
+  - ascal_gmm_segmented_memory_posterior_live_route
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/ascal_gmm_segmented_memory_posterior_live_route_continual/aigc_detection_benchmark/seed1
+
+data:
+  root: ${AIGC_DETECTION_BENCHMARK_MATCHED_JPEG_ARROW_ROOT}
+  num_workers: 0
+  shuffle: false
