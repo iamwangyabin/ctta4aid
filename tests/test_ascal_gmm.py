@@ -862,6 +862,92 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["semantic_features_used"])
                 self.assertFalse(reference["raw_images_stored"])
 
+    def test_real_deviation_configs_use_one_centered_real_anchor(self) -> None:
+        from src.config import load_config, method_config
+
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_posterior_real_"
+                f"deviation_residual_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [
+                        "ascal_gmm_segmented_memory_posterior_projection",
+                        "ascal_gmm_segmented_memory_posterior_real_deviation_residual",
+                    ],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                self.assertIn(
+                    "seed1_online_manifest.csv",
+                    config["data"]["locked_online_manifest"],
+                )
+                self.assertIn(
+                    "seed1_final_holdout_manifest.csv",
+                    config["data"]["locked_final_holdout_manifest"],
+                )
+                self.assertIn(
+                    "posterior_real_deviation_residual_continual/"
+                    f"{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(
+                    config,
+                    "ascal_gmm_segmented_memory_posterior_real_deviation_residual",
+                )
+                for key in (
+                    "component_count",
+                    "confidence_weight",
+                    "fake_component_count",
+                    "fusion_weight",
+                    "lambda",
+                    "learning_rate",
+                    "loss_weight",
+                    "memory_capacity",
+                    "posterior_temperature",
+                    "prototype_count",
+                    "recall_threshold",
+                    "smoothing",
+                    "target_threshold",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                reference = adaptive["reference"]
+                self.assertEqual(
+                    reference["research_name"], "ASCAL-JMP-RealDeviation"
+                )
+                self.assertEqual(reference["research_version"], "R07")
+                self.assertEqual(reference["new_target_hyperparameters"], 0)
+                self.assertEqual(reference["residual_count"], 1)
+                self.assertEqual(
+                    reference["fake_prototype_rule"],
+                    "none_fake_is_open_heterogeneity",
+                )
+                self.assertEqual(
+                    reference["seed1_promotion_rule"],
+                    "accuracy_noninferiority_0p2pp_auc_gain_0p1pp_and_above_r06",
+                )
+                self.assertFalse(reference["adaptive_score_history_stored"])
+                self.assertEqual(reference["optimizer"], "none")
+                self.assertFalse(reference["target_labels_used"])
+                self.assertFalse(reference["generator_boundaries_used"])
+                self.assertFalse(reference["semantic_features_used"])
+                self.assertFalse(reference["raw_images_stored"])
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -963,6 +1049,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_memory_posterior_mixture_residual_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_real_deviation_residual",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_real_deviation_residual_static",
             config["training"]["intended_methods"],
         )
 
@@ -1332,6 +1426,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorMixtureResidual(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_posterior_real_deviation_residual_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual(
             self.detector(),
             "cpu",
             {
@@ -2352,6 +2462,91 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(metadata["residual_count"], 1)
         self.assertFalse(metadata["adaptive_score_history_stored"])
 
+    def test_real_deviation_residual_is_centered_on_the_soft_real_measure(
+        self,
+    ) -> None:
+        method = self.segmented_memory_posterior_real_deviation_residual_method()
+        method._mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-4.0, 4.0],
+            "sigmas": [0.2, 0.2],
+            "components": 2,
+            "bic": 0.0,
+        }
+        root_half = 1.0 / np.sqrt(2.0)
+        real = np.array([root_half, root_half, 0.0])
+        fake = np.array([0.0, 0.0, 1.0])
+        scores = np.repeat(np.array([-4.0, 4.0]), 64)
+        features = np.concatenate(
+            [
+                np.repeat(real[None, :], 64, axis=0),
+                np.repeat(fake[None, :], 64, axis=0),
+            ],
+            axis=0,
+        )
+
+        self.assertTrue(method._update_global_residual(scores, features))
+        residual = method._residual_scores(np.stack([real, fake], axis=0))
+        self.assertAlmostEqual(float(residual[0]), 0.0, places=12)
+        self.assertAlmostEqual(float(residual[1]), 1.0, places=12)
+        self.assertGreaterEqual(float(residual.min()), -0.25)
+        self.assertLessEqual(float(residual.max()), 2.0)
+        stats = method._residual_state_stats()
+        self.assertTrue(stats["residual_ready"])
+        self.assertEqual(stats["residual_count"], 1)
+        self.assertEqual(stats["residual_fake_prototype_count"], 0)
+        self.assertAlmostEqual(stats["residual_real_resultant_length"], 1.0)
+        self.assertEqual(stats["residual_readout_lower_bound"], -0.25)
+        self.assertEqual(stats["residual_readout_upper_bound"], 2.0)
+        self.assertAlmostEqual(
+            float(real @ method._source_feature_direction),
+            0.0,
+            places=12,
+        )
+
+    def test_real_deviation_residual_is_causal_and_keeps_r01_history(self) -> None:
+        rng = np.random.default_rng(55)
+        scores = np.concatenate(
+            [rng.normal(-4.0, 0.15, 64), rng.normal(4.0, 0.15, 64)]
+        )
+        cues = np.concatenate([np.zeros(64), np.ones(64)])
+        order = rng.permutation(len(scores))
+        images = self.score_feature_batch(scores[order], cues[order])
+        baseline = self.segmented_memory_posterior_projection_method()
+        method = self.segmented_memory_posterior_real_deviation_residual_method()
+
+        baseline_first = baseline.predict(images)
+        method_first = method.predict(images)
+        np.testing.assert_allclose(
+            method_first.prob_fake.numpy(),
+            baseline_first.prob_fake.numpy(),
+            atol=1e-7,
+        )
+        baseline.adapt(images)
+        stats = method.adapt(images)
+
+        np.testing.assert_allclose(method.score_history, baseline.score_history)
+        self.assertTrue(stats.extra["residual_updated"])
+        self.assertTrue(stats.extra["residual_ready"])
+        self.assertEqual(stats.extra["residual_updates"], 1)
+        self.assertEqual(stats.extra["residual_fake_prototype_count"], 0)
+        self.assertEqual(method.trainable_parameters, 3)
+        method.predict(images)
+        self.assertEqual(
+            method._pending["prediction_mode"],
+            "segmented_memory_posterior_real_deviation_residual",
+        )
+        self.assertTrue(method._pending["prediction_residual_ready"])
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_name"], "ASCAL-JMP-RealDeviation")
+        self.assertEqual(metadata["research_version"], "R07")
+        self.assertEqual(metadata["residual_count"], 1)
+        self.assertEqual(
+            metadata["residual_expectation"],
+            "zero_under_the_accumulated_soft_real_measure",
+        )
+        self.assertFalse(metadata["adaptive_score_history_stored"])
+
     def test_segmented_handoff_keeps_the_first_new_boundary_continuous(self) -> None:
         rng = np.random.default_rng(10)
         method = self.segmented_handoff_shift_method()
@@ -2614,6 +2809,24 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_real_deviation_residual_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_real_deviation_residual_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_cli_builds_mixture_residual_with_lora_profile(self) -> None:
         from src.cli.common import build_fresh_method
         from src.methods.ascal_gmm import (
@@ -2655,6 +2868,45 @@ class ASCALGMMMethodTests(unittest.TestCase):
 
         self.assertIsInstance(
             method, ASCALGMMSegmentedMemoryPosteriorMixtureResidual
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_real_deviation_residual_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual,
+        )
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_real_deviation_residual_static"
+        )
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {method_name: {"adaptation_mode": "static"}},
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual
         )
         self.assertEqual(method.adaptation_mode, "static")
 

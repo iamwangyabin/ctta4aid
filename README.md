@@ -605,15 +605,33 @@ GMM block 的稳定原型，同时把 BIC 选出的每个 fake score 分量分�
 posterior、连续可靠度和 Predict-Then-Adapt 顺序，不使用 target label、generator id、optimizer、
 learning rate、置信阈值、fusion weight 或 memory capacity。seed1 成对入口为
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_mixture_residual_continual_*_seed1.yaml`。
+R06 的四数据集 seed1 运行和因果审计全部通过，多 fake 机制在每个数据集都实际触发，最多
+保留 3 个 fake 原型；但相对 R01 的平均 Accuracy 只提升 0.1365 个百分点，target-macro
+online AUC 只提升 0.0589 个百分点，相对 R05 的 AUC 仅高 0.0010 个百分点。它没有通过
+运行前固定的 0.1 个百分点 AUC 优越门槛，因此不进入 seed2/seed3。这个结果说明 fake
+分量确实存在，但继续细分由 source score 教出的 fake 原型仍主要复述源分类结构。
+
+`ascal_gmm_segmented_memory_posterior_real_deviation_residual` 的研究版本名为
+**ASCAL-JMP-RealDeviation（R07）**。它保留 R01 的全部 score/GMM/分段/记忆/边界轨迹和
+R05 的冻结正交特征入口，但完全删除 fake 特征原型，只累计等先验 source-score posterior
+给出的 soft-real 特征均值 `mu = R u`。对单位特征 `h`，唯一 residual 为
+`R(R - cos(h, u))`；它等于样本到 `mu` 的平方距离减去 soft-real 自身平均平方距离后的一半，
+因此在累计 soft-real 测度下期望恰好为零，不会依靠常数偏移制造 Accuracy，且由
+`R in [0,1]` 可知范围自然落在 `[-0.25, 2]`。越偏离稳定 real 流形的样本得到越高 fake
+分数，而 heterogeneous fake 不再被要求共享伪标签原型。该版本仍只有一个 residual，不用
+target label、generator id、fake 模式数、optimizer、learning rate、阈值、fusion weight 或
+memory capacity；seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_real_deviation_residual_continual_*_seed1.yaml`。
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
-target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过 R05。该门槛只决定是否
-进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整确认前仍不得写入
-正文正式表。
+target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
+最高值，R06 的直接比较对象是 R05，R07 的直接比较对象是 R06。该门槛只决定是否进入
+seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整确认前仍不得写入正文
+正式表。
 
 ## OST
 

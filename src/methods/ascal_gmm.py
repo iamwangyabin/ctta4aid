@@ -38,6 +38,9 @@ BIC-selected fake score component as a separate feature prototype. A single
 rank residual compares the real prototype with the closest persistent fake
 prototype, avoiding the unimodal fake-feature assumption without adding a
 target-selected component count.
+Its real-deviation variant removes the fake prototype entirely. It estimates
+one centered squared-distance residual around the soft real feature mean, so
+heterogeneous fake evidence need not share a mode or teach the residual.
 """
 
 from __future__ import annotations
@@ -2110,6 +2113,126 @@ class ASCALGMMSegmentedMemoryPosteriorMixtureResidual(
         )
         if fake_components > 1:
             self.residual_multimodal_updates += 1
+        if not self._residual_ready():
+            return False
+        self.residual_updates += 1
+        return True
+
+
+class ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual(
+    ASCALGMMSegmentedMemoryPosteriorGlobalResidual
+):
+    """Rank samples by centered deviation from one causal real anchor."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "immutable_source_score_gmm_with_one_causal_centered_"
+                    "real_manifold_deviation_residual"
+                ),
+                "research_name": "ASCAL-JMP-RealDeviation",
+                "research_version": "R07",
+                "residual_count": 1,
+                "residual_scope": (
+                    "one_shared_real_anchor_for_the_entire_continual_stream"
+                ),
+                "real_prototype_rule": (
+                    "one_cumulative_soft_prototype_for_the_complete_real_gmm_block"
+                ),
+                "fake_prototype_rule": "none_fake_is_treated_as_open_heterogeneity",
+                "residual_update": (
+                    "cumulative_soft_real_feature_mean_no_optimizer_or_fake_teacher"
+                ),
+                "residual_readout": (
+                    "half_centered_squared_distance_to_the_soft_real_mean_"
+                    "equal_to_R_times_R_minus_cosine"
+                ),
+                "residual_expectation": "zero_under_the_accumulated_soft_real_measure",
+                "residual_range": "closed_interval_minus_0p25_to_2",
+                "prediction_rule": "r01_base_logit_plus_one_real_deviation_residual",
+                "hyperparameter_rule": (
+                    "no_fake_component_count_residual_learning_rate_loss_weight_"
+                    "confidence_threshold_memory_capacity_or_fusion_weight"
+                ),
+                "intentional_changes": [
+                    "the R01 source-score GMM segmentation memory and boundary trajectory remain unchanged",
+                    "only immutable source margins are appended to score history",
+                    "soft source-score evidence updates one stream-wide real feature mean",
+                    "fake feature prototypes are removed rather than forced to summarize heterogeneous generators",
+                    "the centered distance has zero soft-real expectation and an analytical fixed bound",
+                    "the residual remains a one-way student of immutable source-score density evidence",
+                    "predictions use only GMM and residual state learned from earlier batches",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_real_deviation_residual"
+
+    def _normalized_real_prototype(self) -> tuple[np.ndarray | None, float]:
+        epsilon = np.finfo(np.float64).eps
+        if self.residual_real_support <= epsilon:
+            return None, 0.0
+        real_mean = self.residual_real_sum / self.residual_real_support
+        resultant = float(np.linalg.norm(real_mean))
+        if resultant <= epsilon:
+            return None, 0.0
+        return real_mean / resultant, min(resultant, 1.0)
+
+    def _residual_ready(self) -> bool:
+        prototype, _ = self._normalized_real_prototype()
+        return prototype is not None
+
+    def _residual_scores(self, features: np.ndarray) -> np.ndarray:
+        prototype, resultant = self._normalized_real_prototype()
+        if prototype is None:
+            return np.zeros(int(features.shape[0]), dtype=np.float64)
+        cosine = features @ prototype
+        return np.asarray(resultant * (resultant - cosine), dtype=np.float64)
+
+    def _residual_state_stats(self) -> dict[str, Any]:
+        stats = super()._residual_state_stats()
+        _, resultant = self._normalized_real_prototype()
+        stats.update(
+            {
+                "residual_norm": resultant,
+                "residual_real_resultant_length": resultant,
+                "residual_fake_prototype_count": 0,
+                "residual_readout_lower_bound": -0.25,
+                "residual_readout_upper_bound": 2.0,
+            }
+        )
+        return stats
+
+    def _update_global_residual(
+        self,
+        scores: np.ndarray,
+        features: np.ndarray,
+    ) -> bool:
+        if self._mixture is None or not self._mixture_active():
+            return False
+        posterior = joint_density_fake_posterior(scores, self._mixture)
+        reliability = np.abs(2.0 * posterior - 1.0)
+        fake_weights = reliability * posterior
+        real_weights = reliability * (1.0 - posterior)
+        fake_support = float(fake_weights.sum())
+        real_support = float(real_weights.sum())
+        self.residual_candidate_samples += int(scores.size)
+        self.residual_last_reliability = float(np.mean(reliability))
+        self.residual_last_real_support = real_support
+        self.residual_last_fake_support = fake_support
+        epsilon = np.finfo(np.float64).eps
+        if real_support <= epsilon:
+            return False
+
+        self.residual_real_sum += np.sum(real_weights[:, None] * features, axis=0)
+        self.residual_real_support += real_support
+        self.residual_fake_support += fake_support
         if not self._residual_ready():
             return False
         self.residual_updates += 1
