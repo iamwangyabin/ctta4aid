@@ -780,6 +780,84 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["semantic_features_used"])
                 self.assertFalse(reference["raw_images_stored"])
 
+    def test_mixture_residual_configs_keep_one_readout_and_bic_modes(self) -> None:
+        from src.config import load_config, method_config
+
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_posterior_mixture_"
+                f"residual_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [
+                        "ascal_gmm_segmented_memory_posterior_projection",
+                        "ascal_gmm_segmented_memory_posterior_mixture_residual",
+                    ],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                self.assertIn(
+                    "seed1_online_manifest.csv",
+                    config["data"]["locked_online_manifest"],
+                )
+                self.assertIn(
+                    "seed1_final_holdout_manifest.csv",
+                    config["data"]["locked_final_holdout_manifest"],
+                )
+                self.assertIn(
+                    "posterior_mixture_residual_continual/"
+                    f"{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(
+                    config,
+                    "ascal_gmm_segmented_memory_posterior_mixture_residual",
+                )
+                for key in (
+                    "component_count",
+                    "confidence_weight",
+                    "fusion_weight",
+                    "lambda",
+                    "learning_rate",
+                    "loss_weight",
+                    "memory_capacity",
+                    "posterior_temperature",
+                    "prototype_count",
+                    "recall_threshold",
+                    "smoothing",
+                    "target_threshold",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                reference = adaptive["reference"]
+                self.assertEqual(
+                    reference["research_name"], "ASCAL-JMP-MixtureResidual"
+                )
+                self.assertEqual(reference["research_version"], "R06")
+                self.assertEqual(reference["new_target_hyperparameters"], 0)
+                self.assertEqual(reference["residual_count"], 1)
+                self.assertIn("bic", reference["fake_component_count_rule"])
+                self.assertFalse(reference["adaptive_score_history_stored"])
+                self.assertEqual(reference["optimizer"], "none")
+                self.assertFalse(reference["target_labels_used"])
+                self.assertFalse(reference["generator_boundaries_used"])
+                self.assertFalse(reference["semantic_features_used"])
+                self.assertFalse(reference["raw_images_stored"])
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -873,6 +951,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_memory_posterior_global_residual_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_mixture_residual",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_mixture_residual_static",
             config["training"]["intended_methods"],
         )
 
@@ -1226,6 +1312,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorGlobalResidual(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_posterior_mixture_residual_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorMixtureResidual,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorMixtureResidual(
             self.detector(),
             "cpu",
             {
@@ -2157,6 +2259,95 @@ class ASCALGMMMethodTests(unittest.TestCase):
         np.testing.assert_allclose(method.residual_vector, learned)
         self.assertEqual(stats.extra["residual_updates"], 1)
 
+    def test_mixture_residual_preserves_fake_modes_that_global_mean_cancels(
+        self,
+    ) -> None:
+        global_method = self.segmented_memory_posterior_global_residual_method()
+        method = self.segmented_memory_posterior_mixture_residual_method()
+        mixture = {
+            "weights": [1.0 / 3.0] * 3,
+            "mus": [-4.0, 2.0, 6.0],
+            "sigmas": [0.2, 0.2, 0.2],
+            "components": 3,
+            "bic": 0.0,
+        }
+        global_method._mixture = mixture
+        method._mixture = mixture
+
+        root_half = 1.0 / np.sqrt(2.0)
+        real = np.array([root_half, root_half, 0.0])
+        tangent = np.array([0.0, 0.0, 1.0])
+        fake_left = 0.5 * real + np.sqrt(0.75) * tangent
+        fake_right = 0.5 * real - np.sqrt(0.75) * tangent
+        scores = np.repeat(np.array([-4.0, 2.0, 6.0]), 48)
+        features = np.concatenate(
+            [
+                np.repeat(real[None, :], 48, axis=0),
+                np.repeat(fake_left[None, :], 48, axis=0),
+                np.repeat(fake_right[None, :], 48, axis=0),
+            ],
+            axis=0,
+        )
+
+        self.assertTrue(global_method._update_global_residual(scores, features))
+        self.assertTrue(method._update_global_residual(scores, features))
+        self.assertLess(float(np.linalg.norm(global_method.residual_vector)), 1e-8)
+        self.assertTrue(method._residual_ready())
+        stats = method._residual_state_stats()
+        self.assertEqual(stats["residual_count"], 1)
+        self.assertEqual(stats["residual_fake_prototype_count"], 2)
+        self.assertEqual(stats["residual_fake_components_observed"], 2)
+        self.assertEqual(stats["residual_multimodal_updates"], 1)
+        self.assertEqual(stats["residual_readout_bound"], 2.0)
+        residual = method._residual_scores(
+            np.stack([real, fake_left, fake_right], axis=0)
+        )
+        self.assertLess(float(residual[0]), 0.0)
+        self.assertGreater(float(residual[1]), 0.0)
+        self.assertGreater(float(residual[2]), 0.0)
+        self.assertTrue(np.all(np.abs(residual) <= 2.0))
+
+    def test_mixture_residual_is_predict_then_adapt_and_keeps_r01_history(
+        self,
+    ) -> None:
+        rng = np.random.default_rng(54)
+        scores = np.concatenate(
+            [
+                rng.normal(-4.0, 0.15, 64),
+                rng.normal(2.0, 0.15, 64),
+                rng.normal(6.0, 0.15, 64),
+            ]
+        )
+        cues = np.concatenate(
+            [np.zeros(64), np.full(64, 0.8), np.full(64, -2.4)]
+        )
+        order = rng.permutation(len(scores))
+        images = self.score_feature_batch(scores[order], cues[order])
+        baseline = self.segmented_memory_posterior_projection_method()
+        method = self.segmented_memory_posterior_mixture_residual_method()
+
+        baseline_first = baseline.predict(images)
+        method_first = method.predict(images)
+        np.testing.assert_allclose(
+            method_first.prob_fake.numpy(),
+            baseline_first.prob_fake.numpy(),
+            atol=1e-7,
+        )
+        baseline.adapt(images)
+        stats = method.adapt(images)
+
+        np.testing.assert_allclose(method.score_history, baseline.score_history)
+        self.assertTrue(stats.extra["residual_updated"])
+        self.assertTrue(stats.extra["residual_ready"])
+        self.assertEqual(stats.extra["residual_count"], 1)
+        self.assertEqual(stats.extra["residual_fake_prototype_count"], 2)
+        self.assertEqual(method.trainable_parameters, 9)
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_name"], "ASCAL-JMP-MixtureResidual")
+        self.assertEqual(metadata["research_version"], "R06")
+        self.assertEqual(metadata["residual_count"], 1)
+        self.assertFalse(metadata["adaptive_score_history_stored"])
+
     def test_segmented_handoff_keeps_the_first_new_boundary_continuous(self) -> None:
         rng = np.random.default_rng(10)
         method = self.segmented_handoff_shift_method()
@@ -2400,6 +2591,68 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
+
+    def test_method_factory_maps_mixture_residual_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorMixtureResidual,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_mixture_residual_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorMixtureResidual
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
+    def test_cli_builds_mixture_residual_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorMixtureResidual,
+        )
+
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {
+                "ascal_gmm_segmented_memory_posterior_mixture_residual_static": {
+                    "adaptation_mode": "static"
+                },
+            },
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(
+                config,
+                "ascal_gmm_segmented_memory_posterior_mixture_residual_static",
+                "cpu",
+            )
+
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorMixtureResidual
+        )
+        self.assertEqual(method.adaptation_mode, "static")
 
     def test_cli_builds_density_shift_with_the_ascal_lora_profile(self) -> None:
         from src.cli.common import build_fresh_method

@@ -1,0 +1,45 @@
+extends: ascal_gmm_segmented_memory_posterior_global_residual.yaml
+
+methods:
+  - ascal_gmm_segmented_memory_posterior_mixture_residual_static
+  - ascal_gmm_segmented_memory_posterior_mixture_residual
+
+method_configs:
+  ascal_gmm_segmented_memory_posterior_mixture_residual_static:
+    adaptation_mode: static
+    reference:
+      role: exact_single_view_non_adaptive_control_for_mixture_residual
+      source_setup: lora_r4_binary_detector_from_fixed_clip_vitl14_with_score_anchors
+      protocol: predict_then_adapt
+
+  ascal_gmm_segmented_memory_posterior_mixture_residual:
+    adaptation_mode: full
+    reference:
+      profile: ascal_jmp_mixture_residual_r06
+      research_name: ASCAL-JMP-MixtureResidual
+      research_version: R06
+      protocol: predict_then_adapt
+      target_labels_used: false
+      generator_boundaries_used: false
+      semantic_features_used: false
+      adaptive_scope: one_global_causal_multimodal_feature_rank_residual_over_r01
+      frozen_scope: clip_backbone_lora_branches_binary_head_and_source_score
+      immutable_history_coordinate: frozen_source_logit_margin_only
+      base_prediction_rule: exact_r01_median_stabilized_posterior_projection
+      residual_count: 1
+      residual_scope: one_shared_multimodal_readout_for_the_continual_stream
+      residual_input: source_head_orthogonal_l2_normalized_frozen_features
+      residual_teacher: equal_prior_current_source_score_gmm_posterior
+      reliability_rule: absolute_centered_soft_posterior_without_threshold
+      real_prototype_rule: one_soft_prototype_for_the_complete_real_gmm_block
+      fake_prototype_rule: one_soft_prototype_per_bic_selected_fake_gmm_component
+      fake_component_count_rule: target_bic_with_existing_source_complexity_cap
+      component_identity_rule: persistent_ordered_rank_inside_the_fake_score_block
+      residual_update: cumulative_soft_component_prototypes_without_optimizer
+      residual_readout: maximum_fake_component_cosine_minus_real_prototype_cosine
+      prediction_rule: r01_base_logit_plus_one_mixture_residual
+      adaptive_score_history_stored: false
+      optimizer: none
+      new_target_hyperparameters: 0
+      raw_images_stored: false
+      source_fallback: exact_before_any_reliable_two_block_evidence

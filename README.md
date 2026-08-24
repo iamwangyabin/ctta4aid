@@ -587,6 +587,24 @@ residual 继续保留。该闭式原型更新不需要 optimizer、learning rate
 memory capacity 或逐域 residual，且 residual 不参与自己的伪标签生成，避免移动 score 坐标
 和自证循环。seed1 成对入口为
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_global_residual_continual_*_seed1.yaml`。
+R05 的四数据集 seed1 因果审计全部通过：相对 R01，平均 Accuracy 提升 0.1128 个百分点，
+target-macro online AUC 提升 0.0579 个百分点，四个数据集的 Accuracy 均未下降，online AUC
+在三个数据集上升、一个数据集近似持平。该结果通过原定 Pareto 继续门槛，证明 feature
+residual 可以在不破坏分类边界的情况下改变排序；但增幅仍小，因此它保留为可复现的正向
+proof-of-concept，不据此声明最终方法。
+
+`ascal_gmm_segmented_memory_posterior_mixture_residual` 的研究版本名为
+**ASCAL-JMP-MixtureResidual（R06）**。它只修改 R05 的 fake 特征读出，R01 的 source score、
+GMM 分段、episode memory、累计中位数和边界投影轨迹仍逐批保持不变。R05 把完整 fake
+后验压成一个全局均值，可能使不同生成机制的互补特征彼此抵消；R06 保留一个汇总整个 real
+GMM block 的稳定原型，同时把 BIC 选出的每个 fake score 分量分别累计为一个特征原型。
+分量数直接继承原有 target BIC 和 source anchor complexity cap，不新增手调 `K`；分量在
+排序后的 fake block 内按 rank 获得跨 batch 的确定性身份。每张图仍只产生一个 residual，
+其值为与最相似 fake 原型的余弦相似度减去与 real 原型的余弦相似度，范围自然限制在
+`[-2, 2]`，最终唯一 logit 仍为 R01 base logit 加该 residual。更新继续使用等先验 source-score
+posterior、连续可靠度和 Predict-Then-Adapt 顺序，不使用 target label、generator id、optimizer、
+learning rate、置信阈值、fusion weight 或 memory capacity。seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_mixture_residual_continual_*_seed1.yaml`。
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须

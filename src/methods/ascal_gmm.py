@@ -33,6 +33,11 @@ Its global-residual variant keeps the immutable source-margin GMM and R01
 boundary trajectory, then estimates one stream-wide feature residual from
 soft, source-score-derived class prototypes. The residual never rewrites the
 historical score coordinate and is updated only after each batch is predicted.
+Its mixture-residual variant keeps one real prototype but preserves every
+BIC-selected fake score component as a separate feature prototype. A single
+rank residual compares the real prototype with the closest persistent fake
+prototype, avoiding the unimodal fake-feature assumption without adding a
+target-selected component count.
 """
 
 from __future__ import annotations
@@ -137,6 +142,37 @@ def joint_density_fake_posterior(scores: Any, mixture: dict[str, Any]) -> Any:
 
     log_odds = _joint_density_log_odds(scores, mixture)
     return 1.0 / (1.0 + np.exp(-np.clip(log_odds, -60.0, 60.0)))
+
+
+def _block_component_responsibilities(
+    scores: Any,
+    weights: Any,
+    mus: Any,
+    sigmas: Any,
+) -> np.ndarray:
+    """Return normalized responsibilities inside one ordered GMM block."""
+
+    values = np.asarray(scores, dtype=np.float64).reshape(-1)
+    weights = np.asarray(weights, dtype=np.float64).reshape(-1)
+    mus = np.asarray(mus, dtype=np.float64).reshape(-1)
+    sigmas = np.asarray(sigmas, dtype=np.float64).reshape(-1)
+    if weights.size < 1 or not (weights.size == mus.size == sigmas.size):
+        raise ValueError("GMM block responsibilities require matching components")
+    if np.any(weights <= 0.0) or np.any(sigmas <= 0.0):
+        raise ValueError("GMM block responsibilities require positive parameters")
+    if np.any(np.diff(mus) < 0.0):
+        raise ValueError("GMM block components must be sorted by mean")
+
+    z = (values[:, None] - mus[None, :]) / sigmas[None, :]
+    log_joint = (
+        np.log(weights / weights.sum())[None, :]
+        - np.log(sigmas)[None, :]
+        - 0.5 * math.log(2.0 * math.pi)
+        - 0.5 * z * z
+    )
+    log_joint -= np.max(log_joint, axis=1, keepdims=True)
+    joint = np.exp(log_joint)
+    return joint / joint.sum(axis=1, keepdims=True)
 
 
 def _log_mixture_density(
@@ -1730,9 +1766,12 @@ class ASCALGMMSegmentedMemoryPosteriorGlobalResidual(
             return np.zeros(int(features.shape[0]), dtype=np.float64)
         return np.asarray(features @ self.residual_vector, dtype=np.float64)
 
+    def _residual_ready(self) -> bool:
+        return self.residual_vector is not None
+
     def _residual_state_stats(self) -> dict[str, Any]:
         return {
-            "residual_ready": self.residual_vector is not None,
+            "residual_ready": self._residual_ready(),
             "residual_count": 1,
             "residual_feature_dim": self.residual_feature_dim,
             "residual_updates": self.residual_updates,
@@ -1791,7 +1830,7 @@ class ASCALGMMSegmentedMemoryPosteriorGlobalResidual(
             prediction_memory_recalled=self.recall_anchor_boundary is not None,
             prediction_memory_anchor_boundary=self.recall_anchor_boundary,
             prediction_memory_anchor_weight=memory_weight,
-            prediction_residual_ready=self.residual_vector is not None,
+            prediction_residual_ready=self._residual_ready(),
             prediction_residual_mean=float(np.mean(residual_scores)),
             prediction_residual_abs_mean=float(np.mean(np.abs(residual_scores))),
             prediction_residual_max_abs=float(np.max(np.abs(residual_scores))),
@@ -1857,6 +1896,224 @@ class ASCALGMMSegmentedMemoryPosteriorGlobalResidual(
     def discard_pending_prediction(self) -> None:
         super().discard_pending_prediction()
         self._pending_residual_features = None
+
+
+class ASCALGMMSegmentedMemoryPosteriorMixtureResidual(
+    ASCALGMMSegmentedMemoryPosteriorGlobalResidual
+):
+    """Keep BIC-selected fake modes separate inside one causal residual."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        shape = (self.max_fake_components, self.residual_feature_dim)
+        self.residual_fake_component_sums = np.zeros(shape, dtype=np.float64)
+        self.residual_fake_component_supports = np.zeros(
+            self.max_fake_components,
+            dtype=np.float64,
+        )
+        self.residual_last_fake_component_supports = np.zeros(
+            self.max_fake_components,
+            dtype=np.float64,
+        )
+        self.residual_fake_components_observed = 0
+        self.residual_multimodal_updates = 0
+
+    @property
+    def trainable_parameters(self) -> int:
+        if self.adaptation_mode == "static":
+            return 0
+        return (1 + self.max_fake_components) * self.residual_feature_dim
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "immutable_source_score_gmm_with_one_causal_multimodal_"
+                    "feature_rank_residual"
+                ),
+                "research_name": "ASCAL-JMP-MixtureResidual",
+                "research_version": "R06",
+                "residual_count": 1,
+                "residual_scope": (
+                    "one_shared_multimodal_readout_for_the_entire_continual_stream"
+                ),
+                "real_prototype_rule": (
+                    "one_cumulative_soft_prototype_for_the_complete_real_gmm_block"
+                ),
+                "fake_prototype_rule": (
+                    "one_cumulative_feature_prototype_per_ordered_bic_selected_"
+                    "fake_gmm_component"
+                ),
+                "fake_component_count_rule": (
+                    "target_bic_with_the_existing_source_anchor_complexity_cap"
+                ),
+                "component_identity_rule": (
+                    "persistent_rank_inside_the_ordered_fake_score_block"
+                ),
+                "residual_update": (
+                    "equal_prior_class_posterior_times_within_fake_block_"
+                    "component_responsibility_no_optimizer"
+                ),
+                "residual_readout": (
+                    "maximum_fake_component_cosine_minus_real_prototype_cosine"
+                ),
+                "prediction_rule": "r01_base_logit_plus_one_mixture_residual",
+                "hyperparameter_rule": (
+                    "no_component_count_residual_learning_rate_loss_weight_"
+                    "confidence_threshold_memory_capacity_or_fusion_weight"
+                ),
+                "intentional_changes": [
+                    "the R01 source-score GMM segmentation memory and boundary trajectory remain unchanged",
+                    "only immutable source margins are appended to score history",
+                    "the complete real score block still forms one stream-wide feature prototype",
+                    "BIC-selected fake score components retain separate stream-wide feature prototypes",
+                    "ordered fake-component rank gives deterministic identity without target labels or generator ids",
+                    "the closest fake prototype supplies one bounded nonlinear rank residual",
+                    "the residual remains a one-way student of immutable source-score density evidence",
+                    "predictions use only GMM and residual state learned from earlier batches",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_mixture_residual"
+
+    def _normalized_residual_prototypes(
+        self,
+    ) -> tuple[np.ndarray | None, np.ndarray]:
+        epsilon = np.finfo(np.float64).eps
+        if self.residual_real_support <= epsilon:
+            return None, np.empty((0, self.residual_feature_dim), dtype=np.float64)
+        real_mean = self.residual_real_sum / self.residual_real_support
+        real_norm = float(np.linalg.norm(real_mean))
+        if real_norm <= epsilon:
+            return None, np.empty((0, self.residual_feature_dim), dtype=np.float64)
+
+        ready = self.residual_fake_component_supports > epsilon
+        fake_means = np.divide(
+            self.residual_fake_component_sums[ready],
+            self.residual_fake_component_supports[ready, None],
+        )
+        if not len(fake_means):
+            return real_mean / real_norm, fake_means
+        fake_norms = np.linalg.norm(fake_means, axis=1)
+        valid = fake_norms > epsilon
+        return real_mean / real_norm, np.divide(
+            fake_means[valid],
+            fake_norms[valid, None],
+        )
+
+    def _residual_ready(self) -> bool:
+        real_prototype, fake_prototypes = self._normalized_residual_prototypes()
+        return real_prototype is not None and len(fake_prototypes) > 0
+
+    def _residual_scores(self, features: np.ndarray) -> np.ndarray:
+        real_prototype, fake_prototypes = self._normalized_residual_prototypes()
+        if real_prototype is None or not len(fake_prototypes):
+            return np.zeros(int(features.shape[0]), dtype=np.float64)
+        fake_similarity = np.max(features @ fake_prototypes.T, axis=1)
+        real_similarity = features @ real_prototype
+        return np.asarray(fake_similarity - real_similarity, dtype=np.float64)
+
+    def _residual_state_stats(self) -> dict[str, Any]:
+        real_prototype, fake_prototypes = self._normalized_residual_prototypes()
+        if real_prototype is None or not len(fake_prototypes):
+            residual_norm = 0.0
+        else:
+            residual_norm = float(
+                np.max(np.linalg.norm(fake_prototypes - real_prototype, axis=1))
+            )
+        return {
+            "residual_ready": real_prototype is not None and len(fake_prototypes) > 0,
+            "residual_count": 1,
+            "residual_feature_dim": self.residual_feature_dim,
+            "residual_updates": self.residual_updates,
+            "residual_candidate_samples": self.residual_candidate_samples,
+            "residual_real_support": self.residual_real_support,
+            "residual_fake_support": self.residual_fake_support,
+            "residual_norm": residual_norm,
+            "residual_last_reliability": self.residual_last_reliability,
+            "residual_last_real_support": self.residual_last_real_support,
+            "residual_last_fake_support": self.residual_last_fake_support,
+            "residual_fake_prototype_count": int(len(fake_prototypes)),
+            "residual_fake_components_observed": self.residual_fake_components_observed,
+            "residual_fake_component_supports": (
+                self.residual_fake_component_supports.tolist()
+            ),
+            "residual_last_fake_component_supports": (
+                self.residual_last_fake_component_supports.tolist()
+            ),
+            "residual_multimodal_updates": self.residual_multimodal_updates,
+            "residual_readout_bound": 2.0,
+        }
+
+    def _update_global_residual(
+        self,
+        scores: np.ndarray,
+        features: np.ndarray,
+    ) -> bool:
+        if self._mixture is None or not self._mixture_active():
+            return False
+        partition = dominant_gap_boundary(self._mixture)
+        split = int(partition["real_components"])
+        fake_components = int(partition["fake_components"])
+        if fake_components > self.max_fake_components:
+            raise RuntimeError("Target GMM exceeded the fixed fake-component cap")
+
+        posterior = joint_density_fake_posterior(scores, self._mixture)
+        reliability = np.abs(2.0 * posterior - 1.0)
+        fake_weights = reliability * posterior
+        real_weights = reliability * (1.0 - posterior)
+        fake_support = float(fake_weights.sum())
+        real_support = float(real_weights.sum())
+        self.residual_candidate_samples += int(scores.size)
+        self.residual_last_reliability = float(np.mean(reliability))
+        self.residual_last_real_support = real_support
+        self.residual_last_fake_support = fake_support
+        self.residual_last_fake_component_supports.fill(0.0)
+        epsilon = np.finfo(np.float64).eps
+        if fake_support <= epsilon or real_support <= epsilon:
+            return False
+
+        weights = np.asarray(self._mixture["weights"], dtype=np.float64)
+        mus = np.asarray(self._mixture["mus"], dtype=np.float64)
+        sigmas = np.asarray(self._mixture["sigmas"], dtype=np.float64)
+        conditional = _block_component_responsibilities(
+            scores,
+            weights[split:],
+            mus[split:],
+            sigmas[split:],
+        )
+        component_weights = fake_weights[:, None] * conditional
+        component_supports = component_weights.sum(axis=0)
+
+        self.residual_real_sum += np.sum(real_weights[:, None] * features, axis=0)
+        self.residual_real_support += real_support
+        for index in range(fake_components):
+            support = float(component_supports[index])
+            self.residual_last_fake_component_supports[index] = support
+            if support <= epsilon:
+                continue
+            self.residual_fake_component_sums[index] += np.sum(
+                component_weights[:, index, None] * features,
+                axis=0,
+            )
+            self.residual_fake_component_supports[index] += support
+        self.residual_fake_support += fake_support
+        self.residual_fake_components_observed = max(
+            self.residual_fake_components_observed,
+            fake_components,
+        )
+        if fake_components > 1:
+            self.residual_multimodal_updates += 1
+        if not self._residual_ready():
+            return False
+        self.residual_updates += 1
+        return True
 
 
 class ASCALGMMSegmentedMemoryPosterior(ASCALGMMSegmentedMemoryShift):
