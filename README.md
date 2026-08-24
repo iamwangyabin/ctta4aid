@@ -622,6 +622,23 @@ R05 的冻结正交特征入口，但完全删除 fake 特征原型，只累计�
 target label、generator id、fake 模式数、optimizer、learning rate、阈值、fusion weight 或
 memory capacity；seed1 成对入口为
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_real_deviation_residual_continual_*_seed1.yaml`。
+R07 的四数据集 seed1 运行和全部因果审计通过，real-deviation 机制在四套数据上都持续生效；
+但相对 R01 的平均 Accuracy 虽提升 0.1342 个百分点，target-macro online AUC 却下降
+0.0380 个百分点，相对 R06 下降 0.0969 个百分点。因此 R07 不进入 seed2/seed3。该结果
+说明偏离 real 均值确实能移动分类边界，但 atypical real 与 heterogeneous fake 会共享较大
+偏离，不能把未经条件化的几何异常直接当成排序证据。
+
+`ascal_gmm_segmented_memory_posterior_conditional_residual` 的研究版本名为
+**ASCAL-JMP-ConditionalResidual（R08）**。它回到 R05 唯一产生正 AUC 信号的全局原型分数
+`q`，保留 `q` 本身，并从历史 pre-update 的 `q` 中减去可由不可变 source margin `s`
+线性解释的部分。新增 innovation 为
+`rho_+ * sigma_s / (T sigma_q) * [(q-mu_q) - cov(q,s)/var(s) * (s-mu_s)]`，其中
+`rho_+=max(corr(q,s),0)`。因此与 source 不一致的残差自动得到零信任；正相关但不完全重复
+source 的部分才进入排序。其 innovation 在累计历史下均值为零、与 `s` 协方差为零，RMS
+最多是 source margin RMS 的一半，所有均值、方差、协方差都由无窗口的因果 Welford 状态
+精确累计。该版本仍只有一个 residual，不使用 target label、generator id、optimizer、学习率、
+阈值、窗口、fusion weight、memory capacity 或 shrinkage 参数；seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_conditional_residual_continual_*_seed1.yaml`。
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
@@ -629,9 +646,9 @@ ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮�
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
 target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
-最高值，R06 的直接比较对象是 R05，R07 的直接比较对象是 R06。该门槛只决定是否进入
-seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整确认前仍不得写入正文
-正式表。
+最高值，R06 的直接比较对象是 R05，R07 和 R08 的直接比较对象均是当前最佳 R06。该门槛
+只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整确认前
+仍不得写入正文正式表。
 
 ## OST
 

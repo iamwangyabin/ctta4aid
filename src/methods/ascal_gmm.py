@@ -41,6 +41,9 @@ target-selected component count.
 Its real-deviation variant removes the fake prototype entirely. It estimates
 one centered squared-distance residual around the soft real feature mean, so
 heterogeneous fake evidence need not share a mode or teach the residual.
+Its conditional-residual variant instead keeps the simplest global prototype
+score and adds only its causally estimated innovation beyond the immutable
+source margin, with scale and trust derived from online second moments.
 """
 
 from __future__ import annotations
@@ -2237,6 +2240,307 @@ class ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual(
             return False
         self.residual_updates += 1
         return True
+
+
+class ASCALGMMSegmentedMemoryPosteriorConditionalResidual(
+    ASCALGMMSegmentedMemoryPosteriorGlobalResidual
+):
+    """Add the source-conditioned innovation of the global prototype score."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.conditional_moment_samples = 0
+        self.conditional_source_mean = 0.0
+        self.conditional_raw_mean = 0.0
+        self.conditional_source_m2 = 0.0
+        self.conditional_raw_m2 = 0.0
+        self.conditional_cross_moment = 0.0
+        self.conditional_moment_updates = 0
+        self._pending_conditional_scores: np.ndarray | None = None
+        self._pending_raw_residual_scores: np.ndarray | None = None
+        self._pending_raw_residual_ready = False
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "immutable_source_score_gmm_with_one_causal_global_"
+                    "prototype_residual_and_source_conditioned_innovation"
+                ),
+                "research_name": "ASCAL-JMP-ConditionalResidual",
+                "research_version": "R08",
+                "residual_count": 1,
+                "residual_scope": (
+                    "one_global_prototype_score_plus_its_stream_wide_"
+                    "source_conditioned_innovation"
+                ),
+                "conditional_moment_input": (
+                    "immutable_source_margin_and_causal_global_prototype_score"
+                ),
+                "conditional_moment_update": (
+                    "population_second_moments_of_preupdate_predictions_"
+                    "merged_by_exact_parallel_welford_updates"
+                ),
+                "innovation_rule": (
+                    "raw_prototype_score_minus_its_online_linear_projection_"
+                    "on_the_immutable_source_margin"
+                ),
+                "innovation_trust": (
+                    "positive_online_correlation_between_source_margin_and_"
+                    "raw_prototype_score"
+                ),
+                "innovation_scale": (
+                    "positive_correlation_times_source_standard_deviation_"
+                    "over_raw_residual_standard_deviation_and_temperature"
+                ),
+                "innovation_rms_bound": (
+                    "at_most_one_half_of_the_source_margin_standard_deviation_"
+                    "over_temperature_under_the_accumulated_measure"
+                ),
+                "prediction_rule": (
+                    "r01_base_logit_plus_global_prototype_score_plus_"
+                    "source_conditioned_innovation"
+                ),
+                "hyperparameter_rule": (
+                    "no_conditional_window_learning_rate_threshold_fusion_"
+                    "weight_memory_capacity_or_shrinkage_parameter"
+                ),
+                "intentional_changes": [
+                    "the R01 source-score GMM segmentation memory and boundary trajectory remain unchanged",
+                    "the R05 global real and fake prototype score remains the sole feature residual",
+                    "preupdate source margins and prototype scores update exact causal second moments",
+                    "the adaptive addition retains only prototype evidence not linearly explained by source score",
+                    "nonpositive agreement with the immutable source score gives zero innovation trust",
+                    "variance matching and trust are derived from history rather than target-tuned constants",
+                    "predictions use only prototype and moment state learned from earlier batches",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_conditional_residual"
+
+    def _conditional_moment_state(self) -> dict[str, Any]:
+        samples = self.conditional_moment_samples
+        epsilon = np.finfo(np.float64).eps
+        if samples <= 0:
+            source_variance = 0.0
+            raw_variance = 0.0
+            covariance = 0.0
+        else:
+            source_variance = max(self.conditional_source_m2 / samples, 0.0)
+            raw_variance = max(self.conditional_raw_m2 / samples, 0.0)
+            covariance = self.conditional_cross_moment / samples
+
+        moments_ready = (
+            samples > 1
+            and source_variance > epsilon
+            and raw_variance > epsilon
+        )
+        if moments_ready:
+            correlation = covariance / math.sqrt(source_variance * raw_variance)
+            correlation = float(np.clip(correlation, -1.0, 1.0))
+            slope = covariance / source_variance
+        else:
+            correlation = 0.0
+            slope = 0.0
+        trust = max(correlation, 0.0)
+        innovation_ready = moments_ready and trust > epsilon
+        if innovation_ready:
+            scale = (
+                trust
+                * math.sqrt(source_variance / raw_variance)
+                / self.temperature
+            )
+            rms_ratio = trust * math.sqrt(max(1.0 - correlation**2, 0.0))
+        else:
+            scale = 0.0
+            rms_ratio = 0.0
+        return {
+            "conditional_moment_samples": samples,
+            "conditional_moment_updates": self.conditional_moment_updates,
+            "conditional_source_mean": self.conditional_source_mean,
+            "conditional_raw_residual_mean": self.conditional_raw_mean,
+            "conditional_source_variance": source_variance,
+            "conditional_raw_residual_variance": raw_variance,
+            "conditional_covariance": covariance,
+            "conditional_correlation": correlation,
+            "conditional_projection_slope": slope,
+            "conditional_innovation_trust": trust,
+            "conditional_innovation_scale": scale,
+            "conditional_innovation_rms_source_ratio": rms_ratio,
+            "conditional_moments_ready": moments_ready,
+            "conditional_innovation_ready": innovation_ready,
+        }
+
+    def _conditional_innovation(
+        self,
+        scores: np.ndarray,
+        raw_residual: np.ndarray,
+    ) -> np.ndarray:
+        state = self._conditional_moment_state()
+        if not state["conditional_innovation_ready"]:
+            return np.zeros(int(scores.size), dtype=np.float64)
+        novel = (
+            raw_residual
+            - float(state["conditional_raw_residual_mean"])
+            - float(state["conditional_projection_slope"])
+            * (scores - float(state["conditional_source_mean"]))
+        )
+        return np.asarray(
+            float(state["conditional_innovation_scale"]) * novel,
+            dtype=np.float64,
+        )
+
+    def _residual_state_stats(self) -> dict[str, Any]:
+        stats = super()._residual_state_stats()
+        stats.update(self._conditional_moment_state())
+        return stats
+
+    def _update_conditional_moments(
+        self,
+        scores: np.ndarray,
+        raw_residual: np.ndarray,
+    ) -> bool:
+        scores = np.asarray(scores, dtype=np.float64).reshape(-1)
+        raw_residual = np.asarray(raw_residual, dtype=np.float64).reshape(-1)
+        if scores.size != raw_residual.size:
+            raise ValueError("Conditional residual moments require matching samples")
+        if not scores.size:
+            return False
+        if not np.all(np.isfinite(scores)) or not np.all(np.isfinite(raw_residual)):
+            raise ValueError("Conditional residual moments require finite values")
+
+        batch_samples = int(scores.size)
+        batch_source_mean = float(np.mean(scores))
+        batch_raw_mean = float(np.mean(raw_residual))
+        source_centered = scores - batch_source_mean
+        raw_centered = raw_residual - batch_raw_mean
+        batch_source_m2 = float(source_centered @ source_centered)
+        batch_raw_m2 = float(raw_centered @ raw_centered)
+        batch_cross = float(source_centered @ raw_centered)
+
+        previous_samples = self.conditional_moment_samples
+        total_samples = previous_samples + batch_samples
+        source_delta = batch_source_mean - self.conditional_source_mean
+        raw_delta = batch_raw_mean - self.conditional_raw_mean
+        merge_weight = previous_samples * batch_samples / total_samples
+        self.conditional_source_m2 += (
+            batch_source_m2 + source_delta**2 * merge_weight
+        )
+        self.conditional_raw_m2 += batch_raw_m2 + raw_delta**2 * merge_weight
+        self.conditional_cross_moment += (
+            batch_cross + source_delta * raw_delta * merge_weight
+        )
+        self.conditional_source_mean += source_delta * batch_samples / total_samples
+        self.conditional_raw_mean += raw_delta * batch_samples / total_samples
+        self.conditional_moment_samples = total_samples
+        self.conditional_moment_updates += 1
+        return True
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores, features = self._batch_scores_and_residual_features(images)
+        memory_weight = self._recall_anchor_weight()
+        if self.adaptation_mode == "full" and self._mixture_active():
+            partition = self._candidate_partition()
+            candidate = float(partition["decision_boundary"])
+            boundary = self._stabilized_boundary(candidate)
+            base_logit = (scores - boundary) / self.temperature
+            base_mode = self._prediction_mode_name
+            real_components = int(partition["real_components"])
+            fake_components = int(partition["fake_components"])
+        else:
+            candidate = None
+            boundary = 0.0
+            base_logit = scores / self.temperature
+            base_mode = "source_fallback"
+            real_components = 0
+            fake_components = 0
+
+        raw_ready = self._residual_ready()
+        raw_residual = self._residual_scores(features)
+        innovation = self._conditional_innovation(scores, raw_residual)
+        residual_scores = raw_residual + innovation
+        final_logit = base_logit + residual_scores
+        probability = 1.0 / (
+            1.0 + np.exp(-np.clip(final_logit, -60.0, 60.0))
+        )
+        conditional_state = self._conditional_moment_state()
+        self._pending_residual_features = features
+        self._pending_conditional_scores = scores.copy()
+        self._pending_raw_residual_scores = raw_residual.copy()
+        self._pending_raw_residual_ready = raw_ready
+        return self._prediction_batch(
+            scores,
+            probability,
+            prediction_mode=base_mode,
+            prediction_boundary=boundary,
+            prediction_candidate_boundary=candidate,
+            prediction_real_components=real_components,
+            prediction_fake_components=fake_components,
+            prediction_memory_index=self.active_memory_index,
+            prediction_memory_recalled=self.recall_anchor_boundary is not None,
+            prediction_memory_anchor_boundary=self.recall_anchor_boundary,
+            prediction_memory_anchor_weight=memory_weight,
+            prediction_residual_ready=raw_ready,
+            prediction_residual_mean=float(np.mean(residual_scores)),
+            prediction_residual_abs_mean=float(np.mean(np.abs(residual_scores))),
+            prediction_residual_max_abs=float(np.max(np.abs(residual_scores))),
+            prediction_raw_residual_mean=float(np.mean(raw_residual)),
+            prediction_raw_residual_abs_mean=float(np.mean(np.abs(raw_residual))),
+            prediction_raw_residual_max_abs=float(np.max(np.abs(raw_residual))),
+            prediction_conditional_innovation_mean=float(np.mean(innovation)),
+            prediction_conditional_innovation_abs_mean=float(
+                np.mean(np.abs(innovation))
+            ),
+            prediction_conditional_innovation_max_abs=float(
+                np.max(np.abs(innovation))
+            ),
+            prediction_conditional_moments_ready=conditional_state[
+                "conditional_moments_ready"
+            ],
+            prediction_conditional_innovation_ready=conditional_state[
+                "conditional_innovation_ready"
+            ],
+            prediction_conditional_correlation=conditional_state[
+                "conditional_correlation"
+            ],
+            prediction_conditional_innovation_trust=conditional_state[
+                "conditional_innovation_trust"
+            ],
+            prediction_conditional_innovation_scale=conditional_state[
+                "conditional_innovation_scale"
+            ],
+        )
+
+    def adapt(self, images: Any) -> AdaptationStats:
+        if self._pending is None:
+            return super().adapt(images)
+        scores = self._pending_conditional_scores
+        raw_residual = self._pending_raw_residual_scores
+        raw_ready = self._pending_raw_residual_ready
+        self._pending_conditional_scores = None
+        self._pending_raw_residual_scores = None
+        self._pending_raw_residual_ready = False
+        stats = super().adapt(images)
+        moment_updated = False
+        if self.adaptation_mode == "full" and raw_ready:
+            if scores is None or raw_residual is None:
+                raise RuntimeError("ASCAL conditional residual lost prediction moments")
+            moment_updated = self._update_conditional_moments(scores, raw_residual)
+        stats.extra.update(self._conditional_moment_state())
+        stats.extra["conditional_moment_updated"] = moment_updated
+        return stats
+
+    def discard_pending_prediction(self) -> None:
+        super().discard_pending_prediction()
+        self._pending_conditional_scores = None
+        self._pending_raw_residual_scores = None
+        self._pending_raw_residual_ready = False
 
 
 class ASCALGMMSegmentedMemoryPosterior(ASCALGMMSegmentedMemoryShift):

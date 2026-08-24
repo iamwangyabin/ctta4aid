@@ -948,6 +948,88 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["semantic_features_used"])
                 self.assertFalse(reference["raw_images_stored"])
 
+    def test_conditional_residual_configs_use_causal_moments_without_knobs(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        method_name = "ascal_gmm_segmented_memory_posterior_conditional_residual"
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_posterior_"
+                f"conditional_residual_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [
+                        "ascal_gmm_segmented_memory_posterior_projection",
+                        method_name,
+                    ],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                self.assertIn(
+                    "seed1_online_manifest.csv",
+                    config["data"]["locked_online_manifest"],
+                )
+                self.assertIn(
+                    "seed1_final_holdout_manifest.csv",
+                    config["data"]["locked_final_holdout_manifest"],
+                )
+                self.assertIn(
+                    f"posterior_conditional_residual_continual/{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(config, method_name)
+                for key in (
+                    "conditional_window",
+                    "confidence_weight",
+                    "fusion_weight",
+                    "lambda",
+                    "learning_rate",
+                    "loss_weight",
+                    "memory_capacity",
+                    "posterior_temperature",
+                    "recall_threshold",
+                    "shrinkage",
+                    "smoothing",
+                    "target_threshold",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                reference = adaptive["reference"]
+                self.assertEqual(
+                    reference["research_name"], "ASCAL-JMP-ConditionalResidual"
+                )
+                self.assertEqual(reference["research_version"], "R08")
+                self.assertEqual(reference["new_target_hyperparameters"], 0)
+                self.assertEqual(reference["residual_count"], 1)
+                self.assertIn("source", reference["innovation_rule"])
+                self.assertEqual(
+                    reference["seed1_promotion_rule"],
+                    "accuracy_noninferiority_0p2pp_auc_gain_0p1pp_and_above_r06",
+                )
+                self.assertFalse(reference["adaptive_score_history_stored"])
+                self.assertFalse(reference["adaptive_residual_history_stored"])
+                self.assertEqual(reference["optimizer"], "none")
+                self.assertFalse(reference["target_labels_used"])
+                self.assertFalse(reference["generator_boundaries_used"])
+                self.assertFalse(reference["semantic_features_used"])
+                self.assertFalse(reference["raw_images_stored"])
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -1057,6 +1139,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_memory_posterior_real_deviation_residual_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_conditional_residual",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_conditional_residual_static",
             config["training"]["intended_methods"],
         )
 
@@ -1442,6 +1532,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_posterior_conditional_residual_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorConditionalResidual,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorConditionalResidual(
             self.detector(),
             "cpu",
             {
@@ -2547,6 +2653,107 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
         self.assertFalse(metadata["adaptive_score_history_stored"])
 
+    def test_conditional_residual_moments_extract_a_trusted_orthogonal_innovation(
+        self,
+    ) -> None:
+        method = self.segmented_memory_posterior_conditional_residual_method()
+        scores = np.tile(np.array([-2.0, -1.0, 1.0, 2.0]), 16)
+        noise = np.tile(np.array([1.0, -2.0, 2.0, -1.0]), 16)
+        raw_residual = scores + noise
+
+        self.assertTrue(
+            method._update_conditional_moments(scores[:32], raw_residual[:32])
+        )
+        self.assertTrue(
+            method._update_conditional_moments(scores[32:], raw_residual[32:])
+        )
+        state = method._conditional_moment_state()
+        self.assertTrue(state["conditional_moments_ready"])
+        self.assertTrue(state["conditional_innovation_ready"])
+        self.assertEqual(state["conditional_moment_samples"], 64)
+        self.assertEqual(state["conditional_moment_updates"], 2)
+        self.assertAlmostEqual(state["conditional_projection_slope"], 1.0)
+        self.assertAlmostEqual(
+            state["conditional_correlation"],
+            1.0 / np.sqrt(2.0),
+        )
+        self.assertAlmostEqual(state["conditional_innovation_rms_source_ratio"], 0.5)
+
+        innovation = method._conditional_innovation(scores, raw_residual)
+        self.assertAlmostEqual(float(np.mean(innovation)), 0.0, places=12)
+        self.assertAlmostEqual(
+            float(np.mean((scores - scores.mean()) * innovation)),
+            0.0,
+            places=12,
+        )
+        np.testing.assert_allclose(innovation, 0.5 * noise, atol=1e-12)
+
+        disagreeing = self.segmented_memory_posterior_conditional_residual_method()
+        disagreeing._update_conditional_moments(scores, -scores)
+        disagreeing_state = disagreeing._conditional_moment_state()
+        self.assertEqual(disagreeing_state["conditional_innovation_trust"], 0.0)
+        self.assertFalse(disagreeing_state["conditional_innovation_ready"])
+        np.testing.assert_array_equal(
+            disagreeing._conditional_innovation(scores, -scores),
+            np.zeros_like(scores),
+        )
+
+    def test_conditional_residual_is_predict_then_adapt_and_keeps_r01_history(
+        self,
+    ) -> None:
+        rng = np.random.default_rng(56)
+        scores = np.concatenate(
+            [rng.normal(-4.0, 0.2, 64), rng.normal(4.0, 0.2, 64)]
+        )
+        cues = np.concatenate([-np.ones(64), np.ones(64)])
+        order = rng.permutation(len(scores))
+        images = self.score_feature_batch(scores[order], cues[order])
+        baseline = self.segmented_memory_posterior_projection_method()
+        method = self.segmented_memory_posterior_conditional_residual_method()
+
+        baseline_first = baseline.predict(images)
+        method_first = method.predict(images)
+        np.testing.assert_allclose(
+            method_first.prob_fake.numpy(),
+            baseline_first.prob_fake.numpy(),
+            atol=1e-7,
+        )
+        baseline.adapt(images)
+        first_stats = method.adapt(images)
+        self.assertTrue(first_stats.extra["residual_updated"])
+        self.assertFalse(first_stats.extra["conditional_moment_updated"])
+        self.assertEqual(first_stats.extra["conditional_moment_samples"], 0)
+
+        baseline.predict(images)
+        second = method.predict(images)
+        self.assertTrue(method._pending["prediction_residual_ready"])
+        self.assertFalse(method._pending["prediction_conditional_moments_ready"])
+        self.assertEqual(
+            method._pending["prediction_conditional_innovation_max_abs"], 0.0
+        )
+        baseline.adapt(images)
+        second_stats = method.adapt(images)
+        self.assertTrue(second_stats.extra["conditional_moment_updated"])
+        self.assertEqual(second_stats.extra["conditional_moment_samples"], len(scores))
+        np.testing.assert_allclose(method.score_history, baseline.score_history)
+
+        third = method.predict(images)
+        self.assertTrue(method._pending["prediction_conditional_moments_ready"])
+        self.assertTrue(method._pending["prediction_conditional_innovation_ready"])
+        self.assertGreater(
+            method._pending["prediction_conditional_innovation_trust"], 0.0
+        )
+        self.assertEqual(
+            method._pending["prediction_mode"],
+            "segmented_memory_posterior_conditional_residual",
+        )
+        self.assertFalse(np.array_equal(second.prob_fake.numpy(), third.prob_fake.numpy()))
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_name"], "ASCAL-JMP-ConditionalResidual")
+        self.assertEqual(metadata["research_version"], "R08")
+        self.assertEqual(metadata["residual_count"], 1)
+        self.assertFalse(metadata["adaptive_score_history_stored"])
+
     def test_segmented_handoff_keeps_the_first_new_boundary_continuous(self) -> None:
         rng = np.random.default_rng(10)
         method = self.segmented_handoff_shift_method()
@@ -2827,6 +3034,24 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_conditional_residual_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorConditionalResidual,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_conditional_residual_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorConditionalResidual
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_cli_builds_mixture_residual_with_lora_profile(self) -> None:
         from src.cli.common import build_fresh_method
         from src.methods.ascal_gmm import (
@@ -2907,6 +3132,45 @@ class ASCALGMMMethodTests(unittest.TestCase):
 
         self.assertIsInstance(
             method, ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_conditional_residual_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorConditionalResidual,
+        )
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_conditional_residual_static"
+        )
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {method_name: {"adaptation_mode": "static"}},
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorConditionalResidual
         )
         self.assertEqual(method.adaptation_mode, "static")
 

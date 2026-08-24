@@ -73,6 +73,8 @@ training:
     - ascal_gmm_segmented_memory_posterior_mixture_residual_static
     - ascal_gmm_segmented_memory_posterior_real_deviation_residual
     - ascal_gmm_segmented_memory_posterior_real_deviation_residual_static
+    - ascal_gmm_segmented_memory_posterior_conditional_residual
+    - ascal_gmm_segmented_memory_posterior_conditional_residual_static
   epochs: 3
   max_steps_per_epoch: null
   optimizer: adamw
