@@ -682,6 +682,16 @@ state 学习路径。临时 GMM 只充当“这是新状态”的无标签描述
 memory，也不会在 Adapt 中重新拟合或重新投票。因而每批严格满足 one-batch-one-expert，且
 没有新增阈值、窗口、融合权重、学习率、memory capacity 或 target 超参数；seed1 成对入口为
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_mdl_route_continual_*_seed1.yaml`。
+R10 的四数据集 seed1 正式运行、MDL 算术和 Predict/Adapt 归属审计全部通过。相对 R09，
+Accuracy 再提升 0.0978 个百分点，target-macro online AUC 回升 0.0271 个百分点，average
+forgetting 减少 0.6901 个百分点，证明在预测前拒绝错误 proposal 是必要修正；但相对 R01，
+Accuracy 虽提升 0.4674 个百分点，target-macro online AUC 仍下降 0.7542 个百分点，且
+forgetting 增加 0.5346 个百分点，因此仍不进入 seed2/seed3。四套流的 1175 次 memory
+proposal 中，353 次错误跨专家 proposal 已在预测前被拒绝，141 次通过 MDL 并完成一致的
+预测与学习交接；余下 681 次却是在 active expert 和它自己的 archived snapshot 之间选择。
+这两者名义上属于同一专家，但预测读取旧快照、Adapt 更新 live visit，仍然违反
+one-expert-one-live-state。下一版应在 active GMM 可用时从候选中去掉同一 identity 的历史
+快照，只允许 archived memory 代表非当前专家或在 live state 暂不可用时充当回退。
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
