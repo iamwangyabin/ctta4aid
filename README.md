@@ -661,6 +661,14 @@ memory，并以其历史分界启动一次新访问。后续批次累计拟合�
 造成记忆污染。它没有新增网络、阈值、窗口、学习率、memory capacity 或 target 超参数；
 seed1 成对入口为
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_preroute_continual_*_seed1.yaml`。
+R09 的四数据集 seed1 正式运行和全部路由因果审计通过，证明旧专家能够在当前批预测前被
+实际选中，并能在确认后接管后续学习状态；四套流共发生 1175 批 memory prediction，494 次
+学习归属检查中 141 次确认、353 次拒绝。相对 R01，平均 Accuracy 提升 0.3696 个百分点，
+但 target-macro online AUC 下降 0.7813 个百分点，average forgetting 增加 1.2247 个百分点；
+它也比当前排序最佳候选 R06 的 AUC 低 0.8402 个百分点，因此不进入 seed2/seed3。失败原因
+不是专家库没有工作，而是预测阶段在 MDL 新颖性判定之前就让最大似然旧专家接管：随后被
+adapt 拒绝的 353 次旧专家归属已经改变了当前批排序。下一版只能让 Predict 与 Adapt 共享
+同一个无参数归属结论，不能继续把“最像的历史专家”和“足以属于该专家”混为一谈。
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
