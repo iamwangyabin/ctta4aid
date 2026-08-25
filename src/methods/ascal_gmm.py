@@ -4137,6 +4137,606 @@ class ASCALGMMSegmentedMemoryPosteriorPairwiseRidge(
         super().discard_pending_prediction()
 
 
+class ASCALGMMSegmentedMemoryPosteriorAnalyticExpert(
+    ASCALGMMSegmentedMemoryPosteriorOrdinalRidge
+):
+    """Give each R12 expert one causal bounded soft-label Ridge classifier."""
+
+    _ORDINAL_RIDGE_MEMORY_KEY = "analytic_expert_state"
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.analytic_expert_backbone_feature_dim = self.ordinal_ridge_feature_dim
+        self.ordinal_ridge_feature_dim += 2
+        self._novel_ordinal_ridge_state = self._new_ordinal_ridge_state()
+        self._pending_analytic_expert_labels: np.ndarray | None = None
+        self.analytic_expert_updates = 0
+        self.analytic_expert_candidate_samples = 0
+        self.analytic_expert_batches = 0
+        self.analytic_expert_samples = 0
+        self.analytic_expert_ready_batches = 0
+        self.analytic_expert_solve_failures = 0
+        self.analytic_expert_posterior_conflicts = 0
+        self.analytic_expert_label_changes = 0
+        self.analytic_expert_real_to_fake = 0
+        self.analytic_expert_fake_to_real = 0
+        self.analytic_expert_clipped_outputs = 0
+        self.analytic_expert_last_effective_support = 0.0
+        self.analytic_expert_last_reliability = 0.0
+        self.analytic_expert_last_target_abs_mean = 0.0
+        self.analytic_expert_last_posterior_conflicts = 0
+        self.analytic_expert_last_anchor = 1.0
+        self.analytic_expert_last_feature_weight_norm = 0.0
+        self.analytic_expert_last_bias = 0.0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        getter = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.reproduction_metadata.fget
+        if getter is None:
+            raise RuntimeError("ASCAL analytic expert lost the R12 metadata getter")
+        metadata = getter(self)
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "r12_routed_per_expert_causal_bounded_soft_label_analytic_"
+                    "ridge_adaptation"
+                ),
+                "research_name": "ASCAL-JMP-AnalyticExpert",
+                "research_version": "R18",
+                "r12_protected_scope": (
+                    "immutable_source_score_unique_live_mdl_routing_gmm_"
+                    "segmentation_memory_handoff_and_adaptation_assignment"
+                ),
+                "protected_initialization": (
+                    "every_new_or_untrained_expert_reproduces_the_exact_r12_"
+                    "probability"
+                ),
+                "accuracy_invariance": (
+                    "exact_r12_until_the_selected_expert_has_past_soft_"
+                    "supervision_then_sample_specific_changes_are_allowed"
+                ),
+                "expert_scope": (
+                    "one_online_analytic_ridge_state_per_r12_gmm_expert"
+                ),
+                "expert_input": (
+                    "r12_signed_probability_anchor_plus_l2_normalized_frozen_"
+                    "features_orthogonal_to_the_source_classifier_direction_"
+                    "plus_one_constant_bias"
+                ),
+                "expert_decomposition": (
+                    "learned_anchor_scale_plus_feature_ranking_evidence_plus_"
+                    "expert_bias"
+                ),
+                "soft_teacher": (
+                    "equal_prior_prediction_time_selected_gmm_posterior_"
+                    "projected_onto_the_r12_routed_class_side"
+                ),
+                "soft_target": "two_times_projected_posterior_minus_one",
+                "reliability_rule": (
+                    "absolute_signed_projected_posterior_without_a_hard_threshold"
+                ),
+                "posterior_conflict_rule": (
+                    "contradictory_gmm_side_projects_to_half_and_zero_weight"
+                ),
+                "ridge_objective": (
+                    "sum_reliability_times_squared_bounded_soft_class_error_"
+                    "plus_squared_distance_from_the_r12_anchor_prior"
+                ),
+                "ridge_prior_mean": (
+                    "unit_r12_anchor_scale_zero_feature_weights_and_zero_bias"
+                ),
+                "ridge_prior_precision": (
+                    "fixed_identity_for_bounded_or_l2_normalized_coordinates"
+                ),
+                "ridge_update": (
+                    "exact_recursive_least_squares_woodbury_after_prediction"
+                ),
+                "ridge_sufficient_statistics": (
+                    "one_inverse_regularized_gram_matrix_and_one_weight_vector_"
+                    "per_expert"
+                ),
+                "prediction_rule": (
+                    "one_half_times_one_plus_the_selected_old_expert_signed_"
+                    "ridge_score_clipped_only_to_the_probability_range"
+                ),
+                "routing_score_coordinate": (
+                    "immutable_source_score_never_the_analytic_expert_output"
+                ),
+                "gmm_update_score_coordinate": (
+                    "immutable_source_score_never_the_analytic_expert_output"
+                ),
+                "predict_then_adapt_order": (
+                    "route_and_predict_with_old_expert_then_update_that_same_"
+                    "expert_for_the_next_batch"
+                ),
+                "source_fallback": "exact_r12_source_probability",
+                "optimizer": "none_closed_form_recursive_ridge",
+                "epoch": "none",
+                "learning_rate": "none",
+                "prediction_mutates_experts": False,
+                "raw_images_stored": False,
+                "raw_features_stored": False,
+                "target_labels_used": False,
+                "generator_boundaries_used": False,
+                "semantic_features_used": False,
+                "new_target_hyperparameters": 0,
+                "hyperparameter_rule": (
+                    "no_learning_rate_epoch_confidence_threshold_residual_weight_"
+                    "routing_threshold_fusion_weight_or_memory_capacity"
+                ),
+                "intentional_changes": [
+                    "all R12 routing and continual expert assignments remain unchanged",
+                    "each R12 expert now restores its own analytic Ridge state",
+                    "the centered prior reproduces the complete R12 probability before learning",
+                    "the selected old GMM supplies a bounded soft label and continuous reliability",
+                    "posterior evidence contradicting the R12 class side receives zero weight",
+                    (
+                        "feature weights can change sample order while the bias "
+                        "can change the boundary"
+                    ),
+                    (
+                        "analytic outputs never rewrite the source coordinate "
+                        "used by routing or GMM fitting"
+                    ),
+                    "only the prediction-time selected expert updates after the batch prediction",
+                    "no image or per-sample feature remains after the sufficient-statistic update",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_analytic_expert"
+
+    def _new_ordinal_ridge_state(self) -> dict[str, Any]:
+        weights = np.zeros(self.ordinal_ridge_feature_dim, dtype=np.float64)
+        weights[0] = 1.0
+        return {
+            "inverse_gram": np.eye(
+                self.ordinal_ridge_feature_dim,
+                dtype=np.float64,
+            ),
+            "weights": weights,
+            "updates": 0,
+            "candidate_samples": 0,
+            "effective_support": 0.0,
+            "weighted_target_square_sum": 0.0,
+            "posterior_conflicts": 0,
+        }
+
+    def _batch_scores_and_analytic_expert_features(
+        self,
+        images: Any,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        import torch
+
+        if images.dim() == 5:
+            batch, views = int(images.shape[0]), int(images.shape[1])
+            flat = images.reshape(batch * views, *images.shape[2:])
+        elif images.dim() == 4:
+            batch, views = int(images.shape[0]), 1
+            flat = images
+        else:
+            raise ValueError(
+                "ASCAL analytic expert expects (B, C, H, W) or "
+                "(B, V, C, H, W) images"
+            )
+        forward_features = getattr(self.model, "forward_features", None)
+        classifier = getattr(self.model, "classifier", None)
+        if not callable(forward_features) or not callable(classifier):
+            raise TypeError(
+                "ASCAL analytic expert requires forward_features and classifier"
+            )
+        with torch.no_grad():
+            features = forward_features(flat.to(self.device, non_blocking=True))
+            logits = classifier(features)
+        scores = (
+            binary_score(logits)
+            .view(batch, views)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        feature_values = (
+            features.detach()
+            .float()
+            .view(batch, views, -1)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        if int(feature_values.shape[1]) != self.analytic_expert_backbone_feature_dim:
+            raise ValueError(
+                "ASCAL analytic expert feature dimension does not match the source head"
+            )
+        direction = self._ordinal_ridge_source_direction
+        feature_values -= (feature_values @ direction)[:, None] * direction[None, :]
+        norms = np.linalg.norm(feature_values, axis=1, keepdims=True)
+        feature_values = np.divide(
+            feature_values,
+            norms,
+            out=np.zeros_like(feature_values),
+            where=norms > np.finfo(np.float64).eps,
+        )
+        return scores, feature_values
+
+    def _analytic_expert_design(
+        self,
+        base_probability: np.ndarray,
+        features: np.ndarray,
+    ) -> np.ndarray:
+        base_probability = np.asarray(base_probability, dtype=np.float64).reshape(-1)
+        features = np.asarray(features, dtype=np.float64)
+        if features.ndim != 2 or int(features.shape[0]) != int(base_probability.size):
+            raise ValueError(
+                "ASCAL analytic expert probabilities and features must align"
+            )
+        signed_anchor = 2.0 * base_probability - 1.0
+        design = np.concatenate(
+            [
+                signed_anchor[:, None],
+                features,
+                np.ones((base_probability.size, 1), dtype=np.float64),
+            ],
+            axis=1,
+        )
+        if int(design.shape[1]) != self.ordinal_ridge_feature_dim:
+            raise RuntimeError("ASCAL analytic expert built the wrong Ridge dimension")
+        return design
+
+    def _analytic_expert_supervision(
+        self,
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        routed_labels: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+        posterior = np.asarray(
+            joint_density_fake_posterior(scores, mixture),
+            dtype=np.float64,
+        ).reshape(-1)
+        routed_fake = np.asarray(routed_labels, dtype=np.int64).reshape(-1).astype(bool)
+        if posterior.shape != routed_fake.shape:
+            raise RuntimeError(
+                "ASCAL analytic expert posterior and R12 labels do not align"
+            )
+        conflicts = (posterior - 0.5) * np.where(routed_fake, 1.0, -1.0) < 0.0
+        projected = np.where(
+            routed_fake,
+            np.maximum(posterior, 0.5),
+            np.minimum(posterior, 0.5),
+        )
+        targets = 2.0 * projected - 1.0
+        reliability = np.abs(targets)
+        if not (
+            np.all(np.isfinite(projected))
+            and np.all(np.isfinite(targets))
+            and np.all(np.isfinite(reliability))
+        ):
+            raise FloatingPointError(
+                "ASCAL analytic expert produced non-finite supervision"
+            )
+        conflict_count = int(np.count_nonzero(conflicts))
+        self.analytic_expert_last_effective_support = float(reliability.sum())
+        self.analytic_expert_last_reliability = float(np.mean(reliability))
+        self.analytic_expert_last_target_abs_mean = float(np.mean(np.abs(targets)))
+        self.analytic_expert_last_posterior_conflicts = conflict_count
+        return projected, targets, reliability, conflict_count
+
+    def _update_analytic_expert_state(
+        self,
+        state: dict[str, Any],
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        routed_labels: np.ndarray,
+        features: np.ndarray,
+    ) -> bool:
+        _, targets, reliability, conflicts = self._analytic_expert_supervision(
+            mixture,
+            scores,
+            routed_labels,
+        )
+        samples = int(scores.size)
+        effective_support = float(reliability.sum())
+        self.analytic_expert_candidate_samples += samples
+        self.analytic_expert_posterior_conflicts += conflicts
+        state["candidate_samples"] = int(state["candidate_samples"]) + samples
+        state["posterior_conflicts"] = int(state["posterior_conflicts"]) + conflicts
+        if effective_support <= np.finfo(np.float64).eps:
+            return False
+
+        square_root_reliability = np.sqrt(reliability)
+        design = square_root_reliability[:, None] * features
+        response = square_root_reliability * targets
+        inverse_gram = np.asarray(state["inverse_gram"], dtype=np.float64)
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        inverse_times_design = inverse_gram @ design.T
+        innovation_gram = (
+            np.eye(int(design.shape[0]), dtype=np.float64)
+            + design @ inverse_times_design
+        )
+        innovation_gram = 0.5 * (innovation_gram + innovation_gram.T)
+        try:
+            gain = np.linalg.solve(
+                innovation_gram,
+                inverse_times_design.T,
+            ).T
+        except np.linalg.LinAlgError:
+            self.analytic_expert_solve_failures += 1
+            return False
+
+        updated_weights = weights + gain @ (response - design @ weights)
+        updated_inverse = inverse_gram - gain @ inverse_times_design.T
+        updated_inverse = 0.5 * (updated_inverse + updated_inverse.T)
+        if not (
+            np.all(np.isfinite(updated_weights))
+            and np.all(np.isfinite(updated_inverse))
+        ):
+            self.analytic_expert_solve_failures += 1
+            return False
+
+        state["weights"] = updated_weights
+        state["inverse_gram"] = updated_inverse
+        state["updates"] = int(state["updates"]) + 1
+        state["effective_support"] = float(state["effective_support"]) + (
+            effective_support
+        )
+        state["weighted_target_square_sum"] = float(
+            state["weighted_target_square_sum"]
+        ) + float(np.sum(reliability * targets**2))
+        self.analytic_expert_updates += 1
+        self.analytic_expert_last_anchor = float(updated_weights[0])
+        self.analytic_expert_last_feature_weight_norm = float(
+            np.linalg.norm(updated_weights[1:-1])
+        )
+        self.analytic_expert_last_bias = float(updated_weights[-1])
+        return self._ordinal_ridge_ready(state)
+
+    def _analytic_expert_state_stats(self) -> dict[str, Any]:
+        states = self._all_ordinal_ridge_states()
+        anchors = [float(state["weights"][0]) for state in states]
+        feature_norms = [
+            float(np.linalg.norm(state["weights"][1:-1])) for state in states
+        ]
+        biases = [float(state["weights"][-1]) for state in states]
+        return {
+            "analytic_expert_count": len(states),
+            "analytic_expert_ready_experts": sum(
+                self._ordinal_ridge_ready(state) for state in states
+            ),
+            "analytic_expert_updates": self.analytic_expert_updates,
+            "analytic_expert_candidate_samples": (
+                self.analytic_expert_candidate_samples
+            ),
+            "analytic_expert_batches": self.analytic_expert_batches,
+            "analytic_expert_samples": self.analytic_expert_samples,
+            "analytic_expert_ready_batches": self.analytic_expert_ready_batches,
+            "analytic_expert_solve_failures": self.analytic_expert_solve_failures,
+            "analytic_expert_posterior_conflicts": (
+                self.analytic_expert_posterior_conflicts
+            ),
+            "analytic_expert_label_changes": self.analytic_expert_label_changes,
+            "analytic_expert_real_to_fake": self.analytic_expert_real_to_fake,
+            "analytic_expert_fake_to_real": self.analytic_expert_fake_to_real,
+            "analytic_expert_clipped_outputs": self.analytic_expert_clipped_outputs,
+            "analytic_expert_effective_support": sum(
+                float(state["effective_support"]) for state in states
+            ),
+            "analytic_expert_last_effective_support": (
+                self.analytic_expert_last_effective_support
+            ),
+            "analytic_expert_last_reliability": (
+                self.analytic_expert_last_reliability
+            ),
+            "analytic_expert_last_target_abs_mean": (
+                self.analytic_expert_last_target_abs_mean
+            ),
+            "analytic_expert_last_posterior_conflicts": (
+                self.analytic_expert_last_posterior_conflicts
+            ),
+            "analytic_expert_mean_anchor": (
+                float(np.mean(anchors)) if anchors else 1.0
+            ),
+            "analytic_expert_max_anchor_deviation": max(
+                (abs(value - 1.0) for value in anchors),
+                default=0.0,
+            ),
+            "analytic_expert_max_feature_weight_norm": max(
+                feature_norms,
+                default=0.0,
+            ),
+            "analytic_expert_max_bias_abs": max(
+                (abs(value) for value in biases),
+                default=0.0,
+            ),
+            "analytic_expert_weight_parameters": (
+                len(states) * self.ordinal_ridge_feature_dim
+            ),
+            "analytic_expert_inverse_gram_values": (
+                len(states) * self.ordinal_ridge_feature_dim**2
+            ),
+            "analytic_expert_trainable_parameters": self.trainable_parameters,
+        }
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute._state_stats(self)
+        stats.update(self._analytic_expert_state_stats())
+        return stats
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores, backbone_features = self._batch_scores_and_analytic_expert_features(
+            images
+        )
+        self._ordinal_ridge_precomputed_scores = scores
+        try:
+            ordinal = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.predict(
+                self,
+                images,
+            )
+        finally:
+            self._ordinal_ridge_precomputed_scores = None
+        if self._pending is None:
+            raise RuntimeError("ASCAL analytic expert lost the R12 pending state")
+
+        context = self._ordinal_ridge_context()
+        assignment = None if context is None else context[0]
+        mixture = None if context is None else context[1]
+        state = (
+            None
+            if assignment is None
+            else self._peek_ordinal_ridge_state(assignment)
+        )
+        ready = self._ordinal_ridge_ready(state)
+        base_probability = (
+            ordinal.prob_fake.detach().cpu().numpy().astype(np.float64)
+        )
+        features = self._analytic_expert_design(
+            base_probability,
+            backbone_features,
+        )
+        base_coordinate = features[:, 0]
+        if not ready:
+            final_coordinate = base_coordinate.copy()
+            probability = base_probability.copy()
+        else:
+            if state is None:
+                raise RuntimeError("ASCAL analytic expert lost its selected state")
+            final_coordinate = np.asarray(
+                features @ state["weights"],
+                dtype=np.float64,
+            )
+            raw_probability = 0.5 * (final_coordinate + 1.0)
+            probability = np.clip(raw_probability, 1e-6, 1.0 - 1e-6)
+            self.analytic_expert_clipped_outputs += int(
+                np.count_nonzero(probability != raw_probability)
+            )
+
+        base_labels = ordinal.pred_label.detach().cpu().numpy().astype(np.int64)
+        final_labels = (probability >= 0.5).astype(np.int64)
+        label_changes = int(np.count_nonzero(final_labels != base_labels))
+        real_to_fake = int(
+            np.count_nonzero((base_labels == 0) & (final_labels == 1))
+        )
+        fake_to_real = int(
+            np.count_nonzero((base_labels == 1) & (final_labels == 0))
+        )
+        correction = final_coordinate - base_coordinate
+
+        self._pending_ordinal_ridge_features = features
+        self._pending_ordinal_ridge_state = state
+        self._pending_ordinal_ridge_assignment = assignment
+        self._pending_ordinal_ridge_mixture = (
+            None if mixture is None else _copy_gmm(mixture)
+        )
+        self._pending_analytic_expert_labels = base_labels.copy()
+        pending_state = dict(self._pending)
+        pending_state.pop("scores")
+        pending_state.update(
+            {
+                "prediction_analytic_expert_applied": context is not None,
+                "prediction_analytic_expert_ready": ready,
+                "prediction_analytic_expert_correction_mean": float(
+                    np.mean(correction)
+                ),
+                "prediction_analytic_expert_correction_abs_mean": float(
+                    np.mean(np.abs(correction))
+                ),
+                "prediction_analytic_expert_correction_max_abs": float(
+                    np.max(np.abs(correction))
+                ),
+                "prediction_analytic_expert_anchor": (
+                    1.0 if state is None else float(state["weights"][0])
+                ),
+                "prediction_analytic_expert_feature_weight_norm": (
+                    0.0
+                    if state is None
+                    else float(np.linalg.norm(state["weights"][1:-1]))
+                ),
+                "prediction_analytic_expert_bias": (
+                    0.0 if state is None else float(state["weights"][-1])
+                ),
+                "prediction_analytic_expert_label_changes": label_changes,
+                "prediction_analytic_expert_real_to_fake": real_to_fake,
+                "prediction_analytic_expert_fake_to_real": fake_to_real,
+            }
+        )
+        return self._prediction_batch(scores, probability, **pending_state)
+
+    def adapt(self, images: Any) -> AdaptationStats:
+        if self._pending is None:
+            return ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.adapt(self, images)
+        scores = np.asarray(self._pending["scores"], dtype=np.float64).reshape(-1)
+        prediction_state = dict(self._pending)
+        features = self._pending_ordinal_ridge_features
+        state = self._pending_ordinal_ridge_state
+        assignment = self._pending_ordinal_ridge_assignment
+        mixture = self._pending_ordinal_ridge_mixture
+        routed_labels = self._pending_analytic_expert_labels
+        self._pending_ordinal_ridge_features = None
+        self._pending_ordinal_ridge_state = None
+        self._pending_ordinal_ridge_assignment = None
+        self._pending_ordinal_ridge_mixture = None
+        self._pending_analytic_expert_labels = None
+
+        updated = False
+        if self.adaptation_mode == "full" and assignment is not None:
+            if features is None or int(features.shape[0]) != int(scores.size):
+                raise RuntimeError(
+                    "ASCAL analytic expert lost its matching prediction features"
+                )
+            if mixture is None:
+                raise RuntimeError(
+                    "ASCAL analytic expert lost its prediction-time selected GMM"
+                )
+            if routed_labels is None or int(routed_labels.size) != int(scores.size):
+                raise RuntimeError(
+                    "ASCAL analytic expert lost its matching R12 decisions"
+                )
+            if state is None:
+                state = self._ensure_ordinal_ridge_state(assignment)
+            updated = self._update_analytic_expert_state(
+                state,
+                mixture,
+                scores,
+                routed_labels,
+                features,
+            )
+
+        stats = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.adapt(self, images)
+        if bool(prediction_state.get("prediction_analytic_expert_applied")):
+            self.analytic_expert_batches += 1
+            self.analytic_expert_samples += int(scores.size)
+        if bool(prediction_state.get("prediction_analytic_expert_ready")):
+            self.analytic_expert_ready_batches += 1
+        self.analytic_expert_label_changes += int(
+            prediction_state.get("prediction_analytic_expert_label_changes", 0) or 0
+        )
+        self.analytic_expert_real_to_fake += int(
+            prediction_state.get("prediction_analytic_expert_real_to_fake", 0) or 0
+        )
+        self.analytic_expert_fake_to_real += int(
+            prediction_state.get("prediction_analytic_expert_fake_to_real", 0) or 0
+        )
+        stats.extra.update(
+            {
+                **self._analytic_expert_state_stats(),
+                "analytic_expert_updated": updated,
+            }
+        )
+        return stats
+
+    def discard_pending_prediction(self) -> None:
+        self._ordinal_ridge_precomputed_scores = None
+        self._pending_ordinal_ridge_features = None
+        self._pending_ordinal_ridge_state = None
+        self._pending_ordinal_ridge_assignment = None
+        self._pending_ordinal_ridge_mixture = None
+        self._pending_analytic_expert_labels = None
+        ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.discard_pending_prediction(self)
+
+
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
     ASCALGMMSegmentedMemoryPosteriorProjection
 ):
@@ -6769,6 +7369,7 @@ __all__ = [
     "ASCALGMMDensityShift",
     "ASCALGMMMedianShift",
     "ASCALGMMSegmentedHandoffShift",
+    "ASCALGMMSegmentedMemoryPosteriorAnalyticExpert",
     "ASCALGMMSegmentedMemoryPosterior",
     "ASCALGMMSegmentedMemoryPosteriorCurrentProjection",
     "ASCALGMMSegmentedMemoryPosteriorGuardedProjection",

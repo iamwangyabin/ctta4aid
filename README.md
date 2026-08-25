@@ -830,14 +830,33 @@ R12 单调决定矛盾，则投影为 0.5 并自动得到零权重。当前 batc
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_pairwise_ridge_continual_*_seed1.yaml`；预注册
 晋级门槛仍为四数据集宏平均 Accuracy 超过 R12，且 target-macro online AUC 超过 R06。
 
+`ascal_gmm_segmented_memory_posterior_analytic_expert` 的研究版本名为
+**ASCAL-JMP-AnalyticExpert（R18）**。它继续完整保留 R12 的冻结 source-score 坐标、
+unique-live MDL 路由、GMM 分段、memory handoff 和 Predict-Then-Adapt 专家归属，但把此前的
+“base logit 加 residual”改成每专家一个直接学习最终有符号类别坐标的在线 Ridge。输入为
+R12 概率的有界坐标 `b=2p_R12-1`、去除 source 分类头方向并 L2 归一化的冻结 CLIP 特征以及
+常数 bias；固定先验均值为 `[1, 0, ..., 0]`，因此任何新专家或尚未更新的历史专家都精确输出
+R12 概率。学习后唯一判别式为 `d_e=alpha_e b+h_perp^T v_e+beta_e`：`alpha_e` 学习该专家应
+保留多少 R12 证据，`v_e` 提供能够改变 AUC 的样本级排序修正，`beta_e` 学习分类边界。
+
+当前 batch 先用不可变 source scores 选择一个 R12 专家，再用该专家的旧 Ridge 状态正式预测；
+预测完成后，仍由预测时旧 GMM 给出等先验 posterior。posterior 被投影到 R12 已决定的类别
+半区间，矛盾证据落到 0.5 并自动获得零权重；其余样本使用 `u=2p-1` 作为有界软标签、
+`c=|u|` 作为连续可靠度，精确递推求解
+`sum_i c_i(phi_i^T w_e-u_i)^2+||w_e-[1,0,...,0]||^2`。每个专家只保留 inverse Gram 与权重，
+不保存图片或逐样本特征，不使用 epoch、optimizer、学习率、硬置信阈值、融合系数或新增 target
+超参数；Ridge 输出也永不回写路由和 GMM。seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_analytic_expert_continual_*_seed1.yaml`；预注册
+晋级门槛仍为四数据集宏平均 Accuracy 超过 R12，且 target-macro online AUC 超过 R06。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
 target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
-最高值，R06 的直接比较对象是 R05，R07 至 R17 的直接比较对象均是当前最佳 R06；R12 至
-R17 还额外使用 R11/R12 的高 Accuracy 作为锚点。R16、R17 不再要求逐样本硬决定不变，而是预先
+最高值，R06 的直接比较对象是 R05，R07 至 R18 的直接比较对象均是当前最佳 R06；R12 至
+R18 还额外使用 R11/R12 的高 Accuracy 作为锚点。R16 至 R18 不再要求逐样本硬决定不变，而是预先
 要求四数据集宏平均 Accuracy 严格超过 R12，同时 target-macro online AUC 超过 R06。
 该门槛只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整
 确认前仍不得写入正文正式表。

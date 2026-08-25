@@ -5,6 +5,7 @@ from typing import Any
 from .ascal import ASCAL
 from .ascal_gmm import (
     ASCALGMM,
+    ASCALGMMSegmentedMemoryPosteriorAnalyticExpert,
     ASCALGMMSegmentedMemoryPosteriorConditionalResidual,
     ASCALGMMDensityShift,
     ASCALGMMMedianShift,
@@ -212,6 +213,18 @@ def build_method(
             model, device, effective_config
         )
     if normalized in {
+        "ascalgmmsegmentedmemoryposterioranalyticexpert",
+        "ascalgmmsegmentedmemoryposterioranalyticexpertstatic",
+    }:
+        effective_config = dict(config)
+        if normalized == (
+            "ascalgmmsegmentedmemoryposterioranalyticexpertstatic"
+        ):
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMSegmentedMemoryPosteriorAnalyticExpert(
+            model, device, effective_config
+        )
+    if normalized in {
         "ascalgmmsegmentedmemoryposteriorroutedresidual",
         "ascalgmmsegmentedmemoryposteriorroutedresidualstatic",
     }:
@@ -328,6 +341,7 @@ __all__ = [
     "TTAMethod",
     "ASCAL",
     "ASCALGMM",
+    "ASCALGMMSegmentedMemoryPosteriorAnalyticExpert",
     "ASCALGMMSegmentedMemoryPosteriorConditionalResidual",
     "ASCALGMMDensityShift",
     "ASCALGMMMedianShift",
