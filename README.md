@@ -703,6 +703,17 @@ visit 刚启动、live GMM 尚未形成双峰，则其 archived snapshot 仍可�
 或更新公式，只让每个 expert 在任一时刻至多暴露一个可路由状态；因此仍没有新增 target
 超参数。seed1 成对入口为
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_live_route_continual_*_seed1.yaml`。
+R11 的四数据集 seed1 正式运行和全部配对、协议、MDL 算术及专家归属审计通过。R10 中
+681 批“active expert 与自身 archived snapshot 竞争”的同身份复用，在 R11 中降为 39 批，
+且全部只发生在 live GMM 尚不可用的冷启动阶段；live GMM 可用时没有一次旧快照重复参与
+路由。四套流共提出 640 次 memory proposal，其中 601 次属于跨专家切换：171 次通过 MDL
+并由同一专家完成当前批预测和后续适应，430 次在预测前拒绝。结构修正使 average forgetting
+相对 R10 减少 0.1849 个百分点，但没有形成排序收益：相对 R01，平均 Accuracy 提升 0.4318
+个百分点，target-macro online AUC 下降 0.7737 个百分点；相对 R10，Accuracy 下降 0.0356
+个百分点，AUC 下降 0.0195 个百分点。R11 因而不进入 seed2/seed3，R06 继续作为当前指标
+领先候选。这个结果排除了“同专家旧快照竞争”作为主要 AUC 损失来源，并把问题进一步定位为：
+不同批次由不同专家边界产生的可变 logit 平移虽然能改善 0.5 阈值分类，却破坏了跨批样本的
+全局可比排序；下一版不能再只改路由，应让专家知识改变排序证据而不是反复改写 score 原点。
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
