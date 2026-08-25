@@ -1288,6 +1288,15 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(
                     config["protocol"]["generator_id_available_to_method"]
                 )
+                config_dir = Path(config["_config_path"]).parent
+                for field in (
+                    "locked_online_manifest",
+                    "locked_final_holdout_manifest",
+                ):
+                    manifest = Path(config["data"][field]).expanduser()
+                    if not manifest.is_absolute():
+                        manifest = config_dir / manifest
+                    self.assertTrue(manifest.resolve().is_file())
                 self.assertIn(
                     f"posterior_ordinal_route_continual/{dataset}/seed1",
                     config["output_dir"],
