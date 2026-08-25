@@ -849,6 +849,17 @@ R12 概率。学习后唯一判别式为 `d_e=alpha_e b+h_perp^T v_e+beta_e`：`
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_analytic_expert_continual_*_seed1.yaml`；预注册
 晋级门槛仍为四数据集宏平均 Accuracy 超过 R12，且 target-macro online AUC 超过 R06。
 
+R18 的四数据集 seed1 成对运行以及协议、R12 replay、路由状态和因果更新审计均已通过；3546
+个专家更新覆盖 56584 个在线样本，解析求解失败为 0。四数据集宏平均 Accuracy 为 80.7962%，
+相对 R12 的 80.7969% 基本不变；pooled online AUC 从 87.8513% 降到 87.4988%，
+target-macro online AUC 从 87.6831% 降到 86.3476%，且四个数据集的 target-macro AUC 均下降。
+相对当前 AUC 最优候选 R06，R18 的 Accuracy 高 0.2946 个百分点，但 target-macro AUC 低
+1.3704 个百分点；average forgetting 也从 R12 的 0.0564% 增至 1.6773%。R18 的 Brier、NLL
+和 ECE 均明显改善，说明有界 soft target 确实学到了概率校准，但 56584 个在线专家样本中只
+改变了 2 个硬决定，同时所有在线与固定 holdout 前向累计产生 70892 次越界截断。该结果表明
+直接把 Ridge 有符号回归值线性映射并裁剪为最终概率会压缩大量排序信息，不能作为 R12 的统一
+判别读出。R18 不进入 seed2/seed3；R12 继续作为 Accuracy 锚点，R06 继续作为 AUC 领先候选。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
