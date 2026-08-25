@@ -729,6 +729,15 @@ source probability 为 `q` 时，专家判 real 输出 `q/2`，判 fake 输出 `
 运行前固定的晋级条件是 Accuracy 相对 R11 最多下降 0.2 个百分点且 target-macro online AUC
 超过 R06；否则只作为排序坐标诊断，不进入 seed2/seed3。
 
+R12 的四数据集 seed1 成对运行和协议、路由状态、逐样本硬决定审计均已通过；3546 个部署
+专家的 batch、56584 个样本全部逐样本保持 R11 的分类结果。四数据集宏平均 Accuracy 因而
+与 R11 完全相同，为 80.7969%；target-macro online AUC 从 R11 的 86.8854% 恢复到
+87.6831%，同时 average forgetting 从 0.3588% 降到 0.0564%。相对 R01，Accuracy 提升
+0.4318 个百分点且 AUC 提升 0.0240 个百分点；相对 R06，Accuracy 提升 0.2953 个百分点，
+但 AUC 仍低 0.0349 个百分点，因此没有通过“必须超过 R06 AUC”的预注册 seed2/seed3 门槛。
+此外，这个区间序数值是决策分数而非校准 posterior，NLL 明显变差；下一版应把因果 feature
+residual 放入统一的排序坐标，而不能靠调整区间映射回收结果。
+
 `ascal_gmm_segmented_memory_posterior_routed_residual` 的研究版本名为
 **ASCAL-JMP-RoutedResidual（R13）**。它吸收 R09-R12 的路由诊断，但不再让所选专家的边界
 平移最终 score：R01 的 source-score GMM、分段、episode memory、累计中位数和连续边界投影
