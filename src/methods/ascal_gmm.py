@@ -2196,6 +2196,180 @@ class ASCALGMMSegmentedMemoryPosteriorLiveRoute(
         ]
 
 
+class ASCALGMMSegmentedMemoryPosteriorOrdinalRoute(
+    ASCALGMMSegmentedMemoryPosteriorLiveRoute
+):
+    """Keep routed decisions while restoring a globally comparable rank."""
+
+    _ORDINAL_PENDING_FIELDS = (
+        "prediction_ordinal_applied",
+        "prediction_ordinal_routed_fake_count",
+        "prediction_ordinal_source_fake_count",
+        "prediction_ordinal_decision_disagreements",
+        "prediction_ordinal_label_mismatches",
+    )
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.ordinal_batches = 0
+        self.ordinal_samples = 0
+        self.ordinal_decision_disagreements = 0
+        self.ordinal_label_mismatches = 0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "unlabeled_unique_live_mdl_routed_decision_with_immutable_"
+                    "source_ordinal_readout"
+                ),
+                "research_name": "ASCAL-JMP-OrdinalRoute",
+                "research_version": "R12",
+                "routed_decision_rule": (
+                    "exact_r11_mdl_admitted_expert_threshold_decision"
+                ),
+                "global_rank_coordinate": (
+                    "immutable_frozen_source_probability_with_source_temperature"
+                ),
+                "ordinal_probability_rule": (
+                    "real_decision_maps_to_one_half_times_source_probability_"
+                    "fake_decision_maps_to_one_half_plus_one_half_times_source_"
+                    "probability"
+                ),
+                "accuracy_invariance": (
+                    "the_ordinal_readout_preserves_every_r11_hard_decision_exactly"
+                ),
+                "within_decision_order": (
+                    "strictly_preserve_the_frozen_source_margin_order"
+                ),
+                "cross_batch_alignment": (
+                    "expert_boundaries_choose_the_class_interval_but_never_"
+                    "translate_the_within_interval_rank_coordinate"
+                ),
+                "source_fallback": "exact_r11_source_fallback_without_remapping",
+                "new_target_hyperparameters": 0,
+                "prediction_mutates_experts": False,
+                "target_labels_used": False,
+                "generator_boundaries_used": False,
+                "semantic_features_used": False,
+                "intentional_changes": [
+                    "all R11 routing admission adaptation and memory rules remain unchanged",
+                    "the admitted expert still supplies the current binary decision",
+                    "the immutable source probability supplies only within-decision order",
+                    "the final output remains one scalar probability with threshold zero point five",
+                    "source fallback predictions remain byte-for-byte on the source probability path",
+                    "no residual optimizer threshold temperature or fusion weight is introduced",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_ordinal_route"
+
+    def predict(self, images: Any) -> PredictionBatch:
+        routed = super().predict(images)
+        if self._pending is None:
+            raise RuntimeError("ASCAL ordinal route lost the routed prediction state")
+
+        selected_expert = self._pending.get("prediction_routing_expert")
+        if selected_expert is None:
+            self._pending.update(
+                {
+                    "prediction_ordinal_applied": False,
+                    "prediction_ordinal_routed_fake_count": int(
+                        routed.pred_label.sum().item()
+                    ),
+                    "prediction_ordinal_source_fake_count": int(
+                        routed.pred_label.sum().item()
+                    ),
+                    "prediction_ordinal_decision_disagreements": 0,
+                    "prediction_ordinal_label_mismatches": 0,
+                }
+            )
+            return routed
+
+        scores = np.asarray(self._pending["scores"], dtype=np.float64).reshape(-1)
+        source_probability = np.clip(
+            self._source_probability(scores),
+            1e-6,
+            1.0 - 1e-6,
+        )
+        routed_fake = routed.pred_label.detach().cpu().numpy().astype(bool)
+        source_fake = source_probability >= 0.5
+        ordinal_probability = 0.5 * (
+            source_probability + routed_fake.astype(np.float64)
+        )
+        pending_state = dict(self._pending)
+        pending_state.pop("scores")
+        pending_state.update(
+            {
+                "prediction_ordinal_applied": True,
+                "prediction_ordinal_routed_fake_count": int(routed_fake.sum()),
+                "prediction_ordinal_source_fake_count": int(source_fake.sum()),
+                "prediction_ordinal_decision_disagreements": int(
+                    np.count_nonzero(routed_fake != source_fake)
+                ),
+                "prediction_ordinal_label_mismatches": 0,
+            }
+        )
+        ordinal = self._prediction_batch(
+            scores,
+            ordinal_probability,
+            **pending_state,
+        )
+        label_mismatches = int(
+            np.count_nonzero(
+                ordinal.pred_label.detach().cpu().numpy()
+                != routed.pred_label.detach().cpu().numpy()
+            )
+        )
+        if label_mismatches:
+            raise RuntimeError(
+                "ASCAL ordinal readout changed an R11 routed hard decision"
+            )
+        return ordinal
+
+    def adapt(self, images: Any) -> AdaptationStats:
+        ordinal_state = None
+        score_samples = 0
+        if self._pending is not None:
+            ordinal_state = {
+                key: self._pending.get(key)
+                for key in self._ORDINAL_PENDING_FIELDS
+            }
+            score_samples = int(np.asarray(self._pending["scores"]).size)
+
+        stats = super().adapt(images)
+        if ordinal_state is None:
+            return stats
+
+        if bool(ordinal_state["prediction_ordinal_applied"]):
+            self.ordinal_batches += 1
+            self.ordinal_samples += score_samples
+        self.ordinal_decision_disagreements += int(
+            ordinal_state["prediction_ordinal_decision_disagreements"] or 0
+        )
+        self.ordinal_label_mismatches += int(
+            ordinal_state["prediction_ordinal_label_mismatches"] or 0
+        )
+        stats.extra.update(
+            {
+                **ordinal_state,
+                "ordinal_batches": self.ordinal_batches,
+                "ordinal_samples": self.ordinal_samples,
+                "ordinal_decision_disagreements": (
+                    self.ordinal_decision_disagreements
+                ),
+                "ordinal_label_mismatches": self.ordinal_label_mismatches,
+            }
+        )
+        return stats
+
+
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
     ASCALGMMSegmentedMemoryPosteriorProjection
 ):

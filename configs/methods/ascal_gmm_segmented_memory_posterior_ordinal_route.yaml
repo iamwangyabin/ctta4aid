@@ -1,0 +1,49 @@
+extends: ascal_gmm_segmented_memory_posterior_live_route.yaml
+
+methods:
+  - ascal_gmm_segmented_memory_posterior_ordinal_route_static
+  - ascal_gmm_segmented_memory_posterior_ordinal_route
+
+method_configs:
+  ascal_gmm_segmented_memory_posterior_ordinal_route_static:
+    adaptation_mode: static
+    reference:
+      role: exact_single_view_non_adaptive_control_for_ordinal_expert_routing
+      source_setup: lora_r4_binary_detector_from_fixed_clip_vitl14_with_score_anchors
+      protocol: predict_then_adapt
+
+  ascal_gmm_segmented_memory_posterior_ordinal_route:
+    adaptation_mode: full
+    reference:
+      profile: ascal_jmp_ordinal_route_r12
+      research_name: ASCAL-JMP-OrdinalRoute
+      research_version: R12
+      protocol: predict_then_adapt
+      target_labels_used: false
+      generator_boundaries_used: false
+      semantic_features_used: false
+      adaptive_scope: one_unique_live_state_per_mdl_routed_expert
+      frozen_scope: clip_backbone_lora_branches_binary_head_and_source_score
+      expert_type: one_live_gmm_or_archived_fallback_plus_projected_bayes_boundary
+      expert_network_count: 0
+      routing_coordinate: immutable_frozen_source_logit_margin
+      routing_candidates: active_live_state_plus_archived_non_active_experts
+      active_snapshot_rule: hidden_when_the_same_expert_has_an_eligible_live_gmm
+      routing_proposal: minimum_negative_two_sum_log_fixed_gmm_predictive_density
+      routing_admission: non_active_memory_deviance_plus_uniform_identity_code_vs_current_batch_gmm_bic
+      routing_threshold: none
+      assignment_consistency: same_unique_live_expert_predicts_and_receives_adaptation
+      routed_decision_rule: exact_r11_mdl_admitted_expert_threshold_decision
+      global_rank_coordinate: immutable_frozen_source_probability_with_source_temperature
+      ordinal_probability_rule: routed_real_maps_to_lower_half_and_routed_fake_maps_to_upper_half
+      accuracy_invariance: exact_r11_hard_decision_preservation
+      within_decision_order: frozen_source_margin_order
+      source_fallback: exact_source_probability_without_ordinal_remapping
+      routing_changes_learning_state_during_prediction: false
+      prediction_mutates_experts: false
+      batch_transductive_prediction: true
+      immutable_history_coordinate: frozen_source_logit_margin_only
+      optimizer: none
+      new_target_hyperparameters: 0
+      seed1_promotion_rule: accuracy_within_0p2pp_of_r11_and_auc_above_r06
+      raw_images_stored: false

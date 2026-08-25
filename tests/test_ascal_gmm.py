@@ -1256,6 +1256,82 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["semantic_features_used"])
                 self.assertFalse(reference["raw_images_stored"])
 
+    def test_ordinal_route_configs_lock_accuracy_and_restore_global_order(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        method_name = "ascal_gmm_segmented_memory_posterior_ordinal_route"
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_posterior_"
+                f"ordinal_route_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [
+                        "ascal_gmm_segmented_memory_posterior_live_route",
+                        method_name,
+                    ],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                self.assertIn(
+                    f"posterior_ordinal_route_continual/{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(config, method_name)
+                for key in (
+                    "confidence_threshold",
+                    "fusion_weight",
+                    "lambda",
+                    "memory_capacity",
+                    "recall_threshold",
+                    "routing_threshold",
+                    "similarity_threshold",
+                    "target_threshold",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                reference = adaptive["reference"]
+                self.assertEqual(
+                    reference["research_name"], "ASCAL-JMP-OrdinalRoute"
+                )
+                self.assertEqual(reference["research_version"], "R12")
+                self.assertEqual(reference["new_target_hyperparameters"], 0)
+                self.assertEqual(
+                    reference["accuracy_invariance"],
+                    "exact_r11_hard_decision_preservation",
+                )
+                self.assertEqual(
+                    reference["global_rank_coordinate"],
+                    "immutable_frozen_source_probability_with_source_temperature",
+                )
+                self.assertEqual(reference["routing_threshold"], "none")
+                self.assertFalse(reference["prediction_mutates_experts"])
+                self.assertTrue(reference["batch_transductive_prediction"])
+                self.assertEqual(
+                    reference["seed1_promotion_rule"],
+                    "accuracy_within_0p2pp_of_r11_and_auc_above_r06",
+                )
+                self.assertFalse(reference["target_labels_used"])
+                self.assertFalse(reference["generator_boundaries_used"])
+                self.assertFalse(reference["semantic_features_used"])
+                self.assertFalse(reference["raw_images_stored"])
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -1397,6 +1473,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_memory_posterior_live_route_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_ordinal_route",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_ordinal_route_static",
             config["training"]["intended_methods"],
         )
 
@@ -1734,6 +1818,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorLiveRoute(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_posterior_ordinal_route_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorOrdinalRoute,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorOrdinalRoute(
             self.detector(),
             "cpu",
             {
@@ -2999,6 +3099,133 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(stats.extra["active_memory_index"], 0)
         self.assertEqual(stats.extra["routing_handoff_confirmations"], 1)
 
+    def test_ordinal_route_preserves_r11_decisions_and_source_order(self) -> None:
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-1.0, 3.0],
+            "sigmas": [0.5, 0.5],
+            "components": 2,
+            "bic": 0.0,
+        }
+        scores = np.array([-3.0, -1.0, -0.25, 0.25, 0.75, 1.5, 3.0, 4.0])
+        images = self.score_batch(scores)
+        live = self.segmented_memory_posterior_live_route_method()
+        ordinal = self.segmented_memory_posterior_ordinal_route_method()
+        for method in (live, ordinal):
+            method._mixture = copy.deepcopy(mixture)
+            method.boundary_history = [1.0]
+
+        live_prediction = live.predict(images)
+        ordinal_prediction = ordinal.predict(images)
+        np.testing.assert_array_equal(
+            ordinal_prediction.pred_label.numpy(),
+            live_prediction.pred_label.numpy(),
+        )
+        source_probability = np.clip(
+            ordinal._source_probability(scores),
+            1e-6,
+            1.0 - 1e-6,
+        )
+        routed_fake = live_prediction.pred_label.numpy().astype(bool)
+        expected = 0.5 * (source_probability + routed_fake.astype(np.float64))
+        np.testing.assert_allclose(
+            ordinal_prediction.prob_fake.numpy(), expected, atol=1e-6
+        )
+        for routed_label in (False, True):
+            selected = routed_fake == routed_label
+            ordered = np.argsort(scores[selected])
+            probabilities = ordinal_prediction.prob_fake.numpy()[selected][ordered]
+            self.assertTrue(np.all(np.diff(probabilities) > 0.0))
+
+        self.assertTrue(ordinal._pending["prediction_ordinal_applied"])
+        self.assertGreater(
+            ordinal._pending["prediction_ordinal_decision_disagreements"], 0
+        )
+        stats = ordinal.adapt(images)
+        self.assertEqual(stats.extra["ordinal_batches"], 1)
+        self.assertEqual(stats.extra["ordinal_samples"], len(scores))
+        self.assertEqual(stats.extra["ordinal_label_mismatches"], 0)
+        self.assertEqual(
+            stats.extra["last_routing_expert"], "active_learning_state"
+        )
+        metadata = ordinal.reproduction_metadata
+        self.assertEqual(metadata["research_name"], "ASCAL-JMP-OrdinalRoute")
+        self.assertEqual(metadata["research_version"], "R12")
+        self.assertIn("preserves_every_r11", metadata["accuracy_invariance"])
+
+    def test_ordinal_route_keeps_source_fallback_exact(self) -> None:
+        method = self.segmented_memory_posterior_ordinal_route_method()
+        scores = np.array([-2.0, -0.5, 0.0, 0.5, 2.0])
+        images = self.score_batch(scores)
+
+        prediction = method.predict(images)
+        np.testing.assert_allclose(
+            prediction.prob_fake.numpy(),
+            method._source_probability(scores),
+            atol=1e-6,
+        )
+        self.assertFalse(method._pending["prediction_ordinal_applied"])
+        stats = method.adapt(images)
+        self.assertEqual(stats.extra["ordinal_batches"], 0)
+        self.assertEqual(stats.extra["ordinal_samples"], 0)
+        self.assertEqual(stats.extra["ordinal_label_mismatches"], 0)
+
+    def test_ordinal_route_keeps_the_r11_memory_handoff_assignment(self) -> None:
+        rng = np.random.default_rng(63)
+        method = self.segmented_memory_posterior_ordinal_route_method()
+        returning = {
+            "weights": [0.5, 0.5],
+            "mus": [-8.0, -3.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        active = {
+            "weights": [0.5, 0.5],
+            "mus": [20.0, 25.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        method._mixture = active
+        method.boundary_history = [22.5]
+        method.active_memory_index = 1
+        method.segment_memories = [
+            {
+                "mixture": returning,
+                "boundary": float(method._memory_boundary(returning)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 0,
+            },
+            {
+                "mixture": active,
+                "boundary": float(method._memory_boundary(active)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 1,
+            },
+        ]
+        scores = np.concatenate(
+            [rng.normal(-8.0, 0.2, 48), rng.normal(-3.0, 0.2, 48)]
+        )
+        rng.shuffle(scores)
+        images = self.score_batch(scores)
+
+        method.predict(images)
+        self.assertTrue(method._pending["prediction_ordinal_applied"])
+        self.assertEqual(method._pending["prediction_routing_memory_index"], 0)
+        self.assertTrue(method._pending["prediction_routing_admission_accepted"])
+
+        stats = method.adapt(images)
+        self.assertTrue(stats.extra["routing_handoff_this_batch"])
+        self.assertEqual(stats.extra["active_memory_index"], 0)
+        self.assertEqual(stats.extra["routing_handoff_confirmations"], 1)
+        self.assertEqual(stats.extra["ordinal_batches"], 1)
+        self.assertEqual(stats.extra["ordinal_label_mismatches"], 0)
+
     def test_current_projection_uses_latest_cumulative_fit_not_nested_median(
         self,
     ) -> None:
@@ -3821,6 +4048,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_ordinal_route_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorOrdinalRoute,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_ordinal_route_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(method, ASCALGMMSegmentedMemoryPosteriorOrdinalRoute)
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_method_factory_maps_current_projection_static_alias(self) -> None:
         from src.methods import build_method
         from src.methods.ascal_gmm import (
@@ -4407,6 +4650,43 @@ class ASCALGMMMethodTests(unittest.TestCase):
             method, _ = build_fresh_method(config, method_name, "cpu")
 
         self.assertIsInstance(method, ASCALGMMSegmentedMemoryPosteriorLiveRoute)
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_ordinal_route_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorOrdinalRoute,
+        )
+
+        method_name = "ascal_gmm_segmented_memory_posterior_ordinal_route_static"
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {method_name: {"adaptation_mode": "static"}},
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorOrdinalRoute
+        )
         self.assertEqual(method.adaptation_mode, "static")
 
     def test_cli_builds_current_projection_with_lora_profile(self) -> None:

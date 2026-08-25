@@ -715,6 +715,20 @@ R11 的四数据集 seed1 正式运行和全部配对、协议、MDL 算术及�
 不同批次由不同专家边界产生的可变 logit 平移虽然能改善 0.5 阈值分类，却破坏了跨批样本的
 全局可比排序；下一版不能再只改路由，应让专家知识改变排序证据而不是反复改写 score 原点。
 
+`ascal_gmm_segmented_memory_posterior_ordinal_route` 的研究版本名为
+**ASCAL-JMP-OrdinalRoute（R12）**。它不修改 R11 的专家候选、MDL admission、唯一 live
+state、硬分类决定或 Adapt 归属，只改变最终一个标量的有序读出。通过路由的专家仍先决定
+当前样本属于 0.5 以下的 real 区间还是 0.5 以上的 fake 区间；区间内部不再使用会随专家变化
+的 `source margin - expert boundary`，而统一使用不可变 source probability 排序。具体地，
+source probability 为 `q` 时，专家判 real 输出 `q/2`，判 fake 输出 `1/2 + q/2`。因此它逐样本
+严格保留 R11 的 Accuracy，同时在每个预测类内部严格恢复冻结 source margin 的全局次序；
+没有专家可用时则完全保留原 source probability，不做重映射。该读出仍只有一个最终概率，
+不增加网络、残差、温度、阈值、融合权重或 target 超参数，用来直接检验 R11 的 AUC 损失是否
+来自跨专家边界平移。seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_ordinal_route_continual_*_seed1.yaml`。
+运行前固定的晋级条件是 Accuracy 相对 R11 最多下降 0.2 个百分点且 target-macro online AUC
+超过 R06；否则只作为排序坐标诊断，不进入 seed2/seed3。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
