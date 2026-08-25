@@ -729,6 +729,27 @@ source probability 为 `q` 时，专家判 real 输出 `q/2`，判 fake 输出 `
 运行前固定的晋级条件是 Accuracy 相对 R11 最多下降 0.2 个百分点且 target-macro online AUC
 超过 R06；否则只作为排序坐标诊断，不进入 seed2/seed3。
 
+`ascal_gmm_segmented_memory_posterior_routed_residual` 的研究版本名为
+**ASCAL-JMP-RoutedResidual（R13）**。它吸收 R09-R12 的路由诊断，但不再让所选专家的边界
+平移最终 score：R01 的 source-score GMM、分段、episode memory、累计中位数和连续边界投影
+仍作为唯一共享校准底座。当前无标签 batch 只用冻结 source margin，在一个 eligible live GMM
+与所有非 active 历史 GMM 中产生最小 predictive deviance proposal；非 active memory 仍须以
+`fixed deviance + 2 log M` 严格击败当前 batch GMM 的 BIC 才能成为 residual 专家。active
+expert 已有 live GMM 时隐藏其同 identity archived snapshot，因此每个 identity 仍至多暴露
+一个可选状态。
+
+每个 residual 专家只保存一个 soft-real 特征和由该专家 BIC GMM 自然给出的若干 ordered fake
+特征原型。冻结视觉特征先去除 source 二分类头方向并 L2 归一化；所选专家用预测时的等先验
+source-score posterior 及 `abs(2p-1)` 连续可靠度，在当前 batch 正式预测完成后闭式累计这些
+充分统计。最终唯一 logit 是 R01 连续 base logit 加“最相似 fake 原型余弦减 real 原型余弦”；
+同一批在 Predict 中读取哪个专家，Adapt 就只更新哪个专家，但这一 residual 路由永远不改变
+R01 score calibrator 的学习归属或 score 原点。方法不保存图片或逐样本 raw feature，不使用
+target label、generator id、optimizer、学习率、硬置信阈值、fusion weight、memory capacity
+或新增 target 超参数。seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_routed_residual_continual_*_seed1.yaml`；运行前
+固定晋级条件仍是 Accuracy 相对 R11 最多下降 0.2 个百分点且 target-macro online AUC 超过
+R06。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与

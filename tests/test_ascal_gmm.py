@@ -1341,6 +1341,85 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["semantic_features_used"])
                 self.assertFalse(reference["raw_images_stored"])
 
+    def test_routed_residual_configs_keep_r01_coordinate_and_one_assignment(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        method_name = "ascal_gmm_segmented_memory_posterior_routed_residual"
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_posterior_"
+                f"routed_residual_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [
+                        "ascal_gmm_segmented_memory_posterior_mixture_residual",
+                        method_name,
+                    ],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                config_dir = Path(config["_config_path"]).parent
+                for field in (
+                    "locked_online_manifest",
+                    "locked_final_holdout_manifest",
+                ):
+                    manifest = Path(config["data"][field]).expanduser()
+                    if not manifest.is_absolute():
+                        manifest = config_dir / manifest
+                    self.assertTrue(manifest.resolve().is_file())
+                self.assertIn(
+                    f"posterior_routed_residual_continual/{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(config, method_name)
+                for key in (
+                    "confidence_threshold",
+                    "fusion_weight",
+                    "lambda",
+                    "memory_capacity",
+                    "recall_threshold",
+                    "similarity_threshold",
+                    "target_threshold",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                reference = adaptive["reference"]
+                self.assertEqual(
+                    reference["research_name"], "ASCAL-JMP-RoutedResidual"
+                )
+                self.assertEqual(reference["research_version"], "R13")
+                self.assertEqual(reference["new_target_hyperparameters"], 0)
+                self.assertFalse(reference["score_boundary_routing"])
+                self.assertFalse(reference["routing_changes_score_calibrator"])
+                self.assertEqual(reference["routing_threshold"], "none")
+                self.assertFalse(reference["prediction_mutates_experts"])
+                self.assertTrue(reference["batch_transductive_prediction"])
+                self.assertEqual(
+                    reference["seed1_promotion_rule"],
+                    "accuracy_within_0p2pp_of_r11_and_auc_above_r06",
+                )
+                self.assertFalse(reference["target_labels_used"])
+                self.assertFalse(reference["generator_boundaries_used"])
+                self.assertFalse(reference["semantic_features_used"])
+                self.assertFalse(reference["raw_images_stored"])
+                self.assertFalse(reference["raw_features_stored"])
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -1490,6 +1569,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_memory_posterior_ordinal_route_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_routed_residual",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_routed_residual_static",
             config["training"]["intended_methods"],
         )
 
@@ -1843,6 +1930,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorOrdinalRoute(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_posterior_routed_residual_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorRoutedResidual,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorRoutedResidual(
             self.detector(),
             "cpu",
             {
@@ -3235,6 +3338,206 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(stats.extra["ordinal_batches"], 1)
         self.assertEqual(stats.extra["ordinal_label_mismatches"], 0)
 
+    def test_routed_residual_static_path_is_exact_source(self) -> None:
+        method = self.segmented_memory_posterior_routed_residual_method(
+            adaptation_mode="static"
+        )
+        scores = np.array([-3.0, -0.5, 0.0, 0.5, 3.0])
+        cues = np.array([-1.0, -0.5, 0.0, 0.5, 1.0])
+        images = self.score_feature_batch(scores, cues)
+
+        prediction = method.predict(images)
+        np.testing.assert_allclose(
+            prediction.prob_fake.numpy(),
+            method._source_probability(scores),
+            atol=1e-6,
+        )
+        self.assertEqual(
+            method._pending["prediction_residual_routing_candidate_count"], 0
+        )
+        self.assertFalse(method._pending["prediction_routed_residual_ready"])
+        stats = method.adapt(images)
+        self.assertEqual(stats.extra["routed_residual_updates"], 0)
+        self.assertEqual(method.trainable_parameters, 0)
+
+    def test_routed_residual_uses_memory_features_without_routing_r01_boundary(
+        self,
+    ) -> None:
+        rng = np.random.default_rng(63)
+        method = self.segmented_memory_posterior_routed_residual_method()
+        returning = {
+            "weights": [0.5, 0.5],
+            "mus": [-8.0, -3.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        active = {
+            "weights": [0.5, 0.5],
+            "mus": [20.0, 25.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        returning_state = method._new_routed_residual_state()
+        returning_state["real_sum"][2] = -1.0
+        returning_state["real_support"] = 1.0
+        returning_state["fake_component_sums"][0, 2] = 1.0
+        returning_state["fake_component_supports"][0] = 1.0
+        active_state = method._new_routed_residual_state()
+        method._mixture = active
+        method.boundary_history = [22.5]
+        method.active_memory_index = 1
+        method.segment_memories = [
+            {
+                "mixture": returning,
+                "boundary": float(method._memory_boundary(returning)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 0,
+                method._RESIDUAL_MEMORY_KEY: returning_state,
+            },
+            {
+                "mixture": active,
+                "boundary": float(method._memory_boundary(active)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 1,
+                method._RESIDUAL_MEMORY_KEY: active_state,
+            },
+        ]
+        real_scores = rng.normal(-8.0, 0.2, 48)
+        fake_scores = rng.normal(-3.0, 0.2, 48)
+        scores = np.concatenate([real_scores, fake_scores])
+        cues = np.concatenate([-np.ones(48), np.ones(48)])
+        order = rng.permutation(len(scores))
+        images = self.score_feature_batch(scores[order], cues[order])
+
+        method.predict(images)
+        self.assertEqual(
+            method._pending["prediction_residual_routing_expert"],
+            "episodic_memory",
+        )
+        self.assertEqual(
+            method._pending["prediction_residual_routing_memory_index"], 0
+        )
+        self.assertTrue(
+            method._pending["prediction_residual_routing_admission_accepted"]
+        )
+        self.assertAlmostEqual(method._pending["prediction_boundary"], 22.5)
+        self.assertNotAlmostEqual(
+            method._pending["prediction_boundary"],
+            float(method._memory_boundary(returning)),
+        )
+        self.assertGreater(
+            method._pending["prediction_routed_residual_max_abs"], 0.0
+        )
+
+        stats = method.adapt(images)
+        self.assertEqual(method.active_memory_index, 1)
+        self.assertEqual(returning_state["updates"], 1)
+        self.assertEqual(active_state["updates"], 0)
+        self.assertEqual(stats.extra["routed_residual_memory_selections"], 1)
+        self.assertEqual(stats.extra["routed_residual_admission_accepts"], 1)
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_name"], "ASCAL-JMP-RoutedResidual")
+        self.assertEqual(metadata["research_version"], "R13")
+        self.assertFalse(metadata["score_boundary_routing"])
+        self.assertFalse(metadata["prediction_mutates_experts"])
+
+    def test_routed_residual_is_causal_and_never_rewrites_source_scores(self) -> None:
+        method = self.segmented_memory_posterior_routed_residual_method()
+        method._mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-4.0, 4.0],
+            "sigmas": [0.5, 0.5],
+            "components": 2,
+            "bic": 0.0,
+        }
+        method.boundary_history = [0.0]
+        scores = np.array([-4.0, -3.5, 3.5, 4.0])
+        cues = np.array([-1.0, -1.0, 1.0, 1.0])
+        images = self.score_feature_batch(scores, cues)
+
+        first = method.predict(images)
+        np.testing.assert_allclose(
+            first.prob_fake.numpy(),
+            method._source_probability(scores),
+            atol=1e-6,
+        )
+        self.assertFalse(method._pending["prediction_routed_residual_ready"])
+        first_stats = method.adapt(images)
+        self.assertTrue(first_stats.extra["routed_residual_updated"])
+
+        second = method.predict(images)
+        self.assertTrue(method._pending["prediction_routed_residual_ready"])
+        self.assertGreater(
+            method._pending["prediction_routed_residual_max_abs"], 0.0
+        )
+        self.assertFalse(
+            np.allclose(second.prob_fake.numpy(), first.prob_fake.numpy())
+        )
+        method.adapt(images)
+        np.testing.assert_allclose(method.score_history, np.tile(scores, 2))
+
+    def test_routed_residual_keeps_the_r01_score_state_trajectory(self) -> None:
+        rng = np.random.default_rng(65)
+        baseline = self.segmented_memory_posterior_projection_method()
+        method = self.segmented_memory_posterior_routed_residual_method()
+        batches = [
+            np.concatenate(
+                [rng.normal(-8.0, 0.2, 8), rng.normal(-3.0, 0.2, 8)]
+            ),
+            np.concatenate(
+                [rng.normal(-8.0, 0.2, 8), rng.normal(-3.0, 0.2, 8)]
+            ),
+            np.concatenate(
+                [rng.normal(4.0, 0.2, 8), rng.normal(9.0, 0.2, 8)]
+            ),
+            np.concatenate(
+                [rng.normal(4.0, 0.2, 8), rng.normal(9.0, 0.2, 8)]
+            ),
+        ]
+        for scores in batches:
+            cues = np.sign(scores - np.median(scores))
+            baseline_images = self.score_feature_batch(scores, cues)
+            method_images = self.score_feature_batch(scores, cues)
+            baseline.predict(baseline_images)
+            method.predict(method_images)
+            baseline.adapt(baseline_images)
+            method.adapt(method_images)
+
+            np.testing.assert_allclose(method.score_history, baseline.score_history)
+            np.testing.assert_allclose(
+                method.boundary_history,
+                baseline.boundary_history,
+            )
+            self.assertEqual(
+                method.active_memory_index,
+                baseline.active_memory_index,
+            )
+            self.assertEqual(
+                len(method.segment_memories),
+                len(baseline.segment_memories),
+            )
+            self.assertEqual(method.segment_changes, baseline.segment_changes)
+            self.assertEqual(
+                method._mixture["components"],
+                baseline._mixture["components"],
+            )
+            np.testing.assert_allclose(
+                method._mixture["weights"], baseline._mixture["weights"]
+            )
+            np.testing.assert_allclose(
+                method._mixture["mus"],
+                baseline._mixture["mus"],
+            )
+            np.testing.assert_allclose(
+                method._mixture["sigmas"], baseline._mixture["sigmas"]
+            )
+
     def test_current_projection_uses_latest_cumulative_fit_not_nested_median(
         self,
     ) -> None:
@@ -4073,6 +4376,24 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_routed_residual_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorRoutedResidual,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_routed_residual_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorRoutedResidual
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_method_factory_maps_current_projection_static_alias(self) -> None:
         from src.methods import build_method
         from src.methods.ascal_gmm import (
@@ -4695,6 +5016,45 @@ class ASCALGMMMethodTests(unittest.TestCase):
 
         self.assertIsInstance(
             method, ASCALGMMSegmentedMemoryPosteriorOrdinalRoute
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_routed_residual_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorRoutedResidual,
+        )
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_routed_residual_static"
+        )
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {method_name: {"adaptation_mode": "static"}},
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorRoutedResidual
         )
         self.assertEqual(method.adaptation_mode, "static")
 

@@ -45,6 +45,11 @@ BIC-selected fake score component as a separate feature prototype. A single
 rank residual compares the real prototype with the closest persistent fake
 prototype, avoiding the unimodal fake-feature assumption without adding a
 target-selected component count.
+Its routed-residual variant keeps the R01 score boundary trajectory global,
+but lets the current unlabeled batch select one active or episodic GMM before
+reading a compact bank of expert-specific feature prototypes. The selected
+expert alone supplies and receives the causal residual, so routing can improve
+rank evidence without translating the score coordinate between experts.
 Its real-deviation variant removes the fake prototype entirely. It estimates
 one centered squared-distance residual around the soft real feature mean, so
 heterogeneous fake evidence need not share a mode or teach the residual.
@@ -3196,6 +3201,855 @@ class ASCALGMMSegmentedMemoryPosteriorMixtureResidual(
             return False
         self.residual_updates += 1
         return True
+
+
+class ASCALGMMSegmentedMemoryPosteriorRoutedResidual(
+    ASCALGMMSegmentedMemoryPosteriorProjection
+):
+    """Route one causal feature residual without routing the score boundary."""
+
+    _RESIDUAL_MEMORY_KEY = "routed_residual_state"
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        classifier = getattr(self.model, "classifier", None)
+        weight = getattr(classifier, "weight", None)
+        if weight is None or weight.ndim != 2 or int(weight.shape[0]) != 2:
+            raise TypeError(
+                "ASCAL routed residual requires a two-class linear classifier"
+            )
+        direction = (
+            weight[1].detach().float().cpu().numpy()
+            - weight[0].detach().float().cpu().numpy()
+        ).astype(np.float64)
+        direction_norm = float(np.linalg.norm(direction))
+        if not math.isfinite(direction_norm) or direction_norm <= 0.0:
+            raise ValueError(
+                "ASCAL routed residual requires a nonzero source score direction"
+            )
+        self._source_feature_direction = direction / direction_norm
+        self.residual_feature_dim = int(direction.size)
+        self._novel_routed_residual_state = self._new_routed_residual_state()
+        self._pending_routed_residual_features: np.ndarray | None = None
+        self._pending_routed_residual_state: dict[str, Any] | None = None
+        self._pending_routed_residual_assignment: tuple[str, int | None] | None = (
+            None
+        )
+        self._pending_routed_residual_mixture: dict[str, Any] | None = None
+        self.routed_residual_routing_decisions = 0
+        self.routed_residual_active_selections = 0
+        self.routed_residual_memory_selections = 0
+        self.routed_residual_source_fallbacks = 0
+        self.routed_residual_memory_proposals = 0
+        self.routed_residual_admission_checks = 0
+        self.routed_residual_admission_accepts = 0
+        self.routed_residual_admission_rejects = 0
+        self.routed_residual_admission_fit_failures = 0
+        self.routed_residual_admission_unimodal = 0
+        self.routed_residual_updates = 0
+        self.routed_residual_candidate_samples = 0
+        self.routed_residual_multimodal_updates = 0
+        self.routed_residual_last_reliability = 0.0
+        self.routed_residual_last_real_support = 0.0
+        self.routed_residual_last_fake_support = 0.0
+        self.routed_residual_last_fake_component_supports = np.zeros(
+            self.max_fake_components,
+            dtype=np.float64,
+        )
+        self.last_routed_residual_expert: str | None = None
+        self.last_routed_residual_memory_index: int | None = None
+        self.last_routed_residual_admission_reason: str | None = None
+
+    @property
+    def trainable_parameters(self) -> int:
+        # The bank contains closed-form sufficient statistics, not optimizer
+        # parameters or a trainable network.
+        return 0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "immutable_source_score_calibration_with_mdl_routed_"
+                    "causal_multimodal_feature_residuals"
+                ),
+                "research_name": "ASCAL-JMP-RoutedResidual",
+                "research_version": "R13",
+                "immutable_history_coordinate": "frozen_source_logit_margin_only",
+                "base_prediction_rule": (
+                    "exact_r01_median_stabilized_posterior_boundary_projection"
+                ),
+                "score_boundary_routing": False,
+                "residual_routing_coordinate": (
+                    "current_batch_immutable_frozen_source_logit_margin"
+                ),
+                "residual_routing_candidates": (
+                    "one_active_live_gmm_plus_archived_non_active_gmms"
+                ),
+                "residual_routing_rule": (
+                    "minimum_fixed_deviance_with_parameter_free_mdl_admission_"
+                    "for_non_active_memory"
+                ),
+                "residual_assignment_consistency": (
+                    "the_same_selected_expert_reads_and_receives_the_current_batch"
+                ),
+                "residual_scope": (
+                    "one_compact_real_plus_bic_fake_prototype_state_per_"
+                    "discovered_score_expert"
+                ),
+                "residual_input": (
+                    "l2_normalized_frozen_features_orthogonal_to_the_source_"
+                    "classifier_direction"
+                ),
+                "residual_teacher": (
+                    "equal_prior_posterior_of_the_prediction_time_selected_"
+                    "immutable_source_score_gmm"
+                ),
+                "reliability_rule": "absolute_centered_soft_posterior_no_threshold",
+                "fake_prototype_rule": (
+                    "one_feature_prototype_per_ordered_bic_selected_fake_component"
+                ),
+                "residual_readout": (
+                    "maximum_fake_component_cosine_minus_real_prototype_cosine"
+                ),
+                "prediction_rule": (
+                    "r01_continuous_base_logit_plus_one_selected_expert_residual"
+                ),
+                "expert_network_count": 0,
+                "optimizer": "none",
+                "prediction_mutates_experts": False,
+                "batch_transductive_prediction": True,
+                "raw_images_stored": False,
+                "raw_features_stored": False,
+                "target_labels_used": False,
+                "generator_boundaries_used": False,
+                "semantic_features_used": False,
+                "new_target_hyperparameters": 0,
+                "hyperparameter_rule": (
+                    "no_residual_learning_rate_loss_weight_confidence_threshold_"
+                    "routing_threshold_fusion_weight_or_memory_capacity"
+                ),
+                "intentional_changes": [
+                    "the R01 score GMM segmentation memory and boundary trajectory remain unchanged",
+                    "the current batch selects a residual expert before its official prediction",
+                    "a returning residual expert must pass the R11 parameter-free MDL admission rule",
+                    "expert boundaries never translate the final score coordinate",
+                    "only the selected compact prototype state receives the batch after prediction",
+                    "pseudo labels come only from the selected pre-update source-score GMM",
+                    "the residual bank stores sufficient statistics rather than images or raw features",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_routed_residual"
+
+    def _new_routed_residual_state(self) -> dict[str, Any]:
+        return {
+            "real_sum": np.zeros(self.residual_feature_dim, dtype=np.float64),
+            "real_support": 0.0,
+            "fake_component_sums": np.zeros(
+                (self.max_fake_components, self.residual_feature_dim),
+                dtype=np.float64,
+            ),
+            "fake_component_supports": np.zeros(
+                self.max_fake_components,
+                dtype=np.float64,
+            ),
+            "updates": 0,
+            "candidate_samples": 0,
+            "multimodal_updates": 0,
+        }
+
+    def _store_completed_segment(
+        self,
+        mixture: dict[str, Any],
+        samples: int,
+    ) -> int | None:
+        was_novel = self.active_memory_index is None
+        novel_state = self._novel_routed_residual_state
+        finalized_index = super()._store_completed_segment(mixture, samples)
+        if (
+            was_novel
+            and finalized_index is not None
+            and int(mixture["components"]) >= 2
+        ):
+            episode = self.segment_memories[finalized_index]
+            episode.setdefault(self._RESIDUAL_MEMORY_KEY, novel_state)
+            self._novel_routed_residual_state = self._new_routed_residual_state()
+        return finalized_index
+
+    def _batch_scores_and_routed_residual_features(
+        self,
+        images: Any,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        import torch
+
+        if images.dim() == 5:
+            batch, views = int(images.shape[0]), int(images.shape[1])
+            flat = images.reshape(batch * views, *images.shape[2:])
+        elif images.dim() == 4:
+            batch, views = int(images.shape[0]), 1
+            flat = images
+        else:
+            raise ValueError(
+                "ASCAL routed residual expects (B, C, H, W) or "
+                "(B, V, C, H, W) images"
+            )
+        forward_features = getattr(self.model, "forward_features", None)
+        classifier = getattr(self.model, "classifier", None)
+        if not callable(forward_features) or not callable(classifier):
+            raise TypeError(
+                "ASCAL routed residual requires forward_features and classifier"
+            )
+        with torch.no_grad():
+            features = forward_features(flat.to(self.device, non_blocking=True))
+            logits = classifier(features)
+        margins = (
+            binary_score(logits)
+            .view(batch, views)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        feature_values = (
+            features.detach()
+            .float()
+            .view(batch, views, -1)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        if int(feature_values.shape[1]) != self.residual_feature_dim:
+            raise ValueError(
+                "ASCAL routed residual feature dimension does not match the source head"
+            )
+        direction = self._source_feature_direction
+        feature_values -= (feature_values @ direction)[:, None] * direction[None, :]
+        norms = np.linalg.norm(feature_values, axis=1, keepdims=True)
+        feature_values = np.divide(
+            feature_values,
+            norms,
+            out=np.zeros_like(feature_values),
+            where=norms > np.finfo(np.float64).eps,
+        )
+        return margins, feature_values
+
+    def _routed_residual_candidates(
+        self,
+        scores: np.ndarray,
+    ) -> list[dict[str, Any]]:
+        candidates: list[dict[str, Any]] = []
+        active_eligible = self._mixture_active() and self._mixture is not None
+        if active_eligible:
+            candidates.append(
+                {
+                    "expert": "active_learning_state",
+                    "memory_index": self.active_memory_index,
+                    "assignment": (
+                        "novel"
+                        if self.active_memory_index is None
+                        else "episodic_memory",
+                        self.active_memory_index,
+                    ),
+                    "mixture": self._mixture,
+                    "deviance": _fixed_gmm_deviance(scores, self._mixture),
+                }
+            )
+        for index, episode in enumerate(self.segment_memories):
+            mixture = episode["mixture"]
+            if int(mixture["components"]) < 2:
+                continue
+            if active_eligible and index == self.active_memory_index:
+                continue
+            candidates.append(
+                {
+                    "expert": "episodic_memory",
+                    "memory_index": index,
+                    "assignment": ("episodic_memory", index),
+                    "mixture": mixture,
+                    "deviance": _fixed_gmm_deviance(scores, mixture),
+                }
+            )
+        return candidates
+
+    @staticmethod
+    def _empty_routed_residual_admission(reason: str) -> dict[str, Any]:
+        return {
+            "checked": False,
+            "accepted": False,
+            "reason": reason,
+            "memory_index": None,
+            "fixed_score": None,
+            "new_bic": None,
+            "identity_penalty": None,
+            "gain": None,
+            "new_components": None,
+            "fit_failure": False,
+            "unimodal": False,
+        }
+
+    def _routed_residual_memory_admission(
+        self,
+        scores: np.ndarray,
+        memory_index: int,
+    ) -> dict[str, Any]:
+        eligible_memories = sum(
+            int(episode["mixture"]["components"]) >= 2
+            for episode in self.segment_memories
+        )
+        if eligible_memories < 1:
+            raise RuntimeError("ASCAL routed residual has no eligible memory")
+        evidence = self._empty_routed_residual_admission("fit_failure")
+        evidence.update({"checked": True, "memory_index": memory_index})
+        try:
+            new_mixture = fit_gmm_bic(
+                scores,
+                max_components=min(self.max_total_components, int(scores.size)),
+                seed=0,
+            )
+        except (FloatingPointError, RuntimeError, ValueError):
+            evidence["fit_failure"] = True
+            return evidence
+
+        components = int(new_mixture["components"])
+        evidence["new_bic"] = float(new_mixture["bic"])
+        evidence["new_components"] = components
+        if components < 2:
+            evidence["reason"] = "current_batch_unimodal"
+            evidence["unimodal"] = True
+            return evidence
+
+        identity_penalty = 2.0 * math.log(eligible_memories)
+        fixed_score = _fixed_gmm_deviance(
+            scores,
+            self.segment_memories[memory_index]["mixture"],
+        ) + identity_penalty
+        gain = float(new_mixture["bic"]) - float(fixed_score)
+        accepted = gain > 0.0
+        evidence.update(
+            {
+                "accepted": accepted,
+                "reason": (
+                    "memory_description_shorter"
+                    if accepted
+                    else "new_state_description_shorter_or_equal"
+                ),
+                "fixed_score": float(fixed_score),
+                "identity_penalty": float(identity_penalty),
+                "gain": float(gain),
+            }
+        )
+        return evidence
+
+    def _select_routed_residual_expert(
+        self,
+        scores: np.ndarray,
+    ) -> tuple[
+        list[dict[str, Any]],
+        dict[str, Any] | None,
+        dict[str, Any] | None,
+        dict[str, Any],
+    ]:
+        candidates = self._routed_residual_candidates(scores)
+        proposal = None
+        selected = None
+        admission = self._empty_routed_residual_admission("no_routing_candidate")
+        if not candidates:
+            return candidates, proposal, selected, admission
+
+        proposal = min(candidates, key=lambda candidate: candidate["deviance"])
+        active = next(
+            (
+                candidate
+                for candidate in candidates
+                if candidate["expert"] == "active_learning_state"
+            ),
+            None,
+        )
+        if proposal["expert"] == "episodic_memory":
+            memory_index = int(proposal["memory_index"])
+            if memory_index == self.active_memory_index:
+                selected = proposal
+                admission = self._empty_routed_residual_admission(
+                    "already_active_memory_identity"
+                )
+                admission.update(
+                    {"accepted": True, "memory_index": memory_index}
+                )
+            else:
+                admission = self._routed_residual_memory_admission(
+                    scores,
+                    memory_index,
+                )
+                selected = proposal if admission["accepted"] else active
+        else:
+            selected = proposal
+            admission = self._empty_routed_residual_admission(
+                "active_state_wins_deviance"
+            )
+        return candidates, proposal, selected, admission
+
+    def _peek_routed_residual_state(
+        self,
+        assignment: tuple[str, int | None],
+    ) -> dict[str, Any] | None:
+        kind, memory_index = assignment
+        if kind == "novel":
+            return self._novel_routed_residual_state
+        if memory_index is None or not 0 <= memory_index < len(self.segment_memories):
+            raise RuntimeError("ASCAL routed residual memory index is out of range")
+        state = self.segment_memories[memory_index].get(self._RESIDUAL_MEMORY_KEY)
+        return state if isinstance(state, dict) else None
+
+    def _ensure_routed_residual_state(
+        self,
+        assignment: tuple[str, int | None],
+    ) -> dict[str, Any]:
+        state = self._peek_routed_residual_state(assignment)
+        if state is not None:
+            return state
+        _, memory_index = assignment
+        if memory_index is None:
+            raise RuntimeError("ASCAL routed residual lost its novel state")
+        state = self._new_routed_residual_state()
+        self.segment_memories[memory_index][self._RESIDUAL_MEMORY_KEY] = state
+        return state
+
+    def _normalized_routed_residual_prototypes(
+        self,
+        state: dict[str, Any] | None,
+    ) -> tuple[np.ndarray | None, np.ndarray]:
+        if state is None:
+            return None, np.empty((0, self.residual_feature_dim), dtype=np.float64)
+        epsilon = np.finfo(np.float64).eps
+        real_support = float(state["real_support"])
+        if real_support <= epsilon:
+            return None, np.empty((0, self.residual_feature_dim), dtype=np.float64)
+        real_mean = np.asarray(state["real_sum"], dtype=np.float64) / real_support
+        real_norm = float(np.linalg.norm(real_mean))
+        if real_norm <= epsilon:
+            return None, np.empty((0, self.residual_feature_dim), dtype=np.float64)
+
+        supports = np.asarray(
+            state["fake_component_supports"],
+            dtype=np.float64,
+        )
+        ready = supports > epsilon
+        fake_means = np.divide(
+            np.asarray(state["fake_component_sums"], dtype=np.float64)[ready],
+            supports[ready, None],
+        )
+        if not len(fake_means):
+            return real_mean / real_norm, fake_means
+        fake_norms = np.linalg.norm(fake_means, axis=1)
+        valid = fake_norms > epsilon
+        return real_mean / real_norm, np.divide(
+            fake_means[valid],
+            fake_norms[valid, None],
+        )
+
+    def _routed_residual_scores(
+        self,
+        features: np.ndarray,
+        state: dict[str, Any] | None,
+    ) -> np.ndarray:
+        real_prototype, fake_prototypes = (
+            self._normalized_routed_residual_prototypes(state)
+        )
+        if real_prototype is None or not len(fake_prototypes):
+            return np.zeros(int(features.shape[0]), dtype=np.float64)
+        fake_similarity = np.max(features @ fake_prototypes.T, axis=1)
+        real_similarity = features @ real_prototype
+        return np.asarray(fake_similarity - real_similarity, dtype=np.float64)
+
+    def _update_routed_residual_state(
+        self,
+        state: dict[str, Any],
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        features: np.ndarray,
+    ) -> bool:
+        partition = dominant_gap_boundary(mixture)
+        split = int(partition["real_components"])
+        fake_components = int(partition["fake_components"])
+        if fake_components > self.max_fake_components:
+            raise RuntimeError("Target GMM exceeded the fixed fake-component cap")
+
+        posterior = joint_density_fake_posterior(scores, mixture)
+        reliability = np.abs(2.0 * posterior - 1.0)
+        fake_weights = reliability * posterior
+        real_weights = reliability * (1.0 - posterior)
+        fake_support = float(fake_weights.sum())
+        real_support = float(real_weights.sum())
+        self.routed_residual_candidate_samples += int(scores.size)
+        self.routed_residual_last_reliability = float(np.mean(reliability))
+        self.routed_residual_last_real_support = real_support
+        self.routed_residual_last_fake_support = fake_support
+        self.routed_residual_last_fake_component_supports.fill(0.0)
+        state["candidate_samples"] = int(state["candidate_samples"]) + int(
+            scores.size
+        )
+        epsilon = np.finfo(np.float64).eps
+        if fake_support <= epsilon or real_support <= epsilon:
+            return False
+
+        weights = np.asarray(mixture["weights"], dtype=np.float64)
+        mus = np.asarray(mixture["mus"], dtype=np.float64)
+        sigmas = np.asarray(mixture["sigmas"], dtype=np.float64)
+        conditional = _block_component_responsibilities(
+            scores,
+            weights[split:],
+            mus[split:],
+            sigmas[split:],
+        )
+        component_weights = fake_weights[:, None] * conditional
+        component_supports = component_weights.sum(axis=0)
+
+        state["real_sum"] += np.sum(real_weights[:, None] * features, axis=0)
+        state["real_support"] = float(state["real_support"]) + real_support
+        for index in range(fake_components):
+            support = float(component_supports[index])
+            self.routed_residual_last_fake_component_supports[index] = support
+            if support <= epsilon:
+                continue
+            state["fake_component_sums"][index] += np.sum(
+                component_weights[:, index, None] * features,
+                axis=0,
+            )
+            state["fake_component_supports"][index] += support
+        if fake_components > 1:
+            state["multimodal_updates"] = int(state["multimodal_updates"]) + 1
+            self.routed_residual_multimodal_updates += 1
+        real_prototype, fake_prototypes = (
+            self._normalized_routed_residual_prototypes(state)
+        )
+        if real_prototype is None or not len(fake_prototypes):
+            return False
+        state["updates"] = int(state["updates"]) + 1
+        self.routed_residual_updates += 1
+        return True
+
+    def _all_routed_residual_states(self) -> list[dict[str, Any]]:
+        states: list[dict[str, Any]] = []
+        if int(self._novel_routed_residual_state["candidate_samples"]) > 0:
+            states.append(self._novel_routed_residual_state)
+        for episode in self.segment_memories:
+            state = episode.get(self._RESIDUAL_MEMORY_KEY)
+            if isinstance(state, dict):
+                states.append(state)
+        return states
+
+    def _routed_residual_state_stats(self) -> dict[str, Any]:
+        states = self._all_routed_residual_states()
+        ready = 0
+        fake_prototypes = 0
+        for state in states:
+            real, fake = self._normalized_routed_residual_prototypes(state)
+            if real is not None and len(fake):
+                ready += 1
+                fake_prototypes += int(len(fake))
+        return {
+            "routed_residual_expert_count": len(states),
+            "routed_residual_ready_experts": ready,
+            "routed_residual_fake_prototype_count": fake_prototypes,
+            "routed_residual_updates": self.routed_residual_updates,
+            "routed_residual_candidate_samples": (
+                self.routed_residual_candidate_samples
+            ),
+            "routed_residual_multimodal_updates": (
+                self.routed_residual_multimodal_updates
+            ),
+            "routed_residual_routing_decisions": (
+                self.routed_residual_routing_decisions
+            ),
+            "routed_residual_active_selections": (
+                self.routed_residual_active_selections
+            ),
+            "routed_residual_memory_selections": (
+                self.routed_residual_memory_selections
+            ),
+            "routed_residual_source_fallbacks": (
+                self.routed_residual_source_fallbacks
+            ),
+            "routed_residual_memory_proposals": (
+                self.routed_residual_memory_proposals
+            ),
+            "routed_residual_admission_checks": (
+                self.routed_residual_admission_checks
+            ),
+            "routed_residual_admission_accepts": (
+                self.routed_residual_admission_accepts
+            ),
+            "routed_residual_admission_rejects": (
+                self.routed_residual_admission_rejects
+            ),
+            "routed_residual_admission_fit_failures": (
+                self.routed_residual_admission_fit_failures
+            ),
+            "routed_residual_admission_unimodal": (
+                self.routed_residual_admission_unimodal
+            ),
+            "routed_residual_last_reliability": (
+                self.routed_residual_last_reliability
+            ),
+            "routed_residual_last_real_support": (
+                self.routed_residual_last_real_support
+            ),
+            "routed_residual_last_fake_support": (
+                self.routed_residual_last_fake_support
+            ),
+            "routed_residual_last_fake_component_supports": (
+                self.routed_residual_last_fake_component_supports.tolist()
+            ),
+            "last_routed_residual_expert": self.last_routed_residual_expert,
+            "last_routed_residual_memory_index": (
+                self.last_routed_residual_memory_index
+            ),
+            "last_routed_residual_admission_reason": (
+                self.last_routed_residual_admission_reason
+            ),
+            "routed_residual_readout_bound": 2.0,
+            "routed_residual_trainable_parameters": 0,
+        }
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(self._routed_residual_state_stats())
+        return stats
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores, features = self._batch_scores_and_routed_residual_features(images)
+        candidates: list[dict[str, Any]] = []
+        proposal = None
+        selected = None
+        admission = self._empty_routed_residual_admission("adaptation_disabled")
+        if self.adaptation_mode == "full":
+            candidates, proposal, selected, admission = (
+                self._select_routed_residual_expert(scores)
+            )
+
+        if self.adaptation_mode == "full" and self._mixture_active():
+            partition = self._candidate_partition()
+            candidate_boundary = float(partition["decision_boundary"])
+            boundary = self._stabilized_boundary(candidate_boundary)
+            base_logit = (scores - boundary) / self.temperature
+            prediction_mode = self._prediction_mode_name
+            real_components = int(partition["real_components"])
+            fake_components = int(partition["fake_components"])
+        else:
+            candidate_boundary = None
+            boundary = 0.0
+            base_logit = scores / self.temperature
+            prediction_mode = "source_fallback"
+            real_components = 0
+            fake_components = 0
+
+        assignment = None if selected is None else selected["assignment"]
+        residual_state = (
+            None
+            if assignment is None
+            else self._peek_routed_residual_state(assignment)
+        )
+        real_prototype, fake_prototypes = (
+            self._normalized_routed_residual_prototypes(residual_state)
+        )
+        residual_ready = real_prototype is not None and len(fake_prototypes) > 0
+        residual_scores = self._routed_residual_scores(features, residual_state)
+        final_logit = base_logit + residual_scores
+        probability = 1.0 / (
+            1.0 + np.exp(-np.clip(final_logit, -60.0, 60.0))
+        )
+        self._pending_routed_residual_features = features
+        self._pending_routed_residual_state = residual_state
+        self._pending_routed_residual_assignment = assignment
+        self._pending_routed_residual_mixture = (
+            None if selected is None else _copy_gmm(selected["mixture"])
+        )
+
+        selected_expert = None if selected is None else str(selected["expert"])
+        selected_memory_index = None if selected is None else selected["memory_index"]
+        proposed_expert = None if proposal is None else str(proposal["expert"])
+        proposed_memory_index = None if proposal is None else proposal["memory_index"]
+        active_candidate = next(
+            (
+                item
+                for item in candidates
+                if item["expert"] == "active_learning_state"
+            ),
+            None,
+        )
+        return self._prediction_batch(
+            scores,
+            probability,
+            prediction_mode=prediction_mode,
+            prediction_boundary=boundary,
+            prediction_candidate_boundary=candidate_boundary,
+            prediction_real_components=real_components,
+            prediction_fake_components=fake_components,
+            prediction_memory_index=self.active_memory_index,
+            prediction_memory_recalled=self.recall_anchor_boundary is not None,
+            prediction_memory_anchor_boundary=self.recall_anchor_boundary,
+            prediction_memory_anchor_weight=self._recall_anchor_weight(),
+            prediction_residual_routing_expert=selected_expert,
+            prediction_residual_routing_memory_index=selected_memory_index,
+            prediction_residual_routing_candidate_count=len(candidates),
+            prediction_residual_routing_memory_candidate_count=sum(
+                item["expert"] == "episodic_memory" for item in candidates
+            ),
+            prediction_residual_routing_selected_deviance=(
+                None if selected is None else float(selected["deviance"])
+            ),
+            prediction_residual_routing_active_deviance=(
+                None
+                if active_candidate is None
+                else float(active_candidate["deviance"])
+            ),
+            prediction_residual_routing_proposed_expert=proposed_expert,
+            prediction_residual_routing_proposed_memory_index=(
+                proposed_memory_index
+            ),
+            prediction_residual_routing_admission_checked=bool(
+                admission["checked"]
+            ),
+            prediction_residual_routing_admission_accepted=bool(
+                admission["accepted"]
+            ),
+            prediction_residual_routing_admission_reason=str(admission["reason"]),
+            prediction_residual_routing_admission_memory_index=(
+                admission["memory_index"]
+            ),
+            prediction_residual_routing_admission_fixed_score=(
+                admission["fixed_score"]
+            ),
+            prediction_residual_routing_admission_new_bic=admission["new_bic"],
+            prediction_residual_routing_admission_identity_penalty=(
+                admission["identity_penalty"]
+            ),
+            prediction_residual_routing_admission_gain=admission["gain"],
+            prediction_residual_routing_admission_new_components=(
+                admission["new_components"]
+            ),
+            prediction_residual_routing_admission_fit_failure=bool(
+                admission["fit_failure"]
+            ),
+            prediction_residual_routing_admission_unimodal=bool(
+                admission["unimodal"]
+            ),
+            prediction_routed_residual_ready=residual_ready,
+            prediction_routed_residual_mean=float(np.mean(residual_scores)),
+            prediction_routed_residual_abs_mean=float(
+                np.mean(np.abs(residual_scores))
+            ),
+            prediction_routed_residual_max_abs=float(
+                np.max(np.abs(residual_scores))
+            ),
+        )
+
+    def adapt(self, images: Any) -> AdaptationStats:
+        if self._pending is None:
+            return super().adapt(images)
+        scores = np.asarray(self._pending["scores"], dtype=np.float64).reshape(-1)
+        prediction_state = dict(self._pending)
+        features = self._pending_routed_residual_features
+        assignment = self._pending_routed_residual_assignment
+        mixture = self._pending_routed_residual_mixture
+        residual_state = self._pending_routed_residual_state
+        self._pending_routed_residual_features = None
+        self._pending_routed_residual_state = None
+        self._pending_routed_residual_assignment = None
+        self._pending_routed_residual_mixture = None
+
+        residual_updated = False
+        if self.adaptation_mode == "full" and assignment is not None:
+            if features is None or int(features.shape[0]) != int(scores.size):
+                raise RuntimeError(
+                    "ASCAL routed residual lost its matching prediction features"
+                )
+            if mixture is None:
+                raise RuntimeError(
+                    "ASCAL routed residual lost its prediction-time expert GMM"
+                )
+            if residual_state is None:
+                residual_state = self._ensure_routed_residual_state(assignment)
+            residual_updated = self._update_routed_residual_state(
+                residual_state,
+                mixture,
+                scores,
+                features,
+            )
+
+        stats = super().adapt(images)
+        if self.adaptation_mode == "full":
+            candidate_count = int(
+                prediction_state.get(
+                    "prediction_residual_routing_candidate_count",
+                    0,
+                )
+                or 0
+            )
+            selected_expert = prediction_state.get(
+                "prediction_residual_routing_expert"
+            )
+            selected_memory_index = prediction_state.get(
+                "prediction_residual_routing_memory_index"
+            )
+            proposed_expert = prediction_state.get(
+                "prediction_residual_routing_proposed_expert"
+            )
+            if candidate_count:
+                self.routed_residual_routing_decisions += 1
+            else:
+                self.routed_residual_source_fallbacks += 1
+            if selected_expert == "active_learning_state":
+                self.routed_residual_active_selections += 1
+            elif selected_expert == "episodic_memory":
+                self.routed_residual_memory_selections += 1
+            if proposed_expert == "episodic_memory":
+                self.routed_residual_memory_proposals += 1
+            if prediction_state.get(
+                "prediction_residual_routing_admission_checked"
+            ):
+                self.routed_residual_admission_checks += 1
+                if prediction_state.get(
+                    "prediction_residual_routing_admission_accepted"
+                ):
+                    self.routed_residual_admission_accepts += 1
+                else:
+                    self.routed_residual_admission_rejects += 1
+                if prediction_state.get(
+                    "prediction_residual_routing_admission_fit_failure"
+                ):
+                    self.routed_residual_admission_fit_failures += 1
+                if prediction_state.get(
+                    "prediction_residual_routing_admission_unimodal"
+                ):
+                    self.routed_residual_admission_unimodal += 1
+            self.last_routed_residual_expert = selected_expert
+            self.last_routed_residual_memory_index = selected_memory_index
+            self.last_routed_residual_admission_reason = prediction_state.get(
+                "prediction_residual_routing_admission_reason"
+            )
+        stats.extra.update(
+            {
+                **self._routed_residual_state_stats(),
+                "routed_residual_updated": residual_updated,
+            }
+        )
+        return stats
+
+    def discard_pending_prediction(self) -> None:
+        super().discard_pending_prediction()
+        self._pending_routed_residual_features = None
+        self._pending_routed_residual_state = None
+        self._pending_routed_residual_assignment = None
+        self._pending_routed_residual_mixture = None
 
 
 class ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual(
