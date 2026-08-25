@@ -1413,6 +1413,90 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["raw_images_stored"])
                 self.assertFalse(reference["raw_features_stored"])
 
+    def test_joint_ridge_configs_unlock_r12_without_target_knobs(self) -> None:
+        from src.config import load_config, method_config
+
+        baseline_name = "ascal_gmm_segmented_memory_posterior_ordinal_route"
+        method_name = "ascal_gmm_segmented_memory_posterior_joint_ridge"
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_posterior_"
+                f"joint_ridge_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(config["methods"], [baseline_name, method_name])
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                config_dir = Path(config["_config_path"]).parent
+                for field in (
+                    "locked_online_manifest",
+                    "locked_final_holdout_manifest",
+                ):
+                    manifest = Path(config["data"][field]).expanduser()
+                    if not manifest.is_absolute():
+                        manifest = config_dir / manifest
+                    self.assertTrue(manifest.resolve().is_file())
+                self.assertIn(
+                    f"posterior_joint_ridge_continual/{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(config, method_name)
+                for key in (
+                    "confidence_threshold",
+                    "fusion_weight",
+                    "lambda",
+                    "learning_rate",
+                    "memory_capacity",
+                    "recall_threshold",
+                    "ridge_alpha",
+                    "similarity_threshold",
+                    "target_threshold",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                reference = adaptive["reference"]
+                self.assertEqual(reference["research_name"], "ASCAL-JMP-JointRidge")
+                self.assertEqual(reference["research_version"], "R16")
+                self.assertEqual(
+                    reference["protected_initialization"],
+                    "exact_r12_ordinal_route",
+                )
+                self.assertIn("may_change", reference["accuracy_invariance"])
+                self.assertEqual(reference["new_target_hyperparameters"], 0)
+                self.assertEqual(reference["routing_threshold"], "none")
+                self.assertEqual(reference["optimizer"], "none")
+                self.assertEqual(reference["learning_rate"], "none")
+                self.assertEqual(reference["epochs"], "none")
+                self.assertEqual(reference["residual_target_centering"], "none")
+                self.assertEqual(reference["prediction_residual_centering"], "none")
+                self.assertIn("bias", reference["residual_intercept"])
+                self.assertEqual(
+                    reference["routing_score_coordinate"],
+                    "immutable_source_score",
+                )
+                self.assertEqual(
+                    reference["gmm_update_score_coordinate"],
+                    "immutable_source_score",
+                )
+                self.assertFalse(reference["prediction_mutates_experts"])
+                self.assertFalse(reference["target_labels_used"])
+                self.assertFalse(reference["generator_boundaries_used"])
+                self.assertFalse(reference["semantic_features_used"])
+                self.assertFalse(reference["raw_images_stored"])
+                self.assertFalse(reference["raw_features_stored"])
+
     def test_routed_residual_configs_keep_r01_coordinate_and_one_assignment(
         self,
     ) -> None:
@@ -1735,6 +1819,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_memory_posterior_ordinal_ridge_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_joint_ridge",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_joint_ridge_static",
             config["training"]["intended_methods"],
         )
         self.assertIn(
@@ -2120,6 +2212,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorOrdinalRidge(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_posterior_joint_ridge_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorJointRidge,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorJointRidge(
             self.detector(),
             "cpu",
             {
@@ -3747,6 +3855,230 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertTrue(stats.extra["routing_handoff_this_batch"])
         self.assertEqual(stats.extra["active_memory_index"], 0)
 
+    def test_joint_ridge_matches_exact_uncentered_weighted_ridge(self) -> None:
+        method = self.segmented_memory_posterior_joint_ridge_method()
+        mixture = {
+            "weights": [0.4, 0.6],
+            "mus": [-3.0, 2.0],
+            "sigmas": [1.0, 0.75],
+            "components": 2,
+            "bic": 0.0,
+        }
+        batches = (
+            (
+                np.array([-3.0, -0.5, 2.0]),
+                np.array([-2.0, -0.25, 1.0]),
+                np.array(
+                    [
+                        [1.0, 0.0, 0.0, 1.0],
+                        [0.0, 1.0, 0.0, 1.0],
+                        [0.0, 0.0, 1.0, 1.0],
+                    ],
+                    dtype=np.float64,
+                ),
+            ),
+            (
+                np.array([-2.0, 1.5]),
+                np.array([-1.0, 0.75]),
+                np.array(
+                    [[1.0, 1.0, 0.0, 1.0], [0.0, 1.0, 1.0, 1.0]],
+                    dtype=np.float64,
+                )
+                / np.sqrt(2.0),
+            ),
+        )
+        expected_precision = np.eye(4, dtype=np.float64)
+        expected_rhs = np.zeros(4, dtype=np.float64)
+        state = method._new_ordinal_ridge_state()
+        weighted_target_sum = 0.0
+        for scores, base_logits, features in batches:
+            _, targets, reliability = method._joint_ridge_supervision(
+                mixture,
+                scores,
+                base_logits,
+            )
+            expected_precision += features.T @ (
+                reliability[:, None] * features
+            )
+            expected_rhs += features.T @ (reliability * targets)
+            weighted_target_sum += float(np.sum(reliability * targets))
+            method._pending_joint_ridge_base_logits = base_logits
+            self.assertTrue(
+                method._update_ordinal_ridge_state(
+                    state,
+                    mixture,
+                    scores,
+                    features,
+                )
+            )
+
+        expected_weights = np.linalg.solve(expected_precision, expected_rhs)
+        np.testing.assert_allclose(state["weights"], expected_weights, atol=1e-12)
+        np.testing.assert_allclose(
+            state["inverse_gram"],
+            np.linalg.inv(expected_precision),
+            atol=1e-12,
+        )
+        self.assertNotAlmostEqual(weighted_target_sum, 0.0, places=8)
+        self.assertNotAlmostEqual(float(state["weights"][-1]), 0.0, places=8)
+        self.assertEqual(method.ordinal_ridge_last_target_center, 0.0)
+        self.assertEqual(method.ordinal_ridge_feature_dim, 4)
+        self.assertEqual(state["updates"], len(batches))
+        self.assertEqual(state["candidate_samples"], 5)
+        self.assertEqual(method.ordinal_ridge_solve_failures, 0)
+
+    def test_joint_ridge_starts_at_r12_then_unlocks_ranking_and_labels(self) -> None:
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-4.0, 4.0],
+            "sigmas": [0.75, 0.75],
+            "components": 2,
+            "bic": 0.0,
+        }
+        baseline = self.segmented_memory_posterior_ordinal_route_method()
+        method = self.segmented_memory_posterior_joint_ridge_method()
+        for candidate in (baseline, method):
+            candidate._mixture = copy.deepcopy(mixture)
+            candidate.boundary_history = [0.0]
+
+        scores = np.array([-4.0, -3.0, 3.0, 4.0])
+        first_images = self.score_feature_batch(
+            scores,
+            np.array([-1.0, -1.0, 1.0, 1.0]),
+        )
+        baseline_first = baseline.predict(first_images)
+        method_first = method.predict(first_images)
+        np.testing.assert_array_equal(
+            method_first.prob_fake.numpy(),
+            baseline_first.prob_fake.numpy(),
+        )
+        np.testing.assert_array_equal(
+            method_first.pred_label.numpy(),
+            baseline_first.pred_label.numpy(),
+        )
+        self.assertFalse(method._pending["prediction_joint_ridge_ready"])
+        baseline.adapt(first_images)
+        first_stats = method.adapt(first_images)
+        self.assertTrue(first_stats.extra["joint_ridge_updated"])
+        self.assertEqual(first_stats.extra["joint_ridge_ready_experts"], 1)
+
+        for candidate in (baseline, method):
+            candidate._mixture = copy.deepcopy(mixture)
+            candidate.boundary_history = [0.0]
+        second_images = self.score_feature_batch(
+            scores,
+            np.array([1.0, 1.0, -1.0, -1.0]),
+        )
+        baseline_second = baseline.predict(second_images)
+        method_second = method.predict(second_images)
+        label_changes = int(
+            np.count_nonzero(
+                method_second.pred_label.numpy()
+                != baseline_second.pred_label.numpy()
+            )
+        )
+        self.assertGreater(label_changes, 0)
+        self.assertEqual(
+            method._pending["prediction_joint_ridge_label_changes"],
+            label_changes,
+        )
+        self.assertGreater(
+            method._pending["prediction_joint_ridge_residual_max_abs"],
+            0.0,
+        )
+        baseline.adapt(second_images)
+        second_stats = method.adapt(second_images)
+        np.testing.assert_allclose(method.score_history, baseline.score_history)
+        np.testing.assert_allclose(method.boundary_history, baseline.boundary_history)
+        self.assertEqual(method.segment_changes, baseline.segment_changes)
+        self.assertEqual(second_stats.extra["joint_ridge_label_changes"], label_changes)
+        self.assertEqual(
+            second_stats.extra["joint_ridge_label_changes"],
+            second_stats.extra["joint_ridge_real_to_fake"]
+            + second_stats.extra["joint_ridge_fake_to_real"],
+        )
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_name"], "ASCAL-JMP-JointRidge")
+        self.assertEqual(metadata["research_version"], "R16")
+        self.assertIn("may_cross", metadata["accuracy_invariance"])
+        self.assertEqual(metadata["prediction_residual_centering"], "none")
+
+    def test_joint_ridge_static_path_is_exact_r12_source_fallback(self) -> None:
+        method = self.segmented_memory_posterior_joint_ridge_method(
+            adaptation_mode="static"
+        )
+        scores = np.array([-3.0, -0.5, 0.0, 0.5, 3.0])
+        images = self.score_feature_batch(scores, np.linspace(-1.0, 1.0, 5))
+        prediction = method.predict(images)
+        np.testing.assert_allclose(
+            prediction.prob_fake.numpy(),
+            method._source_probability(scores),
+            atol=1e-6,
+        )
+        stats = method.adapt(images)
+        self.assertEqual(stats.extra["joint_ridge_updates"], 0)
+        self.assertEqual(stats.extra["joint_ridge_expert_count"], 0)
+        self.assertEqual(method.trainable_parameters, 0)
+
+    def test_joint_ridge_updates_only_the_r12_selected_memory(self) -> None:
+        rng = np.random.default_rng(63)
+        method = self.segmented_memory_posterior_joint_ridge_method()
+        returning = {
+            "weights": [0.5, 0.5],
+            "mus": [-8.0, -3.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        active = {
+            "weights": [0.5, 0.5],
+            "mus": [20.0, 25.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        returning_state = method._new_ordinal_ridge_state()
+        active_state = method._new_ordinal_ridge_state()
+        method._mixture = active
+        method.boundary_history = [22.5]
+        method.active_memory_index = 1
+        method.segment_memories = [
+            {
+                "mixture": returning,
+                "boundary": float(method._memory_boundary(returning)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 0,
+                method._ORDINAL_RIDGE_MEMORY_KEY: returning_state,
+            },
+            {
+                "mixture": active,
+                "boundary": float(method._memory_boundary(active)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 1,
+                method._ORDINAL_RIDGE_MEMORY_KEY: active_state,
+            },
+        ]
+        scores = np.concatenate(
+            [rng.normal(-8.0, 0.2, 48), rng.normal(-3.0, 0.2, 48)]
+        )
+        cues = np.concatenate([-np.ones(48), np.ones(48)])
+        order = rng.permutation(len(scores))
+        images = self.score_feature_batch(scores[order], cues[order])
+
+        method.predict(images)
+        self.assertEqual(method._pending["prediction_routing_expert"], "episodic_memory")
+        self.assertEqual(method._pending["prediction_routing_memory_index"], 0)
+        stats = method.adapt(images)
+        self.assertEqual(returning_state["updates"], 1)
+        self.assertEqual(active_state["updates"], 0)
+        self.assertTrue(stats.extra["joint_ridge_updated"])
+        self.assertTrue(stats.extra["routing_handoff_this_batch"])
+        self.assertEqual(stats.extra["active_memory_index"], 0)
+
     def test_routed_residual_static_path_is_exact_source(self) -> None:
         method = self.segmented_memory_posterior_routed_residual_method(
             adaptation_mode="static"
@@ -5030,6 +5362,25 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_joint_ridge_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorJointRidge,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_joint_ridge_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorJointRidge,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_method_factory_maps_routed_residual_static_alias(self) -> None:
         from src.methods import build_method
         from src.methods.ascal_gmm import (
@@ -5728,6 +6079,44 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertIsInstance(
             method,
             ASCALGMMSegmentedMemoryPosteriorOrdinalRidge,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_joint_ridge_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorJointRidge,
+        )
+
+        method_name = "ascal_gmm_segmented_memory_posterior_joint_ridge_static"
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {method_name: {"adaptation_mode": "static"}},
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorJointRidge,
         )
         self.assertEqual(method.adaptation_mode, "static")
 

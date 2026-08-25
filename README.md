@@ -793,14 +793,33 @@ R12 硬预测。预测完成后，同一预测时 GMM 产生等先验 posterior 
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_ordinal_ridge_continual_*_seed1.yaml`；运行前
 门槛固定为逐样本硬决定与 R12 完全一致，且 target-macro online AUC 超过 R06。
 
+`ascal_gmm_segmented_memory_posterior_joint_ridge` 的研究版本名为
+**ASCAL-JMP-JointRidge（R16）**。它保留 R12 的不可变 source-score 坐标、unique-live MDL
+专家路由、GMM 分段、memory handoff 和 Predict-Then-Adapt 归属，但不再冻结 R12 的最终硬
+决定。每个专家携带一个零初始化的在线 Ridge；输入是去除 source 分类头方向并 L2 归一化的
+冻结 CLIP 特征，再附加一个常数 bias 坐标。零状态严格输出 R12 概率，历史专家恢复时同时
+恢复其 GMM、inverse Gram、feature residual 和 bias。
+
+预测时先取 R12 概率的 logit，再直接加上旧专家的 `phi(h)^T w_e`，最终 sigmoid 不做半区间
+锁定或 batch residual 中心化。因此 feature 权重可以改变样本排序，bias 可以移动有效分类
+边界，样本也可以跨越 0.5。其联合概率解释为 `final odds = R12 odds * exp(r_e(h))`。预测完成
+后，预测时旧 GMM 给出等先验 posterior `p`、可靠度 `c=abs(2p-1)` 和严格 residual 目标
+`logit(p) - logit(p_R12)`，同一专家通过固定 identity prior 的精确 Woodbury RLS 更新。
+修正输出永不回写路由或 GMM，二者始终保留不可变 source score，避免在线权重变化破坏历史
+专家坐标。方法不引入 epoch、optimizer、学习率、硬置信阈值、融合系数或 memory 容量。
+seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_joint_ridge_continual_*_seed1.yaml`；预注册晋级
+门槛为四数据集宏平均 Accuracy 超过 R12，且 target-macro online AUC 超过 R06。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
 target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
-最高值，R06 的直接比较对象是 R05，R07 至 R15 的直接比较对象均是当前最佳 R06；R12 至
-R15 还额外使用 R11/R12 的高 Accuracy 作为非劣锚点。
+最高值，R06 的直接比较对象是 R05，R07 至 R16 的直接比较对象均是当前最佳 R06；R12 至
+R16 还额外使用 R11/R12 的高 Accuracy 作为锚点。R16 不再要求逐样本硬决定不变，而是预先
+要求四数据集宏平均 Accuracy 严格超过 R12，同时 target-macro online AUC 超过 R06。
 该门槛只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整
 确认前仍不得写入正文正式表。
 

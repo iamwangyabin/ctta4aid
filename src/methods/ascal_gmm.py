@@ -32,6 +32,9 @@ while an immutable source probability supplies a globally comparable order
 inside the selected real or fake half interval. Its ordinal-ridge variant keeps
 those decisions exact and replaces only that within-interval order with the
 source logit plus one centered online weighted-ridge residual per expert.
+Its joint-ridge variant instead adds an uncentered feature residual and bias to
+the full ordinal-route log odds, so a zero state is exact R12 while learned
+expert evidence may improve both ranking and the binary decision boundary.
 Its current-projection variant recognizes that each active-segment GMM refit
 already contains all causal segment scores, so it removes the redundant median
 over nested refits while retaining one-vote episodic recall.
@@ -2999,6 +3002,507 @@ class ASCALGMMSegmentedMemoryPosteriorOrdinalRidge(
         self._pending_ordinal_ridge_state = None
         self._pending_ordinal_ridge_assignment = None
         self._pending_ordinal_ridge_mixture = None
+        super().discard_pending_prediction()
+
+
+class ASCALGMMSegmentedMemoryPosteriorJointRidge(
+    ASCALGMMSegmentedMemoryPosteriorOrdinalRidge
+):
+    """Add one unlocked causal feature log-odds residual to each R12 expert."""
+
+    _ORDINAL_RIDGE_MEMORY_KEY = "joint_ridge_state"
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.joint_ridge_backbone_feature_dim = self.ordinal_ridge_feature_dim
+        self.ordinal_ridge_feature_dim += 1
+        self._novel_ordinal_ridge_state = self._new_ordinal_ridge_state()
+        self._pending_joint_ridge_base_logits: np.ndarray | None = None
+        self.joint_ridge_batches = 0
+        self.joint_ridge_samples = 0
+        self.joint_ridge_ready_batches = 0
+        self.joint_ridge_label_changes = 0
+        self.joint_ridge_real_to_fake = 0
+        self.joint_ridge_fake_to_real = 0
+        self.joint_ridge_last_base_abs_mean = 0.0
+        self.joint_ridge_last_bias_abs = 0.0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "r12_initialized_mdl_routed_causal_joint_log_odds_"
+                    "online_ridge_adaptation"
+                ),
+                "research_name": "ASCAL-JMP-JointRidge",
+                "research_version": "R16",
+                "r12_protected_scope": (
+                    "routing_admission_unique_live_state_initial_prediction_"
+                    "adaptation_assignment_segmentation_and_memory"
+                ),
+                "r12_initialization": (
+                    "every_new_or_untrained_expert_predicts_exactly_as_r12"
+                ),
+                "accuracy_invariance": (
+                    "none_the_learned_feature_residual_and_bias_may_cross_"
+                    "the_r12_decision_boundary"
+                ),
+                "accuracy_behavior": (
+                    "joint_ridge_can_change_both_sample_decisions_and_the_"
+                    "expert_specific_effective_boundary"
+                ),
+                "residual_scope": (
+                    "one_zero_initialized_linear_joint_log_odds_residual_"
+                    "per_r12_expert"
+                ),
+                "residual_input": (
+                    "l2_normalized_frozen_features_orthogonal_to_the_source_"
+                    "classifier_direction_plus_one_constant_bias_coordinate"
+                ),
+                "residual_teacher": (
+                    "equal_prior_log_odds_of_the_prediction_time_selected_"
+                    "r12_gmm"
+                ),
+                "residual_target_rule": (
+                    "selected_gmm_teacher_logit_minus_prediction_time_r12_"
+                    "base_logit_without_centering"
+                ),
+                "reliability_rule": (
+                    "absolute_centered_selected_gmm_soft_posterior_no_threshold"
+                ),
+                "joint_odds_rule": (
+                    "final_odds_equal_r12_odds_times_exp_of_expert_ridge_"
+                    "feature_evidence"
+                ),
+                "ridge_objective": (
+                    "sum_reliability_times_squared_uncentered_logit_residual_"
+                    "error_plus_unit_l2_weight_norm"
+                ),
+                "ridge_prior_precision": (
+                    "fixed_identity_for_unit_feature_and_unit_bias_coordinates"
+                ),
+                "ridge_update": (
+                    "exact_recursive_least_squares_woodbury_after_prediction"
+                ),
+                "ridge_sufficient_statistics": (
+                    "one_inverse_regularized_gram_matrix_and_one_weight_vector_"
+                    "per_expert"
+                ),
+                "residual_intercept": "one_learned_bias_coordinate_per_expert",
+                "target_residual_centering": "none",
+                "prediction_residual_centering": "none",
+                "prediction_rule": (
+                    "sigmoid_of_r12_base_logit_plus_selected_expert_feature_"
+                    "residual_and_bias_without_half_interval_locking"
+                ),
+                "routing_score_coordinate": (
+                    "immutable_source_score_never_the_joint_ridge_output"
+                ),
+                "gmm_update_score_coordinate": (
+                    "immutable_source_score_never_the_joint_ridge_output"
+                ),
+                "source_fallback": "exact_r12_source_probability",
+                "optimizer": "none_closed_form_recursive_ridge",
+                "epoch": "none",
+                "learning_rate": "none",
+                "prediction_mutates_experts": False,
+                "raw_images_stored": False,
+                "raw_features_stored": False,
+                "target_labels_used": False,
+                "generator_boundaries_used": False,
+                "semantic_features_used": False,
+                "new_target_hyperparameters": 0,
+                "hyperparameter_rule": (
+                    "no_learning_rate_epoch_confidence_threshold_residual_weight_"
+                    "routing_threshold_fusion_weight_or_memory_capacity"
+                ),
+                "intentional_changes": [
+                    "all R12 routing and continual learning assignments remain unchanged",
+                    "zero initialized experts reproduce the complete R12 prediction",
+                    "the selected old GMM supplies a soft teacher and continuous reliability",
+                    "one constant Ridge coordinate learns an expert-specific boundary shift",
+                    "the feature residual may reorder samples and cross the R12 threshold",
+                    "neither target nor prediction residuals are batch centered",
+                    "joint outputs never rewrite the stable score coordinate used by GMM routing",
+                    "only the prediction-time selected expert updates after prediction",
+                    "no image or per-sample feature remains after the sufficient-statistic update",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_joint_ridge"
+
+    def _batch_scores_and_ordinal_ridge_features(
+        self,
+        images: Any,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        import torch
+
+        if images.dim() == 5:
+            batch, views = int(images.shape[0]), int(images.shape[1])
+            flat = images.reshape(batch * views, *images.shape[2:])
+        elif images.dim() == 4:
+            batch, views = int(images.shape[0]), 1
+            flat = images
+        else:
+            raise ValueError(
+                "ASCAL joint ridge expects (B, C, H, W) or "
+                "(B, V, C, H, W) images"
+            )
+        forward_features = getattr(self.model, "forward_features", None)
+        classifier = getattr(self.model, "classifier", None)
+        if not callable(forward_features) or not callable(classifier):
+            raise TypeError(
+                "ASCAL joint ridge requires forward_features and classifier"
+            )
+        with torch.no_grad():
+            features = forward_features(flat.to(self.device, non_blocking=True))
+            logits = classifier(features)
+        scores = (
+            binary_score(logits)
+            .view(batch, views)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        feature_values = (
+            features.detach()
+            .float()
+            .view(batch, views, -1)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        if int(feature_values.shape[1]) != self.joint_ridge_backbone_feature_dim:
+            raise ValueError(
+                "ASCAL joint ridge feature dimension does not match the source head"
+            )
+        direction = self._ordinal_ridge_source_direction
+        feature_values -= (feature_values @ direction)[:, None] * direction[None, :]
+        norms = np.linalg.norm(feature_values, axis=1, keepdims=True)
+        feature_values = np.divide(
+            feature_values,
+            norms,
+            out=np.zeros_like(feature_values),
+            where=norms > np.finfo(np.float64).eps,
+        )
+        feature_values = np.concatenate(
+            [feature_values, np.ones((batch, 1), dtype=np.float64)],
+            axis=1,
+        )
+        if int(feature_values.shape[1]) != self.ordinal_ridge_feature_dim:
+            raise RuntimeError("ASCAL joint ridge failed to append its bias feature")
+        return scores, feature_values
+
+    def _joint_ridge_supervision(
+        self,
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        base_logits: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        teacher_logits = np.clip(
+            _joint_density_log_odds(scores, mixture),
+            -60.0,
+            60.0,
+        )
+        base_logits = np.asarray(base_logits, dtype=np.float64).reshape(-1)
+        if base_logits.shape != teacher_logits.shape:
+            raise RuntimeError(
+                "ASCAL joint ridge base logit shape does not match its teacher"
+            )
+        posterior = 1.0 / (1.0 + np.exp(-teacher_logits))
+        reliability = np.abs(2.0 * posterior - 1.0)
+        targets = teacher_logits - base_logits
+        if not (
+            np.all(np.isfinite(base_logits))
+            and np.all(np.isfinite(targets))
+            and np.all(np.isfinite(reliability))
+        ):
+            raise FloatingPointError(
+                "ASCAL joint ridge produced non-finite supervision"
+            )
+        self.ordinal_ridge_last_effective_support = float(reliability.sum())
+        self.ordinal_ridge_last_reliability = float(np.mean(reliability))
+        self.ordinal_ridge_last_teacher_abs_mean = float(
+            np.mean(np.abs(teacher_logits))
+        )
+        self.ordinal_ridge_last_source_abs_mean = float(
+            np.mean(np.abs(base_logits))
+        )
+        self.ordinal_ridge_last_target_center = 0.0
+        self.ordinal_ridge_last_target_abs_mean = float(np.mean(np.abs(targets)))
+        self.joint_ridge_last_base_abs_mean = float(np.mean(np.abs(base_logits)))
+        return posterior, targets, reliability
+
+    def _update_ordinal_ridge_state(
+        self,
+        state: dict[str, Any],
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        features: np.ndarray,
+    ) -> bool:
+        base_logits = self._pending_joint_ridge_base_logits
+        if base_logits is None:
+            raise RuntimeError(
+                "ASCAL joint ridge lost its prediction-time R12 base logits"
+            )
+        _, targets, reliability = self._joint_ridge_supervision(
+            mixture,
+            scores,
+            base_logits,
+        )
+        effective_support = float(reliability.sum())
+        self.ordinal_ridge_candidate_samples += int(scores.size)
+        state["candidate_samples"] = int(state["candidate_samples"]) + int(
+            scores.size
+        )
+        if effective_support <= np.finfo(np.float64).eps:
+            return False
+
+        square_root_reliability = np.sqrt(reliability)
+        design = square_root_reliability[:, None] * features
+        response = square_root_reliability * targets
+        inverse_gram = np.asarray(state["inverse_gram"], dtype=np.float64)
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        inverse_times_design = inverse_gram @ design.T
+        innovation_gram = (
+            np.eye(int(scores.size), dtype=np.float64)
+            + design @ inverse_times_design
+        )
+        innovation_gram = 0.5 * (innovation_gram + innovation_gram.T)
+        try:
+            gain = np.linalg.solve(
+                innovation_gram,
+                inverse_times_design.T,
+            ).T
+        except np.linalg.LinAlgError:
+            self.ordinal_ridge_solve_failures += 1
+            return False
+
+        updated_weights = weights + gain @ (response - design @ weights)
+        updated_inverse = inverse_gram - gain @ inverse_times_design.T
+        updated_inverse = 0.5 * (updated_inverse + updated_inverse.T)
+        if not (
+            np.all(np.isfinite(updated_weights))
+            and np.all(np.isfinite(updated_inverse))
+        ):
+            self.ordinal_ridge_solve_failures += 1
+            return False
+
+        state["weights"] = updated_weights
+        state["inverse_gram"] = updated_inverse
+        state["updates"] = int(state["updates"]) + 1
+        state["effective_support"] = float(state["effective_support"]) + (
+            effective_support
+        )
+        state["weighted_target_square_sum"] = float(
+            state["weighted_target_square_sum"]
+        ) + float(np.sum(reliability * targets**2))
+        self.ordinal_ridge_updates += 1
+        self.ordinal_ridge_last_weight_norm = float(
+            np.linalg.norm(updated_weights)
+        )
+        self.joint_ridge_last_bias_abs = float(abs(updated_weights[-1]))
+        return self._ordinal_ridge_ready(state)
+
+    def _joint_ridge_state_stats(self) -> dict[str, Any]:
+        states = self._all_ordinal_ridge_states()
+        bias_values = [float(state["weights"][-1]) for state in states]
+        feature_norms = [
+            float(np.linalg.norm(state["weights"][:-1])) for state in states
+        ]
+        return {
+            "joint_ridge_expert_count": len(states),
+            "joint_ridge_ready_experts": sum(
+                self._ordinal_ridge_ready(state) for state in states
+            ),
+            "joint_ridge_updates": self.ordinal_ridge_updates,
+            "joint_ridge_candidate_samples": self.ordinal_ridge_candidate_samples,
+            "joint_ridge_batches": self.joint_ridge_batches,
+            "joint_ridge_samples": self.joint_ridge_samples,
+            "joint_ridge_ready_batches": self.joint_ridge_ready_batches,
+            "joint_ridge_solve_failures": self.ordinal_ridge_solve_failures,
+            "joint_ridge_label_changes": self.joint_ridge_label_changes,
+            "joint_ridge_real_to_fake": self.joint_ridge_real_to_fake,
+            "joint_ridge_fake_to_real": self.joint_ridge_fake_to_real,
+            "joint_ridge_effective_support": sum(
+                float(state["effective_support"]) for state in states
+            ),
+            "joint_ridge_last_effective_support": (
+                self.ordinal_ridge_last_effective_support
+            ),
+            "joint_ridge_last_reliability": self.ordinal_ridge_last_reliability,
+            "joint_ridge_last_teacher_abs_mean": (
+                self.ordinal_ridge_last_teacher_abs_mean
+            ),
+            "joint_ridge_last_base_abs_mean": self.joint_ridge_last_base_abs_mean,
+            "joint_ridge_last_target_abs_mean": (
+                self.ordinal_ridge_last_target_abs_mean
+            ),
+            "joint_ridge_last_bias_abs": self.joint_ridge_last_bias_abs,
+            "joint_ridge_max_bias_abs": max(
+                (abs(value) for value in bias_values),
+                default=0.0,
+            ),
+            "joint_ridge_mean_bias": (
+                float(np.mean(bias_values)) if bias_values else 0.0
+            ),
+            "joint_ridge_max_feature_weight_norm": max(
+                feature_norms,
+                default=0.0,
+            ),
+            "joint_ridge_weight_parameters": (
+                len(states) * self.ordinal_ridge_feature_dim
+            ),
+            "joint_ridge_inverse_gram_values": (
+                len(states) * self.ordinal_ridge_feature_dim**2
+            ),
+            "joint_ridge_trainable_parameters": self.trainable_parameters,
+        }
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(self._joint_ridge_state_stats())
+        return stats
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores, features = self._batch_scores_and_ordinal_ridge_features(images)
+        self._ordinal_ridge_precomputed_scores = scores
+        try:
+            ordinal = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.predict(
+                self,
+                images,
+            )
+        finally:
+            self._ordinal_ridge_precomputed_scores = None
+        if self._pending is None:
+            raise RuntimeError("ASCAL joint ridge lost the R12 pending state")
+
+        context = self._ordinal_ridge_context()
+        assignment = None if context is None else context[0]
+        mixture = None if context is None else context[1]
+        state = (
+            None
+            if assignment is None
+            else self._peek_ordinal_ridge_state(assignment)
+        )
+        ready = self._ordinal_ridge_ready(state)
+        if ready:
+            if state is None:
+                raise RuntimeError("ASCAL joint ridge lost its selected state")
+            residual = np.asarray(features @ state["weights"], dtype=np.float64)
+        else:
+            residual = np.zeros(int(scores.size), dtype=np.float64)
+
+        base_probability = (
+            ordinal.prob_fake.detach().cpu().numpy().astype(np.float64)
+        )
+        base_probability = np.clip(base_probability, 1e-6, 1.0 - 1e-6)
+        base_logits = np.log(base_probability / (1.0 - base_probability))
+        if context is None or not ready:
+            probability = base_probability
+        else:
+            joint_logits = np.clip(base_logits + residual, -60.0, 60.0)
+            probability = 1.0 / (1.0 + np.exp(-joint_logits))
+
+        base_labels = ordinal.pred_label.detach().cpu().numpy().astype(np.int64)
+        joint_labels = (probability >= 0.5).astype(np.int64)
+        label_changes = int(np.count_nonzero(joint_labels != base_labels))
+        real_to_fake = int(
+            np.count_nonzero((base_labels == 0) & (joint_labels == 1))
+        )
+        fake_to_real = int(
+            np.count_nonzero((base_labels == 1) & (joint_labels == 0))
+        )
+
+        self._pending_joint_ridge_base_logits = base_logits.copy()
+        self._pending_ordinal_ridge_features = features
+        self._pending_ordinal_ridge_state = state
+        self._pending_ordinal_ridge_assignment = assignment
+        self._pending_ordinal_ridge_mixture = (
+            None if mixture is None else _copy_gmm(mixture)
+        )
+        pending_state = dict(self._pending)
+        pending_state.pop("scores")
+        pending_state.update(
+            {
+                "prediction_ordinal_ridge_applied": context is not None,
+                "prediction_ordinal_ridge_ready": ready,
+                "prediction_ordinal_ridge_residual_center": 0.0,
+                "prediction_ordinal_ridge_residual_mean": float(
+                    np.mean(residual)
+                ),
+                "prediction_ordinal_ridge_residual_abs_mean": float(
+                    np.mean(np.abs(residual))
+                ),
+                "prediction_ordinal_ridge_residual_max_abs": float(
+                    np.max(np.abs(residual))
+                ),
+                "prediction_ordinal_ridge_hard_label_mismatches": label_changes,
+                "prediction_joint_ridge_applied": context is not None,
+                "prediction_joint_ridge_ready": ready,
+                "prediction_joint_ridge_residual_mean": float(
+                    np.mean(residual)
+                ),
+                "prediction_joint_ridge_residual_abs_mean": float(
+                    np.mean(np.abs(residual))
+                ),
+                "prediction_joint_ridge_residual_max_abs": float(
+                    np.max(np.abs(residual))
+                ),
+                "prediction_joint_ridge_bias": (
+                    0.0 if state is None else float(state["weights"][-1])
+                ),
+                "prediction_joint_ridge_label_changes": label_changes,
+                "prediction_joint_ridge_real_to_fake": real_to_fake,
+                "prediction_joint_ridge_fake_to_real": fake_to_real,
+            }
+        )
+        return self._prediction_batch(scores, probability, **pending_state)
+
+    def adapt(self, images: Any) -> AdaptationStats:
+        prediction_state = None if self._pending is None else dict(self._pending)
+        try:
+            stats = super().adapt(images)
+        finally:
+            self._pending_joint_ridge_base_logits = None
+        if prediction_state is None:
+            return stats
+
+        samples = int(np.asarray(prediction_state["scores"]).size)
+        if bool(prediction_state.get("prediction_joint_ridge_applied")):
+            self.joint_ridge_batches += 1
+            self.joint_ridge_samples += samples
+        if bool(prediction_state.get("prediction_joint_ridge_ready")):
+            self.joint_ridge_ready_batches += 1
+        self.joint_ridge_label_changes += int(
+            prediction_state.get("prediction_joint_ridge_label_changes", 0) or 0
+        )
+        self.joint_ridge_real_to_fake += int(
+            prediction_state.get("prediction_joint_ridge_real_to_fake", 0) or 0
+        )
+        self.joint_ridge_fake_to_real += int(
+            prediction_state.get("prediction_joint_ridge_fake_to_real", 0) or 0
+        )
+        stats.extra.update(
+            {
+                **self._joint_ridge_state_stats(),
+                "joint_ridge_updated": bool(
+                    stats.extra.get("ordinal_ridge_updated", False)
+                ),
+            }
+        )
+        return stats
+
+    def discard_pending_prediction(self) -> None:
+        self._pending_joint_ridge_base_logits = None
         super().discard_pending_prediction()
 
 
