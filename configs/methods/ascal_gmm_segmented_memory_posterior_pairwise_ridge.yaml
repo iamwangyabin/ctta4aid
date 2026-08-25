@@ -1,0 +1,54 @@
+extends: ascal_gmm_segmented_memory_posterior_ordinal_route.yaml
+
+methods:
+  - ascal_gmm_segmented_memory_posterior_pairwise_ridge_static
+  - ascal_gmm_segmented_memory_posterior_pairwise_ridge
+
+method_configs:
+  ascal_gmm_segmented_memory_posterior_pairwise_ridge_static:
+    adaptation_mode: static
+    reference:
+      role: exact_single_view_non_adaptive_control_for_pairwise_ridge
+      source_setup: lora_r4_binary_detector_from_fixed_clip_vitl14_with_score_anchors
+      protocol: predict_then_adapt
+
+  ascal_gmm_segmented_memory_posterior_pairwise_ridge:
+    adaptation_mode: full
+    reference:
+      profile: ascal_jmp_pairwise_ridge_r17
+      research_name: ASCAL-JMP-PairwiseRidge
+      research_version: R17
+      protocol: predict_then_adapt
+      target_labels_used: false
+      generator_boundaries_used: false
+      semantic_features_used: false
+      frozen_scope: clip_backbone_lora_branches_binary_head_and_source_score
+      protected_initialization: exact_r12_ordinal_route
+      protected_routing: exact_r12_unique_live_mdl_assignment
+      protected_adaptation: exact_r12_segmentation_memory_and_expert_assignment
+      accuracy_invariance: none_sample_specific_rank_residual_may_change_r12_decisions
+      ranker_scope: one_global_stream_wide_online_pairwise_ridge
+      ranker_input: source_head_orthogonal_l2_normalized_frozen_features
+      ranker_bias: none_pair_differences_cancel_constant_offsets
+      pair_class_side: r12_monotone_routed_decision
+      pair_soft_assignment: selected_gmm_posterior_projected_onto_r12_decision_half
+      pair_reliability: absolute_centered_projected_posterior_without_threshold
+      posterior_conflict_rule: contradictory_gmm_side_projects_to_half_and_zero_weight
+      pair_target: one_unit_fake_over_real_feature_rank_difference
+      pair_objective: soft_pairwise_squared_rank_error_plus_unit_l2_weight_norm
+      pair_compression: exact_batch_laplacian_rank_at_most_batch_size_minus_one
+      ridge_prior: fixed_identity_for_unit_features
+      ridge_update: exact_recursive_least_squares_woodbury_after_prediction
+      optimizer: none
+      learning_rate: none
+      epochs: none
+      prediction_rule: sigmoid_of_r12_base_logit_plus_global_bias_free_rank_residual
+      routing_score_coordinate: immutable_source_score
+      gmm_update_score_coordinate: immutable_source_score
+      routing_threshold: none
+      prediction_mutates_ranker: false
+      raw_images_stored: false
+      raw_features_stored: false
+      raw_pairs_stored: false
+      new_target_hyperparameters: 0
+      seed1_promotion_rule: accuracy_above_r12_and_target_macro_online_auc_above_r06

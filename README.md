@@ -811,14 +811,33 @@ seed1 成对入口为
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_joint_ridge_continual_*_seed1.yaml`；预注册晋级
 门槛为四数据集宏平均 Accuracy 超过 R12，且 target-macro online AUC 超过 R06。
 
+`ascal_gmm_segmented_memory_posterior_pairwise_ridge` 的研究版本名为
+**ASCAL-JMP-PairwiseRidge（R17）**。它针对 R16 的固定 seed1 失败诊断，只替换 feature
+residual 的监督目标和作用域：R12 的 immutable source score、unique-live MDL 路由、GMM
+分段、memory handoff 与 Predict-Then-Adapt 归属全部保持不变，但不再让每个 GMM 专家携带
+一套不同刻度的 log-odds residual。整个持续流只保存一个零初始化、无 bias 的线性 ranker；
+冻结 CLIP 特征仍先去除 source 分类头方向并 L2 归一化，新 ranker 未学习或当前没有 R12
+专家时严格退化为 R12。
+
+预测完成后，R12 的单调 routed decision 给每个样本确定 real/fake 方向，预测时所选旧 GMM
+只给出连续 posterior 可靠度。posterior 先投影到 R12 决策所在的半区间；若 GMM 密度尾部与
+R12 单调决定矛盾，则投影为 0.5 并自动得到零权重。当前 batch 的所有 soft fake-real 特征差
+以单位排序差为目标，形成一个无截距 pairwise Ridge；实现通过 soft-pair graph Laplacian 将
+全部样本对精确压缩到至多 `batch_size - 1` 个更新方向，再用 Woodbury RLS 累计到同一个全局
+充分统计。最终概率为 `sigmoid(logit(p_R12) + h^T w)`，因此允许样本级排序和阈值改变，但不再
+继承无界 GMM logit、专家 bias 或专家间 score scale。方法不保存图片、逐样本特征或样本对，
+也不引入 epoch、optimizer、学习率、硬置信阈值、residual 系数或第二套路由。seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_pairwise_ridge_continual_*_seed1.yaml`；预注册
+晋级门槛仍为四数据集宏平均 Accuracy 超过 R12，且 target-macro online AUC 超过 R06。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
 target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
-最高值，R06 的直接比较对象是 R05，R07 至 R16 的直接比较对象均是当前最佳 R06；R12 至
-R16 还额外使用 R11/R12 的高 Accuracy 作为锚点。R16 不再要求逐样本硬决定不变，而是预先
+最高值，R06 的直接比较对象是 R05，R07 至 R17 的直接比较对象均是当前最佳 R06；R12 至
+R17 还额外使用 R11/R12 的高 Accuracy 作为锚点。R16、R17 不再要求逐样本硬决定不变，而是预先
 要求四数据集宏平均 Accuracy 严格超过 R12，同时 target-macro online AUC 超过 R06。
 该门槛只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整
 确认前仍不得写入正文正式表。

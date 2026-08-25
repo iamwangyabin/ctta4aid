@@ -35,6 +35,10 @@ source logit plus one centered online weighted-ridge residual per expert.
 Its joint-ridge variant instead adds an uncentered feature residual and bias to
 the full ordinal-route log odds, so a zero state is exact R12 while learned
 expert evidence may improve both ranking and the binary decision boundary.
+Its pairwise-ridge variant keeps one bias-free stream-wide feature ranker. R12
+supplies the monotone pseudo-class side, the selected GMM supplies only bounded
+soft reliability, and an exact pairwise Ridge update learns unit fake-over-real
+feature differences without inheriting an expert-specific posterior scale.
 Its current-projection variant recognizes that each active-segment GMM refit
 already contains all causal segment scores, so it removes the redundant median
 over nested refits while retaining one-vote episodic recall.
@@ -3503,6 +3507,633 @@ class ASCALGMMSegmentedMemoryPosteriorJointRidge(
 
     def discard_pending_prediction(self) -> None:
         self._pending_joint_ridge_base_logits = None
+        super().discard_pending_prediction()
+
+
+class ASCALGMMSegmentedMemoryPosteriorPairwiseRidge(
+    ASCALGMMSegmentedMemoryPosteriorOrdinalRoute
+):
+    """Learn one causal bias-free global rank residual from soft pair weights."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        classifier = getattr(self.model, "classifier", None)
+        weight = getattr(classifier, "weight", None)
+        if weight is None or weight.ndim != 2 or int(weight.shape[0]) != 2:
+            raise TypeError(
+                "ASCAL pairwise ridge requires a two-class linear classifier"
+            )
+        direction = (
+            weight[1].detach().float().cpu().numpy()
+            - weight[0].detach().float().cpu().numpy()
+        ).astype(np.float64)
+        direction_norm = float(np.linalg.norm(direction))
+        if not math.isfinite(direction_norm) or direction_norm <= 0.0:
+            raise ValueError(
+                "ASCAL pairwise ridge requires a nonzero source score direction"
+            )
+        self._pairwise_ridge_source_direction = direction / direction_norm
+        self.pairwise_ridge_feature_dim = int(direction.size)
+        self._pairwise_ridge_state = self._new_pairwise_ridge_state()
+        self._pairwise_ridge_precomputed_scores: np.ndarray | None = None
+        self._pending_pairwise_ridge_features: np.ndarray | None = None
+        self._pending_pairwise_ridge_mixture: dict[str, Any] | None = None
+        self._pending_pairwise_ridge_labels: np.ndarray | None = None
+        self.pairwise_ridge_batches = 0
+        self.pairwise_ridge_samples = 0
+        self.pairwise_ridge_ready_batches = 0
+        self.pairwise_ridge_updates = 0
+        self.pairwise_ridge_candidate_samples = 0
+        self.pairwise_ridge_candidate_pairs = 0
+        self.pairwise_ridge_solve_failures = 0
+        self.pairwise_ridge_label_changes = 0
+        self.pairwise_ridge_real_to_fake = 0
+        self.pairwise_ridge_fake_to_real = 0
+        self.pairwise_ridge_last_effective_pair_mass = 0.0
+        self.pairwise_ridge_last_reliability = 0.0
+        self.pairwise_ridge_last_fake_mass = 0.0
+        self.pairwise_ridge_last_real_mass = 0.0
+        self.pairwise_ridge_last_pair_rank = 0
+        self.pairwise_ridge_last_posterior_conflicts = 0
+        self.pairwise_ridge_last_weight_norm = 0.0
+
+    @property
+    def trainable_parameters(self) -> int:
+        if self.adaptation_mode == "static":
+            return 0
+        return self.pairwise_ridge_feature_dim
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "r12_initialized_global_soft_pairwise_feature_rank_"
+                    "online_ridge_adaptation"
+                ),
+                "research_name": "ASCAL-JMP-PairwiseRidge",
+                "research_version": "R17",
+                "r12_protected_scope": (
+                    "routing_admission_unique_live_state_adaptation_assignment_"
+                    "segmentation_and_memory"
+                ),
+                "r12_initialization": (
+                    "an_untrained_global_ranker_predicts_exactly_as_r12"
+                ),
+                "accuracy_invariance": (
+                    "none_the_sample_specific_pairwise_residual_may_cross_"
+                    "the_r12_decision_boundary"
+                ),
+                "residual_scope": (
+                    "one_zero_initialized_bias_free_stream_wide_linear_ranker"
+                ),
+                "residual_input": (
+                    "l2_normalized_frozen_features_orthogonal_to_the_source_"
+                    "classifier_direction_without_a_bias_coordinate"
+                ),
+                "pair_class_side": (
+                    "the_r12_monotone_routed_decision_never_the_unconstrained_"
+                    "gmm_density_tail"
+                ),
+                "pair_soft_assignment": (
+                    "project_the_selected_gmm_posterior_onto_its_r12_decision_"
+                    "half_interval"
+                ),
+                "pair_reliability": (
+                    "absolute_centered_projected_gmm_posterior_no_threshold"
+                ),
+                "posterior_conflict_rule": (
+                    "a_gmm_posterior_on_the_opposite_side_of_the_r12_decision_"
+                    "projects_to_one_half_and_contributes_zero_pair_weight"
+                ),
+                "pair_objective": (
+                    "soft_expected_fake_real_feature_difference_equals_one_"
+                    "plus_unit_l2_weight_norm"
+                ),
+                "pair_target": "one_unit_fake_over_real_rank_difference",
+                "pair_intercept": "none_pair_differences_cancel_any_constant",
+                "pair_compression": (
+                    "exact_current_batch_soft_pair_laplacian_eigendecomposition_"
+                    "with_rank_at_most_batch_size_minus_one"
+                ),
+                "ridge_prior_precision": "fixed_identity_on_unit_features",
+                "ridge_update": (
+                    "exact_recursive_least_squares_woodbury_after_prediction"
+                ),
+                "ridge_sufficient_statistics": (
+                    "one_stream_wide_inverse_regularized_gram_matrix_and_one_"
+                    "weight_vector"
+                ),
+                "prediction_rule": (
+                    "sigmoid_of_r12_base_logit_plus_one_global_bias_free_"
+                    "feature_rank_residual"
+                ),
+                "global_score_rule": (
+                    "one_shared_feature_rank_coordinate_for_every_routed_expert"
+                ),
+                "routing_score_coordinate": (
+                    "immutable_source_score_never_the_pairwise_ridge_output"
+                ),
+                "gmm_update_score_coordinate": (
+                    "immutable_source_score_never_the_pairwise_ridge_output"
+                ),
+                "source_fallback": "exact_r12_source_probability",
+                "optimizer": "none_closed_form_recursive_ridge",
+                "epoch": "none",
+                "learning_rate": "none",
+                "prediction_mutates_ranker": False,
+                "raw_images_stored": False,
+                "raw_features_stored": False,
+                "raw_pairs_stored": False,
+                "target_labels_used": False,
+                "generator_boundaries_used": False,
+                "semantic_features_used": False,
+                "new_target_hyperparameters": 0,
+                "hyperparameter_rule": (
+                    "no_learning_rate_epoch_confidence_threshold_residual_weight_"
+                    "routing_threshold_fusion_weight_pair_margin_or_memory_capacity"
+                ),
+                "intentional_changes": [
+                    "all R12 routing and continual learning assignments remain unchanged",
+                    "the selected R12 GMM supplies reliability but never a logit target",
+                    "R12 supplies the monotone pseudo-class side for every soft pair",
+                    "posterior evidence contradicting that side receives zero weight",
+                    "one global head avoids expert-specific feature score scales",
+                    "pair differences remove the residual intercept by construction",
+                    "the bounded unit rank target cannot inherit extreme GMM log odds",
+                    "predictions use only the global state learned after earlier batches",
+                    "no image feature or pair remains after the sufficient-statistic update",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_pairwise_ridge"
+
+    def _new_pairwise_ridge_state(self) -> dict[str, Any]:
+        return {
+            "inverse_gram": np.eye(
+                self.pairwise_ridge_feature_dim,
+                dtype=np.float64,
+            ),
+            "weights": np.zeros(
+                self.pairwise_ridge_feature_dim,
+                dtype=np.float64,
+            ),
+            "updates": 0,
+            "candidate_samples": 0,
+            "candidate_pairs": 0,
+            "effective_pair_mass": 0.0,
+            "compressed_rank_sum": 0,
+        }
+
+    @staticmethod
+    def _pairwise_ridge_ready(state: dict[str, Any]) -> bool:
+        if int(state["updates"]) <= 0:
+            return False
+        return float(np.linalg.norm(state["weights"])) > np.finfo(np.float64).eps
+
+    def _batch_scores_and_pairwise_ridge_features(
+        self,
+        images: Any,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        import torch
+
+        if images.dim() == 5:
+            batch, views = int(images.shape[0]), int(images.shape[1])
+            flat = images.reshape(batch * views, *images.shape[2:])
+        elif images.dim() == 4:
+            batch, views = int(images.shape[0]), 1
+            flat = images
+        else:
+            raise ValueError(
+                "ASCAL pairwise ridge expects (B, C, H, W) or "
+                "(B, V, C, H, W) images"
+            )
+        forward_features = getattr(self.model, "forward_features", None)
+        classifier = getattr(self.model, "classifier", None)
+        if not callable(forward_features) or not callable(classifier):
+            raise TypeError(
+                "ASCAL pairwise ridge requires forward_features and classifier"
+            )
+        with torch.no_grad():
+            features = forward_features(flat.to(self.device, non_blocking=True))
+            logits = classifier(features)
+        scores = (
+            binary_score(logits)
+            .view(batch, views)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        feature_values = (
+            features.detach()
+            .float()
+            .view(batch, views, -1)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        if int(feature_values.shape[1]) != self.pairwise_ridge_feature_dim:
+            raise ValueError(
+                "ASCAL pairwise ridge feature dimension does not match the source head"
+            )
+        direction = self._pairwise_ridge_source_direction
+        feature_values -= (feature_values @ direction)[:, None] * direction[None, :]
+        norms = np.linalg.norm(feature_values, axis=1, keepdims=True)
+        feature_values = np.divide(
+            feature_values,
+            norms,
+            out=np.zeros_like(feature_values),
+            where=norms > np.finfo(np.float64).eps,
+        )
+        return scores, feature_values
+
+    def _batch_scores(self, images: Any) -> Any:
+        if self._pairwise_ridge_precomputed_scores is not None:
+            return self._pairwise_ridge_precomputed_scores.copy()
+        return super()._batch_scores(images)
+
+    def _pairwise_ridge_context(self) -> dict[str, Any] | None:
+        if self._pending is None:
+            raise RuntimeError("ASCAL pairwise ridge lost its R12 prediction state")
+        selected_expert = self._pending.get("prediction_routing_expert")
+        if selected_expert is None:
+            return None
+        if selected_expert == "active_learning_state":
+            if self._mixture is None or not self._mixture_active():
+                raise RuntimeError(
+                    "ASCAL pairwise ridge selected no eligible live GMM"
+                )
+            return self._mixture
+        if selected_expert != "episodic_memory":
+            raise RuntimeError("ASCAL pairwise ridge received an unknown R12 expert")
+        memory_index = self._pending.get("prediction_routing_memory_index")
+        if memory_index is None:
+            raise RuntimeError(
+                "ASCAL pairwise ridge selected memory without an index"
+            )
+        memory_index = int(memory_index)
+        if not 0 <= memory_index < len(self.segment_memories):
+            raise RuntimeError("ASCAL pairwise ridge selected memory out of range")
+        return self.segment_memories[memory_index]["mixture"]
+
+    @staticmethod
+    def _pairwise_ridge_batch_system(
+        features: np.ndarray,
+        fake_mass: np.ndarray,
+        real_mass: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, float, int]:
+        features = np.asarray(features, dtype=np.float64)
+        fake_mass = np.asarray(fake_mass, dtype=np.float64).reshape(-1)
+        real_mass = np.asarray(real_mass, dtype=np.float64).reshape(-1)
+        if features.ndim != 2 or int(features.shape[0]) != int(fake_mass.size):
+            raise ValueError("Pairwise Ridge features and soft masses must align")
+        if real_mass.shape != fake_mass.shape:
+            raise ValueError("Pairwise Ridge fake and real masses must align")
+        if np.any(fake_mass < 0.0) or np.any(real_mass < 0.0):
+            raise ValueError("Pairwise Ridge soft masses must be nonnegative")
+
+        fake_total = float(fake_mass.sum())
+        real_total = float(real_mass.sum())
+        effective_pair_mass = float(
+            fake_total * real_total - np.dot(fake_mass, real_mass)
+        )
+        dimension = int(features.shape[1])
+        if effective_pair_mass <= np.finfo(np.float64).eps:
+            return (
+                np.zeros((0, dimension), dtype=np.float64),
+                np.zeros(0, dtype=np.float64),
+                max(effective_pair_mass, 0.0),
+                0,
+            )
+
+        laplacian = np.diag(
+            real_total * fake_mass + fake_total * real_mass
+        ) - np.outer(fake_mass, real_mass) - np.outer(real_mass, fake_mass)
+        laplacian = 0.5 * (laplacian + laplacian.T)
+        eigenvalues, eigenvectors = np.linalg.eigh(laplacian)
+        eigenvalue_scale = max(float(np.max(np.abs(eigenvalues))), 1.0)
+        tolerance = (
+            np.finfo(np.float64).eps
+            * max(int(laplacian.shape[0]), 1)
+            * eigenvalue_scale
+        )
+        positive = eigenvalues > tolerance
+        if not np.any(positive):
+            return (
+                np.zeros((0, dimension), dtype=np.float64),
+                np.zeros(0, dtype=np.float64),
+                effective_pair_mass,
+                0,
+            )
+
+        values = eigenvalues[positive]
+        vectors = eigenvectors[:, positive]
+        roots = np.sqrt(values)
+        design = roots[:, None] * (vectors.T @ features)
+        coefficient = real_total * fake_mass - fake_total * real_mass
+        response = (vectors.T @ coefficient) / roots
+        if not (
+            np.all(np.isfinite(design))
+            and np.all(np.isfinite(response))
+        ):
+            raise FloatingPointError(
+                "ASCAL pairwise ridge produced a non-finite compressed pair system"
+            )
+        return design, response, effective_pair_mass, int(values.size)
+
+    def _pairwise_ridge_supervision(
+        self,
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        routed_labels: np.ndarray,
+        features: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, float, int]:
+        posterior = np.asarray(
+            joint_density_fake_posterior(scores, mixture),
+            dtype=np.float64,
+        ).reshape(-1)
+        routed_fake = np.asarray(routed_labels, dtype=np.int64).reshape(-1).astype(bool)
+        if posterior.shape != routed_fake.shape:
+            raise RuntimeError(
+                "ASCAL pairwise ridge posterior and R12 labels do not align"
+            )
+        projected = np.where(
+            routed_fake,
+            np.maximum(posterior, 0.5),
+            np.minimum(posterior, 0.5),
+        )
+        reliability = np.abs(2.0 * projected - 1.0)
+        fake_mass = reliability * projected
+        real_mass = reliability * (1.0 - projected)
+        conflicts = int(
+            np.count_nonzero(
+                (posterior - 0.5)
+                * np.where(routed_fake, 1.0, -1.0)
+                < 0.0
+            )
+        )
+        design, response, pair_mass, pair_rank = self._pairwise_ridge_batch_system(
+            features,
+            fake_mass,
+            real_mass,
+        )
+        self.pairwise_ridge_last_effective_pair_mass = pair_mass
+        self.pairwise_ridge_last_reliability = float(np.mean(reliability))
+        self.pairwise_ridge_last_fake_mass = float(fake_mass.sum())
+        self.pairwise_ridge_last_real_mass = float(real_mass.sum())
+        self.pairwise_ridge_last_pair_rank = pair_rank
+        self.pairwise_ridge_last_posterior_conflicts = conflicts
+        return design, response, pair_mass, pair_rank
+
+    def _update_pairwise_ridge_state(
+        self,
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        routed_labels: np.ndarray,
+        features: np.ndarray,
+    ) -> bool:
+        state = self._pairwise_ridge_state
+        samples = int(scores.size)
+        candidate_pairs = samples * max(samples - 1, 0)
+        self.pairwise_ridge_candidate_samples += samples
+        self.pairwise_ridge_candidate_pairs += candidate_pairs
+        state["candidate_samples"] = int(state["candidate_samples"]) + samples
+        state["candidate_pairs"] = int(state["candidate_pairs"]) + candidate_pairs
+        design, response, pair_mass, pair_rank = self._pairwise_ridge_supervision(
+            mixture,
+            scores,
+            routed_labels,
+            features,
+        )
+        if pair_rank <= 0 or pair_mass <= np.finfo(np.float64).eps:
+            return False
+
+        inverse_gram = np.asarray(state["inverse_gram"], dtype=np.float64)
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        inverse_times_design = inverse_gram @ design.T
+        innovation_gram = (
+            np.eye(int(design.shape[0]), dtype=np.float64)
+            + design @ inverse_times_design
+        )
+        innovation_gram = 0.5 * (innovation_gram + innovation_gram.T)
+        try:
+            gain = np.linalg.solve(
+                innovation_gram,
+                inverse_times_design.T,
+            ).T
+        except np.linalg.LinAlgError:
+            self.pairwise_ridge_solve_failures += 1
+            return False
+
+        updated_weights = weights + gain @ (response - design @ weights)
+        updated_inverse = inverse_gram - gain @ inverse_times_design.T
+        updated_inverse = 0.5 * (updated_inverse + updated_inverse.T)
+        if not (
+            np.all(np.isfinite(updated_weights))
+            and np.all(np.isfinite(updated_inverse))
+        ):
+            self.pairwise_ridge_solve_failures += 1
+            return False
+
+        state["weights"] = updated_weights
+        state["inverse_gram"] = updated_inverse
+        state["updates"] = int(state["updates"]) + 1
+        state["effective_pair_mass"] = float(state["effective_pair_mass"]) + pair_mass
+        state["compressed_rank_sum"] = int(state["compressed_rank_sum"]) + pair_rank
+        self.pairwise_ridge_updates += 1
+        self.pairwise_ridge_last_weight_norm = float(
+            np.linalg.norm(updated_weights)
+        )
+        return self._pairwise_ridge_ready(state)
+
+    def _pairwise_ridge_state_stats(self) -> dict[str, Any]:
+        state = self._pairwise_ridge_state
+        state_active = int(state["candidate_samples"]) > 0
+        return {
+            "pairwise_ridge_global_state_count": int(state_active),
+            "pairwise_ridge_ready": self._pairwise_ridge_ready(state),
+            "pairwise_ridge_updates": self.pairwise_ridge_updates,
+            "pairwise_ridge_candidate_samples": (
+                self.pairwise_ridge_candidate_samples
+            ),
+            "pairwise_ridge_candidate_pairs": self.pairwise_ridge_candidate_pairs,
+            "pairwise_ridge_effective_pair_mass": float(
+                state["effective_pair_mass"]
+            ),
+            "pairwise_ridge_compressed_rank_sum": int(
+                state["compressed_rank_sum"]
+            ),
+            "pairwise_ridge_batches": self.pairwise_ridge_batches,
+            "pairwise_ridge_samples": self.pairwise_ridge_samples,
+            "pairwise_ridge_ready_batches": self.pairwise_ridge_ready_batches,
+            "pairwise_ridge_solve_failures": self.pairwise_ridge_solve_failures,
+            "pairwise_ridge_label_changes": self.pairwise_ridge_label_changes,
+            "pairwise_ridge_real_to_fake": self.pairwise_ridge_real_to_fake,
+            "pairwise_ridge_fake_to_real": self.pairwise_ridge_fake_to_real,
+            "pairwise_ridge_last_effective_pair_mass": (
+                self.pairwise_ridge_last_effective_pair_mass
+            ),
+            "pairwise_ridge_last_reliability": (
+                self.pairwise_ridge_last_reliability
+            ),
+            "pairwise_ridge_last_fake_mass": self.pairwise_ridge_last_fake_mass,
+            "pairwise_ridge_last_real_mass": self.pairwise_ridge_last_real_mass,
+            "pairwise_ridge_last_pair_rank": self.pairwise_ridge_last_pair_rank,
+            "pairwise_ridge_last_posterior_conflicts": (
+                self.pairwise_ridge_last_posterior_conflicts
+            ),
+            "pairwise_ridge_weight_norm": float(np.linalg.norm(state["weights"])),
+            "pairwise_ridge_weight_parameters": (
+                self.pairwise_ridge_feature_dim if state_active else 0
+            ),
+            "pairwise_ridge_inverse_gram_values": (
+                self.pairwise_ridge_feature_dim**2 if state_active else 0
+            ),
+            "pairwise_ridge_trainable_parameters": self.trainable_parameters,
+        }
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(self._pairwise_ridge_state_stats())
+        return stats
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores, features = self._batch_scores_and_pairwise_ridge_features(images)
+        self._pairwise_ridge_precomputed_scores = scores
+        try:
+            ordinal = super().predict(images)
+        finally:
+            self._pairwise_ridge_precomputed_scores = None
+        if self._pending is None:
+            raise RuntimeError("ASCAL pairwise ridge lost the R12 pending state")
+
+        mixture = self._pairwise_ridge_context()
+        ready = mixture is not None and self._pairwise_ridge_ready(
+            self._pairwise_ridge_state
+        )
+        if ready:
+            residual = np.asarray(
+                features @ self._pairwise_ridge_state["weights"],
+                dtype=np.float64,
+            )
+        else:
+            residual = np.zeros(int(scores.size), dtype=np.float64)
+
+        base_probability = (
+            ordinal.prob_fake.detach().cpu().numpy().astype(np.float64)
+        )
+        base_probability = np.clip(base_probability, 1e-6, 1.0 - 1e-6)
+        if not ready:
+            probability = base_probability
+        else:
+            base_logits = np.log(base_probability / (1.0 - base_probability))
+            final_logits = np.clip(base_logits + residual, -60.0, 60.0)
+            probability = 1.0 / (1.0 + np.exp(-final_logits))
+
+        base_labels = ordinal.pred_label.detach().cpu().numpy().astype(np.int64)
+        final_labels = (probability >= 0.5).astype(np.int64)
+        label_changes = int(np.count_nonzero(final_labels != base_labels))
+        real_to_fake = int(
+            np.count_nonzero((base_labels == 0) & (final_labels == 1))
+        )
+        fake_to_real = int(
+            np.count_nonzero((base_labels == 1) & (final_labels == 0))
+        )
+
+        self._pending_pairwise_ridge_features = features
+        self._pending_pairwise_ridge_mixture = (
+            None if mixture is None else _copy_gmm(mixture)
+        )
+        self._pending_pairwise_ridge_labels = base_labels.copy()
+        pending_state = dict(self._pending)
+        pending_state.pop("scores")
+        pending_state.update(
+            {
+                "prediction_pairwise_ridge_applied": mixture is not None,
+                "prediction_pairwise_ridge_ready": ready,
+                "prediction_pairwise_ridge_residual_mean": float(
+                    np.mean(residual)
+                ),
+                "prediction_pairwise_ridge_residual_abs_mean": float(
+                    np.mean(np.abs(residual))
+                ),
+                "prediction_pairwise_ridge_residual_max_abs": float(
+                    np.max(np.abs(residual))
+                ),
+                "prediction_pairwise_ridge_label_changes": label_changes,
+                "prediction_pairwise_ridge_real_to_fake": real_to_fake,
+                "prediction_pairwise_ridge_fake_to_real": fake_to_real,
+                "prediction_pairwise_ridge_global_updates": int(
+                    self._pairwise_ridge_state["updates"]
+                ),
+            }
+        )
+        return self._prediction_batch(scores, probability, **pending_state)
+
+    def adapt(self, images: Any) -> AdaptationStats:
+        if self._pending is None:
+            return super().adapt(images)
+        scores = np.asarray(self._pending["scores"], dtype=np.float64).reshape(-1)
+        prediction_state = dict(self._pending)
+        features = self._pending_pairwise_ridge_features
+        mixture = self._pending_pairwise_ridge_mixture
+        routed_labels = self._pending_pairwise_ridge_labels
+        self._pending_pairwise_ridge_features = None
+        self._pending_pairwise_ridge_mixture = None
+        self._pending_pairwise_ridge_labels = None
+
+        updated = False
+        if self.adaptation_mode == "full" and mixture is not None:
+            if features is None or int(features.shape[0]) != int(scores.size):
+                raise RuntimeError(
+                    "ASCAL pairwise ridge lost its matching prediction features"
+                )
+            if routed_labels is None or int(routed_labels.size) != int(scores.size):
+                raise RuntimeError(
+                    "ASCAL pairwise ridge lost its matching R12 decisions"
+                )
+            updated = self._update_pairwise_ridge_state(
+                mixture,
+                scores,
+                routed_labels,
+                features,
+            )
+
+        stats = super().adapt(images)
+        if bool(prediction_state.get("prediction_pairwise_ridge_applied")):
+            self.pairwise_ridge_batches += 1
+            self.pairwise_ridge_samples += int(scores.size)
+        if bool(prediction_state.get("prediction_pairwise_ridge_ready")):
+            self.pairwise_ridge_ready_batches += 1
+        self.pairwise_ridge_label_changes += int(
+            prediction_state.get("prediction_pairwise_ridge_label_changes", 0) or 0
+        )
+        self.pairwise_ridge_real_to_fake += int(
+            prediction_state.get("prediction_pairwise_ridge_real_to_fake", 0) or 0
+        )
+        self.pairwise_ridge_fake_to_real += int(
+            prediction_state.get("prediction_pairwise_ridge_fake_to_real", 0) or 0
+        )
+        stats.extra.update(
+            {
+                **self._pairwise_ridge_state_stats(),
+                "pairwise_ridge_updated": updated,
+            }
+        )
+        return stats
+
+    def discard_pending_prediction(self) -> None:
+        self._pairwise_ridge_precomputed_scores = None
+        self._pending_pairwise_ridge_features = None
+        self._pending_pairwise_ridge_mixture = None
+        self._pending_pairwise_ridge_labels = None
         super().discard_pending_prediction()
 
 
