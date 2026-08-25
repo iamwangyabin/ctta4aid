@@ -759,14 +759,31 @@ target label、generator id、optimizer、学习率、硬置信阈值、fusion w
 固定晋级条件仍是 Accuracy 相对 R11 最多下降 0.2 个百分点且 target-macro online AUC 超过
 R06。
 
+`ascal_gmm_segmented_memory_posterior_routed_ridge_residual` 的研究版本名为
+**ASCAL-JMP-RoutedRidge（R14）**。它冻结 R13 的 source-score 校准、唯一 live GMM 候选、
+MDL admission 和 residual 专家归属，只把每专家的 real/fake 余弦原型替换为一个零初始化的
+在线线性 head。输入仍是去除 source 分类头方向并 L2 归一化的冻结 CLIP 特征；预测时只有
+R13 已选中的专家输出 `h^T w_e`，最终唯一 logit 为 R01 base logit 加该值，新专家尚未学习时
+严格等于 R13 的零 residual 路径。线性 head 不含额外 bias，因为统一平移仍由 R01 base
+负责；residual 只学习正交特征中的样本级差异，也不再人为裁剪其读出。
+
+预测完成后，预测时所选 GMM 产生等先验 posterior `p`、有界 soft target `u=2p-1` 和连续
+可靠度 `c=|2p-1|`。同一专家随后以固定 identity prior 解
+`sum_i c_i(h_i^T w-u_i)^2 + ||w||^2`；实现用 Woodbury 递推精确更新 inverse Gram 和权重，
+所以不需要 epoch、optimizer、学习率、硬阈值，也不保存图片或逐样本 feature。完整岭回归的
+每专家充分统计包含一个 `768 x 768` inverse Gram，而不只是 768 个权重；这是用内存换取无
+学习率的精确在线解，必须在效率统计中如实报告。seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_routed_ridge_residual_continual_*_seed1.yaml`；
+运行前门槛为 Accuracy 相对 R12 最多下降 0.2 个百分点且 target-macro online AUC 超过 R06。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
 target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
-最高值，R06 的直接比较对象是 R05，R07、R08、R09、R10 和 R11 的直接比较对象均是当前
-最佳 R06。
+最高值，R06 的直接比较对象是 R05，R07 至 R14 的直接比较对象均是当前最佳 R06；R12 至
+R14 还额外使用 R11/R12 的高 Accuracy 作为非劣锚点。
 该门槛只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整
 确认前仍不得写入正文正式表。
 

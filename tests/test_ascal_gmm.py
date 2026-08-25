@@ -1420,6 +1420,92 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["raw_images_stored"])
                 self.assertFalse(reference["raw_features_stored"])
 
+    def test_routed_ridge_configs_use_exact_online_linear_heads_without_knobs(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_routed_ridge_residual"
+        )
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_posterior_"
+                f"routed_ridge_residual_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [
+                        "ascal_gmm_segmented_memory_posterior_routed_residual",
+                        method_name,
+                    ],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                config_dir = Path(config["_config_path"]).parent
+                for field in (
+                    "locked_online_manifest",
+                    "locked_final_holdout_manifest",
+                ):
+                    manifest = Path(config["data"][field]).expanduser()
+                    if not manifest.is_absolute():
+                        manifest = config_dir / manifest
+                    self.assertTrue(manifest.resolve().is_file())
+                self.assertIn(
+                    f"posterior_routed_ridge_residual_continual/{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(config, method_name)
+                for key in (
+                    "confidence_threshold",
+                    "fusion_weight",
+                    "lambda",
+                    "learning_rate",
+                    "memory_capacity",
+                    "recall_threshold",
+                    "ridge_alpha",
+                    "similarity_threshold",
+                    "target_threshold",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                reference = adaptive["reference"]
+                self.assertEqual(
+                    reference["research_name"], "ASCAL-JMP-RoutedRidge"
+                )
+                self.assertEqual(reference["research_version"], "R14")
+                self.assertEqual(reference["new_target_hyperparameters"], 0)
+                self.assertFalse(reference["score_boundary_routing"])
+                self.assertFalse(reference["routing_changes_score_calibrator"])
+                self.assertEqual(reference["routing_threshold"], "none")
+                self.assertEqual(reference["optimizer"], "none")
+                self.assertEqual(reference["learning_rate"], "none")
+                self.assertEqual(reference["epochs"], "none")
+                self.assertEqual(
+                    reference["residual_intercept"],
+                    "none_global_shift_is_handled_by_r01_base",
+                )
+                self.assertEqual(reference["residual_readout_bound"], "none")
+                self.assertFalse(reference["prediction_mutates_experts"])
+                self.assertFalse(reference["target_labels_used"])
+                self.assertFalse(reference["generator_boundaries_used"])
+                self.assertFalse(reference["semantic_features_used"])
+                self.assertFalse(reference["raw_images_stored"])
+                self.assertFalse(reference["raw_features_stored"])
+
     def test_source_training_declares_gmm_consumers(self) -> None:
         from src.config import load_config
 
@@ -1577,6 +1663,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_memory_posterior_routed_residual_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_routed_ridge_residual",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_routed_ridge_residual_static",
             config["training"]["intended_methods"],
         )
 
@@ -1946,6 +2040,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorRoutedResidual(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_posterior_routed_ridge_residual_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorRoutedRidgeResidual,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorRoutedRidgeResidual(
             self.detector(),
             "cpu",
             {
@@ -3538,6 +3648,232 @@ class ASCALGMMMethodTests(unittest.TestCase):
                 method._mixture["sigmas"], baseline._mixture["sigmas"]
             )
 
+    def test_routed_ridge_matches_the_exact_weighted_ridge_solution(self) -> None:
+        from src.methods.ascal_gmm import joint_density_fake_posterior
+
+        method = self.segmented_memory_posterior_routed_ridge_residual_method()
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-3.0, 3.0],
+            "sigmas": [0.8, 0.8],
+            "components": 2,
+            "bic": 0.0,
+        }
+        scores = np.array([-3.5, -2.5, 2.5, 3.5])
+        features = np.array(
+            [
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [0.0, 0.0, 1.0],
+                [1.0, 1.0, 1.0],
+            ],
+            dtype=np.float64,
+        )
+        features[-1] /= np.linalg.norm(features[-1])
+        posterior = joint_density_fake_posterior(scores, mixture)
+        targets = 2.0 * posterior - 1.0
+        reliability = np.abs(targets)
+        expected_precision = np.eye(3) + features.T @ (
+            reliability[:, None] * features
+        )
+        expected_rhs = features.T @ (reliability * targets)
+        expected_weights = np.linalg.solve(expected_precision, expected_rhs)
+
+        state = method._new_routed_residual_state()
+        for indices in (slice(0, 2), slice(2, 4)):
+            self.assertTrue(
+                method._update_routed_residual_state(
+                    state,
+                    mixture,
+                    scores[indices],
+                    features[indices],
+                )
+            )
+        np.testing.assert_allclose(state["weights"], expected_weights, atol=1e-12)
+        np.testing.assert_allclose(
+            state["inverse_gram"],
+            np.linalg.inv(expected_precision),
+            atol=1e-12,
+        )
+        self.assertEqual(state["updates"], 2)
+        self.assertEqual(state["candidate_samples"], len(scores))
+        self.assertEqual(method.routed_ridge_solve_failures, 0)
+
+    def test_routed_ridge_static_path_is_exact_source(self) -> None:
+        method = self.segmented_memory_posterior_routed_ridge_residual_method(
+            adaptation_mode="static"
+        )
+        scores = np.array([-3.0, -0.5, 0.0, 0.5, 3.0])
+        cues = np.array([-1.0, -0.5, 0.0, 0.5, 1.0])
+        images = self.score_feature_batch(scores, cues)
+
+        prediction = method.predict(images)
+        np.testing.assert_allclose(
+            prediction.prob_fake.numpy(),
+            method._source_probability(scores),
+            atol=1e-6,
+        )
+        self.assertEqual(
+            method._pending["prediction_residual_routing_candidate_count"], 0
+        )
+        self.assertFalse(method._pending["prediction_routed_residual_ready"])
+        stats = method.adapt(images)
+        self.assertEqual(stats.extra["routed_residual_updates"], 0)
+        self.assertEqual(stats.extra["routed_ridge_head_count"], 0)
+        self.assertEqual(method.trainable_parameters, 0)
+
+    def test_routed_ridge_is_causal_and_zero_initialized(self) -> None:
+        method = self.segmented_memory_posterior_routed_ridge_residual_method()
+        method._mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-4.0, 4.0],
+            "sigmas": [0.5, 0.5],
+            "components": 2,
+            "bic": 0.0,
+        }
+        method.boundary_history = [0.0]
+        scores = np.array([-4.0, -3.5, 3.5, 4.0])
+        cues = np.array([-1.0, -1.0, 1.0, 1.0])
+        images = self.score_feature_batch(scores, cues)
+
+        first = method.predict(images)
+        np.testing.assert_allclose(
+            first.prob_fake.numpy(),
+            method._source_probability(scores),
+            atol=1e-6,
+        )
+        self.assertFalse(method._pending["prediction_routed_residual_ready"])
+        first_stats = method.adapt(images)
+        self.assertTrue(first_stats.extra["routed_residual_updated"])
+        self.assertEqual(first_stats.extra["routed_ridge_head_count"], 1)
+        self.assertNotIn("routed_residual_readout_bound", first_stats.extra)
+        self.assertNotIn(
+            "routed_residual_fake_prototype_count", first_stats.extra
+        )
+        self.assertEqual(method.trainable_parameters, 3)
+
+        second = method.predict(images)
+        self.assertTrue(method._pending["prediction_routed_residual_ready"])
+        self.assertGreater(
+            method._pending["prediction_routed_residual_max_abs"], 0.0
+        )
+        self.assertFalse(
+            np.allclose(second.prob_fake.numpy(), first.prob_fake.numpy())
+        )
+        method.adapt(images)
+        np.testing.assert_allclose(method.score_history, np.tile(scores, 2))
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_name"], "ASCAL-JMP-RoutedRidge")
+        self.assertEqual(metadata["research_version"], "R14")
+        self.assertEqual(metadata["optimizer"], "none_closed_form_recursive_ridge")
+        self.assertEqual(metadata["new_target_hyperparameters"], 0)
+
+    def test_routed_ridge_updates_only_the_prediction_selected_expert(self) -> None:
+        rng = np.random.default_rng(67)
+        method = self.segmented_memory_posterior_routed_ridge_residual_method()
+        returning = {
+            "weights": [0.5, 0.5],
+            "mus": [-8.0, -3.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        active = {
+            "weights": [0.5, 0.5],
+            "mus": [20.0, 25.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        returning_state = method._new_routed_residual_state()
+        returning_state["weights"][2] = 0.5
+        returning_state["updates"] = 1
+        returning_state["candidate_samples"] = 16
+        returning_state["effective_support"] = 8.0
+        active_state = method._new_routed_residual_state()
+        method._mixture = active
+        method.boundary_history = [22.5]
+        method.active_memory_index = 1
+        method.segment_memories = [
+            {
+                "mixture": returning,
+                "boundary": float(method._memory_boundary(returning)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 0,
+                method._RESIDUAL_MEMORY_KEY: returning_state,
+            },
+            {
+                "mixture": active,
+                "boundary": float(method._memory_boundary(active)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 1,
+                method._RESIDUAL_MEMORY_KEY: active_state,
+            },
+        ]
+        scores = np.concatenate(
+            [rng.normal(-8.0, 0.2, 48), rng.normal(-3.0, 0.2, 48)]
+        )
+        cues = np.concatenate([-np.ones(48), np.ones(48)])
+        order = rng.permutation(len(scores))
+        images = self.score_feature_batch(scores[order], cues[order])
+
+        method.predict(images)
+        self.assertEqual(
+            method._pending["prediction_residual_routing_expert"],
+            "episodic_memory",
+        )
+        self.assertEqual(
+            method._pending["prediction_residual_routing_memory_index"], 0
+        )
+        self.assertGreater(
+            method._pending["prediction_routed_residual_max_abs"], 0.0
+        )
+        stats = method.adapt(images)
+
+        self.assertEqual(returning_state["updates"], 2)
+        self.assertEqual(active_state["updates"], 0)
+        self.assertEqual(stats.extra["routed_residual_memory_selections"], 1)
+        self.assertEqual(stats.extra["routed_residual_admission_accepts"], 1)
+
+    def test_routed_ridge_keeps_the_exact_r13_routing_and_score_trajectory(
+        self,
+    ) -> None:
+        rng = np.random.default_rng(69)
+        baseline = self.segmented_memory_posterior_routed_residual_method()
+        method = self.segmented_memory_posterior_routed_ridge_residual_method()
+        for center in (-6.0, -6.0, 6.0, 6.0):
+            scores = np.concatenate(
+                [
+                    rng.normal(center - 2.0, 0.2, 8),
+                    rng.normal(center + 2.0, 0.2, 8),
+                ]
+            )
+            cues = np.sign(scores - np.median(scores))
+            baseline_images = self.score_feature_batch(scores, cues)
+            method_images = self.score_feature_batch(scores, cues)
+            baseline.predict(baseline_images)
+            method.predict(method_images)
+            baseline_stats = baseline.adapt(baseline_images)
+            method_stats = method.adapt(method_images)
+
+            np.testing.assert_allclose(method.score_history, baseline.score_history)
+            np.testing.assert_allclose(
+                method.boundary_history, baseline.boundary_history
+            )
+            self.assertEqual(method.segment_changes, baseline.segment_changes)
+            self.assertEqual(
+                method_stats.extra["last_routed_residual_expert"],
+                baseline_stats.extra["last_routed_residual_expert"],
+            )
+            self.assertEqual(
+                method_stats.extra["last_routed_residual_memory_index"],
+                baseline_stats.extra["last_routed_residual_memory_index"],
+            )
+
     def test_current_projection_uses_latest_cumulative_fit_not_nested_median(
         self,
     ) -> None:
@@ -4394,6 +4730,24 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_routed_ridge_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorRoutedRidgeResidual,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_routed_ridge_residual_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorRoutedRidgeResidual
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_method_factory_maps_current_projection_static_alias(self) -> None:
         from src.methods import build_method
         from src.methods.ascal_gmm import (
@@ -5055,6 +5409,45 @@ class ASCALGMMMethodTests(unittest.TestCase):
 
         self.assertIsInstance(
             method, ASCALGMMSegmentedMemoryPosteriorRoutedResidual
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_routed_ridge_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorRoutedRidgeResidual,
+        )
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_routed_ridge_residual_static"
+        )
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {method_name: {"adaptation_mode": "static"}},
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(
+            method, ASCALGMMSegmentedMemoryPosteriorRoutedRidgeResidual
         )
         self.assertEqual(method.adaptation_mode, "static")
 

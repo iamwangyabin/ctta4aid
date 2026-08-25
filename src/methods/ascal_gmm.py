@@ -3669,6 +3669,19 @@ class ASCALGMMSegmentedMemoryPosteriorRoutedResidual(
         real_similarity = features @ real_prototype
         return np.asarray(fake_similarity - real_similarity, dtype=np.float64)
 
+    def _routed_residual_ready(self, state: dict[str, Any] | None) -> bool:
+        real_prototype, fake_prototypes = (
+            self._normalized_routed_residual_prototypes(state)
+        )
+        return real_prototype is not None and len(fake_prototypes) > 0
+
+    def _routed_residual_readout_count(
+        self,
+        state: dict[str, Any],
+    ) -> int:
+        _, fake_prototypes = self._normalized_routed_residual_prototypes(state)
+        return int(len(fake_prototypes))
+
     def _update_routed_residual_state(
         self,
         state: dict[str, Any],
@@ -3727,10 +3740,7 @@ class ASCALGMMSegmentedMemoryPosteriorRoutedResidual(
         if fake_components > 1:
             state["multimodal_updates"] = int(state["multimodal_updates"]) + 1
             self.routed_residual_multimodal_updates += 1
-        real_prototype, fake_prototypes = (
-            self._normalized_routed_residual_prototypes(state)
-        )
-        if real_prototype is None or not len(fake_prototypes):
+        if not self._routed_residual_ready(state):
             return False
         state["updates"] = int(state["updates"]) + 1
         self.routed_residual_updates += 1
@@ -3751,10 +3761,9 @@ class ASCALGMMSegmentedMemoryPosteriorRoutedResidual(
         ready = 0
         fake_prototypes = 0
         for state in states:
-            real, fake = self._normalized_routed_residual_prototypes(state)
-            if real is not None and len(fake):
+            if self._routed_residual_ready(state):
                 ready += 1
-                fake_prototypes += int(len(fake))
+                fake_prototypes += self._routed_residual_readout_count(state)
         return {
             "routed_residual_expert_count": len(states),
             "routed_residual_ready_experts": ready,
@@ -3857,10 +3866,7 @@ class ASCALGMMSegmentedMemoryPosteriorRoutedResidual(
             if assignment is None
             else self._peek_routed_residual_state(assignment)
         )
-        real_prototype, fake_prototypes = (
-            self._normalized_routed_residual_prototypes(residual_state)
-        )
-        residual_ready = real_prototype is not None and len(fake_prototypes) > 0
+        residual_ready = self._routed_residual_ready(residual_state)
         residual_scores = self._routed_residual_scores(features, residual_state)
         final_logit = base_logit + residual_scores
         probability = 1.0 / (
@@ -4050,6 +4056,254 @@ class ASCALGMMSegmentedMemoryPosteriorRoutedResidual(
         self._pending_routed_residual_state = None
         self._pending_routed_residual_assignment = None
         self._pending_routed_residual_mixture = None
+
+
+class ASCALGMMSegmentedMemoryPosteriorRoutedRidgeResidual(
+    ASCALGMMSegmentedMemoryPosteriorRoutedResidual
+):
+    """Fit one exact online weighted-ridge residual per routed expert."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.routed_ridge_solve_failures = 0
+        self.routed_ridge_last_effective_support = 0.0
+        self.routed_ridge_last_target_abs_mean = 0.0
+        self.routed_ridge_last_gain_norm = 0.0
+        self.routed_ridge_last_weight_norm = 0.0
+
+    @property
+    def trainable_parameters(self) -> int:
+        if self.adaptation_mode == "static":
+            return 0
+        return len(self._all_routed_residual_states()) * self.residual_feature_dim
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        for key in (
+            "real_prototype_rule",
+            "fake_prototype_rule",
+            "fake_component_count_rule",
+        ):
+            metadata.pop(key, None)
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "immutable_source_score_calibration_with_mdl_routed_"
+                    "causal_online_linear_residual_heads"
+                ),
+                "research_name": "ASCAL-JMP-RoutedRidge",
+                "research_version": "R14",
+                "residual_scope": (
+                    "one_zero_initialized_linear_head_per_discovered_score_expert"
+                ),
+                "expert_type": "online_weighted_ridge_linear_residual_head",
+                "linear_head_per_expert": True,
+                "residual_teacher": (
+                    "signed_equal_prior_posterior_of_the_prediction_time_"
+                    "selected_immutable_source_score_gmm"
+                ),
+                "soft_target_rule": "two_times_gmm_posterior_minus_one",
+                "reliability_rule": "absolute_centered_soft_posterior_no_threshold",
+                "ridge_objective": (
+                    "sum_reliability_times_squared_linear_soft_target_error_"
+                    "plus_unit_l2_weight_norm"
+                ),
+                "ridge_prior_precision": (
+                    "fixed_identity_under_l2_normalized_residual_features"
+                ),
+                "ridge_update": (
+                    "exact_recursive_least_squares_woodbury_update_after_prediction"
+                ),
+                "ridge_sufficient_statistics": (
+                    "one_inverse_regularized_gram_matrix_and_one_weight_vector_"
+                    "per_expert"
+                ),
+                "residual_intercept": "none_global_shift_is_handled_by_r01_base",
+                "residual_readout_bound": "none",
+                "residual_readout": "selected_expert_orthogonal_feature_dot_weight",
+                "prediction_rule": (
+                    "r01_continuous_base_logit_plus_selected_expert_linear_residual"
+                ),
+                "optimizer": "none_closed_form_recursive_ridge",
+                "epoch": "none",
+                "learning_rate": "none",
+                "prediction_mutates_experts": False,
+                "new_target_hyperparameters": 0,
+                "hyperparameter_rule": (
+                    "no_learning_rate_epoch_confidence_threshold_residual_weight_"
+                    "routing_threshold_fusion_weight_or_memory_capacity"
+                ),
+                "intentional_changes": [
+                    "all R13 routing admission base calibration and expert assignments remain unchanged",
+                    "each R13 prototype state is replaced by one zero initialized linear residual head",
+                    "the selected prediction time GMM supplies a bounded signed soft target and reliability",
+                    "unit regularization is the fixed identity prior in normalized feature coordinates",
+                    "Woodbury recursive least squares exactly accumulates all prior selected samples",
+                    "only the prediction time selected expert receives the current batch after prediction",
+                    "no image or per sample feature is retained after its sufficient statistic update",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_routed_ridge_residual"
+
+    def _new_routed_residual_state(self) -> dict[str, Any]:
+        return {
+            "inverse_gram": np.eye(self.residual_feature_dim, dtype=np.float64),
+            "weights": np.zeros(self.residual_feature_dim, dtype=np.float64),
+            "updates": 0,
+            "candidate_samples": 0,
+            "effective_support": 0.0,
+            "weighted_target_square_sum": 0.0,
+        }
+
+    def _routed_residual_ready(self, state: dict[str, Any] | None) -> bool:
+        if state is None or int(state["updates"]) <= 0:
+            return False
+        return float(np.linalg.norm(state["weights"])) > np.finfo(np.float64).eps
+
+    def _routed_residual_readout_count(
+        self,
+        state: dict[str, Any],
+    ) -> int:
+        return int(self._routed_residual_ready(state))
+
+    def _routed_residual_scores(
+        self,
+        features: np.ndarray,
+        state: dict[str, Any] | None,
+    ) -> np.ndarray:
+        if not self._routed_residual_ready(state):
+            return np.zeros(int(features.shape[0]), dtype=np.float64)
+        if state is None:
+            raise RuntimeError("ASCAL routed ridge lost its selected expert state")
+        return np.asarray(features @ state["weights"], dtype=np.float64)
+
+    def _update_routed_residual_state(
+        self,
+        state: dict[str, Any],
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        features: np.ndarray,
+    ) -> bool:
+        posterior = joint_density_fake_posterior(scores, mixture)
+        targets = 2.0 * posterior - 1.0
+        reliability = np.abs(targets)
+        effective_support = float(reliability.sum())
+        fake_support = float((reliability * posterior).sum())
+        real_support = float((reliability * (1.0 - posterior)).sum())
+
+        self.routed_residual_candidate_samples += int(scores.size)
+        self.routed_residual_last_reliability = float(np.mean(reliability))
+        self.routed_residual_last_real_support = real_support
+        self.routed_residual_last_fake_support = fake_support
+        self.routed_residual_last_fake_component_supports.fill(0.0)
+        self.routed_ridge_last_effective_support = effective_support
+        self.routed_ridge_last_target_abs_mean = float(np.mean(np.abs(targets)))
+        self.routed_ridge_last_gain_norm = 0.0
+        state["candidate_samples"] = int(state["candidate_samples"]) + int(
+            scores.size
+        )
+        if effective_support <= np.finfo(np.float64).eps:
+            return False
+
+        square_root_reliability = np.sqrt(reliability)
+        design = square_root_reliability[:, None] * features
+        response = square_root_reliability * targets
+        inverse_gram = np.asarray(state["inverse_gram"], dtype=np.float64)
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        inverse_times_design = inverse_gram @ design.T
+        innovation_gram = (
+            np.eye(int(scores.size), dtype=np.float64)
+            + design @ inverse_times_design
+        )
+        innovation_gram = 0.5 * (innovation_gram + innovation_gram.T)
+        try:
+            gain = np.linalg.solve(
+                innovation_gram,
+                inverse_times_design.T,
+            ).T
+        except np.linalg.LinAlgError:
+            self.routed_ridge_solve_failures += 1
+            return False
+
+        residual_error = response - design @ weights
+        updated_weights = weights + gain @ residual_error
+        updated_inverse = inverse_gram - gain @ inverse_times_design.T
+        updated_inverse = 0.5 * (updated_inverse + updated_inverse.T)
+        if not (
+            np.all(np.isfinite(updated_weights))
+            and np.all(np.isfinite(updated_inverse))
+        ):
+            self.routed_ridge_solve_failures += 1
+            return False
+
+        state["weights"] = updated_weights
+        state["inverse_gram"] = updated_inverse
+        state["updates"] = int(state["updates"]) + 1
+        state["effective_support"] = float(state["effective_support"]) + (
+            effective_support
+        )
+        state["weighted_target_square_sum"] = float(
+            state["weighted_target_square_sum"]
+        ) + float(np.sum(reliability * targets**2))
+        self.routed_residual_updates += 1
+        self.routed_ridge_last_gain_norm = float(np.linalg.norm(gain))
+        self.routed_ridge_last_weight_norm = float(np.linalg.norm(updated_weights))
+        return self._routed_residual_ready(state)
+
+    def _routed_residual_state_stats(self) -> dict[str, Any]:
+        stats = super()._routed_residual_state_stats()
+        for key in (
+            "routed_residual_fake_prototype_count",
+            "routed_residual_last_fake_component_supports",
+            "routed_residual_multimodal_updates",
+            "routed_residual_readout_bound",
+        ):
+            stats.pop(key, None)
+        states = self._all_routed_residual_states()
+        weight_norms = [float(np.linalg.norm(state["weights"])) for state in states]
+        effective_support = sum(
+            float(state["effective_support"]) for state in states
+        )
+        stats.update(
+            {
+                "routed_ridge_head_count": len(states),
+                "routed_ridge_ready_heads": sum(
+                    self._routed_residual_ready(state) for state in states
+                ),
+                "routed_ridge_weight_parameters": (
+                    len(states) * self.residual_feature_dim
+                ),
+                "routed_ridge_inverse_gram_values": (
+                    len(states) * self.residual_feature_dim**2
+                ),
+                "routed_ridge_effective_support": effective_support,
+                "routed_ridge_max_weight_norm": max(weight_norms, default=0.0),
+                "routed_ridge_mean_weight_norm": (
+                    float(np.mean(weight_norms)) if weight_norms else 0.0
+                ),
+                "routed_ridge_solve_failures": self.routed_ridge_solve_failures,
+                "routed_ridge_last_effective_support": (
+                    self.routed_ridge_last_effective_support
+                ),
+                "routed_ridge_last_target_abs_mean": (
+                    self.routed_ridge_last_target_abs_mean
+                ),
+                "routed_ridge_last_gain_norm": self.routed_ridge_last_gain_norm,
+                "routed_ridge_last_weight_norm": (
+                    self.routed_ridge_last_weight_norm
+                ),
+                "routed_residual_trainable_parameters": (
+                    self.trainable_parameters
+                ),
+            }
+        )
+        return stats
 
 
 class ASCALGMMSegmentedMemoryPosteriorRealDeviationResidual(
