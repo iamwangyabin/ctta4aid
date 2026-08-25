@@ -776,14 +776,31 @@ R13 已选中的专家输出 `h^T w_e`，最终唯一 logit 为 R01 base logit �
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_routed_ridge_residual_continual_*_seed1.yaml`；
 运行前门槛为 Accuracy 相对 R12 最多下降 0.2 个百分点且 target-macro online AUC 超过 R06。
 
+`ascal_gmm_segmented_memory_posterior_ordinal_ridge` 的研究版本名为
+**ASCAL-JMP-OrdinalRidge（R15）**。它以 R12 而不是 R01/R13 为不可变主干：当前 batch 仍由
+R12 唯一 live GMM 候选和 MDL admission 选择同一个专家，该专家的投影边界仍产生逐样本
+real/fake 硬决定，Predict 后的 GMM 分段、memory handoff 和专家归属也完全沿用 R12。唯一新增
+状态是每个 R12 专家携带一个零初始化在线线性 rank residual；冻结 CLIP 特征先去除 source
+分类头方向并 L2 归一化，新专家未学习或没有可用专家时严格退化为 R12。
+
+预测时，所选专家只把其旧 Ridge 输出加到不可变 source logit，并减去当前 batch 的 residual
+均值，避免重新引入跨专家 score 原点平移；修正后的 sigmoid 只替换 R12 的类内排序坐标，
+R12 判 real 仍映射到 0.5 以下、判 fake 仍映射到 0.5 以上，因此任何 residual 都不能改变
+R12 硬预测。预测完成后，同一预测时 GMM 产生等先验 posterior `p`、连续可靠度
+`c=abs(2p-1)` 和 `GMM teacher logit - immutable source logit` 目标；目标先减去可靠度加权批均值，
+再以固定 identity prior 做精确 Woodbury 岭回归更新。方法没有 epoch、optimizer、学习率、
+硬置信阈值、residual 融合系数或第二套路由，也不保存图片或逐样本 feature。seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_ordinal_ridge_continual_*_seed1.yaml`；运行前
+门槛固定为逐样本硬决定与 R12 完全一致，且 target-macro online AUC 超过 R06。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
 target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
-最高值，R06 的直接比较对象是 R05，R07 至 R14 的直接比较对象均是当前最佳 R06；R12 至
-R14 还额外使用 R11/R12 的高 Accuracy 作为非劣锚点。
+最高值，R06 的直接比较对象是 R05，R07 至 R15 的直接比较对象均是当前最佳 R06；R12 至
+R15 还额外使用 R11/R12 的高 Accuracy 作为非劣锚点。
 该门槛只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整
 确认前仍不得写入正文正式表。
 

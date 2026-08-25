@@ -16,6 +16,7 @@ from .ascal_gmm import (
     ASCALGMMSegmentedMemoryPosteriorLiveRoute,
     ASCALGMMSegmentedMemoryPosteriorMixtureResidual,
     ASCALGMMSegmentedMemoryPosteriorMDLRoute,
+    ASCALGMMSegmentedMemoryPosteriorOrdinalRidge,
     ASCALGMMSegmentedMemoryPosteriorOrdinalRoute,
     ASCALGMMSegmentedMemoryPosteriorPreRoute,
     ASCALGMMSegmentedMemoryPosteriorProjection,
@@ -176,6 +177,16 @@ def build_method(
         if normalized == "ascalgmmsegmentedmemoryposteriorordinalroutestatic":
             effective_config.setdefault("adaptation_mode", "static")
         return ASCALGMMSegmentedMemoryPosteriorOrdinalRoute(
+            model, device, effective_config
+        )
+    if normalized in {
+        "ascalgmmsegmentedmemoryposteriorordinalridge",
+        "ascalgmmsegmentedmemoryposteriorordinalridgestatic",
+    }:
+        effective_config = dict(config)
+        if normalized == "ascalgmmsegmentedmemoryposteriorordinalridgestatic":
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMSegmentedMemoryPosteriorOrdinalRidge(
             model, device, effective_config
         )
     if normalized in {

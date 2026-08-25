@@ -27,6 +27,11 @@ Its MDL-route variant moves that same parameter-free confirmation ahead of the
 readout, so one accepted expert assignment governs both prediction and learning.
 Its live-route variant further removes the active expert's archived snapshot
 from routing whenever that expert already has an eligible live GMM.
+Its ordinal-route variant lets that routed expert retain the binary decision
+while an immutable source probability supplies a globally comparable order
+inside the selected real or fake half interval. Its ordinal-ridge variant keeps
+those decisions exact and replaces only that within-interval order with the
+source logit plus one centered online weighted-ridge residual per expert.
 Its current-projection variant recognizes that each active-segment GMM refit
 already contains all causal segment scores, so it removes the redundant median
 over nested refits while retaining one-vote episodic recall.
@@ -2373,6 +2378,628 @@ class ASCALGMMSegmentedMemoryPosteriorOrdinalRoute(
             }
         )
         return stats
+
+
+class ASCALGMMSegmentedMemoryPosteriorOrdinalRidge(
+    ASCALGMMSegmentedMemoryPosteriorOrdinalRoute
+):
+    """Keep R12 decisions and learn one causal within-class ranker per expert."""
+
+    _ORDINAL_RIDGE_MEMORY_KEY = "ordinal_ridge_state"
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        classifier = getattr(self.model, "classifier", None)
+        weight = getattr(classifier, "weight", None)
+        if weight is None or weight.ndim != 2 or int(weight.shape[0]) != 2:
+            raise TypeError(
+                "ASCAL ordinal ridge requires a two-class linear classifier"
+            )
+        direction = (
+            weight[1].detach().float().cpu().numpy()
+            - weight[0].detach().float().cpu().numpy()
+        ).astype(np.float64)
+        direction_norm = float(np.linalg.norm(direction))
+        if not math.isfinite(direction_norm) or direction_norm <= 0.0:
+            raise ValueError(
+                "ASCAL ordinal ridge requires a nonzero source score direction"
+            )
+        self._ordinal_ridge_source_direction = direction / direction_norm
+        self.ordinal_ridge_feature_dim = int(direction.size)
+        self._novel_ordinal_ridge_state = self._new_ordinal_ridge_state()
+        self._ordinal_ridge_precomputed_scores: np.ndarray | None = None
+        self._pending_ordinal_ridge_features: np.ndarray | None = None
+        self._pending_ordinal_ridge_state: dict[str, Any] | None = None
+        self._pending_ordinal_ridge_assignment: tuple[str, int | None] | None = None
+        self._pending_ordinal_ridge_mixture: dict[str, Any] | None = None
+        self.ordinal_ridge_updates = 0
+        self.ordinal_ridge_candidate_samples = 0
+        self.ordinal_ridge_batches = 0
+        self.ordinal_ridge_samples = 0
+        self.ordinal_ridge_solve_failures = 0
+        self.ordinal_ridge_hard_label_mismatches = 0
+        self.ordinal_ridge_last_effective_support = 0.0
+        self.ordinal_ridge_last_reliability = 0.0
+        self.ordinal_ridge_last_teacher_abs_mean = 0.0
+        self.ordinal_ridge_last_source_abs_mean = 0.0
+        self.ordinal_ridge_last_target_center = 0.0
+        self.ordinal_ridge_last_target_abs_mean = 0.0
+        self.ordinal_ridge_last_weight_norm = 0.0
+
+    @property
+    def trainable_parameters(self) -> int:
+        if self.adaptation_mode == "static":
+            return 0
+        return len(self._all_ordinal_ridge_states()) * self.ordinal_ridge_feature_dim
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "r12_exact_hard_decisions_with_mdl_routed_causal_"
+                    "within_class_online_ridge_ranking"
+                ),
+                "research_name": "ASCAL-JMP-OrdinalRidge",
+                "research_version": "R15",
+                "r12_protected_scope": (
+                    "routing_admission_unique_live_state_hard_decision_"
+                    "adaptation_assignment_segmentation_and_memory"
+                ),
+                "accuracy_invariance": (
+                    "ordinal_half_interval_readout_preserves_every_r12_hard_"
+                    "decision_exactly"
+                ),
+                "residual_scope": (
+                    "one_zero_initialized_linear_rank_residual_per_r12_expert"
+                ),
+                "residual_input": (
+                    "l2_normalized_frozen_features_orthogonal_to_the_source_"
+                    "classifier_direction"
+                ),
+                "residual_teacher": (
+                    "equal_prior_log_odds_of_the_prediction_time_selected_"
+                    "r12_gmm"
+                ),
+                "residual_target_rule": (
+                    "selected_gmm_teacher_logit_minus_immutable_source_logit_"
+                    "then_reliability_weighted_batch_centering"
+                ),
+                "reliability_rule": (
+                    "absolute_centered_selected_gmm_soft_posterior_no_threshold"
+                ),
+                "ridge_objective": (
+                    "sum_reliability_times_squared_centered_logit_residual_"
+                    "error_plus_unit_l2_weight_norm"
+                ),
+                "ridge_prior_precision": (
+                    "fixed_identity_under_l2_normalized_residual_features"
+                ),
+                "ridge_update": (
+                    "exact_recursive_least_squares_woodbury_after_prediction"
+                ),
+                "ridge_sufficient_statistics": (
+                    "one_inverse_regularized_gram_matrix_and_one_weight_vector_"
+                    "per_expert"
+                ),
+                "residual_intercept": "none",
+                "prediction_residual_centering": (
+                    "subtract_current_batch_mean_to_preserve_the_r12_global_"
+                    "source_score_origin"
+                ),
+                "prediction_rule": (
+                    "r12_expert_selects_real_or_fake_half_interval_while_source_"
+                    "logit_plus_centered_selected_expert_ridge_orders_within_it"
+                ),
+                "source_fallback": "exact_r12_source_probability",
+                "optimizer": "none_closed_form_recursive_ridge",
+                "epoch": "none",
+                "learning_rate": "none",
+                "prediction_mutates_experts": False,
+                "raw_images_stored": False,
+                "raw_features_stored": False,
+                "target_labels_used": False,
+                "generator_boundaries_used": False,
+                "semantic_features_used": False,
+                "new_target_hyperparameters": 0,
+                "hyperparameter_rule": (
+                    "no_learning_rate_epoch_confidence_threshold_residual_weight_"
+                    "routing_threshold_fusion_weight_or_memory_capacity"
+                ),
+                "intentional_changes": [
+                    "all R12 routing decisions and learning assignments remain unchanged",
+                    "the same R12 expert supplies the hard decision residual readout and update",
+                    "the immutable source rank receives only a centered sample-specific correction",
+                    (
+                        "the R12 half-interval map prevents every residual from "
+                        "crossing the decision threshold"
+                    ),
+                    (
+                        "the selected pre-update GMM supplies a soft teacher and "
+                        "continuous reliability"
+                    ),
+                    "only the prediction-time selected expert receives the batch after prediction",
+                    (
+                        "no image or per-sample feature is retained after its "
+                        "sufficient-statistic update"
+                    ),
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_ordinal_ridge"
+
+    def _new_ordinal_ridge_state(self) -> dict[str, Any]:
+        return {
+            "inverse_gram": np.eye(
+                self.ordinal_ridge_feature_dim,
+                dtype=np.float64,
+            ),
+            "weights": np.zeros(self.ordinal_ridge_feature_dim, dtype=np.float64),
+            "updates": 0,
+            "candidate_samples": 0,
+            "effective_support": 0.0,
+            "weighted_target_square_sum": 0.0,
+        }
+
+    def _store_completed_segment(
+        self,
+        mixture: dict[str, Any],
+        samples: int,
+    ) -> int | None:
+        was_novel = self.active_memory_index is None
+        novel_state = self._novel_ordinal_ridge_state
+        finalized_index = super()._store_completed_segment(mixture, samples)
+        if (
+            was_novel
+            and finalized_index is not None
+            and int(mixture["components"]) >= 2
+        ):
+            episode = self.segment_memories[finalized_index]
+            episode.setdefault(self._ORDINAL_RIDGE_MEMORY_KEY, novel_state)
+            self._novel_ordinal_ridge_state = self._new_ordinal_ridge_state()
+        return finalized_index
+
+    def _batch_scores_and_ordinal_ridge_features(
+        self,
+        images: Any,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        import torch
+
+        if images.dim() == 5:
+            batch, views = int(images.shape[0]), int(images.shape[1])
+            flat = images.reshape(batch * views, *images.shape[2:])
+        elif images.dim() == 4:
+            batch, views = int(images.shape[0]), 1
+            flat = images
+        else:
+            raise ValueError(
+                "ASCAL ordinal ridge expects (B, C, H, W) or "
+                "(B, V, C, H, W) images"
+            )
+        forward_features = getattr(self.model, "forward_features", None)
+        classifier = getattr(self.model, "classifier", None)
+        if not callable(forward_features) or not callable(classifier):
+            raise TypeError(
+                "ASCAL ordinal ridge requires forward_features and classifier"
+            )
+        with torch.no_grad():
+            features = forward_features(flat.to(self.device, non_blocking=True))
+            logits = classifier(features)
+        scores = (
+            binary_score(logits)
+            .view(batch, views)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        feature_values = (
+            features.detach()
+            .float()
+            .view(batch, views, -1)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        if int(feature_values.shape[1]) != self.ordinal_ridge_feature_dim:
+            raise ValueError(
+                "ASCAL ordinal ridge feature dimension does not match the source head"
+            )
+        direction = self._ordinal_ridge_source_direction
+        feature_values -= (feature_values @ direction)[:, None] * direction[None, :]
+        norms = np.linalg.norm(feature_values, axis=1, keepdims=True)
+        feature_values = np.divide(
+            feature_values,
+            norms,
+            out=np.zeros_like(feature_values),
+            where=norms > np.finfo(np.float64).eps,
+        )
+        return scores, feature_values
+
+    def _batch_scores(self, images: Any) -> Any:
+        if self._ordinal_ridge_precomputed_scores is not None:
+            return self._ordinal_ridge_precomputed_scores.copy()
+        return super()._batch_scores(images)
+
+    def _peek_ordinal_ridge_state(
+        self,
+        assignment: tuple[str, int | None],
+    ) -> dict[str, Any] | None:
+        kind, memory_index = assignment
+        if kind == "novel":
+            return self._novel_ordinal_ridge_state
+        if memory_index is None or not 0 <= memory_index < len(self.segment_memories):
+            raise RuntimeError("ASCAL ordinal ridge memory index is out of range")
+        state = self.segment_memories[memory_index].get(
+            self._ORDINAL_RIDGE_MEMORY_KEY
+        )
+        return state if isinstance(state, dict) else None
+
+    def _ensure_ordinal_ridge_state(
+        self,
+        assignment: tuple[str, int | None],
+    ) -> dict[str, Any]:
+        state = self._peek_ordinal_ridge_state(assignment)
+        if state is not None:
+            return state
+        _, memory_index = assignment
+        if memory_index is None:
+            raise RuntimeError("ASCAL ordinal ridge lost its novel state")
+        state = self._new_ordinal_ridge_state()
+        self.segment_memories[memory_index][self._ORDINAL_RIDGE_MEMORY_KEY] = state
+        return state
+
+    def _all_ordinal_ridge_states(self) -> list[dict[str, Any]]:
+        states: list[dict[str, Any]] = []
+        if int(self._novel_ordinal_ridge_state["candidate_samples"]) > 0:
+            states.append(self._novel_ordinal_ridge_state)
+        for episode in self.segment_memories:
+            state = episode.get(self._ORDINAL_RIDGE_MEMORY_KEY)
+            if isinstance(state, dict):
+                states.append(state)
+        return states
+
+    @staticmethod
+    def _ordinal_ridge_ready(state: dict[str, Any] | None) -> bool:
+        if state is None or int(state["updates"]) <= 0:
+            return False
+        return float(np.linalg.norm(state["weights"])) > np.finfo(np.float64).eps
+
+    def _ordinal_ridge_context(
+        self,
+    ) -> tuple[tuple[str, int | None], dict[str, Any]] | None:
+        if self._pending is None:
+            raise RuntimeError("ASCAL ordinal ridge lost its R12 prediction state")
+        selected_expert = self._pending.get("prediction_routing_expert")
+        if selected_expert is None:
+            return None
+        if selected_expert == "active_learning_state":
+            if self._mixture is None or not self._mixture_active():
+                raise RuntimeError("ASCAL ordinal ridge selected no eligible live GMM")
+            memory_index = self.active_memory_index
+            assignment = (
+                "novel" if memory_index is None else "episodic_memory",
+                memory_index,
+            )
+            return assignment, self._mixture
+        if selected_expert != "episodic_memory":
+            raise RuntimeError("ASCAL ordinal ridge received an unknown R12 expert")
+        memory_index = self._pending.get("prediction_routing_memory_index")
+        if memory_index is None:
+            raise RuntimeError("ASCAL ordinal ridge selected memory without an index")
+        memory_index = int(memory_index)
+        if not 0 <= memory_index < len(self.segment_memories):
+            raise RuntimeError("ASCAL ordinal ridge selected memory out of range")
+        return ("episodic_memory", memory_index), self.segment_memories[
+            memory_index
+        ]["mixture"]
+
+    def _ordinal_ridge_supervision(
+        self,
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+        source_logits = np.asarray(scores, dtype=np.float64) / self.temperature
+        teacher_logits = np.clip(
+            _joint_density_log_odds(scores, mixture),
+            -60.0,
+            60.0,
+        )
+        posterior = 1.0 / (1.0 + np.exp(-teacher_logits))
+        reliability = np.abs(2.0 * posterior - 1.0)
+        raw_targets = teacher_logits - source_logits
+        effective_support = float(reliability.sum())
+        target_center = 0.0
+        if effective_support > np.finfo(np.float64).eps:
+            target_center = float(
+                np.sum(reliability * raw_targets) / effective_support
+            )
+        targets = raw_targets - target_center
+        if not (
+            np.all(np.isfinite(source_logits))
+            and np.all(np.isfinite(targets))
+        ):
+            raise FloatingPointError(
+                "ASCAL ordinal ridge produced non-finite supervision"
+            )
+        self.ordinal_ridge_last_effective_support = effective_support
+        self.ordinal_ridge_last_reliability = float(np.mean(reliability))
+        self.ordinal_ridge_last_teacher_abs_mean = float(
+            np.mean(np.abs(teacher_logits))
+        )
+        self.ordinal_ridge_last_source_abs_mean = float(
+            np.mean(np.abs(source_logits))
+        )
+        self.ordinal_ridge_last_target_center = target_center
+        self.ordinal_ridge_last_target_abs_mean = float(np.mean(np.abs(targets)))
+        return posterior, targets, reliability, target_center
+
+    def _update_ordinal_ridge_state(
+        self,
+        state: dict[str, Any],
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        features: np.ndarray,
+    ) -> bool:
+        _, targets, reliability, _ = self._ordinal_ridge_supervision(
+            mixture,
+            scores,
+        )
+        effective_support = float(reliability.sum())
+        self.ordinal_ridge_candidate_samples += int(scores.size)
+        state["candidate_samples"] = int(state["candidate_samples"]) + int(
+            scores.size
+        )
+        if effective_support <= np.finfo(np.float64).eps:
+            return False
+
+        square_root_reliability = np.sqrt(reliability)
+        design = square_root_reliability[:, None] * features
+        response = square_root_reliability * targets
+        inverse_gram = np.asarray(state["inverse_gram"], dtype=np.float64)
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        inverse_times_design = inverse_gram @ design.T
+        innovation_gram = (
+            np.eye(int(scores.size), dtype=np.float64)
+            + design @ inverse_times_design
+        )
+        innovation_gram = 0.5 * (innovation_gram + innovation_gram.T)
+        try:
+            gain = np.linalg.solve(
+                innovation_gram,
+                inverse_times_design.T,
+            ).T
+        except np.linalg.LinAlgError:
+            self.ordinal_ridge_solve_failures += 1
+            return False
+
+        updated_weights = weights + gain @ (response - design @ weights)
+        updated_inverse = inverse_gram - gain @ inverse_times_design.T
+        updated_inverse = 0.5 * (updated_inverse + updated_inverse.T)
+        if not (
+            np.all(np.isfinite(updated_weights))
+            and np.all(np.isfinite(updated_inverse))
+        ):
+            self.ordinal_ridge_solve_failures += 1
+            return False
+
+        state["weights"] = updated_weights
+        state["inverse_gram"] = updated_inverse
+        state["updates"] = int(state["updates"]) + 1
+        state["effective_support"] = float(state["effective_support"]) + (
+            effective_support
+        )
+        state["weighted_target_square_sum"] = float(
+            state["weighted_target_square_sum"]
+        ) + float(np.sum(reliability * targets**2))
+        self.ordinal_ridge_updates += 1
+        self.ordinal_ridge_last_weight_norm = float(
+            np.linalg.norm(updated_weights)
+        )
+        return self._ordinal_ridge_ready(state)
+
+    def _ordinal_ridge_state_stats(self) -> dict[str, Any]:
+        states = self._all_ordinal_ridge_states()
+        weight_norms = [float(np.linalg.norm(state["weights"])) for state in states]
+        return {
+            "ordinal_ridge_expert_count": len(states),
+            "ordinal_ridge_ready_experts": sum(
+                self._ordinal_ridge_ready(state) for state in states
+            ),
+            "ordinal_ridge_updates": self.ordinal_ridge_updates,
+            "ordinal_ridge_candidate_samples": self.ordinal_ridge_candidate_samples,
+            "ordinal_ridge_batches": self.ordinal_ridge_batches,
+            "ordinal_ridge_samples": self.ordinal_ridge_samples,
+            "ordinal_ridge_solve_failures": self.ordinal_ridge_solve_failures,
+            "ordinal_ridge_hard_label_mismatches": (
+                self.ordinal_ridge_hard_label_mismatches
+            ),
+            "ordinal_ridge_effective_support": sum(
+                float(state["effective_support"]) for state in states
+            ),
+            "ordinal_ridge_last_effective_support": (
+                self.ordinal_ridge_last_effective_support
+            ),
+            "ordinal_ridge_last_reliability": self.ordinal_ridge_last_reliability,
+            "ordinal_ridge_last_teacher_abs_mean": (
+                self.ordinal_ridge_last_teacher_abs_mean
+            ),
+            "ordinal_ridge_last_source_abs_mean": (
+                self.ordinal_ridge_last_source_abs_mean
+            ),
+            "ordinal_ridge_last_target_center": (
+                self.ordinal_ridge_last_target_center
+            ),
+            "ordinal_ridge_last_target_abs_mean": (
+                self.ordinal_ridge_last_target_abs_mean
+            ),
+            "ordinal_ridge_max_weight_norm": max(weight_norms, default=0.0),
+            "ordinal_ridge_mean_weight_norm": (
+                float(np.mean(weight_norms)) if weight_norms else 0.0
+            ),
+            "ordinal_ridge_weight_parameters": (
+                len(states) * self.ordinal_ridge_feature_dim
+            ),
+            "ordinal_ridge_inverse_gram_values": (
+                len(states) * self.ordinal_ridge_feature_dim**2
+            ),
+            "ordinal_ridge_trainable_parameters": self.trainable_parameters,
+        }
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(self._ordinal_ridge_state_stats())
+        return stats
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores, features = self._batch_scores_and_ordinal_ridge_features(images)
+        self._ordinal_ridge_precomputed_scores = scores
+        try:
+            ordinal = super().predict(images)
+        finally:
+            self._ordinal_ridge_precomputed_scores = None
+        if self._pending is None:
+            raise RuntimeError("ASCAL ordinal ridge lost the R12 pending state")
+
+        context = self._ordinal_ridge_context()
+        assignment = None if context is None else context[0]
+        mixture = None if context is None else context[1]
+        state = (
+            None
+            if assignment is None
+            else self._peek_ordinal_ridge_state(assignment)
+        )
+        ready = self._ordinal_ridge_ready(state)
+        if ready:
+            if state is None:
+                raise RuntimeError("ASCAL ordinal ridge lost its selected state")
+            raw_residual = np.asarray(features @ state["weights"], dtype=np.float64)
+        else:
+            raw_residual = np.zeros(int(scores.size), dtype=np.float64)
+        residual_center = float(np.mean(raw_residual))
+        centered_residual = raw_residual - residual_center
+
+        if context is None:
+            probability = ordinal.prob_fake.detach().cpu().numpy().astype(np.float64)
+        else:
+            rank_probability = 1.0 / (
+                1.0
+                + np.exp(
+                    -np.clip(
+                        scores / self.temperature + centered_residual,
+                        -60.0,
+                        60.0,
+                    )
+                )
+            )
+            rank_probability = np.clip(rank_probability, 1e-6, 1.0 - 1e-6)
+            routed_fake = (
+                ordinal.pred_label.detach().cpu().numpy().astype(np.float64)
+            )
+            probability = 0.5 * (rank_probability + routed_fake)
+
+        self._pending_ordinal_ridge_features = features
+        self._pending_ordinal_ridge_state = state
+        self._pending_ordinal_ridge_assignment = assignment
+        self._pending_ordinal_ridge_mixture = (
+            None if mixture is None else _copy_gmm(mixture)
+        )
+        pending_state = dict(self._pending)
+        pending_state.pop("scores")
+        pending_state.update(
+            {
+                "prediction_ordinal_ridge_applied": context is not None,
+                "prediction_ordinal_ridge_ready": ready,
+                "prediction_ordinal_ridge_residual_center": residual_center,
+                "prediction_ordinal_ridge_residual_mean": float(
+                    np.mean(centered_residual)
+                ),
+                "prediction_ordinal_ridge_residual_abs_mean": float(
+                    np.mean(np.abs(centered_residual))
+                ),
+                "prediction_ordinal_ridge_residual_max_abs": float(
+                    np.max(np.abs(centered_residual))
+                ),
+                "prediction_ordinal_ridge_hard_label_mismatches": 0,
+            }
+        )
+        prediction = self._prediction_batch(scores, probability, **pending_state)
+        mismatches = int(
+            np.count_nonzero(
+                prediction.pred_label.detach().cpu().numpy()
+                != ordinal.pred_label.detach().cpu().numpy()
+            )
+        )
+        if mismatches:
+            raise RuntimeError("ASCAL ordinal ridge changed an R12 hard decision")
+        return prediction
+
+    def adapt(self, images: Any) -> AdaptationStats:
+        if self._pending is None:
+            return super().adapt(images)
+        scores = np.asarray(self._pending["scores"], dtype=np.float64).reshape(-1)
+        prediction_state = dict(self._pending)
+        features = self._pending_ordinal_ridge_features
+        state = self._pending_ordinal_ridge_state
+        assignment = self._pending_ordinal_ridge_assignment
+        mixture = self._pending_ordinal_ridge_mixture
+        self._pending_ordinal_ridge_features = None
+        self._pending_ordinal_ridge_state = None
+        self._pending_ordinal_ridge_assignment = None
+        self._pending_ordinal_ridge_mixture = None
+
+        updated = False
+        if self.adaptation_mode == "full" and assignment is not None:
+            if features is None or int(features.shape[0]) != int(scores.size):
+                raise RuntimeError(
+                    "ASCAL ordinal ridge lost its matching prediction features"
+                )
+            if mixture is None:
+                raise RuntimeError(
+                    "ASCAL ordinal ridge lost its prediction-time selected GMM"
+                )
+            if state is None:
+                state = self._ensure_ordinal_ridge_state(assignment)
+            updated = self._update_ordinal_ridge_state(
+                state,
+                mixture,
+                scores,
+                features,
+            )
+
+        stats = super().adapt(images)
+        if bool(prediction_state.get("prediction_ordinal_ridge_applied")):
+            self.ordinal_ridge_batches += 1
+            self.ordinal_ridge_samples += int(scores.size)
+        mismatches = int(
+            prediction_state.get(
+                "prediction_ordinal_ridge_hard_label_mismatches",
+                0,
+            )
+            or 0
+        )
+        self.ordinal_ridge_hard_label_mismatches += mismatches
+        stats.extra.update(
+            {
+                **self._ordinal_ridge_state_stats(),
+                "ordinal_ridge_updated": updated,
+            }
+        )
+        return stats
+
+    def discard_pending_prediction(self) -> None:
+        self._ordinal_ridge_precomputed_scores = None
+        self._pending_ordinal_ridge_features = None
+        self._pending_ordinal_ridge_state = None
+        self._pending_ordinal_ridge_assignment = None
+        self._pending_ordinal_ridge_mixture = None
+        super().discard_pending_prediction()
 
 
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
