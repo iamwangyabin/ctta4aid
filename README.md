@@ -1040,8 +1040,26 @@ one-hot 伪样本通过精确 Woodbury RLS 加到该专家继承的源统计上�
 最终输出只使用所选专家的 Ridge margin，并沿用源阶段冻结 temperature；不再把 Base 与 Ridge
 做 probability 平均，也不让 GMM posterior 直接参与预测。未适应的新专家严格等于新的 Source
 Ridge，持续学习只是在同一特征坐标和同一解析目标上从源充分统计继续累积。R23 首轮固定为
-GenImage matched-JPEG seed1 的 Source-Ridge static 与完整 CTTA 成对 pilot，完成前不作正式
+GenImage matched-JPEG seed1 的 Source-Ridge static 与完整 CTTA 成对 pilot，不据此作正式
 三 seed 或跨数据集结论。
+
+R23 pilot 已在 4090-2 上由固定提交 `2ec3fc6` 完成。新的 Source-Ridge checkpoint 使用
+323997 个有效源样本，real/fake 统计质量为 162000/161997；解析统计哈希为
+`074c08d4f52657e3a0fb1143f530741e6bf77dd439689cddefb38f6bdcf42c79`，部署头与保存权重的
+最大绝对误差为 `2.47e-8`。static 与 CTTA 均完整评测相同的 10500 个在线样本，样本 manifest
+哈希一致。Source-Ridge static 的 target-macro online Accuracy/AUC 为
+65.0667%/75.4417%，R23 为 65.4000%/78.8682%，即 Accuracy 提高 0.3333 个百分点，AUC
+提高 **3.4266 个百分点**。逐 target AUC 在 BigGAN、ADM、VQDM 和 Midjourney 分别提高
+9.5504、5.2692、5.3235 和 3.6037 个百分点；wukong 仅下降 0.0014 个百分点。
+
+这次 AUC 增益确实来自持续解析更新而不是静态重映射：4 个专家完整继承各自的 323997 个源
+样本统计，657 次预测后更新吸收 10274.22 的 target 有效质量，解析求解失败和冷启动批次均为
+0；固定过去域上的 mean current AUC gain 为 3.3642 个百分点，mean future AUC gain 为
+1.3457 个百分点。不过新 Source-Ridge 本身明显弱于此前 LoRA 神经网络头 Source 的
+68.3143%/82.5031%，所以 R23 绝对值仍低约 2.91/3.63 个百分点。当前实验同时改变了 LoRA
+特征训练时的分类坐标和最终分类头，不能把 static 退化单独归因于 Ridge。下一轮应保持此前
+成功的 LoRA 特征训练协议不变，只在源 Ridge 拟合时切换到统一归一化坐标，再原样复用 R23
+在线过程；这不增加任何 target 超参数，也能隔离真正的源阶段瓶颈。
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
