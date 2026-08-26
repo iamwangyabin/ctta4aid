@@ -5820,14 +5820,14 @@ class ASCALGMMSegmentedMemoryPosteriorEvidenceGatedRidgeExpert(
             feature_query,
             feature_query,
         )
-        posterior_variance = np.einsum(
-            "ij,jk,ik->i",
+        posterior_projection = feature_query @ inverse_gram
+        variance_reduction = np.einsum(
+            "ij,ij->i",
             feature_query,
-            inverse_gram,
-            feature_query,
+            feature_query - posterior_projection,
         )
         evidence = np.divide(
-            prior_variance - posterior_variance,
+            variance_reduction,
             prior_variance,
             out=np.zeros_like(prior_variance),
             where=prior_variance > np.finfo(np.float64).eps,

@@ -5705,6 +5705,11 @@ class ASCALGMMMethodTests(unittest.TestCase):
             method._inverse_gram_feature_evidence(features, state),
             np.zeros(3),
         )
+        arbitrary_feature = np.array([[0.3, 0.4, 0.5, 1.0]], dtype=np.float64)
+        np.testing.assert_array_equal(
+            method._inverse_gram_feature_evidence(arbitrary_feature, state),
+            np.zeros(1),
+        )
 
         state["inverse_gram"] = np.diag([0.25, 0.75, 1.0, 0.0])
         evidence = method._inverse_gram_feature_evidence(features, state)
