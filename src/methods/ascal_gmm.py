@@ -5090,7 +5090,7 @@ class ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert(
             self.rms_ridge_expert_solve_failures += 1
             return False
 
-        labels = np.asarray(routed_labels, dtype=np.int64).reshape(-1)
+        labels = np.argmax(targets, axis=1).astype(np.int64, copy=False)
         class_mass = np.bincount(labels, weights=reliability, minlength=2)
         state["weights"] = updated_weights
         state["inverse_gram"] = updated_inverse
@@ -5902,6 +5902,319 @@ class ASCALGMMSegmentedMemoryPosteriorEvidenceGatedRidgeExpert(
             }
         )
         return prediction
+
+
+class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedTrustedRidge(
+    ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert
+):
+    """Route by frozen CLIP features and train direct Ridge with GMM trust."""
+
+    def _reset_state(self) -> None:
+        self._feature_route_query: np.ndarray | None = None
+        super()._reset_state()
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_feature_routed_per_expert_gmm_trusted_"
+                    "direct_binary_analytic_ridge"
+                ),
+                "research_name": "ASCAL-JMP-FeatureRoutedTrustedRidge",
+                "research_version": "R22",
+                "routing_coordinate": (
+                    "l2_normalized_frozen_clip_feature_orthogonal_to_"
+                    "source_binary_head"
+                ),
+                "routing_class_direction": (
+                    "remove_the_frozen_source_binary_head_direction_before_"
+                    "normalization"
+                ),
+                "routing_rule": (
+                    "maximum_mean_cosine_similarity_to_historical_expert_"
+                    "prototype_with_active_tie_priority"
+                ),
+                "routing_granularity": "one_current_unlabeled_stream_batch",
+                "routing_score_used": False,
+                "routing_admission": (
+                    "feature_winner_is_admitted_without_source_score_mdl"
+                ),
+                "gmm_role": (
+                    "prediction_time_old_expert_equal_prior_pseudo_label_"
+                    "and_continuous_reliability_only"
+                ),
+                "gmm_in_final_prediction": False,
+                "pseudo_label": "selected_gmm_equal_prior_posterior_argmax",
+                "reliability_rule": (
+                    "absolute_selected_gmm_signed_posterior_without_threshold"
+                ),
+                "ridge_target": "real_or_fake_one_hot_vector",
+                "ridge_update": (
+                    "exact_recursive_least_squares_woodbury_after_prediction"
+                ),
+                "prediction_rule": (
+                    "equal_average_of_frozen_source_probability_and_selected_"
+                    "direct_ridge_softmax_probability"
+                ),
+                "cold_start_rule": (
+                    "zero_ridge_is_neutral_probability_one_half_and_preserves_"
+                    "source_accuracy_and_auc"
+                ),
+                "gmm_update_score_coordinate": "immutable_frozen_source_score",
+                "ridge_output_updates_gmm": False,
+                "prediction_mutates_experts": False,
+                "raw_images_stored": False,
+                "raw_features_stored": False,
+                "target_labels_used": False,
+                "generator_boundaries_used": False,
+                "semantic_features_used": True,
+                "new_target_hyperparameters": 0,
+                "intentional_changes": [
+                    (
+                        "historical expert selection uses frozen CLIP features "
+                        "orthogonal to the source real-fake direction"
+                    ),
+                    "the selected old GMM supplies pseudo-classes and reliability only",
+                    "Ridge learns direct one-hot binary targets rather than a GMM score",
+                    "the current final score contains only frozen Base and direct Ridge",
+                    "the selected expert receives the batch only after prediction",
+                    "no image or per-sample feature survives its analytic update",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_feature_routed_gmm_trusted_ridge"
+
+    def _new_ordinal_ridge_state(self) -> dict[str, Any]:
+        state = super()._new_ordinal_ridge_state()
+        weight_rows = int(np.asarray(state["weights"]).shape[0])
+        state.update(
+            {
+                "route_feature_sum": np.zeros(
+                    max(1, weight_rows - 1),
+                    dtype=np.float64,
+                ),
+                "route_feature_mass": 0.0,
+            }
+        )
+        return state
+
+    def _batch_scores_and_rms_ridge_expert_features(
+        self,
+        images: Any,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        scores, features = super()._batch_scores_and_rms_ridge_expert_features(
+            images
+        )
+        self._feature_route_query = self._feature_route_coordinates(
+            features[:, :-1]
+        )
+        return scores, features
+
+    def _feature_route_coordinates(self, features: np.ndarray) -> np.ndarray:
+        values = np.asarray(features, dtype=np.float64)
+        if values.ndim != 2 or values.shape[1] != (
+            self.rms_ridge_expert_backbone_feature_dim
+        ):
+            raise ValueError("ASCAL feature route received invalid CLIP features")
+        direction = np.asarray(
+            self._ordinal_ridge_source_direction,
+            dtype=np.float64,
+        ).reshape(-1)
+        projected = values - (values @ direction)[:, None] * direction[None, :]
+        norms = np.linalg.norm(projected, axis=1, keepdims=True)
+        return np.divide(
+            projected,
+            norms,
+            out=np.zeros_like(projected),
+            where=norms > np.finfo(np.float64).eps,
+        )
+
+    def _route_prototype(
+        self,
+        state: dict[str, Any] | None,
+    ) -> np.ndarray | None:
+        if state is None:
+            return None
+        feature_sum = np.asarray(
+            state.get("route_feature_sum", []),
+            dtype=np.float64,
+        ).reshape(-1)
+        mass = float(state.get("route_feature_mass", 0.0))
+        if (
+            feature_sum.size != self.rms_ridge_expert_backbone_feature_dim
+            or not np.all(np.isfinite(feature_sum))
+            or not math.isfinite(mass)
+            or mass <= np.finfo(np.float64).eps
+        ):
+            return None
+        norm = float(np.linalg.norm(feature_sum))
+        if not math.isfinite(norm) or norm <= np.finfo(np.float64).eps:
+            return None
+        return feature_sum / norm
+
+    def _routing_candidates(self, scores: np.ndarray) -> list[dict[str, Any]]:
+        candidates = super()._routing_candidates(scores)
+        query = self._feature_route_query
+        if query is None or query.shape != (
+            int(np.asarray(scores).size),
+            self.rms_ridge_expert_backbone_feature_dim,
+        ):
+            raise RuntimeError("ASCAL feature route lost the current CLIP features")
+
+        routed_candidates: list[dict[str, Any]] = []
+        for candidate in candidates:
+            memory_index = candidate["memory_index"]
+            if candidate["expert"] == "active_learning_state":
+                assignment = (
+                    "novel" if self.active_memory_index is None else "episodic_memory",
+                    self.active_memory_index,
+                )
+            else:
+                assignment = ("episodic_memory", int(memory_index))
+            state = self._peek_ordinal_ridge_state(assignment)
+            prototype = self._route_prototype(state)
+            if prototype is None:
+                if candidate["expert"] != "active_learning_state":
+                    continue
+                similarity = 1.0
+            else:
+                similarity = float(np.mean(query @ prototype))
+            if not math.isfinite(similarity):
+                continue
+            routed = dict(candidate)
+            routed["source_score_deviance"] = float(candidate["deviance"])
+            routed["feature_similarity"] = similarity
+            routed["deviance"] = float(scores.size) * (1.0 - similarity)
+            routed_candidates.append(routed)
+        return routed_candidates
+
+    def _memory_admission_evidence(
+        self,
+        scores: np.ndarray,
+        memory_index: int,
+    ) -> dict[str, Any]:
+        del scores
+        evidence = self._empty_admission("feature_similarity_winner")
+        evidence.update(
+            {
+                "checked": True,
+                "accepted": True,
+                "memory_index": int(memory_index),
+            }
+        )
+        return evidence
+
+    def _rms_ridge_expert_supervision(
+        self,
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        routed_labels: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+        del routed_labels
+        posterior = np.asarray(
+            joint_density_fake_posterior(scores, mixture),
+            dtype=np.float64,
+        ).reshape(-1)
+        labels = (posterior >= 0.5).astype(np.int64)
+        reliability = np.abs(2.0 * posterior - 1.0)
+        targets = np.zeros((labels.size, 2), dtype=np.float64)
+        targets[np.arange(labels.size), labels] = 1.0
+        if not (
+            np.all(np.isfinite(posterior))
+            and np.all(np.isfinite(reliability))
+        ):
+            raise FloatingPointError(
+                "ASCAL feature-routed trusted Ridge produced non-finite supervision"
+            )
+        class_mass = np.bincount(labels, weights=reliability, minlength=2)
+        self.rms_ridge_expert_last_effective_support = float(reliability.sum())
+        self.rms_ridge_expert_last_reliability = float(np.mean(reliability))
+        self.rms_ridge_expert_last_real_mass = float(class_mass[0])
+        self.rms_ridge_expert_last_fake_mass = float(class_mass[1])
+        self.rms_ridge_expert_last_posterior_conflicts = 0
+        return targets, reliability, posterior, 0
+
+    def _update_rms_ridge_expert_state(
+        self,
+        state: dict[str, Any],
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        routed_labels: np.ndarray,
+        features: np.ndarray,
+        base_margins: np.ndarray,
+    ) -> bool:
+        route_features = self._feature_route_coordinates(
+            np.asarray(features, dtype=np.float64)[:, :-1]
+        )
+        state["route_feature_sum"] = np.asarray(
+            state["route_feature_sum"],
+            dtype=np.float64,
+        ) + np.sum(route_features, axis=0)
+        state["route_feature_mass"] = float(state["route_feature_mass"]) + float(
+            route_features.shape[0]
+        )
+        updated = super()._update_rms_ridge_expert_state(
+            state,
+            mixture,
+            scores,
+            routed_labels,
+            features,
+            base_margins,
+        )
+        return updated
+
+    @staticmethod
+    def _ordinal_ridge_ready(state: dict[str, Any] | None) -> bool:
+        return state is not None
+
+    def _rms_ridge_expert_probability(
+        self,
+        base_probability: np.ndarray,
+        features: np.ndarray,
+        state: dict[str, Any],
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, float]:
+        if self._pending is None:
+            raise RuntimeError("ASCAL feature-routed trusted Ridge lost Base scores")
+        scores = np.asarray(self._pending["scores"], dtype=np.float64).reshape(-1)
+        base_probability = np.asarray(base_probability, dtype=np.float64).reshape(-1)
+        if base_probability.shape != scores.shape:
+            raise RuntimeError(
+                "ASCAL feature-routed trusted Ridge received misaligned Base scores"
+            )
+        source_probability = np.asarray(
+            self._source_probability(scores),
+            dtype=np.float64,
+        ).reshape(-1)
+        epsilon = np.finfo(np.float64).eps
+        bounded_source = np.clip(source_probability, epsilon, 1.0 - epsilon)
+        base_margin = np.log(bounded_source / (1.0 - bounded_source))
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        direction = weights[:, 1] - weights[:, 0]
+        ridge_margin = np.asarray(features @ direction, dtype=np.float64)
+        ridge_probability = self._stable_sigmoid(ridge_margin)
+        probability = 0.5 * (source_probability + ridge_probability)
+        if not (
+            np.all(np.isfinite(base_margin))
+            and np.all(np.isfinite(ridge_margin))
+            and np.all(np.isfinite(probability))
+        ):
+            raise FloatingPointError(
+                "ASCAL feature-routed trusted Ridge produced a non-finite prediction"
+            )
+        return probability, base_margin, ridge_margin, 1.0, 1.0
+
+    def predict(self, images: Any) -> PredictionBatch:
+        self._feature_route_query = None
+        try:
+            return super().predict(images)
+        finally:
+            self._feature_route_query = None
 
 
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(

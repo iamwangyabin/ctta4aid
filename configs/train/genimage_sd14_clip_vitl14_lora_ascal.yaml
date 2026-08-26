@@ -83,6 +83,8 @@ training:
     - ascal_gmm_segmented_memory_posterior_equal_prior_ridge_expert_static
     - ascal_gmm_segmented_memory_posterior_evidence_gated_ridge_expert
     - ascal_gmm_segmented_memory_posterior_evidence_gated_ridge_expert_static
+    - ascal_gmm_segmented_memory_posterior_feature_routed_trusted_ridge
+    - ascal_gmm_segmented_memory_posterior_feature_routed_trusted_ridge_static
     - ascal_gmm_segmented_memory_posterior_routed_residual
     - ascal_gmm_segmented_memory_posterior_routed_residual_static
     - ascal_gmm_segmented_memory_posterior_routed_ridge_residual

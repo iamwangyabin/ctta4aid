@@ -975,6 +975,23 @@ AUC 却下降 0.3474 个百分点，average forgetting 增加 1.4383 个百分�
 结论只认可 target-macro：R21 改善了分类边界，但 target-macro AUC 提升不稳定，pooled AUC 的
 变化不能作为排序能力提升的证据；GenImage 可用于快速筛选，不能单独作为跨数据集有效性的证明。
 
+`ascal_gmm_segmented_memory_posterior_feature_routed_trusted_ridge` 的研究版本名为
+**ASCAL-JMP-FeatureRoutedTrustedRidge（R22）**。它把 R21 中互相纠缠的专家选择、无标签可信度
+和最终判别拆成三个单一职责。当前 batch 的冻结 CLIP 特征先减去 source 二分类头的真假方向，
+再做 L2 归一化，并以对各专家历史特征原型的平均余弦相似度选择一个专家；这样路由主要比较域
+特征而不是当前 batch 的真假比例，冻结 source score 也不再参与历史专家排序或召回准入。
+所选专家的旧 GMM 仍保留一个 real block 和由 BIC 自然确定的若干 fake components，但只在
+当前预测完成后产生等先验伪类别和连续可靠度 `abs(2p_GMM-1)`。Ridge 直接拟合 real/fake
+one-hot 标签，不回归 GMM posterior，也不把自己的输出反馈给 GMM。
+
+最终唯一评测分数为冻结 Base fake probability 与所选专家 direct Ridge softmax probability 的
+等权平均，GMM posterior 和 GMM 分界均不进入最终输出。新专家的 Ridge 权重为零，因此其
+probability 为 0.5；与 Base 平均后仍严格保留 Base 的 0.5 决策和样本次序。随着 GMM 认可的
+历史样本通过解析 RLS 累积，Ridge 才能利用完整 CLIP 特征改变后续样本排序。当前 batch 始终
+读取旧路由原型、旧 GMM 和旧 Ridge，预测完成后才更新同一个专家，不保存图片或逐样本特征，
+也不新增 confidence threshold、routing threshold、epoch、optimizer、学习率或 target 参数。
+首轮只在 GenImage matched-JPEG seed1 上作为 pilot 筛选，结果完成前不得写成正式三 seed 结论。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与

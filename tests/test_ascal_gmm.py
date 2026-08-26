@@ -1915,6 +1915,52 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["raw_images_stored"])
                 self.assertFalse(reference["raw_features_stored"])
 
+    def test_feature_routed_trusted_ridge_config_separates_module_roles(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_feature_routed_trusted_ridge"
+        )
+        path = (
+            PROJECT_ROOT
+            / "configs/experiments/clip_vlm_bias_controlled"
+            / "matched_jpeg_ascal_gmm_segmented_memory_posterior_"
+            "feature_routed_trusted_ridge_continual_genimage_seed1.yaml"
+        )
+        config = load_config(path)
+        self.assertEqual(config["methods"], [method_name])
+        self.assertEqual(config["seed"], 1)
+        self.assertFalse(config["protocol"]["reset_between_domains"])
+        self.assertFalse(config["protocol"]["generator_id_available_to_method"])
+        adaptive = method_config(config, method_name)
+        reference = adaptive["reference"]
+        self.assertEqual(
+            reference["research_name"],
+            "ASCAL-JMP-FeatureRoutedTrustedRidge",
+        )
+        self.assertEqual(reference["research_version"], "R22")
+        self.assertEqual(
+            reference["routing_coordinate"],
+            "l2_normalized_frozen_clip_feature_orthogonal_to_source_binary_head",
+        )
+        self.assertFalse(reference["routing_score_used"])
+        self.assertFalse(reference["gmm_in_final_prediction"])
+        self.assertEqual(reference["new_target_hyperparameters"], 0)
+        self.assertFalse(reference["target_labels_used"])
+        self.assertTrue(reference["semantic_features_used"])
+        for key in (
+            "confidence_threshold",
+            "fusion_weight",
+            "learning_rate",
+            "memory_capacity",
+            "ridge_alpha",
+            "routing_threshold",
+            "temperature",
+        ):
+            self.assertNotIn(key, adaptive)
+
     def test_routed_residual_configs_keep_r01_coordinate_and_one_assignment(
         self,
     ) -> None:
@@ -2285,6 +2331,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_memory_posterior_evidence_gated_ridge_expert_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_feature_routed_trusted_ridge",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_feature_routed_trusted_ridge_static",
             config["training"]["intended_methods"],
         )
         self.assertIn(
@@ -2766,6 +2820,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorEvidenceGatedRidgeExpert(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_posterior_feature_routed_trusted_ridge_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedTrustedRidge,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorFeatureRoutedTrustedRidge(
             self.detector(),
             "cpu",
             {
@@ -5898,6 +5968,154 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(stats.extra["equal_prior_ridge_ready_experts"], 0)
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_feature_routed_trusted_ridge_uses_gmm_labels_as_weighted_targets(
+        self,
+    ) -> None:
+        method = self.segmented_memory_posterior_feature_routed_trusted_ridge_method()
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-3.0, 3.0],
+            "sigmas": [0.5, 0.5],
+            "components": 2,
+            "bic": 0.0,
+        }
+        scores = np.array([-3.0, 3.0])
+        deliberately_wrong_r12_labels = np.array([1, 0])
+
+        targets, reliability, posterior, conflicts = (
+            method._rms_ridge_expert_supervision(
+                mixture,
+                scores,
+                deliberately_wrong_r12_labels,
+            )
+        )
+
+        np.testing.assert_array_equal(targets, np.eye(2, dtype=np.float64))
+        self.assertTrue(np.all(reliability > 0.99))
+        self.assertLess(float(posterior[0]), 0.5)
+        self.assertGreater(float(posterior[1]), 0.5)
+        self.assertEqual(conflicts, 0)
+
+    def test_feature_routed_trusted_ridge_routes_only_by_clip_prototypes(
+        self,
+    ) -> None:
+        method = self.segmented_memory_posterior_feature_routed_trusted_ridge_method()
+        returning = {
+            "weights": [0.5, 0.5],
+            "mus": [-8.0, -3.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        active = {
+            "weights": [0.5, 0.5],
+            "mus": [20.0, 25.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        returning_state = method._new_ordinal_ridge_state()
+        returning_state["route_feature_sum"] = np.array([1.0, 0.0, 0.0])
+        returning_state["route_feature_mass"] = 1.0
+        active_state = method._new_ordinal_ridge_state()
+        active_state["route_feature_sum"] = np.array([0.0, 1.0, 0.0])
+        active_state["route_feature_mass"] = 1.0
+        method._mixture = active
+        method.active_memory_index = 1
+        method.segment_memories = [
+            {
+                "mixture": returning,
+                "boundary": float(method._memory_boundary(returning)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 0,
+                method._ORDINAL_RIDGE_MEMORY_KEY: returning_state,
+            },
+            {
+                "mixture": active,
+                "boundary": float(method._memory_boundary(active)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 1,
+                method._ORDINAL_RIDGE_MEMORY_KEY: active_state,
+            },
+        ]
+        method._feature_route_query = np.array([[1.0, 0.0, 0.0]])
+
+        near_returning = method._routing_candidates(np.array([-8.0]))
+        near_active_score = method._routing_candidates(np.array([24.0]))
+
+        for candidates in (near_returning, near_active_score):
+            winner = min(candidates, key=lambda candidate: candidate["deviance"])
+            self.assertEqual(winner["expert"], "episodic_memory")
+            self.assertEqual(winner["memory_index"], 0)
+            self.assertAlmostEqual(float(winner["feature_similarity"]), 1.0)
+        np.testing.assert_allclose(
+            [candidate["deviance"] for candidate in near_returning],
+            [candidate["deviance"] for candidate in near_active_score],
+        )
+
+    def test_feature_route_removes_the_source_binary_direction(self) -> None:
+        method = self.segmented_memory_posterior_feature_routed_trusted_ridge_method()
+        source_direction = method._ordinal_ridge_source_direction
+        features = np.array(
+            [
+                [1.0, 0.0, 1.0],
+                [0.0, 1.0, 1.0],
+            ],
+            dtype=np.float64,
+        )
+
+        routed = method._feature_route_coordinates(features)
+
+        np.testing.assert_allclose(routed @ source_direction, 0.0, atol=1e-12)
+        np.testing.assert_allclose(np.linalg.norm(routed, axis=1), 1.0)
+
+    def test_feature_routed_trusted_ridge_predicts_base_plus_ridge_then_updates(
+        self,
+    ) -> None:
+        method = self.segmented_memory_posterior_feature_routed_trusted_ridge_method()
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-7.5, -3.5],
+            "sigmas": [0.5, 0.5],
+            "components": 2,
+            "bic": 0.0,
+        }
+        method._mixture = copy.deepcopy(mixture)
+        method.boundary_history = [-5.5]
+        scores = np.array([-8.0, -7.0, -4.0, -3.0])
+        images = self.score_feature_batch(
+            scores,
+            np.array([-1.0, -0.5, 0.5, 1.0]),
+        )
+        state = method._novel_ordinal_ridge_state
+        before_weights = state["weights"].copy()
+
+        prediction = method.predict(images)
+        expected = 0.5 * (method._source_probability(scores) + 0.5)
+        np.testing.assert_allclose(prediction.prob_fake.numpy(), expected, atol=1e-7)
+        np.testing.assert_array_equal(state["weights"], before_weights)
+        self.assertTrue(method._pending["prediction_rms_ridge_expert_applied"])
+
+        stats = method.adapt(images)
+        self.assertTrue(stats.extra["rms_ridge_expert_updated"])
+        self.assertFalse(np.array_equal(state["weights"], before_weights))
+        self.assertGreater(float(state["route_feature_mass"]), 0.0)
+        metadata = method.reproduction_metadata
+        self.assertEqual(
+            metadata["research_name"],
+            "ASCAL-JMP-FeatureRoutedTrustedRidge",
+        )
+        self.assertEqual(
+            metadata["routing_coordinate"],
+            "l2_normalized_frozen_clip_feature_orthogonal_to_source_binary_head",
+        )
+        self.assertFalse(metadata["routing_score_used"])
+        self.assertFalse(metadata["gmm_in_final_prediction"])
+
     def test_routed_residual_static_path_is_exact_source(self) -> None:
         method = self.segmented_memory_posterior_routed_residual_method(
             adaptation_mode="static"
@@ -7295,6 +7513,27 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_feature_routed_trusted_ridge_static_alias(
+        self,
+    ) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedTrustedRidge,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_feature_routed_trusted_ridge_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedTrustedRidge,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_method_factory_maps_routed_residual_static_alias(self) -> None:
         from src.methods import build_method
         from src.methods.ascal_gmm import (
@@ -8231,6 +8470,49 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertIsInstance(
             method,
             ASCALGMMSegmentedMemoryPosteriorEvidenceGatedRidgeExpert,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_feature_routed_trusted_ridge_with_lora_profile(
+        self,
+    ) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedTrustedRidge,
+        )
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_"
+            "feature_routed_trusted_ridge_static"
+        )
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {method_name: {"adaptation_mode": "static"}},
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedTrustedRidge,
         )
         self.assertEqual(method.adaptation_mode, "static")
 
