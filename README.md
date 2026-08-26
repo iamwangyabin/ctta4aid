@@ -992,6 +992,20 @@ probability 为 0.5；与 Base 平均后仍严格保留 Base 的 0.5 决策和�
 也不新增 confidence threshold、routing threshold、epoch、optimizer、学习率或 target 参数。
 首轮只在 GenImage matched-JPEG seed1 上作为 pilot 筛选，结果完成前不得写成正式三 seed 结论。
 
+R22 的 GenImage seed1 pilot 已在 4090-2 上由固定提交 `77a9f01` 完成。10500 个在线样本与
+Source、R12、R21 的身份和顺序逐项一致，CLIP、LoRA source checkpoint 与 matched-JPEG
+profile 哈希也完全一致。R22 的 target-macro online Accuracy/AUC 为 69.2286%/82.3997%；
+相对 Source 为 +0.9143/-0.1034 个百分点，相对 R12 为 -7.5810/+0.1659 个百分点，相对 R21
+为 -8.0000/-0.2759 个百分点，因此未通过晋级条件，不进入 seed2/seed3。
+
+这次失败不是 Ridge 没有更新：657 次解析更新覆盖 10484 个候选样本，三个专家的有效支持为
+9709.29，求解失败为 0。问题出在最终读出尺度。one-hot Ridge 的 batch 平均绝对 margin 只有
+0.7863，而 Base 在困难生成器上强烈偏向 real；把两个 probability 固定平均后，Ridge 往往
+无法把 Base 的假图拉回 0.5 以上。最终读出相对内部路由决定改了 1804 个标签，其中 1762 个
+是 fake-to-real，直接丢掉了 R12/R21 的边界收益。这证明“都变成 `[0, 1]` 概率”只保证数值范围
+一致，并不保证两套分类证据的决策强度可比；下一版不能再固定平均，而应让解析历史证据决定
+何时由 Ridge 接管 Base，同时保持 GMM 只负责伪标签与训练可靠度。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
