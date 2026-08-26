@@ -5478,6 +5478,251 @@ class ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert(
         ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.discard_pending_prediction(self)
 
 
+class ASCALGMMSegmentedMemoryPosteriorEqualPriorRidgeExpert(
+    ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert
+):
+    """Center each R19 expert at its equal-prior class-centroid midpoint."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "r19_direct_binary_ridge_with_parameter_free_equal_prior_"
+                    "expert_readout"
+                ),
+                "research_name": "ASCAL-JMP-EqualPriorRidge",
+                "research_version": "R20",
+                "r19_protected_scope": (
+                    "r12_routing_gmm_segmentation_memory_handoff_pseudo_labels_"
+                    "reliability_rls_updates_and_unit_rms_fusion"
+                ),
+                "diagnosed_failure": (
+                    "reliability_weighted_r12_pseudo_class_mass_can_encode_a_"
+                    "spurious_target_class_prior_in_the_ridge_bias"
+                ),
+                "equal_prior_statistics": (
+                    "two_historical_reliability_weighted_ridge_margin_class_"
+                    "centroids_derived_from_existing_cross_covariance_and_class_mass"
+                ),
+                "equal_prior_center": (
+                    "one_half_times_real_margin_centroid_plus_fake_margin_centroid"
+                ),
+                "centered_ridge_margin": (
+                    "raw_ridge_margin_minus_historical_equal_prior_center"
+                ),
+                "scale_alignment": (
+                    "per_expert_historical_reliability_weighted_rms_for_r12_"
+                    "logit_and_equal_prior_centered_ridge_margin"
+                ),
+                "centered_ridge_energy": (
+                    "exact_sufficient_statistic_identity_without_replaying_samples"
+                ),
+                "prediction_rule": (
+                    "sigmoid_of_r12_logit_over_past_r12_rms_plus_equal_prior_"
+                    "centered_ridge_margin_over_its_past_centered_rms"
+                ),
+                "class_prior_assumption": (
+                    "equal_real_fake_prior_matching_balanced_binary_evaluation"
+                ),
+                "new_persistent_state": "none_reuse_r19_sufficient_statistics",
+                "new_target_hyperparameters": 0,
+                "intentional_changes": [
+                    "all R19 routing learning and expert ownership remain unchanged",
+                    "R19 direct one-hot Ridge weights remain byte-for-byte unchanged",
+                    (
+                        "each old expert removes only the midpoint of its two "
+                        "historical pseudo-class margin centroids"
+                    ),
+                    (
+                        "the centered Ridge RMS is derived exactly from existing "
+                        "sufficient statistics"
+                    ),
+                    "cold or invalid experts still return the exact R12 probability",
+                    "no target sample label image feature or new tuning knob is retained",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_equal_prior_ridge_expert"
+
+    def _equal_prior_ridge_moments(
+        self,
+        state: dict[str, Any] | None,
+    ) -> tuple[float, float, float] | None:
+        if state is None:
+            return None
+        support = float(state["effective_support"])
+        class_mass = np.asarray(state["class_mass"], dtype=np.float64).reshape(-1)
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        cross_covariance = np.asarray(
+            state["cross_covariance"],
+            dtype=np.float64,
+        )
+        if (
+            not math.isfinite(support)
+            or support <= np.finfo(np.float64).eps
+            or class_mass.shape != (2,)
+            or np.any(class_mass <= np.finfo(np.float64).eps)
+            or not np.all(np.isfinite(class_mass))
+            or weights.shape != (self.ordinal_ridge_feature_dim, 2)
+            or cross_covariance.shape != weights.shape
+            or not np.all(np.isfinite(weights))
+            or not np.all(np.isfinite(cross_covariance))
+        ):
+            return None
+
+        direction = weights[:, 1] - weights[:, 0]
+        real_feature_sum = cross_covariance[:, 0]
+        fake_feature_sum = cross_covariance[:, 1]
+        real_centroid = float(direction @ real_feature_sum / class_mass[0])
+        fake_centroid = float(direction @ fake_feature_sum / class_mass[1])
+        center = 0.5 * (real_centroid + fake_centroid)
+        separation = fake_centroid - real_centroid
+
+        cross_direction = fake_feature_sum - real_feature_sum
+        raw_energy = float(direction @ cross_direction - direction @ direction)
+        total_feature_sum = real_feature_sum + fake_feature_sum
+        centered_energy = float(
+            raw_energy
+            - 2.0 * center * float(direction @ total_feature_sum)
+            + center**2 * support
+        )
+        centered_energy = max(0.0, centered_energy)
+        if not all(
+            math.isfinite(value)
+            for value in (
+                real_centroid,
+                fake_centroid,
+                center,
+                separation,
+                centered_energy,
+            )
+        ):
+            return None
+        return center, separation, centered_energy
+
+    def _rms_ridge_expert_scales(
+        self,
+        state: dict[str, Any] | None,
+    ) -> tuple[float, float, float] | None:
+        if state is None:
+            return None
+        support = float(state["effective_support"])
+        base_energy = float(state["base_margin_square_sum"])
+        moments = self._equal_prior_ridge_moments(state)
+        if moments is None:
+            return None
+        _, _, centered_energy = moments
+        if not (
+            math.isfinite(base_energy)
+            and base_energy > 0.0
+            and centered_energy > 0.0
+        ):
+            return None
+        base_rms = math.sqrt(base_energy / support)
+        ridge_rms = math.sqrt(centered_energy / support)
+        if not (
+            math.isfinite(base_rms)
+            and math.isfinite(ridge_rms)
+            and base_rms > np.finfo(np.float64).eps
+            and ridge_rms > np.finfo(np.float64).eps
+        ):
+            return None
+        return base_rms, ridge_rms, centered_energy
+
+    def _rms_ridge_expert_probability(
+        self,
+        base_probability: np.ndarray,
+        features: np.ndarray,
+        state: dict[str, Any],
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, float]:
+        scales = self._rms_ridge_expert_scales(state)
+        moments = self._equal_prior_ridge_moments(state)
+        if scales is None or moments is None:
+            raise RuntimeError(
+                "ASCAL equal-prior Ridge expert has no valid historical scale"
+            )
+        base_rms, ridge_rms, _ = scales
+        center, _, _ = moments
+        base_probability = np.asarray(base_probability, dtype=np.float64).reshape(-1)
+        epsilon = np.finfo(np.float64).eps
+        bounded_probability = np.clip(base_probability, epsilon, 1.0 - epsilon)
+        base_margin = np.log(bounded_probability / (1.0 - bounded_probability))
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        direction = weights[:, 1] - weights[:, 0]
+        ridge_margin = np.asarray(features @ direction - center, dtype=np.float64)
+        fused_margin = base_margin / base_rms + ridge_margin / ridge_rms
+        probability = self._stable_sigmoid(fused_margin)
+        if not (
+            np.all(np.isfinite(base_margin))
+            and np.all(np.isfinite(ridge_margin))
+            and np.all(np.isfinite(probability))
+        ):
+            raise FloatingPointError(
+                "ASCAL equal-prior Ridge expert produced a non-finite prediction"
+            )
+        return probability, base_margin, ridge_margin, base_rms, ridge_rms
+
+    def _rms_ridge_expert_state_stats(self) -> dict[str, Any]:
+        stats = super()._rms_ridge_expert_state_stats()
+        moments = [
+            self._equal_prior_ridge_moments(state)
+            for state in self._all_ordinal_ridge_states()
+            if self._ordinal_ridge_ready(state)
+        ]
+        valid = [moment for moment in moments if moment is not None]
+        centers = [moment[0] for moment in valid]
+        separations = [moment[1] for moment in valid]
+        stats.update(
+            {
+                "equal_prior_ridge_ready_experts": len(valid),
+                "equal_prior_ridge_mean_center": (
+                    float(np.mean(centers)) if centers else 0.0
+                ),
+                "equal_prior_ridge_mean_abs_center": (
+                    float(np.mean(np.abs(centers))) if centers else 0.0
+                ),
+                "equal_prior_ridge_mean_class_separation": (
+                    float(np.mean(separations)) if separations else 0.0
+                ),
+                "equal_prior_ridge_min_class_separation": (
+                    min(separations, default=0.0)
+                ),
+            }
+        )
+        return stats
+
+    def predict(self, images: Any) -> PredictionBatch:
+        prediction = super().predict(images)
+        if self._pending is None:
+            raise RuntimeError("ASCAL equal-prior Ridge lost its pending state")
+        center = 0.0
+        separation = 0.0
+        state = self._pending_ordinal_ridge_state
+        if bool(self._pending.get("prediction_rms_ridge_expert_ready")):
+            moments = self._equal_prior_ridge_moments(state)
+            if moments is None:
+                raise RuntimeError(
+                    "ASCAL equal-prior Ridge lost its prediction moments"
+                )
+            center, separation, _ = moments
+        self._pending.update(
+            {
+                "prediction_equal_prior_ridge_applied": bool(
+                    self._pending.get("prediction_rms_ridge_expert_applied")
+                ),
+                "prediction_equal_prior_ridge_center": center,
+                "prediction_equal_prior_ridge_class_separation": separation,
+            }
+        )
+        return prediction
+
+
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
     ASCALGMMSegmentedMemoryPosteriorProjection
 ):

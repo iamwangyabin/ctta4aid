@@ -896,14 +896,37 @@ fake；宏平均 real Accuracy 提高 4.1196 个百分点，fake Accuracy 下降
 R06 继续作为 online AUC 领先候选。下一版若继续使用解析分类器，必须让新增判别证据的作用强度
 由其自身因果可靠性决定，而不能再做无条件等能量融合。
 
+`ascal_gmm_segmented_memory_posterior_equal_prior_ridge_expert` 的研究版本名为
+**ASCAL-JMP-EqualPriorRidge（R20）**。它先隔离验证 R19 暴露出的类别先验问题，不同时改动
+Ridge 的介入时机：R12 路由、GMM、分段、memory handoff、硬伪标签、连续可靠度、RLS 更新、
+专家状态和单位 RMS 融合均与 R19 完全相同。唯一变化发生在旧专家的预测读出。对专家已有的
+Ridge 方向 `d_e=W_fake-W_real`，利用 R19 已保存的每类 cross-covariance `q_e,y` 和可靠质量
+`M_e,y` 解析得到两个历史 margin 质心：
+
+```text
+mu_e,y = d_e^T q_e,y / M_e,y
+center_e = (mu_e,real + mu_e,fake) / 2
+r_equal-prior(h) = h^T d_e - center_e
+```
+
+该中心把两个伪类的历史 Ridge margin 质心放到零点两侧等距离的位置，因此不会把伪标签流中
+`real:fake` 的经验质量比例直接当成部署先验。centered Ridge RMS 也由 inverse Gram、
+cross-covariance 和 class mass 精确推导，不回放样本；最终仍使用
+`sigmoid(z_R12/rms_R12+r_equal-prior/rms_Ridge)`。冷启动和无效状态逐值精确回退 R12，方法不
+新增持久状态、阈值、融合系数、epoch、optimizer 或学习率。seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_equal_prior_ridge_expert_continual_*_seed1.yaml`；
+预注册晋级门槛仍为四数据集宏平均 Accuracy 严格超过 R12，且 target-macro online AUC 超过
+R06。R20 只回答“等先验中心能否消除 R19 的 fake→real 偏置”；inverse-Gram 证据门控保留为
+下一轮独立结构变化，不能与本轮结果混在一起解释。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
 target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
-最高值，R06 的直接比较对象是 R05，R07 至 R19 的直接比较对象均是当前最佳 R06；R12 至
-R19 还额外使用 R11/R12 的高 Accuracy 作为锚点。R16 至 R19 不再要求逐样本硬决定不变，而是预先
+最高值，R06 的直接比较对象是 R05，R07 至 R20 的直接比较对象均是当前最佳 R06；R12 至
+R20 还额外使用 R11/R12 的高 Accuracy 作为锚点。R16 至 R20 不再要求逐样本硬决定不变，而是预先
 要求四数据集宏平均 Accuracy 严格超过 R12，同时 target-macro online AUC 超过 R06。
 该门槛只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整
 确认前仍不得写入正文正式表。
