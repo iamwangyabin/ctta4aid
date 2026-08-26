@@ -2016,6 +2016,49 @@ class ASCALGMMConfigTests(unittest.TestCase):
         self.assertTrue(train["training"]["analytic_ridge"]["enabled"])
         self.assertEqual(train["training"]["analytic_ridge"]["regularization"], 1.0)
 
+    def test_source_ridge_inheritance_has_all_seed1_dataset_entries(
+        self,
+    ) -> None:
+        from src.config import load_config
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_"
+            "feature_routed_source_ridge"
+        )
+        datasets = (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        )
+        for dataset in datasets:
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / (
+                    "matched_jpeg_ascal_gmm_segmented_memory_posterior_"
+                    "feature_routed_source_ridge_continual_"
+                    f"{dataset}_seed1.yaml"
+                )
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(
+                    config["methods"],
+                    [f"{method_name}_static", method_name],
+                )
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["data"]["shuffle"])
+                self.assertIn(dataset, config["output_dir"])
+                self.assertIn(
+                    dataset,
+                    config["data"]["locked_online_manifest"],
+                )
+                self.assertIn(
+                    dataset,
+                    config["data"]["locked_final_holdout_manifest"],
+                )
+
     def test_routed_residual_configs_keep_r01_coordinate_and_one_assignment(
         self,
     ) -> None:
