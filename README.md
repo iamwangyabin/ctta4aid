@@ -1061,6 +1061,46 @@ R23 pilot 已在 4090-2 上由固定提交 `2ec3fc6` 完成。新的 Source-Ridg
 成功的 LoRA 特征训练协议不变，只在源 Ridge 拟合时切换到统一归一化坐标，再原样复用 R23
 在线过程；这不增加任何 target 超参数，也能隔离真正的源阶段瓶颈。
 
+R23 随后由固定提交 `78d0438` 在其余三个 matched-JPEG 数据集上完成同 checkpoint、同 seed1、
+同锁定流的 Source-Ridge static/R23 成对运行；AIGCDetectionBenchmark 使用 4090-1，
+AIGI-Holmes P3 与 OpenSDID Global 使用 4090-2。运行前没有按数据集修改方法参数，三组运行的
+Static/R23 在线 manifest 与最终 holdout manifest 哈希分别完全一致。target-macro online 结果为：
+
+| 数据集 | Static Acc. | R23 Acc. | Delta Acc. (pp) | Static AUC | R23 AUC | Delta AUC (pp) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| GenImage | 65.0667 | 65.4000 | +0.3333 | 75.4417 | 78.8682 | +3.4266 |
+| AIGCDetectionBenchmark | 61.1059 | 60.9098 | -0.1961 | 69.9596 | 71.6960 | +1.7364 |
+| AIGI-Holmes P3 | 59.9000 | 57.9733 | -1.9267 | 78.5407 | 72.5748 | -5.9659 |
+| OpenSDID Global | 76.1333 | 77.4133 | +1.2800 | 91.2638 | 90.4394 | -0.8244 |
+| 四数据集宏平均 | 65.5515 | 65.4241 | -0.1274 | 78.8014 | 78.3946 | -0.4068 |
+
+因此 R23 不通过四数据集在线 Accuracy/AUC 联合晋级条件。它在 GenImage 与
+AIGCDetectionBenchmark 上确实提高排序，在 OpenSDID 上提高 Accuracy，但 AIGI-Holmes P3 的
+负迁移抵消了这些收益。这个失败又不是“Ridge 没学到”：四数据集最终固定 holdout 的宏平均
+Accuracy 从 65.6048% 提高到 65.7509%，AUC 从 78.6947% 提高到 79.9287%，分别增加
+0.1461 和 1.2340 个百分点；仅 AIGI 的最终 holdout AUC 也从 78.9462% 增至 79.3221%，与其
+在线 AUC 下降 5.9659 个百分点形成明显反差。也就是说，当前解析分类器最终可以形成有用方向，
+但其因果在线轨迹不稳定，不能把流结束后的改善冒充在线 CTTA 成功。
+
+四组运行共执行 3662 次预测后解析更新，覆盖 58436 个候选样本，吸收 56975.90 的 target
+有效质量，求解失败和 cold start 都为 0。事后用隐藏标签以外部 evaluator 只读诊断发现，GMM
+赋予 fake 的有效质量占比在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID
+上仅为 18.16%、14.36%、11.20% 和 27.54%；合计只有 15.93%，而四条评测流实际均为平衡
+二分类。R23 相对 Source-Ridge 共改变 2804 个在线硬决定，其中 2400 个是 fake 到 real，只有
+404 个是 real 到 fake。AIGI 的 Janus-Pro-7B 与 Show-o AUC 分别下降 20.9631 和 19.3228 个
+百分点；AIGC 的首个 ProGAN target 也下降 10.8837 个百分点，所以问题不能只归咎于历史专家
+路由。真正的薄弱处是：连续可靠度可以压低边界附近样本，却无法阻止一个错误但尖锐、类别质量
+严重失衡的 GMM posterior 持续用偏向 real 的 cross-covariance 更新 target Gram，并改变 Ridge
+的样本级排序方向。
+
+下一候选应保持 R23 的 source checkpoint、CLIP 特征路由、GMM 专家、Predict-Then-Adapt 和
+单一 Ridge 读出不变，只把 hard one-hot target 累积改成无阈值的 **class-balanced soft
+evidence**。每个专家仅保存 GMM soft membership 与可靠度形成的两组充分统计；令
+`M_y = sum_i c_i q_iy`、`m = min(M_real, M_fake)`，两类历史统计都只保留到各自可被另一类证据
+支持的质量 `m`。这会下调多数伪类而绝不放大小数伪类；任一类没有证据时 `m=0`，专家严格保持
+Source-Ridge。它不存图片、不假设当前 batch 的 real/fake 比例，也不增加阈值、学习率、epoch、
+融合权重或数据集参数，直接针对本轮暴露的“高置信单类伪监督把解析分类器拉偏”问题。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
