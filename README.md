@@ -1014,6 +1014,16 @@ target labels 仅由外部 evaluator 使用，不进入方法。其 target-macro
 只保证数值范围一致，并不保证两套分类证据的决策强度可比；下一版应先修复读出，再单独判断
 是否需要稳定路由，同时保持 GMM 只负责伪标签与训练可靠度。
 
+同一固定流上的 Ridge-only 只读反事实进一步确认了这一点。由于 R22 的最终 probability 不反馈
+给路由、GMM 或 Ridge 更新，移除 Base average 不改变任何在线状态轨迹；64 个 cold-start 样本
+严格输出 0.5，其余样本只使用所选专家的 direct Ridge softmax probability。该读出的
+target-macro Accuracy/AUC 为 76.7238%/82.2767%，相对原 R22 为 +7.4952/-0.1230 个百分点，
+相对 Source 为 +8.4095/-0.2264 个百分点，相对 R12 为 -0.0857/+0.0430 个百分点。它证明
+direct Ridge 本身已经基本恢复 R12 的分类能力，固定平均才是 R22 Accuracy 坍塌的主因；但其
+AUC 仍低于 Source 和 R21，因此 Ridge-only 可作为下一版直接读出的基线，尚不能宣称已经解决
+持续排序适应。这里移除的只是 Base probability 的最终融合；冻结 Base score 仍仅在内部供 GMM
+产生伪类别和可靠度，不进入最终预测。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
