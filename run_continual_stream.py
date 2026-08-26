@@ -31,6 +31,16 @@ HOLDOUT_LOADER_SEED_OFFSET = 1_000_000
 HOLDOUT_EVALUATION_SEED_OFFSET = 2_000_000
 
 
+def average_domain_metric(
+    by_domain: dict[str, dict[str, float]], metric: str
+) -> float:
+    """Return the protocol's equal-target macro average for one metric."""
+    if not by_domain:
+        raise ValueError("Cannot average an empty set of target metrics")
+    values = [float(metrics[metric]) for metrics in by_domain.values()]
+    return sum(values) / len(values)
+
+
 def final_holdout_stream(
     config: dict,
     domains: list[str],
@@ -323,13 +333,6 @@ def main() -> None:
             )
         checkpoint_metrics = [checkpoint["evaluation"] for checkpoint in checkpoints]
         final = checkpoint_metrics[-1]
-        final_auc = {
-            domain: float(metrics["auc"]) for domain, metrics in final["by_domain"].items()
-        }
-        online_domain_auc = {
-            domain: float(metrics["auc"])
-            for domain, metrics in result["summary"]["by_domain"].items()
-        }
         result["final_holdout"] = final
         result["final_holdout_manifest"] = final_holdout_manifest
         result["holdout_matrix"] = holdout_matrix_rows(
@@ -357,11 +360,16 @@ def main() -> None:
             "evaluate_future_generators": evaluate_future_domains,
             "future_holdouts_used_for_adaptation": False,
         }
-        result["summary"]["online_average_domain_auc"] = sum(
-            online_domain_auc.values()
-        ) / len(online_domain_auc)
-        result["summary"]["final_average_auc"] = sum(final_auc.values()) / len(final_auc)
-        result["summary"]["final_pooled_auc"] = float(final["overall"]["auc"])
+        for metric in ("auc", "accuracy"):
+            result["summary"][f"online_average_domain_{metric}"] = (
+                average_domain_metric(result["summary"]["by_domain"], metric)
+            )
+            result["summary"][f"final_average_{metric}"] = average_domain_metric(
+                final["by_domain"], metric
+            )
+            result["summary"][f"final_pooled_{metric}"] = float(
+                final["overall"][metric]
+            )
         forgetting = continual_forgetting(checkpoint_metrics, domains)
         result["summary"]["forgetting_by_domain"] = {
             domain: metrics["forgetting"]
@@ -376,9 +384,13 @@ def main() -> None:
         save_evaluation(result, output_root / method_name)
         aggregate[method_name] = result["summary"]
         print(
-            f"method={method_name:>8s} online_auc={result['summary']['overall']['auc']:.5f} "
-            f"final_auc={final['overall']['auc']:.5f} "
-            f"forgetting={result['summary']['average_forgetting']:.5f}"
+            f"method={method_name:>8s} "
+            f"online_macro_auc={result['summary']['online_average_domain_auc']:.5f} "
+            f"online_macro_accuracy="
+            f"{result['summary']['online_average_domain_accuracy']:.5f} "
+            f"final_macro_auc={result['summary']['final_average_auc']:.5f} "
+            f"final_macro_accuracy={result['summary']['final_average_accuracy']:.5f} "
+            f"auc_forgetting={result['summary']['average_forgetting']:.5f}"
         )
 
     write_json(output_root / "continual_summary.json", aggregate)

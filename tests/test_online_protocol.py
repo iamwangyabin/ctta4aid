@@ -17,7 +17,11 @@ from src.evaluation.online_evaluator import (
     save_evaluation,
 )
 from src.types import AdaptationStats, PredictionBatch, StreamBatch
-from run_continual_stream import final_holdout_stream, holdout_matrix_rows
+from run_continual_stream import (
+    average_domain_metric,
+    final_holdout_stream,
+    holdout_matrix_rows,
+)
 from run_single_target import pairwise_transfer_rows, summarize_pairwise_transfer
 
 
@@ -45,6 +49,15 @@ class SpyMethod:
 
 
 class OnlineProtocolTest(unittest.TestCase):
+    def test_primary_metric_average_weights_targets_equally(self):
+        by_domain = {
+            "small": {"accuracy": 1.0, "auc": 0.9, "samples": 10},
+            "large": {"accuracy": 0.5, "auc": 0.7, "samples": 1000},
+        }
+
+        self.assertAlmostEqual(average_domain_metric(by_domain, "accuracy"), 0.75)
+        self.assertAlmostEqual(average_domain_metric(by_domain, "auc"), 0.8)
+
     @unittest.skipIf(torch is None, "PyTorch is required")
     def test_save_evaluation_records_tensor_metadata_without_tensor_values(self):
         result = {

@@ -101,6 +101,8 @@ CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fish
 但 template 或 prompt 不得使用目标标签选择。主结果不再把一个数据集压缩成单个数值：
 每个数据集分别给出逐 target 的 AUC 表和 Accuracy 表。target 单元格报告三个正式 seed
 的均值，Mean 列报告 target-macro 均值及跨 seed 标准差；Accuracy 固定使用 0.5 阈值。
+正式结论中的 AUC 和 Accuracy 都以 target-macro 为准。把所有 target 样本混合计算的 pooled
+指标只用于诊断域间分数尺度，不用于方法晋级、最佳结果选择或论文主结论。
 
 | 数据集 | 固定 target 列顺序 |
 |---|---|
@@ -961,14 +963,17 @@ P3 与 OpenSDID Global 未纳入结果，已开始但未完成的 AIGI-Holmes P3
 R12 replay、R20 路由与学习状态、Predict-Then-Adapt 因果更新和解析状态维度审计均通过；2156 次
 更新覆盖 34244 个应用样本，求解失败为 0。
 
-相对配对 R12，R21 在 GenImage 上的 Accuracy、target-macro online AUC 和 pooled online AUC
-分别提高 0.4190、0.4419 和 1.2010 个百分点；但 final target-macro AUC 下降 1.2433 个百分点，
-average forgetting 增加 2.3172 个百分点。在 AIGCDetectionBenchmark 上，Accuracy 和 pooled
-online AUC 分别提高 0.8784 和 0.7252 个百分点，target-macro online AUC 却下降 0.3474 个
-百分点，average forgetting 增加 1.4383 个百分点。两个已完成数据集的简单平均 Accuracy、
-target-macro online AUC 和 pooled online AUC 分别提高 0.6487、0.0473 和 0.9631 个百分点。
-这说明证据门控已经能改善总体排序和边界，但逐 target 排序稳定性与历史保持仍然不够一致；
-GenImage 可用于快速筛选，不能单独作为跨数据集有效性的证明。
+相对配对 R12，R21 在 GenImage 上的 target-macro Accuracy、target-macro online AUC 和诊断性
+pooled online AUC 分别提高 0.4190、0.4419 和 1.2010 个百分点；但 final target-macro AUC
+下降 1.2433 个百分点，
+average forgetting 增加 2.3172 个百分点。在 AIGCDetectionBenchmark 上，target-macro
+Accuracy 和诊断性 pooled online AUC 分别提高 0.8784 和 0.7252 个百分点，target-macro online
+AUC 却下降 0.3474 个百分点，average forgetting 增加 1.4383 个百分点。两个已完成数据集的
+简单平均 target-macro Accuracy、target-macro online AUC 和诊断性 pooled online AUC 分别提高
+0.6487、0.0473 和 0.9631 个百分点。
+这里的 Accuracy 数值因所有 target 均为 1500 个在线样本而与 target-macro Accuracy 相等。正式
+结论只认可 target-macro：R21 改善了分类边界，但 target-macro AUC 提升不稳定，pooled AUC 的
+变化不能作为排序能力提升的证据；GenImage 可用于快速筛选，不能单独作为跨数据集有效性的证明。
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
