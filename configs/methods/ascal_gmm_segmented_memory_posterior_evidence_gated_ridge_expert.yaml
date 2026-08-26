@@ -1,0 +1,51 @@
+extends: ascal_gmm_segmented_memory_posterior_equal_prior_ridge_expert.yaml
+
+methods:
+  - ascal_gmm_segmented_memory_posterior_evidence_gated_ridge_expert_static
+  - ascal_gmm_segmented_memory_posterior_evidence_gated_ridge_expert
+
+method_configs:
+  ascal_gmm_segmented_memory_posterior_evidence_gated_ridge_expert_static:
+    adaptation_mode: static
+    reference:
+      role: exact_single_view_non_adaptive_control_for_evidence_gated_ridge_expert
+      source_setup: lora_r4_binary_detector_from_fixed_clip_vitl14_with_score_anchors
+      protocol: predict_then_adapt
+
+  ascal_gmm_segmented_memory_posterior_evidence_gated_ridge_expert:
+    adaptation_mode: full
+    reference:
+      profile: ascal_jmp_evidence_gated_ridge_r21
+      research_name: ASCAL-JMP-EvidenceGatedRidge
+      research_version: R21
+      protocol: predict_then_adapt
+      target_labels_used: false
+      generator_boundaries_used: false
+      semantic_features_used: false
+      frozen_scope: clip_backbone_lora_branches_binary_head_and_source_score
+      protected_routing: exact_r20_unique_live_mdl_assignment
+      protected_adaptation: exact_r20_segmentation_memory_and_expert_assignment
+      protected_ridge_learning: exact_r20_pseudo_labels_reliability_and_rls_state
+      protected_equal_prior: exact_r20_class_centroid_center_and_centered_rms
+      expert_scope: one_online_two_output_analytic_ridge_state_per_r12_gmm_expert
+      evidence_statistic: one_minus_posterior_to_prior_feature_variance_ratio
+      evidence_source: prediction_time_old_expert_inverse_regularized_gram
+      evidence_query: l2_normalized_clip_feature_with_constant_bias_zeroed
+      evidence_range: analytic_unit_interval
+      evidence_threshold: none
+      ridge_scale_alignment: centered_ridge_margin_times_r12_rms_over_ridge_rms
+      prediction_rule: convex_logit_interpolation_from_r12_to_aligned_direct_ridge
+      zero_evidence_rule: exact_r12_probability
+      full_evidence_rule: aligned_direct_ridge_probability
+      routing_score_coordinate: immutable_source_score
+      gmm_update_score_coordinate: immutable_source_score
+      routing_threshold: none
+      optimizer: none
+      learning_rate: none
+      epochs: none
+      prediction_mutates_experts: false
+      raw_images_stored: false
+      raw_features_stored: false
+      new_persistent_state: none_reuse_r20_inverse_gram
+      new_target_hyperparameters: 0
+      seed1_promotion_rule: accuracy_above_r12_and_target_macro_online_auc_above_r06

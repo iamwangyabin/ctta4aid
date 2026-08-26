@@ -5723,6 +5723,187 @@ class ASCALGMMSegmentedMemoryPosteriorEqualPriorRidgeExpert(
         return prediction
 
 
+class ASCALGMMSegmentedMemoryPosteriorEvidenceGatedRidgeExpert(
+    ASCALGMMSegmentedMemoryPosteriorEqualPriorRidgeExpert
+):
+    """Let an R20 expert replace R12 only where its inverse Gram has evidence."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "r20_equal_prior_direct_ridge_with_parameter_free_"
+                    "sample_level_inverse_gram_evidence_gating"
+                ),
+                "research_name": "ASCAL-JMP-EvidenceGatedRidge",
+                "research_version": "R21",
+                "r20_protected_scope": (
+                    "routing_gmm_segmentation_memory_handoff_pseudo_labels_"
+                    "reliability_rls_state_equal_prior_center_and_scale"
+                ),
+                "diagnosed_failure": (
+                    "r20_forces_a_new_direct_classifier_into_every_ready_"
+                    "expert_prediction_without_sample_direction_evidence"
+                ),
+                "evidence_statistic": (
+                    "one_minus_posterior_to_prior_feature_direction_variance_"
+                    "ratio_from_the_prediction_time_inverse_regularized_gram"
+                ),
+                "evidence_query": (
+                    "l2_normalized_clip_feature_with_constant_bias_coordinate_"
+                    "zeroed_to_exclude_intercept_only_evidence"
+                ),
+                "evidence_range": "analytic_unit_interval",
+                "ridge_scale_alignment": (
+                    "equal_prior_centered_ridge_margin_times_r12_rms_over_"
+                    "centered_ridge_rms"
+                ),
+                "prediction_rule": (
+                    "convex_interpolation_in_r12_logit_units_from_r12_to_"
+                    "aligned_direct_ridge_using_sample_level_evidence"
+                ),
+                "zero_evidence_rule": "return_exact_r12_probability",
+                "full_evidence_rule": "use_the_aligned_direct_ridge_classifier",
+                "gate_timing": (
+                    "prediction_time_old_expert_inverse_gram_before_current_"
+                    "batch_update"
+                ),
+                "new_persistent_state": "none_reuse_r20_inverse_gram",
+                "new_target_hyperparameters": 0,
+                "intentional_changes": [
+                    "all R20 routing supervision and analytic updates remain unchanged",
+                    "R20 equal-prior center and historical RMS remain unchanged",
+                    (
+                        "the old inverse Gram supplies one parameter-free evidence "
+                        "value for each current sample direction"
+                    ),
+                    (
+                        "the direct Ridge replaces rather than duplicates R12 as "
+                        "its evidence grows"
+                    ),
+                    "the constant bias cannot by itself grant sample-level trust",
+                    "no target sample label feature or additional knob is retained",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_evidence_gated_ridge_expert"
+
+    def _inverse_gram_feature_evidence(
+        self,
+        features: np.ndarray,
+        state: dict[str, Any],
+    ) -> np.ndarray:
+        features = np.asarray(features, dtype=np.float64)
+        inverse_gram = np.asarray(state["inverse_gram"], dtype=np.float64)
+        if (
+            features.ndim != 2
+            or int(features.shape[1]) != self.ordinal_ridge_feature_dim
+            or inverse_gram.shape
+            != (self.ordinal_ridge_feature_dim, self.ordinal_ridge_feature_dim)
+            or not np.all(np.isfinite(features))
+            or not np.all(np.isfinite(inverse_gram))
+        ):
+            raise RuntimeError(
+                "ASCAL evidence-gated Ridge received an invalid inverse Gram query"
+            )
+
+        feature_query = features.copy()
+        feature_query[:, -1] = 0.0
+        prior_variance = np.einsum(
+            "ij,ij->i",
+            feature_query,
+            feature_query,
+        )
+        posterior_variance = np.einsum(
+            "ij,jk,ik->i",
+            feature_query,
+            inverse_gram,
+            feature_query,
+        )
+        evidence = np.divide(
+            prior_variance - posterior_variance,
+            prior_variance,
+            out=np.zeros_like(prior_variance),
+            where=prior_variance > np.finfo(np.float64).eps,
+        )
+        evidence = np.clip(evidence, 0.0, 1.0)
+        if not np.all(np.isfinite(evidence)):
+            raise FloatingPointError(
+                "ASCAL evidence-gated Ridge produced non-finite evidence"
+            )
+        return evidence
+
+    def _rms_ridge_expert_probability(
+        self,
+        base_probability: np.ndarray,
+        features: np.ndarray,
+        state: dict[str, Any],
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, float]:
+        (
+            _,
+            base_margin,
+            ridge_margin,
+            base_rms,
+            ridge_rms,
+        ) = super()._rms_ridge_expert_probability(
+            base_probability,
+            features,
+            state,
+        )
+        evidence = self._inverse_gram_feature_evidence(features, state)
+        aligned_ridge_margin = ridge_margin * (base_rms / ridge_rms)
+        fused_margin = base_margin + evidence * (
+            aligned_ridge_margin - base_margin
+        )
+        probability = self._stable_sigmoid(fused_margin)
+        base_probability = np.asarray(base_probability, dtype=np.float64).reshape(-1)
+        probability = np.where(evidence == 0.0, base_probability, probability)
+        if not (
+            np.all(np.isfinite(aligned_ridge_margin))
+            and np.all(np.isfinite(probability))
+        ):
+            raise FloatingPointError(
+                "ASCAL evidence-gated Ridge produced a non-finite prediction"
+            )
+        return probability, base_margin, ridge_margin, base_rms, ridge_rms
+
+    def predict(self, images: Any) -> PredictionBatch:
+        prediction = super().predict(images)
+        if self._pending is None:
+            raise RuntimeError("ASCAL evidence-gated Ridge lost its pending state")
+        applied = bool(self._pending.get("prediction_rms_ridge_expert_applied"))
+        evidence = np.zeros(0, dtype=np.float64)
+        if applied:
+            features = self._pending_ordinal_ridge_features
+            state = self._pending_ordinal_ridge_state
+            if features is None or state is None:
+                raise RuntimeError(
+                    "ASCAL evidence-gated Ridge lost its prediction-time expert"
+                )
+            evidence = self._inverse_gram_feature_evidence(features, state)
+        self._pending.update(
+            {
+                "prediction_evidence_gated_ridge_applied": applied,
+                "prediction_evidence_gated_ridge_mean": (
+                    float(np.mean(evidence)) if evidence.size else 0.0
+                ),
+                "prediction_evidence_gated_ridge_min": (
+                    float(np.min(evidence)) if evidence.size else 0.0
+                ),
+                "prediction_evidence_gated_ridge_max": (
+                    float(np.max(evidence)) if evidence.size else 0.0
+                ),
+            }
+        )
+        return prediction
+
+
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
     ASCALGMMSegmentedMemoryPosteriorProjection
 ):

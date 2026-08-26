@@ -933,14 +933,36 @@ Predict-Then-Adapt 因果更新审计均已通过；3546 次更新覆盖 56584 �
 融合改为由旧 inverse Gram 解析得到的样本级证据门控，R20 的路由、监督、状态更新和等先验
 中心必须保持不变。
 
+`ascal_gmm_segmented_memory_posterior_evidence_gated_ridge_expert` 的研究版本名为
+**ASCAL-JMP-EvidenceGatedRidge（R21）**。它完整继承 R20 的 source-score 路由、GMM、分段、
+memory handoff、伪标签、连续可靠度、每专家 RLS 状态、等先验中心和历史 RMS；唯一变化是把
+无条件相加的两个单位 RMS 分类信号改成样本级证据门控的分类器接管。对当前归一化 CLIP 特征
+`h`，使用预测时旧专家的 inverse regularized Gram `P_e` 计算
+
+```text
+g_e(h) = clip(1 - h^T P_e h / h^T h, 0, 1)
+z_ridge(h) = r_equal-prior(h) * rms_R12 / rms_Ridge
+z_final(h) = (1 - g_e(h)) * z_R12(h) + g_e(h) * z_ridge(h)
+```
+
+计算证据时把 design vector 的常数 bias 坐标置零，避免仅学会专家截距就获得样本级判别信任。
+因为单位 Ridge 先验对应 `P_e=I`，从未被历史可靠样本覆盖的特征方向有 `g=0`，逐样本精确返回
+R12；该方向的 posterior variance 随证据累积而下降时，`g` 才无阈值地趋近 1。Ridge 是直接
+二分类器而不是 residual，所以这里让它在有证据时逐步替代 R12，而不再重复相加同一伪类别
+信号。当前 batch 只使用更新前的 `P_e`，预测后仍按 R20 原规则更新同一个专家。方法不新增
+持久状态、阈值、融合系数、epoch、optimizer、学习率或 target 超参数。seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_evidence_gated_ridge_expert_continual_*_seed1.yaml`；
+预注册晋级门槛仍为四数据集宏平均 Accuracy 严格超过 R12，且 target-macro online AUC 超过
+R06。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
 target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
-最高值，R06 的直接比较对象是 R05，R07 至 R20 的直接比较对象均是当前最佳 R06；R12 至
-R20 还额外使用 R11/R12 的高 Accuracy 作为锚点。R16 至 R20 不再要求逐样本硬决定不变，而是预先
+最高值，R06 的直接比较对象是 R05，R07 至 R21 的直接比较对象均是当前最佳 R06；R12 至
+R21 还额外使用 R11/R12 的高 Accuracy 作为锚点。R16 至 R21 不再要求逐样本硬决定不变，而是预先
 要求四数据集宏平均 Accuracy 严格超过 R12，同时 target-macro online AUC 超过 R06。
 该门槛只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整
 确认前仍不得写入正文正式表。
