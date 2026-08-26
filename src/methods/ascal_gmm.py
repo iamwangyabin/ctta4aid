@@ -82,6 +82,7 @@ from typing import Any
 
 import numpy as np
 
+from src.models.analytic_ridge import source_analytic_ridge_arrays
 from src.types import AdaptationStats, PredictionBatch
 
 from .ascal import binary_score, fit_gmm_bic, validate_score_anchors
@@ -2594,6 +2595,9 @@ class ASCALGMMSegmentedMemoryPosteriorOrdinalRidge(
                 "(B, V, C, H, W) images"
             )
         forward_features = getattr(self.model, "forward_features", None)
+        forward_classifier_features = getattr(
+            self.model, "forward_classifier_features", None
+        )
         classifier = getattr(self.model, "classifier", None)
         if not callable(forward_features) or not callable(classifier):
             raise TypeError(
@@ -2601,7 +2605,12 @@ class ASCALGMMSegmentedMemoryPosteriorOrdinalRidge(
             )
         with torch.no_grad():
             features = forward_features(flat.to(self.device, non_blocking=True))
-            logits = classifier(features)
+            classifier_features = (
+                forward_classifier_features(features)
+                if callable(forward_classifier_features)
+                else features
+            )
+            logits = classifier(classifier_features)
         scores = (
             binary_score(logits)
             .view(batch, views)
@@ -2611,7 +2620,7 @@ class ASCALGMMSegmentedMemoryPosteriorOrdinalRidge(
             .astype(np.float64)
         )
         feature_values = (
-            features.detach()
+            classifier_features.detach()
             .float()
             .view(batch, views, -1)
             .mean(dim=1)
@@ -4939,6 +4948,9 @@ class ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert(
                 "(B, V, C, H, W) images"
             )
         forward_features = getattr(self.model, "forward_features", None)
+        forward_classifier_features = getattr(
+            self.model, "forward_classifier_features", None
+        )
         classifier = getattr(self.model, "classifier", None)
         if not callable(forward_features) or not callable(classifier):
             raise TypeError(
@@ -4946,7 +4958,12 @@ class ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert(
             )
         with torch.no_grad():
             features = forward_features(flat.to(self.device, non_blocking=True))
-            logits = classifier(features)
+            classifier_features = (
+                forward_classifier_features(features)
+                if callable(forward_classifier_features)
+                else features
+            )
+            logits = classifier(classifier_features)
         scores = (
             binary_score(logits)
             .view(batch, views)
@@ -4956,7 +4973,7 @@ class ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert(
             .astype(np.float64)
         )
         feature_values = (
-            features.detach()
+            classifier_features.detach()
             .float()
             .view(batch, views, -1)
             .mean(dim=1)
@@ -6215,6 +6232,210 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedTrustedRidge(
             return super().predict(images)
         finally:
             self._feature_route_query = None
+
+
+class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSourceRidge(
+    ASCALGMMSegmentedMemoryPosteriorFeatureRoutedTrustedRidge
+):
+    """Clone complete source Ridge statistics into every routed expert."""
+
+    def _reset_state(self) -> None:
+        classifier = getattr(self.model, "classifier", None)
+        feature_dim = int(getattr(classifier, "in_features", 0))
+        self._source_analytic_ridge = source_analytic_ridge_arrays(
+            self.config.get("source_analytic_ridge"),
+            expected_feature_dim=feature_dim,
+        )
+        if getattr(self.model, "classifier_feature_normalization", None) != "l2":
+            raise ValueError(
+                "ASCAL source-Ridge inheritance requires l2 classifier features"
+            )
+        super()._reset_state()
+
+        weights = np.asarray(
+            self._source_analytic_ridge["weights"], dtype=np.float64
+        )
+        model_weights = np.concatenate(
+            (
+                classifier.weight.detach().float().cpu().numpy().T,
+                classifier.bias.detach().float().cpu().numpy()[None, :],
+            ),
+            axis=0,
+        ).astype(np.float64)
+        if not np.allclose(model_weights, weights, rtol=1e-5, atol=1e-7):
+            raise ValueError(
+                "ASCAL source-Ridge checkpoint head does not match its statistics"
+            )
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_feature_routed_gmm_trusted_source_initialized_"
+                    "analytic_ridge_experts"
+                ),
+                "research_name": "ASCAL-JMP-SourceRidgeInheritance",
+                "research_version": "R23",
+                "source_classifier": (
+                    "two_output_ridge_fit_on_labeled_source_l2_clip_lora_"
+                    "features_plus_bias"
+                ),
+                "source_state_inheritance": (
+                    "every_new_expert_clones_source_inverse_gram_cross_"
+                    "covariance_weights_class_mass_and_support"
+                ),
+                "expert_update": (
+                    "gmm_reliability_weighted_target_pseudo_samples_are_added_"
+                    "to_the_complete_source_sufficient_statistics"
+                ),
+                "prediction_rule": (
+                    "selected_expert_ridge_margin_with_frozen_source_temperature_only"
+                ),
+                "base_probability_in_final_prediction": False,
+                "cold_start_rule": "exact_source_ridge_classifier",
+                "feature_coordinate": (
+                    "same_l2_normalized_clip_lora_feature_plus_bias_for_source_"
+                    "and_every_expert"
+                ),
+                "source_ridge_profile": self._source_analytic_ridge["profile"],
+                "source_ridge_statistics_sha256": self._source_analytic_ridge[
+                    "statistics_sha256"
+                ],
+                "source_ridge_samples": self._source_analytic_ridge["samples"],
+                "new_target_hyperparameters": 0,
+                "intentional_changes": [
+                    "the deployed source classifier is itself an analytic Ridge",
+                    "every expert starts from the complete labeled-source statistics",
+                    "source and target updates share exactly one feature coordinate",
+                    "the selected expert Ridge is the only final classifier",
+                    "the immutable source-Ridge score remains the GMM coordinate",
+                    "no target label image or per-sample feature is retained",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_feature_routed_source_ridge_inheritance"
+
+    def _new_ordinal_ridge_state(self) -> dict[str, Any]:
+        state = super()._new_ordinal_ridge_state()
+        source = getattr(self, "_source_analytic_ridge", None)
+        if source is None:
+            return state
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        if weights.shape != np.asarray(source["weights"]).shape:
+            return state
+        source_class_mass = np.asarray(source["class_mass"], dtype=np.float64)
+        state.update(
+            {
+                "inverse_gram": np.asarray(
+                    source["inverse_gram"], dtype=np.float64
+                ).copy(),
+                "cross_covariance": np.asarray(
+                    source["cross_covariance"], dtype=np.float64
+                ).copy(),
+                "weights": np.asarray(source["weights"], dtype=np.float64).copy(),
+                "updates": 0,
+                "candidate_samples": 0,
+                "effective_support": float(source["samples"]),
+                "class_mass": source_class_mass.copy(),
+                "base_margin_square_sum": 0.0,
+                "posterior_conflicts": 0,
+                "source_prior_samples": int(source["samples"]),
+                "source_prior_class_mass": source_class_mass.copy(),
+                "target_effective_support": 0.0,
+                "target_class_mass": np.zeros(2, dtype=np.float64),
+            }
+        )
+        return state
+
+    def _update_rms_ridge_expert_state(
+        self,
+        state: dict[str, Any],
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        routed_labels: np.ndarray,
+        features: np.ndarray,
+        base_margins: np.ndarray,
+    ) -> bool:
+        updated = super()._update_rms_ridge_expert_state(
+            state,
+            mixture,
+            scores,
+            routed_labels,
+            features,
+            base_margins,
+        )
+        if updated:
+            state["target_effective_support"] = float(
+                state["target_effective_support"]
+            ) + float(self.rms_ridge_expert_last_effective_support)
+            state["target_class_mass"] = np.asarray(
+                state["target_class_mass"], dtype=np.float64
+            ) + np.asarray(
+                [
+                    self.rms_ridge_expert_last_real_mass,
+                    self.rms_ridge_expert_last_fake_mass,
+                ],
+                dtype=np.float64,
+            )
+        return updated
+
+    def _rms_ridge_expert_probability(
+        self,
+        base_probability: np.ndarray,
+        features: np.ndarray,
+        state: dict[str, Any],
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, float]:
+        del base_probability
+        if self._pending is None:
+            raise RuntimeError("ASCAL source-Ridge inheritance lost Base scores")
+        scores = np.asarray(self._pending["scores"], dtype=np.float64).reshape(-1)
+        source_probability = np.asarray(
+            self._source_probability(scores), dtype=np.float64
+        )
+        epsilon = np.finfo(np.float64).eps
+        bounded_source = np.clip(source_probability, epsilon, 1.0 - epsilon)
+        base_margin = np.log(bounded_source / (1.0 - bounded_source))
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        direction = weights[:, 1] - weights[:, 0]
+        ridge_margin = np.asarray(features @ direction, dtype=np.float64)
+        probability = self._stable_sigmoid(ridge_margin / self.temperature)
+        if not (
+            np.all(np.isfinite(base_margin))
+            and np.all(np.isfinite(ridge_margin))
+            and np.all(np.isfinite(probability))
+        ):
+            raise FloatingPointError(
+                "ASCAL source-Ridge inheritance produced a non-finite prediction"
+            )
+        return probability, base_margin, ridge_margin, 1.0, 1.0
+
+    def _rms_ridge_expert_state_stats(self) -> dict[str, Any]:
+        stats = super()._rms_ridge_expert_state_stats()
+        states = self._all_ordinal_ridge_states()
+        stats.update(
+            {
+                "source_ridge_prior_samples": int(
+                    self._source_analytic_ridge["samples"]
+                ),
+                "source_ridge_statistics_sha256": self._source_analytic_ridge[
+                    "statistics_sha256"
+                ],
+                "source_ridge_inherited_experts": len(states),
+                "source_ridge_target_effective_support": float(
+                    sum(
+                        float(state.get("target_effective_support", 0.0))
+                        for state in states
+                    )
+                ),
+            }
+        )
+        return stats
 
 
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(

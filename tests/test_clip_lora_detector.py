@@ -138,6 +138,23 @@ class ClipLoRADetectorTests(unittest.TestCase):
             changed = model(images)
         self.assertFalse(torch.allclose(initial, changed))
 
+    def test_l2_classifier_coordinate_is_shared_by_forward_and_metadata(self) -> None:
+        torch = self.torch
+        model, metadata = self.build(classifier_feature_normalization="l2")
+        images = torch.randn(3, 3, 8, 8)
+        with torch.no_grad():
+            raw = model.forward_features(images)
+            features = model.forward_classifier_features(raw)
+            expected = model.classifier(features)
+            actual = model(images)
+        self.assertTrue(torch.allclose(features.norm(dim=1), torch.ones(3)))
+        self.assertTrue(torch.equal(actual, expected))
+        self.assertEqual(metadata["classifier_feature_normalization"], "l2")
+
+    def test_classifier_coordinate_rejects_unknown_normalization(self) -> None:
+        with self.assertRaises(ValueError):
+            self.build(classifier_feature_normalization="batch")
+
     def test_state_dict_roundtrip_restores_exact_outputs(self) -> None:
         torch = self.torch
         torch.manual_seed(0)

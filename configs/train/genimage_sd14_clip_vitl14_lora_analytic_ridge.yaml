@@ -1,0 +1,17 @@
+extends: genimage_sd14_clip_vitl14_lora_ascal.yaml
+
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vitl14_lora_analytic_ridge_source_train
+
+model:
+  classifier_feature_normalization: l2
+
+training:
+  profile: ascal_lora_r4_analytic_ridge_source_detector
+  checkpoint_role: method_specific_source_analytic_ridge_for_ascal
+  intended_methods:
+    - ascal_gmm_segmented_memory_posterior_feature_routed_source_ridge
+    - ascal_gmm_segmented_memory_posterior_feature_routed_source_ridge_static
+  analytic_ridge:
+    enabled: true
+    regularization: 1.0
+    batch_size: 128

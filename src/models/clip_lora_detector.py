@@ -91,6 +91,7 @@ def inject_visual_lora(visual: Any, *, rank: int, alpha: float) -> list[str]:
 
 
 def _clip_lora_detector_class() -> Any:
+    import torch
     import torch.nn as nn
 
     class VisualTower(nn.Module):
@@ -111,6 +112,7 @@ def _clip_lora_detector_class() -> Any:
             resize_size: int,
             lora_rank: int,
             lora_alpha: float,
+            classifier_feature_normalization: str,
         ) -> None:
             super().__init__()
             # The task-trained detector never calls CLIP's text tower. Retaining
@@ -118,6 +120,13 @@ def _clip_lora_detector_class() -> Any:
             self.clip = VisualTower(clip_model.visual.float())
             self.lora_rank = int(lora_rank)
             self.lora_alpha = float(lora_alpha)
+            self.classifier_feature_normalization = str(
+                classifier_feature_normalization
+            ).lower()
+            if self.classifier_feature_normalization not in {"none", "l2"}:
+                raise ValueError(
+                    "classifier_feature_normalization must be none or l2"
+                )
             self.injected_lora_layers = inject_visual_lora(
                 self.clip.visual, rank=self.lora_rank, alpha=self.lora_alpha
             )
@@ -139,8 +148,14 @@ def _clip_lora_detector_class() -> Any:
         def forward_features(self, images: Any) -> Any:
             return self.encode_image(images).float()
 
+        def forward_classifier_features(self, features: Any) -> Any:
+            if self.classifier_feature_normalization == "l2":
+                return torch.nn.functional.normalize(features.float(), dim=1)
+            return features.float()
+
         def forward(self, images: Any) -> Any:
-            return self.classifier(self.forward_features(images))
+            features = self.forward_features(images)
+            return self.classifier(self.forward_classifier_features(features))
 
     return CLIPLoRADetector
 
@@ -175,6 +190,9 @@ def build_clip_lora_detector(
         resize_size=int(config.get("resize_size", round(image_size / 0.875))),
         lora_rank=lora_rank,
         lora_alpha=lora_alpha,
+        classifier_feature_normalization=str(
+            config.get("classifier_feature_normalization", "none")
+        ),
     ).to(device)
     trainable_names = configure_clip_lora_trainable_parameters(detector)
     return detector, {
@@ -184,5 +202,8 @@ def build_clip_lora_detector(
         "lora_alpha": lora_alpha,
         "lora_target_suffixes": list(ASCAL_LORA_TARGET_SUFFIXES),
         "lora_injected_layers": len(detector.injected_lora_layers),
+        "classifier_feature_normalization": (
+            detector.classifier_feature_normalization
+        ),
         "source_training_trainable_parameters": trainable_names,
     }

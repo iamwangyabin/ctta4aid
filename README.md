@@ -1024,6 +1024,25 @@ AUC 仍低于 Source 和 R21，因此 Ridge-only 可作为下一版直接读出�
 持续排序适应。这里移除的只是 Base probability 的最终融合；冻结 Base score 仍仅在内部供 GMM
 产生伪类别和可靠度，不进入最终预测。
 
+`ascal_gmm_segmented_memory_posterior_feature_routed_source_ridge` 的研究版本名为
+**ASCAL-JMP-SourceRidgeInheritance（R23）**。它先把 R22 中形式不一致的神经网络 Base 头和
+在线 Ridge 专家统一成同一种分类器：源阶段仍用三轮监督训练 LoRA 特征，但部署前在完整源训练
+集的 L2 归一化 CLIP-LoRA 特征与常数 bias 坐标上拟合二输出解析 Ridge。checkpoint 同时保存
+regularized Gram、inverse Gram、cross-covariance、权重、类别质量和源样本数；部署的 Base
+分类头就是这组 Ridge 权重，校准锚点也在替换后的 Base 上重新计算。
+
+每个新专家不再从零开始，而是深拷贝完整源 Ridge 统计，因此诞生时与 Base 的逐样本 margin
+完全一致，并天然继承源域监督知识。当前 batch 仍只用去除真假方向后的冻结 CLIP 特征选择历史
+专家，所选旧 GMM 仍只提供等先验伪标签和连续可靠度。预测完成后，可靠度加权的 target
+one-hot 伪样本通过精确 Woodbury RLS 加到该专家继承的源统计上；不保存图片或逐样本特征，
+也不新增阈值、学习率、epoch、融合系数或 target 参数。
+
+最终输出只使用所选专家的 Ridge margin，并沿用源阶段冻结 temperature；不再把 Base 与 Ridge
+做 probability 平均，也不让 GMM posterior 直接参与预测。未适应的新专家严格等于新的 Source
+Ridge，持续学习只是在同一特征坐标和同一解析目标上从源充分统计继续累积。R23 首轮固定为
+GenImage matched-JPEG seed1 的 Source-Ridge static 与完整 CTTA 成对 pilot，完成前不作正式
+三 seed 或跨数据集结论。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与

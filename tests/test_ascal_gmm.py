@@ -1961,6 +1961,61 @@ class ASCALGMMConfigTests(unittest.TestCase):
         ):
             self.assertNotIn(key, adaptive)
 
+    def test_source_ridge_inheritance_config_uses_one_analytic_coordinate(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_"
+            "feature_routed_source_ridge"
+        )
+        path = (
+            PROJECT_ROOT
+            / "configs/experiments/clip_vlm_bias_controlled"
+            / "matched_jpeg_ascal_gmm_segmented_memory_posterior_"
+            "feature_routed_source_ridge_continual_genimage_seed1.yaml"
+        )
+        config = load_config(path)
+        self.assertEqual(
+            config["methods"],
+            [f"{method_name}_static", method_name],
+        )
+        adaptive = method_config(config, method_name)
+        reference = adaptive["reference"]
+        self.assertEqual(
+            reference["research_name"],
+            "ASCAL-JMP-SourceRidgeInheritance",
+        )
+        self.assertEqual(reference["research_version"], "R23")
+        self.assertEqual(adaptive["classifier_feature_normalization"], "l2")
+        self.assertIn(
+            "ASCAL_ANALYTIC_RIDGE_SOURCE_CHECKPOINT",
+            adaptive["source_checkpoint"],
+        )
+        self.assertEqual(
+            reference["source_feature_coordinate"],
+            "l2_normalized_clip_lora_feature_plus_constant_bias",
+        )
+        self.assertFalse(reference["base_probability_in_final_prediction"])
+        self.assertEqual(reference["new_target_hyperparameters"], 0)
+        for key in (
+            "confidence_threshold",
+            "fusion_weight",
+            "learning_rate",
+            "routing_threshold",
+            "target_weight",
+        ):
+            self.assertNotIn(key, adaptive)
+
+        train = load_config(
+            PROJECT_ROOT
+            / "configs/train/genimage_sd14_clip_vitl14_lora_analytic_ridge.yaml"
+        )
+        self.assertEqual(train["model"]["classifier_feature_normalization"], "l2")
+        self.assertTrue(train["training"]["analytic_ridge"]["enabled"])
+        self.assertEqual(train["training"]["analytic_ridge"]["regularization"], 1.0)
+
     def test_routed_residual_configs_keep_r01_coordinate_and_one_assignment(
         self,
     ) -> None:
@@ -2841,6 +2896,94 @@ class ASCALGMMMethodTests(unittest.TestCase):
             {
                 "adaptation_mode": adaptation_mode,
                 "score_anchors": self.anchors(),
+            },
+        )
+
+    def source_ridge_detector(self):
+        torch = self.torch
+        nn = self.nn
+
+        class TinySourceRidgeDetector(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.classifier = nn.Linear(3, 2, bias=True)
+                with torch.no_grad():
+                    self.classifier.weight.copy_(
+                        torch.tensor(
+                            [
+                                [-2.0, 2.0, 0.0],
+                                [2.0, -2.0, 0.0],
+                            ]
+                        )
+                    )
+                    self.classifier.bias.copy_(torch.tensor([-0.2, 0.2]))
+                self.feature_dim = 3
+                self.classifier_feature_normalization = "l2"
+
+            def forward_features(self, images):
+                return images.mean(dim=(2, 3))
+
+            def forward_classifier_features(self, features):
+                return torch.nn.functional.normalize(features, dim=1)
+
+            def forward(self, images):
+                features = self.forward_classifier_features(
+                    self.forward_features(images)
+                )
+                return self.classifier(features)
+
+        return TinySourceRidgeDetector()
+
+    def source_ridge_state(self, model) -> dict:
+        from src.models.analytic_ridge import (
+            SOURCE_ANALYTIC_RIDGE_PROFILE,
+            analytic_ridge_statistics_sha256,
+        )
+
+        torch = self.torch
+        weights = torch.cat(
+            (
+                model.classifier.weight.detach().double().t(),
+                model.classifier.bias.detach().double()[None, :],
+            ),
+            dim=0,
+        )
+        state = {
+            "profile": SOURCE_ANALYTIC_RIDGE_PROFILE,
+            "feature_coordinate": (
+                "l2_normalized_clip_lora_feature_plus_constant_bias"
+            ),
+            "feature_normalization": "l2",
+            "bias_coordinate": True,
+            "targets": "two_output_real_fake_one_hot",
+            "regularization": 1.0,
+            "feature_dim": 3,
+            "design_dim": 4,
+            "samples": 20,
+            "class_mass": torch.tensor([10.0, 10.0], dtype=torch.float64),
+            "gram": torch.eye(4, dtype=torch.float64),
+            "inverse_gram": torch.eye(4, dtype=torch.float64),
+            "cross_covariance": weights.clone(),
+            "weights": weights.clone(),
+        }
+        state["statistics_sha256"] = analytic_ridge_statistics_sha256(state)
+        return state
+
+    def segmented_memory_posterior_feature_routed_source_ridge_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSourceRidge,
+        )
+
+        model = self.source_ridge_detector()
+        return ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSourceRidge(
+            model,
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+                "source_analytic_ridge": self.source_ridge_state(model),
             },
         )
 
@@ -6116,6 +6259,64 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertFalse(metadata["routing_score_used"])
         self.assertFalse(metadata["gmm_in_final_prediction"])
 
+    def test_source_ridge_experts_clone_complete_source_statistics(self) -> None:
+        method = (
+            self.segmented_memory_posterior_feature_routed_source_ridge_method()
+        )
+        source = method._source_analytic_ridge
+        first = method._novel_ordinal_ridge_state
+        second = method._new_ordinal_ridge_state()
+
+        np.testing.assert_array_equal(first["weights"], source["weights"])
+        np.testing.assert_array_equal(
+            first["inverse_gram"], source["inverse_gram"]
+        )
+        np.testing.assert_array_equal(
+            first["cross_covariance"], source["cross_covariance"]
+        )
+        np.testing.assert_array_equal(first["class_mass"], source["class_mass"])
+        self.assertEqual(first["source_prior_samples"], source["samples"])
+        second["weights"][0, 0] += 1.0
+        self.assertFalse(np.array_equal(first["weights"], second["weights"]))
+        np.testing.assert_array_equal(source["weights"], first["weights"])
+
+    def test_source_ridge_is_exact_at_birth_then_updates_one_classifier(self) -> None:
+        method = (
+            self.segmented_memory_posterior_feature_routed_source_ridge_method()
+        )
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-3.6, 4.4],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        method._mixture = copy.deepcopy(mixture)
+        method.boundary_history = [0.4]
+        images = self.score_batch(np.array([-4.0, -3.0, 3.0, 4.0]))
+        source_scores = method._batch_scores(images)
+        state = method._novel_ordinal_ridge_state
+        source_weights = state["weights"].copy()
+
+        prediction = method.predict(images)
+
+        np.testing.assert_allclose(
+            prediction.prob_fake.numpy(),
+            method._source_probability(source_scores),
+            atol=1e-6,
+        )
+        stats = method.adapt(images)
+        self.assertTrue(stats.extra["rms_ridge_expert_updated"])
+        self.assertFalse(np.array_equal(state["weights"], source_weights))
+        self.assertGreater(float(state["target_effective_support"]), 0.0)
+        self.assertEqual(
+            method.reproduction_metadata["research_name"],
+            "ASCAL-JMP-SourceRidgeInheritance",
+        )
+        self.assertFalse(
+            method.reproduction_metadata["base_probability_in_final_prediction"]
+        )
+
     def test_routed_residual_static_path_is_exact_source(self) -> None:
         method = self.segmented_memory_posterior_routed_residual_method(
             adaptation_mode="static"
@@ -7534,6 +7735,31 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_feature_routed_source_ridge_static_alias(
+        self,
+    ) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSourceRidge,
+        )
+
+        model = self.source_ridge_detector()
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_feature_routed_source_ridge_static",
+            model,
+            "cpu",
+            {
+                "score_anchors": self.anchors(),
+                "source_analytic_ridge": self.source_ridge_state(model),
+            },
+        )
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSourceRidge,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_method_factory_maps_routed_residual_static_alias(self) -> None:
         from src.methods import build_method
         from src.methods.ascal_gmm import (
@@ -8515,6 +8741,57 @@ class ASCALGMMMethodTests(unittest.TestCase):
             ASCALGMMSegmentedMemoryPosteriorFeatureRoutedTrustedRidge,
         )
         self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_feature_routed_source_ridge_with_complete_prior(
+        self,
+    ) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSourceRidge,
+        )
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_"
+            "feature_routed_source_ridge_static"
+        )
+        model = self.source_ridge_detector()
+        source_state = self.source_ridge_state(model)
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal-ridge.pt",
+                "classifier_feature_normalization": "l2",
+                "lora_rank": 4,
+            },
+            "method_configs": {method_name: {"adaptation_mode": "static"}},
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+            "source_analytic_ridge": source_state,
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(model, {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSourceRidge,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(
+            method.reproduction_metadata["source_ridge_statistics_sha256"],
+            source_state["statistics_sha256"],
+        )
 
     def test_cli_builds_routed_residual_with_lora_profile(self) -> None:
         from src.cli.common import build_fresh_method

@@ -22,6 +22,8 @@ from src.models import (
     build_clip_source_detector,
     build_detector,
     build_ost_training_detector,
+    fit_source_analytic_ridge,
+    install_source_analytic_ridge,
     save_checkpoint,
 )
 
@@ -694,6 +696,61 @@ def main() -> None:
     if best_state is None:
         raise RuntimeError("Training finished without a valid checkpoint")
     model.load_state_dict(best_state)
+    feature_training_metrics = dict(best_metrics)
+    source_analytic_ridge = None
+    analytic_ridge_config = dict(training.get("analytic_ridge") or {})
+    if bool(analytic_ridge_config.get("enabled", False)):
+        if not clip_lora_detector:
+            raise ValueError(
+                "Source analytic Ridge requires model family clip_lora_source_detector"
+            )
+        if getattr(model, "classifier_feature_normalization", "none") != "l2":
+            raise ValueError(
+                "Source analytic Ridge requires l2 classifier features"
+            )
+        ridge_dataset = build_dataset(
+            data_format=data_config["format"],
+            root=data_config.get("train_root", data_config.get("root")),
+            generator=train_generator,
+            split=data_config["train_split"],
+            transform=build_clip_eval_transform(
+                image_size,
+                resize_size=int(
+                    data_config.get("resize_size", round(image_size / 0.875))
+                ),
+            ),
+            max_samples_per_class=data_config.get("max_train_samples_per_class"),
+            seed=seed,
+            exclude_image_paths=excluded_image_paths(data_config, "train"),
+        )
+        ridge_loader = build_loader(
+            ridge_dataset,
+            data_config,
+            shuffle=False,
+            batch_size=int(analytic_ridge_config.get("batch_size", 128)),
+            drop_last=False,
+        )
+        source_analytic_ridge = fit_source_analytic_ridge(
+            model,
+            ridge_loader,
+            device,
+            regularization=float(
+                analytic_ridge_config.get("regularization", 1.0)
+            ),
+        )
+        install_source_analytic_ridge(model, source_analytic_ridge)
+        best_metrics = evaluate(
+            model,
+            val_loader,
+            device,
+            amp_enabled=amp_enabled,
+        )
+        print(
+            "analytic_ridge: "
+            f"samples={source_analytic_ridge['samples']} "
+            f"val_auc={best_metrics['auc']:.5f} "
+            f"val_acc={best_metrics['accuracy']:.5f}"
+        )
     fishers = None
     if bool(training.get("compute_fisher", True)):
         # Official EATA uses clean source validation images with evaluation
@@ -744,6 +801,11 @@ def main() -> None:
         extra_metadata["score_anchors"] = score_anchors
         extra_metadata["lora_rank"] = int(getattr(model, "lora_rank", 0))
         extra_metadata["lora_alpha"] = float(getattr(model, "lora_alpha", 0.0))
+    if source_analytic_ridge is not None:
+        extra_metadata["source_analytic_ridge"] = source_analytic_ridge
+        extra_metadata["feature_training_validation_metrics"] = (
+            feature_training_metrics
+        )
     save_checkpoint(
         model,
         output_path,

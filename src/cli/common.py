@@ -187,6 +187,8 @@ def build_fresh_method(
         "ascalgmmsegmentedmemoryposteriorevidencegatedridgeexpertstatic",
         "ascalgmmsegmentedmemoryposteriorfeatureroutedtrustedridge",
         "ascalgmmsegmentedmemoryposteriorfeatureroutedtrustedridgestatic",
+        "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridge",
+        "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgestatic",
         "ascalgmmsegmentedmemoryposteriorroutedresidual",
         "ascalgmmsegmentedmemoryposteriorroutedresidualstatic",
         "ascalgmmsegmentedmemoryposteriorroutedridgeresidual",
@@ -229,6 +231,7 @@ def build_fresh_method(
             "ascalgmmsegmentedmemoryposteriorequalpriorridgeexpertstatic",
             "ascalgmmsegmentedmemoryposteriorevidencegatedridgeexpertstatic",
             "ascalgmmsegmentedmemoryposteriorfeatureroutedtrustedridgestatic",
+            "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgestatic",
             "ascalgmmsegmentedmemoryposteriorroutedresidualstatic",
             "ascalgmmsegmentedmemoryposteriorroutedridgeresidualstatic",
             "ascalgmmsegmentedmemoryposteriorcurrentprojectionstatic",
@@ -260,6 +263,22 @@ def build_fresh_method(
         ):
             raise ValueError(
                 "ASCAL lora_rank does not match the LoRA source checkpoint"
+            )
+        if normalized_name in {
+            "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridge",
+            "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgestatic",
+        }:
+            source_analytic_ridge = checkpoint_metadata.get(
+                "source_analytic_ridge"
+            )
+            if not isinstance(source_analytic_ridge, dict):
+                raise ValueError(
+                    "ASCAL source-Ridge inheritance requires a checkpoint carrying "
+                    "source_analytic_ridge; train one with "
+                    "configs/train/genimage_sd14_clip_vitl14_lora_analytic_ridge.yaml"
+                )
+            effective_method_config["source_analytic_ridge"] = (
+                source_analytic_ridge
             )
         # Anchors travel inside the effective method config so the evaluator's
         # reproduction block always records the exact calibration identity.
