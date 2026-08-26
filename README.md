@@ -955,6 +955,21 @@ R12；该方向的 posterior variance 随证据累积而下降时，`g` 才无�
 预注册晋级门槛仍为四数据集宏平均 Accuracy 严格超过 R12，且 target-macro online AUC 超过
 R06。
 
+R21 的 seed1 首轮按用户要求在 GenImage 和 AIGCDetectionBenchmark 完整结束后停止，AIGI-Holmes
+P3 与 OpenSDID Global 未纳入结果，已开始但未完成的 AIGI-Holmes P3 临时输出已删除。因此本轮
+只能记为两数据集 pilot，不能执行或声称通过四数据集预注册晋级。两个完整运行的样本、holdout、
+R12 replay、R20 路由与学习状态、Predict-Then-Adapt 因果更新和解析状态维度审计均通过；2156 次
+更新覆盖 34244 个应用样本，求解失败为 0。
+
+相对配对 R12，R21 在 GenImage 上的 Accuracy、target-macro online AUC 和 pooled online AUC
+分别提高 0.4190、0.4419 和 1.2010 个百分点；但 final target-macro AUC 下降 1.2433 个百分点，
+average forgetting 增加 2.3172 个百分点。在 AIGCDetectionBenchmark 上，Accuracy 和 pooled
+online AUC 分别提高 0.8784 和 0.7252 个百分点，target-macro online AUC 却下降 0.3474 个
+百分点，average forgetting 增加 1.4383 个百分点。两个已完成数据集的简单平均 Accuracy、
+target-macro online AUC 和 pooled online AUC 分别提高 0.6487、0.0473 和 0.9631 个百分点。
+这说明证据门控已经能改善总体排序和边界，但逐 target 排序稳定性与历史保持仍然不够一致；
+GenImage 可用于快速筛选，不能单独作为跨数据集有效性的证明。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
