@@ -1667,6 +1667,88 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["raw_images_stored"])
                 self.assertFalse(reference["raw_features_stored"])
 
+    def test_rms_ridge_expert_configs_use_direct_binary_targets_and_past_rms(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        baseline_name = "ascal_gmm_segmented_memory_posterior_ordinal_route"
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_rms_ridge_expert"
+        )
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_posterior_"
+                f"rms_ridge_expert_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(config["methods"], [baseline_name, method_name])
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["protocol"]["reset_between_domains"])
+                self.assertFalse(
+                    config["protocol"]["generator_id_available_to_method"]
+                )
+                config_dir = Path(config["_config_path"]).parent
+                for field in (
+                    "locked_online_manifest",
+                    "locked_final_holdout_manifest",
+                ):
+                    manifest = Path(config["data"][field]).expanduser()
+                    if not manifest.is_absolute():
+                        manifest = config_dir / manifest
+                    self.assertTrue(manifest.resolve().is_file())
+                self.assertIn(
+                    f"posterior_rms_ridge_expert_continual/{dataset}/seed1",
+                    config["output_dir"],
+                )
+                adaptive = method_config(config, method_name)
+                for key in (
+                    "confidence_threshold",
+                    "fusion_weight",
+                    "lambda",
+                    "learning_rate",
+                    "memory_capacity",
+                    "min_samples",
+                    "recall_threshold",
+                    "residual_weight",
+                    "ridge_alpha",
+                    "similarity_threshold",
+                    "target_threshold",
+                    "threshold",
+                    "window_size",
+                ):
+                    self.assertNotIn(key, adaptive)
+                reference = adaptive["reference"]
+                self.assertEqual(
+                    reference["research_name"], "ASCAL-JMP-RMSRidgeExpert"
+                )
+                self.assertEqual(reference["research_version"], "R19")
+                self.assertEqual(reference["ridge_target"], "real_or_fake_one_hot_vector")
+                self.assertIn("historical_reliability", reference["scale_alignment"])
+                self.assertEqual(reference["new_target_hyperparameters"], 0)
+                self.assertEqual(reference["routing_threshold"], "none")
+                self.assertEqual(reference["optimizer"], "none")
+                self.assertEqual(reference["learning_rate"], "none")
+                self.assertEqual(reference["epochs"], "none")
+                self.assertEqual(
+                    reference["routing_score_coordinate"],
+                    "immutable_source_score",
+                )
+                self.assertFalse(reference["prediction_mutates_experts"])
+                self.assertFalse(reference["target_labels_used"])
+                self.assertFalse(reference["generator_boundaries_used"])
+                self.assertFalse(reference["semantic_features_used"])
+                self.assertFalse(reference["raw_images_stored"])
+                self.assertFalse(reference["raw_features_stored"])
+
     def test_routed_residual_configs_keep_r01_coordinate_and_one_assignment(
         self,
     ) -> None:
@@ -2013,6 +2095,14 @@ class ASCALGMMConfigTests(unittest.TestCase):
         )
         self.assertIn(
             "ascal_gmm_segmented_memory_posterior_analytic_expert_static",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_rms_ridge_expert",
+            config["training"]["intended_methods"],
+        )
+        self.assertIn(
+            "ascal_gmm_segmented_memory_posterior_rms_ridge_expert_static",
             config["training"]["intended_methods"],
         )
         self.assertIn(
@@ -2446,6 +2536,22 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorAnalyticExpert(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+            },
+        )
+
+    def segmented_memory_posterior_rms_ridge_expert_method(
+        self, *, adaptation_mode: str = "full"
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert(
             self.detector(),
             "cpu",
             {
@@ -4769,6 +4875,392 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(stats.extra["analytic_expert_count"], 0)
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_rms_ridge_expert_matches_joint_weighted_one_hot_ridge(self) -> None:
+        method = self.segmented_memory_posterior_rms_ridge_expert_method()
+        mixture = {
+            "weights": [0.45, 0.55],
+            "mus": [-3.0, 2.0],
+            "sigmas": [0.8, 0.7],
+            "components": 2,
+            "bic": 0.0,
+        }
+        batches = (
+            (
+                np.array([-3.5, -2.0, 1.5]),
+                np.array([0, 0, 1]),
+                np.array(
+                    [
+                        [1.0, 0.0, 0.0, 1.0],
+                        [0.0, 1.0, 0.0, 1.0],
+                        [0.0, 0.0, 1.0, 1.0],
+                    ],
+                    dtype=np.float64,
+                ),
+                np.array([-1.5, -0.8, 1.2]),
+            ),
+            (
+                np.array([-2.5, 2.5]),
+                np.array([0, 1]),
+                np.array(
+                    [
+                        [1.0, 1.0, 0.0, 1.0],
+                        [0.0, 1.0, 1.0, 1.0],
+                    ],
+                    dtype=np.float64,
+                ),
+                np.array([-1.0, 1.8]),
+            ),
+        )
+        dimension = method.ordinal_ridge_feature_dim
+        expected_precision = np.eye(dimension, dtype=np.float64)
+        expected_cross_covariance = np.zeros((dimension, 2), dtype=np.float64)
+        expected_class_mass = np.zeros(2, dtype=np.float64)
+        expected_base_square_sum = 0.0
+        state = method._new_ordinal_ridge_state()
+        for scores, labels, features, base_margins in batches:
+            targets, reliability, _, _ = method._rms_ridge_expert_supervision(
+                mixture,
+                scores,
+                labels,
+            )
+            expected_precision += features.T @ (
+                reliability[:, None] * features
+            )
+            expected_cross_covariance += features.T @ (
+                reliability[:, None] * targets
+            )
+            expected_class_mass += np.bincount(
+                labels,
+                weights=reliability,
+                minlength=2,
+            )
+            expected_base_square_sum += float(
+                np.sum(reliability * base_margins**2)
+            )
+            self.assertTrue(
+                method._update_rms_ridge_expert_state(
+                    state,
+                    mixture,
+                    scores,
+                    labels,
+                    features,
+                    base_margins,
+                )
+            )
+
+        expected_weights = np.linalg.solve(
+            expected_precision,
+            expected_cross_covariance,
+        )
+        np.testing.assert_allclose(state["weights"], expected_weights, atol=1e-12)
+        np.testing.assert_allclose(
+            state["inverse_gram"],
+            np.linalg.inv(expected_precision),
+            atol=1e-12,
+        )
+        np.testing.assert_allclose(
+            state["cross_covariance"],
+            expected_cross_covariance,
+            atol=1e-12,
+        )
+        np.testing.assert_allclose(state["class_mass"], expected_class_mass)
+        self.assertAlmostEqual(
+            state["base_margin_square_sum"],
+            expected_base_square_sum,
+        )
+        direction = expected_weights[:, 1] - expected_weights[:, 0]
+        covariance = expected_precision - np.eye(dimension)
+        expected_ridge_energy = float(direction @ covariance @ direction)
+        scales = method._rms_ridge_expert_scales(state)
+        self.assertIsNotNone(scales)
+        assert scales is not None
+        self.assertAlmostEqual(
+            scales[0],
+            np.sqrt(expected_base_square_sum / expected_class_mass.sum()),
+        )
+        self.assertAlmostEqual(
+            scales[1],
+            np.sqrt(expected_ridge_energy / expected_class_mass.sum()),
+        )
+        self.assertEqual(state["updates"], len(batches))
+        self.assertEqual(state["candidate_samples"], 5)
+        self.assertEqual(method.ordinal_ridge_feature_dim, 4)
+        self.assertEqual(method.rms_ridge_expert_solve_failures, 0)
+
+    def test_rms_ridge_expert_uses_hard_labels_and_zeroes_conflicts(self) -> None:
+        method = self.segmented_memory_posterior_rms_ridge_expert_method()
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-3.0, 3.0],
+            "sigmas": [0.5, 0.5],
+            "components": 2,
+            "bic": 0.0,
+        }
+        scores = np.array([-3.0, 3.0, -3.0, 3.0])
+        labels = np.array([0, 1, 1, 0])
+
+        targets, reliability, posterior, conflicts = (
+            method._rms_ridge_expert_supervision(mixture, scores, labels)
+        )
+
+        np.testing.assert_array_equal(
+            targets,
+            np.eye(2, dtype=np.float64)[labels],
+        )
+        self.assertTrue(np.all(reliability[:2] > 0.0))
+        np.testing.assert_array_equal(reliability[2:], np.zeros(2))
+        self.assertEqual(conflicts, 2)
+        self.assertLess(float(posterior[0]), 0.5)
+        self.assertGreater(float(posterior[1]), 0.5)
+
+    def test_rms_ridge_expert_starts_at_r12_and_updates_after_prediction(
+        self,
+    ) -> None:
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-7.5, -3.5],
+            "sigmas": [0.5, 0.5],
+            "components": 2,
+            "bic": 0.0,
+        }
+        baseline = self.segmented_memory_posterior_ordinal_route_method()
+        method = self.segmented_memory_posterior_rms_ridge_expert_method()
+        for candidate in (baseline, method):
+            candidate._mixture = copy.deepcopy(mixture)
+            candidate.boundary_history = [-5.5]
+
+        scores = np.array([-8.0, -7.0, -4.0, -3.0])
+        first_images = self.score_feature_batch(
+            scores,
+            np.array([-1.0, -1.0, 1.0, 1.0]),
+        )
+        initial_state = method._novel_ordinal_ridge_state
+        initial_inverse = initial_state["inverse_gram"].copy()
+        baseline_first = baseline.predict(first_images)
+        method_first = method.predict(first_images)
+        np.testing.assert_array_equal(
+            method_first.prob_fake.numpy(),
+            baseline_first.prob_fake.numpy(),
+        )
+        np.testing.assert_array_equal(
+            method_first.pred_label.numpy(),
+            baseline_first.pred_label.numpy(),
+        )
+        np.testing.assert_array_equal(initial_state["inverse_gram"], initial_inverse)
+        self.assertFalse(method._pending["prediction_rms_ridge_expert_ready"])
+        baseline.adapt(first_images)
+        first_stats = method.adapt(first_images)
+        self.assertTrue(first_stats.extra["rms_ridge_expert_updated"])
+        self.assertEqual(first_stats.extra["rms_ridge_expert_ready_experts"], 1)
+        self.assertFalse(np.array_equal(initial_state["inverse_gram"], initial_inverse))
+
+        for candidate in (baseline, method):
+            candidate._mixture = copy.deepcopy(mixture)
+            candidate.boundary_history = [-5.5]
+        second_images = self.score_feature_batch(
+            scores,
+            np.array([1.0, 1.0, -1.0, -1.0]),
+        )
+        before_predict_weights = initial_state["weights"].copy()
+        before_predict_inverse = initial_state["inverse_gram"].copy()
+        baseline_second = baseline.predict(second_images)
+        method_second = method.predict(second_images)
+        self.assertTrue(method._pending["prediction_rms_ridge_expert_ready"])
+        self.assertGreater(
+            method._pending["prediction_rms_ridge_expert_base_rms"],
+            0.0,
+        )
+        self.assertGreater(
+            method._pending["prediction_rms_ridge_expert_ridge_rms"],
+            0.0,
+        )
+        self.assertFalse(
+            np.allclose(
+                method_second.prob_fake.numpy(),
+                baseline_second.prob_fake.numpy(),
+            )
+        )
+        np.testing.assert_array_equal(initial_state["weights"], before_predict_weights)
+        np.testing.assert_array_equal(
+            initial_state["inverse_gram"],
+            before_predict_inverse,
+        )
+        baseline.adapt(second_images)
+        second_stats = method.adapt(second_images)
+        self.assertFalse(np.array_equal(initial_state["weights"], before_predict_weights))
+        np.testing.assert_allclose(method.score_history, baseline.score_history)
+        np.testing.assert_allclose(method.boundary_history, baseline.boundary_history)
+        self.assertEqual(method.segment_changes, baseline.segment_changes)
+        self.assertEqual(
+            second_stats.extra["rms_ridge_expert_label_changes"],
+            second_stats.extra["rms_ridge_expert_real_to_fake"]
+            + second_stats.extra["rms_ridge_expert_fake_to_real"],
+        )
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_name"], "ASCAL-JMP-RMSRidgeExpert")
+        self.assertEqual(metadata["research_version"], "R19")
+        self.assertIn("one_hot", metadata["ridge_objective"])
+        self.assertIn("historical", metadata["scale_alignment"])
+
+    def test_rms_ridge_expert_normalization_is_invariant_to_ridge_scale(
+        self,
+    ) -> None:
+        method = self.segmented_memory_posterior_rms_ridge_expert_method()
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-3.0, 3.0],
+            "sigmas": [0.75, 0.75],
+            "components": 2,
+            "bic": 0.0,
+        }
+        scores = np.array([-3.5, -2.5, 2.5, 3.5])
+        labels = np.array([0, 0, 1, 1])
+        features = np.array(
+            [
+                [1.0, 0.0, 0.0, 1.0],
+                [0.0, 1.0, 0.0, 1.0],
+                [0.0, 0.0, 1.0, 1.0],
+                [1.0, 0.0, 1.0, 1.0],
+            ],
+            dtype=np.float64,
+        )
+        base_probability = np.array([0.1, 0.2, 0.8, 0.9])
+        base_margins = np.log(base_probability / (1.0 - base_probability))
+        state = method._new_ordinal_ridge_state()
+        self.assertTrue(
+            method._update_rms_ridge_expert_state(
+                state,
+                mixture,
+                scores,
+                labels,
+                features,
+                base_margins,
+            )
+        )
+        probability, *_ = method._rms_ridge_expert_probability(
+            base_probability,
+            features,
+            state,
+        )
+        scaled_state = copy.deepcopy(state)
+        scaled_state["weights"] *= 7.0
+        scaled_state["cross_covariance"] *= 7.0
+        scaled_probability, *_ = method._rms_ridge_expert_probability(
+            base_probability,
+            features,
+            scaled_state,
+        )
+        np.testing.assert_allclose(
+            scaled_probability,
+            probability,
+            atol=1e-12,
+        )
+
+    def test_rms_ridge_expert_requires_reliable_mass_for_both_classes(self) -> None:
+        method = self.segmented_memory_posterior_rms_ridge_expert_method()
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-3.0, 3.0],
+            "sigmas": [0.5, 0.5],
+            "components": 2,
+            "bic": 0.0,
+        }
+        state = method._new_ordinal_ridge_state()
+        updated = method._update_rms_ridge_expert_state(
+            state,
+            mixture,
+            np.array([-3.5, -2.5]),
+            np.array([0, 0]),
+            np.array(
+                [[1.0, 0.0, 0.0, 1.0], [0.0, 1.0, 0.0, 1.0]],
+                dtype=np.float64,
+            ),
+            np.array([-1.5, -1.0]),
+        )
+        self.assertFalse(updated)
+        self.assertFalse(method._ordinal_ridge_ready(state))
+        self.assertGreater(float(state["class_mass"][0]), 0.0)
+        self.assertEqual(float(state["class_mass"][1]), 0.0)
+
+    def test_rms_ridge_expert_updates_only_the_r12_selected_memory(self) -> None:
+        rng = np.random.default_rng(73)
+        method = self.segmented_memory_posterior_rms_ridge_expert_method()
+        returning = {
+            "weights": [0.5, 0.5],
+            "mus": [-8.0, -3.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        active = {
+            "weights": [0.5, 0.5],
+            "mus": [20.0, 25.0],
+            "sigmas": [0.25, 0.25],
+            "components": 2,
+            "bic": 0.0,
+        }
+        returning_state = method._new_ordinal_ridge_state()
+        active_state = method._new_ordinal_ridge_state()
+        method._mixture = active
+        method.boundary_history = [22.5]
+        method.active_memory_index = 1
+        method.segment_memories = [
+            {
+                "mixture": returning,
+                "boundary": float(method._memory_boundary(returning)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 0,
+                method._ORDINAL_RIDGE_MEMORY_KEY: returning_state,
+            },
+            {
+                "mixture": active,
+                "boundary": float(method._memory_boundary(active)),
+                "latest_samples": 96,
+                "total_samples": 96,
+                "visits": 1,
+                "recalls": 1,
+                method._ORDINAL_RIDGE_MEMORY_KEY: active_state,
+            },
+        ]
+        scores = np.concatenate(
+            [rng.normal(-8.0, 0.2, 48), rng.normal(-3.0, 0.2, 48)]
+        )
+        cues = np.concatenate([-np.ones(48), np.ones(48)])
+        order = rng.permutation(len(scores))
+        images = self.score_feature_batch(scores[order], cues[order])
+
+        method.predict(images)
+        self.assertEqual(
+            method._pending["prediction_routing_expert"],
+            "episodic_memory",
+        )
+        self.assertEqual(method._pending["prediction_routing_memory_index"], 0)
+        stats = method.adapt(images)
+        self.assertEqual(returning_state["updates"], 1)
+        self.assertEqual(active_state["updates"], 0)
+        self.assertTrue(stats.extra["rms_ridge_expert_updated"])
+        self.assertTrue(stats.extra["routing_handoff_this_batch"])
+        self.assertEqual(stats.extra["active_memory_index"], 0)
+
+    def test_rms_ridge_expert_static_path_is_exact_r12_source_fallback(self) -> None:
+        method = self.segmented_memory_posterior_rms_ridge_expert_method(
+            adaptation_mode="static"
+        )
+        scores = np.array([-3.0, -0.5, 0.0, 0.5, 3.0])
+        images = self.score_feature_batch(scores, np.linspace(-1.0, 1.0, 5))
+        prediction = method.predict(images)
+        np.testing.assert_allclose(
+            prediction.prob_fake.numpy(),
+            method._source_probability(scores),
+            atol=1e-6,
+        )
+        stats = method.adapt(images)
+        self.assertEqual(stats.extra["rms_ridge_expert_updates"], 0)
+        self.assertEqual(stats.extra["rms_ridge_expert_count"], 0)
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_routed_residual_static_path_is_exact_source(self) -> None:
         method = self.segmented_memory_posterior_routed_residual_method(
             adaptation_mode="static"
@@ -6109,6 +6601,25 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_rms_ridge_expert_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_rms_ridge_expert_static",
+            self.detector(),
+            "cpu",
+            {"score_anchors": self.anchors()},
+        )
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_method_factory_maps_routed_residual_static_alias(self) -> None:
         from src.methods import build_method
         from src.methods.ascal_gmm import (
@@ -6923,6 +7434,46 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertIsInstance(
             method,
             ASCALGMMSegmentedMemoryPosteriorAnalyticExpert,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_rms_ridge_expert_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert,
+        )
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_rms_ridge_expert_static"
+        )
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {method_name: {"adaptation_mode": "static"}},
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert,
         )
         self.assertEqual(method.adaptation_mode, "static")
 

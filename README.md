@@ -860,6 +860,24 @@ target-macro online AUC 从 87.6831% 降到 86.3476%，且四个数据集的 tar
 直接把 Ridge 有符号回归值线性映射并裁剪为最终概率会压缩大量排序信息，不能作为 R12 的统一
 判别读出。R18 不进入 seed2/seed3；R12 继续作为 Accuracy 锚点，R06 继续作为 AUC 领先候选。
 
+`ascal_gmm_segmented_memory_posterior_rms_ridge_expert` 的研究版本名为
+**ASCAL-JMP-RMSRidgeExpert（R19）**。它保留 R12 的冻结 source-score 坐标、unique-live MDL
+路由、GMM 分段、memory handoff 和 Predict-Then-Adapt 归属；每个路由专家只新增一个直接的
+二输出解析 Ridge 分类器。输入是完整的 L2 归一化冻结 CLIP 特征和常数 bias，监督目标是 R12
+在当前批已经作出的 real/fake one-hot 伪标签，而不是 R12 分数、GMM posterior 或 residual。
+预测时旧 GMM 只给连续权重 `c=|2p_GMM-1|`；若 posterior 与 R12 类别方向矛盾，该样本权重
+自然归零，不再另设硬置信阈值。
+
+每个专家因果累计 inverse regularized Gram、feature/one-hot cross-covariance、两类可靠质量和
+R12 logit 平方和，并用 Woodbury RLS 在预测后精确更新。推理时 Ridge margin 为
+`r=h^T(W_fake-W_real)`；R12 margin 与 Ridge margin 分别除以该专家历史可靠样本上的 RMS，再用
+`sigmoid(z_R12/rms_R12+r/rms_Ridge)` 产生统一排序分数。Ridge 未更新、任一伪类尚无可靠质量或
+历史 RMS 无效时，输出逐值精确回退 R12；当前 batch 的统计绝不参与自身预测。这里 sigmoid 只
+是统一 evaluator 接口的单调映射，不宣称校准 posterior。方法没有 epoch、optimizer、学习率、
+置信阈值、融合系数或新增 target 超参数，也不保存图片和逐样本特征。seed1 成对入口为
+`matched_jpeg_ascal_gmm_segmented_memory_posterior_rms_ridge_expert_continual_*_seed1.yaml`；运行前
+固定的晋级门槛为四数据集宏平均 Accuracy 严格超过 R12，且 target-macro online AUC 超过 R06。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与

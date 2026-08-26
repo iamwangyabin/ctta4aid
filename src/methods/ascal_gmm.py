@@ -39,6 +39,11 @@ Its pairwise-ridge variant keeps one bias-free stream-wide feature ranker. R12
 supplies the monotone pseudo-class side, the selected GMM supplies only bounded
 soft reliability, and an exact pairwise Ridge update learns unit fake-over-real
 feature differences without inheriting an expert-specific posterior scale.
+Its RMS-ridge-expert variant gives every routed R12 expert a direct two-output
+online Ridge classifier over frozen normalized CLIP features. R12 supplies the
+hard pseudo-class, the selected GMM supplies continuous reliability, and
+per-expert historical RMS margins put the old R12 score and analytic classifier
+on a comparable scale before their evidence is added.
 Its current-projection variant recognizes that each active-segment GMM refit
 already contains all causal segment scores, so it removes the redundant median
 over nested refits while retaining one-vote episodic recall.
@@ -4734,6 +4739,742 @@ class ASCALGMMSegmentedMemoryPosteriorAnalyticExpert(
         self._pending_ordinal_ridge_assignment = None
         self._pending_ordinal_ridge_mixture = None
         self._pending_analytic_expert_labels = None
+        ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.discard_pending_prediction(self)
+
+
+class ASCALGMMSegmentedMemoryPosteriorRMSRidgeExpert(
+    ASCALGMMSegmentedMemoryPosteriorOrdinalRidge
+):
+    """Fuse R12 with one confidence-weighted binary Ridge per routed expert."""
+
+    _ORDINAL_RIDGE_MEMORY_KEY = "rms_ridge_expert_state"
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.rms_ridge_expert_backbone_feature_dim = self.ordinal_ridge_feature_dim
+        self.ordinal_ridge_feature_dim += 1
+        self._novel_ordinal_ridge_state = self._new_ordinal_ridge_state()
+        self._pending_rms_ridge_expert_labels: np.ndarray | None = None
+        self._pending_rms_ridge_expert_base_margins: np.ndarray | None = None
+        self.rms_ridge_expert_updates = 0
+        self.rms_ridge_expert_candidate_samples = 0
+        self.rms_ridge_expert_routed_batches = 0
+        self.rms_ridge_expert_routed_samples = 0
+        self.rms_ridge_expert_applied_batches = 0
+        self.rms_ridge_expert_applied_samples = 0
+        self.rms_ridge_expert_cold_start_batches = 0
+        self.rms_ridge_expert_solve_failures = 0
+        self.rms_ridge_expert_posterior_conflicts = 0
+        self.rms_ridge_expert_label_changes = 0
+        self.rms_ridge_expert_real_to_fake = 0
+        self.rms_ridge_expert_fake_to_real = 0
+        self.rms_ridge_expert_last_effective_support = 0.0
+        self.rms_ridge_expert_last_reliability = 0.0
+        self.rms_ridge_expert_last_real_mass = 0.0
+        self.rms_ridge_expert_last_fake_mass = 0.0
+        self.rms_ridge_expert_last_posterior_conflicts = 0
+
+    @property
+    def trainable_parameters(self) -> int:
+        if self.adaptation_mode == "static":
+            return 0
+        return (
+            len(self._all_ordinal_ridge_states())
+            * self.ordinal_ridge_feature_dim
+            * 2
+        )
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        getter = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.reproduction_metadata.fget
+        if getter is None:
+            raise RuntimeError("ASCAL RMS Ridge expert lost the R12 metadata getter")
+        metadata = getter(self)
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "r12_routed_per_expert_causal_direct_binary_analytic_ridge_"
+                    "with_historical_rms_evidence_alignment"
+                ),
+                "research_name": "ASCAL-JMP-RMSRidgeExpert",
+                "research_version": "R19",
+                "r12_protected_scope": (
+                    "immutable_source_score_unique_live_mdl_routing_gmm_"
+                    "segmentation_memory_handoff_and_adaptation_assignment"
+                ),
+                "protected_initialization": (
+                    "exact_r12_probability_until_the_selected_expert_has_"
+                    "reliable_mass_for_both_pseudo_classes_and_valid_rms"
+                ),
+                "expert_scope": (
+                    "one_online_two_output_analytic_ridge_state_per_r12_gmm_expert"
+                ),
+                "expert_input": (
+                    "l2_normalized_frozen_clip_feature_plus_one_constant_bias"
+                ),
+                "pseudo_label": "exact_r12_routed_hard_class_after_prediction",
+                "reliability_rule": (
+                    "absolute_selected_gmm_signed_posterior_with_no_hard_threshold"
+                ),
+                "posterior_conflict_rule": (
+                    "gmm_posterior_on_the_opposite_r12_class_side_gets_zero_weight"
+                ),
+                "ridge_target": "real_or_fake_one_hot_vector",
+                "ridge_objective": (
+                    "sum_reliability_times_two_output_one_hot_squared_error_"
+                    "plus_unit_frobenius_weight_norm"
+                ),
+                "ridge_prior_precision": (
+                    "fixed_unit_identity_under_l2_normalized_clip_features"
+                ),
+                "ridge_update": (
+                    "exact_recursive_least_squares_woodbury_after_prediction"
+                ),
+                "ridge_sufficient_statistics": (
+                    "inverse_regularized_gram_cross_covariance_two_output_"
+                    "weights_class_masses_and_r12_margin_square_sum_per_expert"
+                ),
+                "ridge_margin": "fake_output_score_minus_real_output_score",
+                "scale_alignment": (
+                    "per_expert_historical_reliability_weighted_rms_for_r12_logit_"
+                    "and_current_ridge_margin"
+                ),
+                "ridge_rms_identity": (
+                    "d_transpose_c_d_equals_d_transpose_q_minus_squared_d_norm"
+                ),
+                "prediction_rule": (
+                    "sigmoid_of_r12_logit_over_past_r12_rms_plus_selected_"
+                    "ridge_margin_over_its_past_feature_rms"
+                ),
+                "cold_start_rule": (
+                    "return_exact_r12_probability_without_a_minimum_sample_knob"
+                ),
+                "final_probability_semantics": (
+                    "monotone_evaluator_compatible_score_not_a_calibrated_posterior"
+                ),
+                "routing_score_coordinate": (
+                    "immutable_source_score_never_the_ridge_expert_output"
+                ),
+                "gmm_update_score_coordinate": (
+                    "immutable_source_score_never_the_ridge_expert_output"
+                ),
+                "predict_then_adapt_order": (
+                    "route_and_predict_with_old_expert_then_update_that_same_"
+                    "expert_for_the_next_batch"
+                ),
+                "fusion_weight": "none_equal_unit_rms_evidence",
+                "optimizer": "none_closed_form_recursive_ridge",
+                "epoch": "none",
+                "learning_rate": "none",
+                "prediction_mutates_experts": False,
+                "raw_images_stored": False,
+                "raw_features_stored": False,
+                "target_labels_used": False,
+                "generator_boundaries_used": False,
+                "semantic_features_used": False,
+                "new_target_hyperparameters": 0,
+                "hyperparameter_rule": (
+                    "no_learning_rate_epoch_confidence_threshold_temperature_"
+                    "fusion_coefficient_routing_threshold_or_memory_capacity"
+                ),
+                "intentional_changes": [
+                    "all R12 routing and continual expert assignments remain unchanged",
+                    "each R12 expert restores its own direct binary Ridge classifier",
+                    "R12 supplies only the pseudo-class and never a regression target",
+                    "the prediction-time selected GMM supplies only continuous reliability",
+                    "the complete frozen CLIP feature is normalized and retained as input",
+                    (
+                        "historical sufficient statistics align both evidence "
+                        "scales without target tuning"
+                    ),
+                    "only experts with reliable mass on both pseudo-classes may change R12",
+                    "only the prediction-time selected expert updates after prediction",
+                    "no image or per-sample feature remains after the analytic update",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_posterior_rms_ridge_expert"
+
+    def _new_ordinal_ridge_state(self) -> dict[str, Any]:
+        return {
+            "inverse_gram": np.eye(
+                self.ordinal_ridge_feature_dim,
+                dtype=np.float64,
+            ),
+            "cross_covariance": np.zeros(
+                (self.ordinal_ridge_feature_dim, 2),
+                dtype=np.float64,
+            ),
+            "weights": np.zeros(
+                (self.ordinal_ridge_feature_dim, 2),
+                dtype=np.float64,
+            ),
+            "updates": 0,
+            "candidate_samples": 0,
+            "effective_support": 0.0,
+            "class_mass": np.zeros(2, dtype=np.float64),
+            "base_margin_square_sum": 0.0,
+            "posterior_conflicts": 0,
+        }
+
+    def _batch_scores_and_rms_ridge_expert_features(
+        self,
+        images: Any,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        import torch
+
+        if images.dim() == 5:
+            batch, views = int(images.shape[0]), int(images.shape[1])
+            flat = images.reshape(batch * views, *images.shape[2:])
+        elif images.dim() == 4:
+            batch, views = int(images.shape[0]), 1
+            flat = images
+        else:
+            raise ValueError(
+                "ASCAL RMS Ridge expert expects (B, C, H, W) or "
+                "(B, V, C, H, W) images"
+            )
+        forward_features = getattr(self.model, "forward_features", None)
+        classifier = getattr(self.model, "classifier", None)
+        if not callable(forward_features) or not callable(classifier):
+            raise TypeError(
+                "ASCAL RMS Ridge expert requires forward_features and classifier"
+            )
+        with torch.no_grad():
+            features = forward_features(flat.to(self.device, non_blocking=True))
+            logits = classifier(features)
+        scores = (
+            binary_score(logits)
+            .view(batch, views)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        feature_values = (
+            features.detach()
+            .float()
+            .view(batch, views, -1)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        if int(feature_values.shape[1]) != self.rms_ridge_expert_backbone_feature_dim:
+            raise ValueError(
+                "ASCAL RMS Ridge expert feature dimension does not match the source head"
+            )
+        norms = np.linalg.norm(feature_values, axis=1, keepdims=True)
+        feature_values = np.divide(
+            feature_values,
+            norms,
+            out=np.zeros_like(feature_values),
+            where=norms > np.finfo(np.float64).eps,
+        )
+        design = np.concatenate(
+            [
+                feature_values,
+                np.ones((batch, 1), dtype=np.float64),
+            ],
+            axis=1,
+        )
+        if int(design.shape[1]) != self.ordinal_ridge_feature_dim:
+            raise RuntimeError("ASCAL RMS Ridge expert built the wrong dimension")
+        return scores, design
+
+    def _rms_ridge_expert_supervision(
+        self,
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        routed_labels: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+        posterior = np.asarray(
+            joint_density_fake_posterior(scores, mixture),
+            dtype=np.float64,
+        ).reshape(-1)
+        labels = np.asarray(routed_labels, dtype=np.int64).reshape(-1)
+        if posterior.shape != labels.shape or np.any((labels < 0) | (labels > 1)):
+            raise RuntimeError(
+                "ASCAL RMS Ridge expert posterior and R12 labels do not align"
+            )
+        signed_posterior = 2.0 * posterior - 1.0
+        conflicts = signed_posterior * np.where(labels == 1, 1.0, -1.0) < 0.0
+        reliability = np.where(conflicts, 0.0, np.abs(signed_posterior))
+        targets = np.zeros((labels.size, 2), dtype=np.float64)
+        targets[np.arange(labels.size), labels] = 1.0
+        if not (
+            np.all(np.isfinite(posterior))
+            and np.all(np.isfinite(reliability))
+        ):
+            raise FloatingPointError(
+                "ASCAL RMS Ridge expert produced non-finite supervision"
+            )
+        conflict_count = int(np.count_nonzero(conflicts))
+        class_mass = np.bincount(labels, weights=reliability, minlength=2)
+        self.rms_ridge_expert_last_effective_support = float(reliability.sum())
+        self.rms_ridge_expert_last_reliability = float(np.mean(reliability))
+        self.rms_ridge_expert_last_real_mass = float(class_mass[0])
+        self.rms_ridge_expert_last_fake_mass = float(class_mass[1])
+        self.rms_ridge_expert_last_posterior_conflicts = conflict_count
+        return targets, reliability, posterior, conflict_count
+
+    def _update_rms_ridge_expert_state(
+        self,
+        state: dict[str, Any],
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        routed_labels: np.ndarray,
+        features: np.ndarray,
+        base_margins: np.ndarray,
+    ) -> bool:
+        targets, reliability, _, conflicts = self._rms_ridge_expert_supervision(
+            mixture,
+            scores,
+            routed_labels,
+        )
+        features = np.asarray(features, dtype=np.float64)
+        base_margins = np.asarray(base_margins, dtype=np.float64).reshape(-1)
+        samples = int(scores.size)
+        if (
+            features.shape != (samples, self.ordinal_ridge_feature_dim)
+            or base_margins.shape != (samples,)
+            or not np.all(np.isfinite(features))
+            or not np.all(np.isfinite(base_margins))
+        ):
+            raise RuntimeError(
+                "ASCAL RMS Ridge expert received misaligned prediction statistics"
+            )
+        effective_support = float(reliability.sum())
+        self.rms_ridge_expert_candidate_samples += samples
+        self.rms_ridge_expert_posterior_conflicts += conflicts
+        state["candidate_samples"] = int(state["candidate_samples"]) + samples
+        state["posterior_conflicts"] = int(state["posterior_conflicts"]) + conflicts
+        if effective_support <= np.finfo(np.float64).eps:
+            return False
+
+        square_root_reliability = np.sqrt(reliability)
+        design = square_root_reliability[:, None] * features
+        response = square_root_reliability[:, None] * targets
+        inverse_gram = np.asarray(state["inverse_gram"], dtype=np.float64)
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        inverse_times_design = inverse_gram @ design.T
+        innovation_gram = (
+            np.eye(samples, dtype=np.float64) + design @ inverse_times_design
+        )
+        innovation_gram = 0.5 * (innovation_gram + innovation_gram.T)
+        try:
+            gain = np.linalg.solve(
+                innovation_gram,
+                inverse_times_design.T,
+            ).T
+        except np.linalg.LinAlgError:
+            self.rms_ridge_expert_solve_failures += 1
+            return False
+
+        updated_weights = weights + gain @ (response - design @ weights)
+        updated_inverse = inverse_gram - gain @ inverse_times_design.T
+        updated_inverse = 0.5 * (updated_inverse + updated_inverse.T)
+        updated_cross_covariance = np.asarray(
+            state["cross_covariance"],
+            dtype=np.float64,
+        ) + features.T @ (reliability[:, None] * targets)
+        if not (
+            np.all(np.isfinite(updated_weights))
+            and np.all(np.isfinite(updated_inverse))
+            and np.all(np.isfinite(updated_cross_covariance))
+        ):
+            self.rms_ridge_expert_solve_failures += 1
+            return False
+
+        labels = np.asarray(routed_labels, dtype=np.int64).reshape(-1)
+        class_mass = np.bincount(labels, weights=reliability, minlength=2)
+        state["weights"] = updated_weights
+        state["inverse_gram"] = updated_inverse
+        state["cross_covariance"] = updated_cross_covariance
+        state["updates"] = int(state["updates"]) + 1
+        state["effective_support"] = float(state["effective_support"]) + (
+            effective_support
+        )
+        state["class_mass"] = np.asarray(
+            state["class_mass"],
+            dtype=np.float64,
+        ) + class_mass
+        state["base_margin_square_sum"] = float(
+            state["base_margin_square_sum"]
+        ) + float(np.sum(reliability * base_margins**2))
+        self.rms_ridge_expert_updates += 1
+        return self._ordinal_ridge_ready(state)
+
+    def _rms_ridge_expert_scales(
+        self,
+        state: dict[str, Any] | None,
+    ) -> tuple[float, float, float] | None:
+        if state is None:
+            return None
+        support = float(state["effective_support"])
+        if not math.isfinite(support) or support <= np.finfo(np.float64).eps:
+            return None
+        base_energy = float(state["base_margin_square_sum"])
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        cross_covariance = np.asarray(
+            state["cross_covariance"],
+            dtype=np.float64,
+        )
+        if (
+            weights.shape != (self.ordinal_ridge_feature_dim, 2)
+            or cross_covariance.shape != weights.shape
+            or not np.all(np.isfinite(weights))
+            or not np.all(np.isfinite(cross_covariance))
+        ):
+            return None
+        direction = weights[:, 1] - weights[:, 0]
+        cross_direction = cross_covariance[:, 1] - cross_covariance[:, 0]
+        ridge_energy = float(
+            direction @ cross_direction - direction @ direction
+        )
+        ridge_energy = max(0.0, ridge_energy)
+        if not (
+            math.isfinite(base_energy)
+            and math.isfinite(ridge_energy)
+            and base_energy > 0.0
+            and ridge_energy > 0.0
+        ):
+            return None
+        base_rms = math.sqrt(base_energy / support)
+        ridge_rms = math.sqrt(ridge_energy / support)
+        if not (
+            math.isfinite(base_rms)
+            and math.isfinite(ridge_rms)
+            and base_rms > np.finfo(np.float64).eps
+            and ridge_rms > np.finfo(np.float64).eps
+        ):
+            return None
+        return base_rms, ridge_rms, ridge_energy
+
+    def _ordinal_ridge_ready(self, state: dict[str, Any] | None) -> bool:
+        if state is None or int(state["updates"]) <= 0:
+            return False
+        class_mass = np.asarray(state["class_mass"], dtype=np.float64).reshape(-1)
+        if (
+            class_mass.shape != (2,)
+            or not np.all(np.isfinite(class_mass))
+            or np.any(class_mass <= np.finfo(np.float64).eps)
+        ):
+            return False
+        return self._rms_ridge_expert_scales(state) is not None
+
+    @staticmethod
+    def _stable_sigmoid(values: np.ndarray) -> np.ndarray:
+        values = np.asarray(values, dtype=np.float64)
+        probability = np.empty_like(values)
+        positive = values >= 0.0
+        probability[positive] = 1.0 / (1.0 + np.exp(-values[positive]))
+        negative_exp = np.exp(values[~positive])
+        probability[~positive] = negative_exp / (1.0 + negative_exp)
+        return probability
+
+    def _rms_ridge_expert_probability(
+        self,
+        base_probability: np.ndarray,
+        features: np.ndarray,
+        state: dict[str, Any],
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, float]:
+        scales = self._rms_ridge_expert_scales(state)
+        if scales is None:
+            raise RuntimeError("ASCAL RMS Ridge expert has no valid historical scale")
+        base_rms, ridge_rms, _ = scales
+        base_probability = np.asarray(base_probability, dtype=np.float64).reshape(-1)
+        epsilon = np.finfo(np.float64).eps
+        bounded_probability = np.clip(base_probability, epsilon, 1.0 - epsilon)
+        base_margin = np.log(bounded_probability / (1.0 - bounded_probability))
+        weights = np.asarray(state["weights"], dtype=np.float64)
+        direction = weights[:, 1] - weights[:, 0]
+        ridge_margin = np.asarray(features @ direction, dtype=np.float64)
+        fused_margin = base_margin / base_rms + ridge_margin / ridge_rms
+        probability = self._stable_sigmoid(fused_margin)
+        if not (
+            np.all(np.isfinite(base_margin))
+            and np.all(np.isfinite(ridge_margin))
+            and np.all(np.isfinite(probability))
+        ):
+            raise FloatingPointError(
+                "ASCAL RMS Ridge expert produced a non-finite prediction"
+            )
+        return probability, base_margin, ridge_margin, base_rms, ridge_rms
+
+    def _rms_ridge_expert_state_stats(self) -> dict[str, Any]:
+        states = self._all_ordinal_ridge_states()
+        ready_states = [state for state in states if self._ordinal_ridge_ready(state)]
+        scales = [
+            self._rms_ridge_expert_scales(state) for state in ready_states
+        ]
+        valid_scales = [scale for scale in scales if scale is not None]
+        class_masses = [
+            np.asarray(state["class_mass"], dtype=np.float64) for state in states
+        ]
+        weight_norms = [
+            float(np.linalg.norm(np.asarray(state["weights"], dtype=np.float64)))
+            for state in states
+        ]
+        return {
+            "rms_ridge_expert_count": len(states),
+            "rms_ridge_expert_ready_experts": len(ready_states),
+            "rms_ridge_expert_updates": self.rms_ridge_expert_updates,
+            "rms_ridge_expert_candidate_samples": (
+                self.rms_ridge_expert_candidate_samples
+            ),
+            "rms_ridge_expert_routed_batches": self.rms_ridge_expert_routed_batches,
+            "rms_ridge_expert_routed_samples": self.rms_ridge_expert_routed_samples,
+            "rms_ridge_expert_applied_batches": (
+                self.rms_ridge_expert_applied_batches
+            ),
+            "rms_ridge_expert_applied_samples": (
+                self.rms_ridge_expert_applied_samples
+            ),
+            "rms_ridge_expert_cold_start_batches": (
+                self.rms_ridge_expert_cold_start_batches
+            ),
+            "rms_ridge_expert_solve_failures": (
+                self.rms_ridge_expert_solve_failures
+            ),
+            "rms_ridge_expert_posterior_conflicts": (
+                self.rms_ridge_expert_posterior_conflicts
+            ),
+            "rms_ridge_expert_label_changes": self.rms_ridge_expert_label_changes,
+            "rms_ridge_expert_real_to_fake": self.rms_ridge_expert_real_to_fake,
+            "rms_ridge_expert_fake_to_real": self.rms_ridge_expert_fake_to_real,
+            "rms_ridge_expert_effective_support": sum(
+                float(state["effective_support"]) for state in states
+            ),
+            "rms_ridge_expert_real_mass": sum(
+                float(mass[0]) for mass in class_masses
+            ),
+            "rms_ridge_expert_fake_mass": sum(
+                float(mass[1]) for mass in class_masses
+            ),
+            "rms_ridge_expert_base_margin_square_sum": sum(
+                float(state["base_margin_square_sum"]) for state in states
+            ),
+            "rms_ridge_expert_last_effective_support": (
+                self.rms_ridge_expert_last_effective_support
+            ),
+            "rms_ridge_expert_last_reliability": (
+                self.rms_ridge_expert_last_reliability
+            ),
+            "rms_ridge_expert_last_real_mass": (
+                self.rms_ridge_expert_last_real_mass
+            ),
+            "rms_ridge_expert_last_fake_mass": (
+                self.rms_ridge_expert_last_fake_mass
+            ),
+            "rms_ridge_expert_last_posterior_conflicts": (
+                self.rms_ridge_expert_last_posterior_conflicts
+            ),
+            "rms_ridge_expert_mean_base_rms": (
+                float(np.mean([scale[0] for scale in valid_scales]))
+                if valid_scales
+                else 0.0
+            ),
+            "rms_ridge_expert_mean_ridge_rms": (
+                float(np.mean([scale[1] for scale in valid_scales]))
+                if valid_scales
+                else 0.0
+            ),
+            "rms_ridge_expert_max_weight_norm": max(weight_norms, default=0.0),
+            "rms_ridge_expert_weight_parameters": (
+                len(states) * self.ordinal_ridge_feature_dim * 2
+            ),
+            "rms_ridge_expert_inverse_gram_values": (
+                len(states) * self.ordinal_ridge_feature_dim**2
+            ),
+            "rms_ridge_expert_cross_covariance_values": (
+                len(states) * self.ordinal_ridge_feature_dim * 2
+            ),
+            "rms_ridge_expert_trainable_parameters": self.trainable_parameters,
+        }
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute._state_stats(self)
+        stats.update(self._rms_ridge_expert_state_stats())
+        return stats
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores, features = self._batch_scores_and_rms_ridge_expert_features(images)
+        self._ordinal_ridge_precomputed_scores = scores
+        try:
+            ordinal = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.predict(
+                self,
+                images,
+            )
+        finally:
+            self._ordinal_ridge_precomputed_scores = None
+        if self._pending is None:
+            raise RuntimeError("ASCAL RMS Ridge expert lost the R12 pending state")
+
+        context = self._ordinal_ridge_context()
+        assignment = None if context is None else context[0]
+        mixture = None if context is None else context[1]
+        state = (
+            None
+            if assignment is None
+            else self._peek_ordinal_ridge_state(assignment)
+        )
+        ready = self._ordinal_ridge_ready(state)
+        base_probability = (
+            ordinal.prob_fake.detach().cpu().numpy().astype(np.float64)
+        )
+        epsilon = np.finfo(np.float64).eps
+        bounded_base = np.clip(base_probability, epsilon, 1.0 - epsilon)
+        base_margin = np.log(bounded_base / (1.0 - bounded_base))
+        ridge_margin = np.zeros_like(base_margin)
+        base_rms = 0.0
+        ridge_rms = 0.0
+        if ready:
+            if state is None:
+                raise RuntimeError("ASCAL RMS Ridge expert lost its selected state")
+            (
+                probability,
+                base_margin,
+                ridge_margin,
+                base_rms,
+                ridge_rms,
+            ) = self._rms_ridge_expert_probability(
+                base_probability,
+                features,
+                state,
+            )
+        else:
+            probability = base_probability.copy()
+
+        base_labels = ordinal.pred_label.detach().cpu().numpy().astype(np.int64)
+        final_labels = (probability >= 0.5).astype(np.int64)
+        label_changes = int(np.count_nonzero(final_labels != base_labels))
+        real_to_fake = int(
+            np.count_nonzero((base_labels == 0) & (final_labels == 1))
+        )
+        fake_to_real = int(
+            np.count_nonzero((base_labels == 1) & (final_labels == 0))
+        )
+
+        self._pending_ordinal_ridge_features = features
+        self._pending_ordinal_ridge_state = state
+        self._pending_ordinal_ridge_assignment = assignment
+        self._pending_ordinal_ridge_mixture = (
+            None if mixture is None else _copy_gmm(mixture)
+        )
+        self._pending_rms_ridge_expert_labels = base_labels.copy()
+        self._pending_rms_ridge_expert_base_margins = base_margin.copy()
+        pending_state = dict(self._pending)
+        pending_state.pop("scores")
+        pending_state.update(
+            {
+                "prediction_rms_ridge_expert_routed": context is not None,
+                "prediction_rms_ridge_expert_ready": ready,
+                "prediction_rms_ridge_expert_applied": ready,
+                "prediction_rms_ridge_expert_base_rms": base_rms,
+                "prediction_rms_ridge_expert_ridge_rms": ridge_rms,
+                "prediction_rms_ridge_expert_ridge_margin_mean": float(
+                    np.mean(ridge_margin)
+                ),
+                "prediction_rms_ridge_expert_ridge_margin_abs_mean": float(
+                    np.mean(np.abs(ridge_margin))
+                ),
+                "prediction_rms_ridge_expert_ridge_margin_max_abs": float(
+                    np.max(np.abs(ridge_margin))
+                ),
+                "prediction_rms_ridge_expert_label_changes": label_changes,
+                "prediction_rms_ridge_expert_real_to_fake": real_to_fake,
+                "prediction_rms_ridge_expert_fake_to_real": fake_to_real,
+            }
+        )
+        return self._prediction_batch(scores, probability, **pending_state)
+
+    def adapt(self, images: Any) -> AdaptationStats:
+        if self._pending is None:
+            return ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.adapt(self, images)
+        scores = np.asarray(self._pending["scores"], dtype=np.float64).reshape(-1)
+        prediction_state = dict(self._pending)
+        features = self._pending_ordinal_ridge_features
+        state = self._pending_ordinal_ridge_state
+        assignment = self._pending_ordinal_ridge_assignment
+        mixture = self._pending_ordinal_ridge_mixture
+        routed_labels = self._pending_rms_ridge_expert_labels
+        base_margins = self._pending_rms_ridge_expert_base_margins
+        self._pending_ordinal_ridge_features = None
+        self._pending_ordinal_ridge_state = None
+        self._pending_ordinal_ridge_assignment = None
+        self._pending_ordinal_ridge_mixture = None
+        self._pending_rms_ridge_expert_labels = None
+        self._pending_rms_ridge_expert_base_margins = None
+
+        updated = False
+        if self.adaptation_mode == "full" and assignment is not None:
+            if features is None or int(features.shape[0]) != int(scores.size):
+                raise RuntimeError(
+                    "ASCAL RMS Ridge expert lost its prediction features"
+                )
+            if mixture is None:
+                raise RuntimeError(
+                    "ASCAL RMS Ridge expert lost its prediction-time selected GMM"
+                )
+            if routed_labels is None or int(routed_labels.size) != int(scores.size):
+                raise RuntimeError("ASCAL RMS Ridge expert lost its R12 decisions")
+            if base_margins is None or int(base_margins.size) != int(scores.size):
+                raise RuntimeError("ASCAL RMS Ridge expert lost its R12 margins")
+            if state is None:
+                state = self._ensure_ordinal_ridge_state(assignment)
+            updated = self._update_rms_ridge_expert_state(
+                state,
+                mixture,
+                scores,
+                routed_labels,
+                features,
+                base_margins,
+            )
+
+        stats = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.adapt(self, images)
+        routed = bool(prediction_state.get("prediction_rms_ridge_expert_routed"))
+        applied = bool(prediction_state.get("prediction_rms_ridge_expert_applied"))
+        if routed:
+            self.rms_ridge_expert_routed_batches += 1
+            self.rms_ridge_expert_routed_samples += int(scores.size)
+        if applied:
+            self.rms_ridge_expert_applied_batches += 1
+            self.rms_ridge_expert_applied_samples += int(scores.size)
+        elif routed:
+            self.rms_ridge_expert_cold_start_batches += 1
+        self.rms_ridge_expert_label_changes += int(
+            prediction_state.get("prediction_rms_ridge_expert_label_changes", 0)
+            or 0
+        )
+        self.rms_ridge_expert_real_to_fake += int(
+            prediction_state.get("prediction_rms_ridge_expert_real_to_fake", 0)
+            or 0
+        )
+        self.rms_ridge_expert_fake_to_real += int(
+            prediction_state.get("prediction_rms_ridge_expert_fake_to_real", 0)
+            or 0
+        )
+        stats.extra.update(
+            {
+                **self._rms_ridge_expert_state_stats(),
+                "rms_ridge_expert_updated": updated,
+            }
+        )
+        return stats
+
+    def discard_pending_prediction(self) -> None:
+        self._ordinal_ridge_precomputed_scores = None
+        self._pending_ordinal_ridge_features = None
+        self._pending_ordinal_ridge_state = None
+        self._pending_ordinal_ridge_assignment = None
+        self._pending_ordinal_ridge_mixture = None
+        self._pending_rms_ridge_expert_labels = None
+        self._pending_rms_ridge_expert_base_margins = None
         ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.discard_pending_prediction(self)
 
 
