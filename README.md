@@ -878,14 +878,32 @@ R12 logit 平方和，并用 Woodbury RLS 在预测后精确更新。推理时 R
 `matched_jpeg_ascal_gmm_segmented_memory_posterior_rms_ridge_expert_continual_*_seed1.yaml`；运行前
 固定的晋级门槛为四数据集宏平均 Accuracy 严格超过 R12，且 target-macro online AUC 超过 R06。
 
+R19 的四数据集 seed1 成对运行以及协议、R12 replay、路由状态、充分统计和因果更新审计均已
+通过；3546 次 Ridge 更新覆盖 56584 个候选样本，3530 个后续 batch 实际使用历史 Ridge 预测，
+解析求解失败为 0。四数据集宏平均 Accuracy 从 R12 的 80.7969% 提高到 81.1025%，四个数据集
+均有提升；但 target-macro online AUC 从 87.6831% 降到 87.4692%，仍低于 R06 的 87.7180%，
+pooled online AUC 也从 87.8513% 降到 87.3964%。39 个 target 中只有 16 个 AUC 提升，AIGC
+Detection Benchmark 和 AIGI-Holmes P3 的 target-macro AUC 分别下降 0.4833 和 0.8643 个百分
+点。与此同时，final target-macro AUC 相对 R12 提高 0.3858 个百分点，说明解析分类器确实学到
+了可迁移的最终判别状态，但在线学习过程中的排序扰动尚未受控。
+
+R19 共改变 R12 的 2474 个在线硬决定，其中 2357 个为 fake 到 real，只有 117 个为 real 到
+fake；宏平均 real Accuracy 提高 4.1196 个百分点，fake Accuracy 下降 3.5083 个百分点，最终
+只留下 0.3056 个百分点的 Accuracy 净增益。该非对称变化说明失败不在 Ridge 是否运行，而在
+监督与读出：直接拟合 R12 硬伪标签会继承困难域的 real 偏置，而分别做 RMS 归一化后又会把
+尚未证明可靠的 Ridge margin 强制提升到与 R12 margin 相同的能量尺度。average forgetting 也
+从 R12 的 0.0564% 增至 0.7769%。因此 R19 不进入 seed2/seed3；R12 继续作为 Accuracy 锚点，
+R06 继续作为 online AUC 领先候选。下一版若继续使用解析分类器，必须让新增判别证据的作用强度
+由其自身因果可靠性决定，而不能再做无条件等能量融合。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
 target-macro AUC 均不下降的严格 Pareto 门槛；从 R06 开始，排序 residual 分支在运行前固定为
 Accuracy 非劣、AUC 优越门槛：四数据集宏平均 Accuracy 相对 R01 最多下降 0.2 个百分点，
 target-macro online AUC 相对 R01 至少提升 0.1 个百分点且必须超过此前 residual 候选中的
-最高值，R06 的直接比较对象是 R05，R07 至 R18 的直接比较对象均是当前最佳 R06；R12 至
-R18 还额外使用 R11/R12 的高 Accuracy 作为锚点。R16 至 R18 不再要求逐样本硬决定不变，而是预先
+最高值，R06 的直接比较对象是 R05，R07 至 R19 的直接比较对象均是当前最佳 R06；R12 至
+R19 还额外使用 R11/R12 的高 Accuracy 作为锚点。R16 至 R19 不再要求逐样本硬决定不变，而是预先
 要求四数据集宏平均 Accuracy 严格超过 R12，同时 target-macro online AUC 超过 R06。
 该门槛只决定是否进入 seed2/seed3，不进入方法推理，也不能在结果产生后按数据集修改；完整
 确认前仍不得写入正文正式表。
