@@ -7875,6 +7875,97 @@ class ASCALGMMSegmentedMemoryPosteriorNoHistoricalRecallGaussianReplayMLP(
         return None
 
 
+class ASCALGMMCurrentSegmentGaussianReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorNoHistoricalRecallGaussianReplayMLP
+):
+    """Keep only the current segment state and discard every completed expert."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.discarded_completed_segment_states = 0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_current_segment_gmm_supervised_balanced_"
+                    "gaussian_replay_residual_mlp"
+                ),
+                "research_name": "ASCAL-JMP-CurrentSegmentCore",
+                "research_version": "R35",
+                "ablation_parent": "ASCAL-JMP-NoHistoricalRecall-R34",
+                "ablation_question": (
+                    "whether_the_unused_shadow_archive_can_be_deleted_without_"
+                    "changing_forward_online_predictions"
+                ),
+                "routing_coordinate": "none_current_segment_state_only",
+                "routing_candidates": "current_active_gmm_only",
+                "historical_expert_recall": False,
+                "episodic_memory_updated": False,
+                "episodic_memory_role": "none",
+                "completed_expert_state_rule": "discard_immediately_at_segment_change",
+                "state_scope": "one_current_segment_gmm_feature_distribution_and_mlp",
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R34 forward-online prediction supervision replay head and segment logic stay unchanged",
+                    "a completed segment is discarded instead of copied into a shadow archive",
+                    "the current-batch candidate builder never evaluates historical mixtures",
+                    "only one current segment learning state can occupy memory",
+                    "no threshold similarity replacement or new hyperparameter is introduced",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "current_segment_gmm_gaussian_replay_mlp"
+
+    def _store_completed_segment(
+        self,
+        mixture: dict[str, Any],
+        samples: int,
+    ) -> int | None:
+        del samples
+        if int(mixture["components"]) < 2:
+            return None
+        self.discarded_completed_segment_states += 1
+        self._novel_ordinal_ridge_state = self._new_ordinal_ridge_state()
+        return None
+
+    def _routing_candidates(self, scores: np.ndarray) -> list[dict[str, Any]]:
+        if not self._mixture_active() or self._mixture is None:
+            return []
+        active_partition = self._candidate_partition()
+        active_boundary = float(active_partition["decision_boundary"])
+        return [
+            {
+                "expert": "active_learning_state",
+                "memory_index": None,
+                "mixture": self._mixture,
+                "boundary": self._stabilized_boundary(active_boundary),
+                "candidate_boundary": active_boundary,
+                "real_components": int(active_partition["real_components"]),
+                "fake_components": int(active_partition["fake_components"]),
+                "deviance": _fixed_gmm_deviance(scores, self._mixture),
+            }
+        ]
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats["discarded_completed_segment_states"] = (
+            self.discarded_completed_segment_states
+        )
+        return stats
+
+
 class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP(
     ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP
 ):

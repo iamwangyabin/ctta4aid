@@ -5,6 +5,7 @@ from typing import Any
 from .ascal import ASCAL
 from .ascal_gmm import (
     ASCALGMM,
+    ASCALGMMCurrentSegmentGaussianReplayMLP,
     ASCALGMMSegmentedMemoryPosteriorAnalyticExpert,
     ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP,
     ASCALGMMSegmentedMemoryPosteriorNoHistoricalRecallGaussianReplayMLP,
@@ -377,6 +378,16 @@ def build_method(
             model, device, effective_config
         )
     if normalized in {
+        "ascalgmmcurrentsegmentgaussianreplaymlp",
+        "ascalgmmcurrentsegmentgaussianreplaymlpstatic",
+    }:
+        effective_config = dict(config)
+        if normalized == "ascalgmmcurrentsegmentgaussianreplaymlpstatic":
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMCurrentSegmentGaussianReplayMLP(
+            model, device, effective_config
+        )
+    if normalized in {
         "ascalgmmsegmentedmemoryposteriorfeatureroutedcurrentbatchreplaymlp",
         "ascalgmmsegmentedmemoryposteriorfeatureroutedcurrentbatchreplaymlpstatic",
     }:
@@ -547,6 +558,7 @@ __all__ = [
     "TTAMethod",
     "ASCAL",
     "ASCALGMM",
+    "ASCALGMMCurrentSegmentGaussianReplayMLP",
     "ASCALGMMSegmentedMemoryPosteriorAnalyticExpert",
     "ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP",
     "ASCALGMMSegmentedMemoryPosteriorNoHistoricalRecallGaussianReplayMLP",

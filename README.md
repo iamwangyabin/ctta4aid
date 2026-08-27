@@ -1286,6 +1286,22 @@ shadow archive 供审计，随后启动全新的 current-segment GMM/feature dis
 replay、非线性 head 与 Predict-Then-Adapt 顺序均保持 R26。只有 R34 通过 R26 的 online
 Accuracy/AUC 双非劣门槛，才能继续做“连 shadow archive 也删除”的下一步消融。
 
+R34 已由固定提交 `8501b3d` 在 4090-2 完成：online target-macro Accuracy/AUC 为
+**78.8571/84.5472**，相对 R26 分别提高 **0.0476/0.0604** 个百分点，因而通过预注册
+的 forward-online 双非劣门槛。逐批审计确认 658 个 batch 的 score-based recall、memory
+selection、active memory index 和 prediction memory index 全部为 0。与此同时，
+final-holdout Accuracy/AUC 降至 **73.6857/82.1075**，相对 R26 下降
+**4.9429/1.3705** 个百分点；这说明历史召回不是标准单向 online 指标的必要组件，但对流结束
+后的旧域保持很有价值。主方法凝练按预注册 online 门槛接受删除，历史专家库则保留为明确的
+retention 扩展，而不能声称它对 forgetting 没有作用。
+
+通过后继续运行 **ASCAL-JMP-CurrentSegmentCore（R35）**：R34 从不选中的五个 shadow
+archive 也完全删除，段切换时直接丢弃旧 GMM/feature distribution/MLP，只保留一个当前段
+状态；候选构造只计算当前 active GMM，不再遍历任何历史 mixture。GMM 软监督、连续可靠度、
+256 个平衡 Gaussian replay、每段非线性 residual 和 Base 冻结均保持不变。由于 R34 的
+archive 从未影响预测，R35 预期与 R34 逐样本完全等价；只有在线指标非劣且轨迹审计成立，
+才能把它确定为不含历史路由与 memory 的最简 forward-online 核心。
+
 第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
 训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
 Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度有放回采样；当前批缺少
