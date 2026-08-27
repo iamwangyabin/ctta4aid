@@ -1345,6 +1345,15 @@ R26 的 GMM 分段与专家身份，但不再让选中专家 GMM 给 feature mem
 路由、Gaussian replay、平衡训练和每专家 MLP 全部不变。它直接检验 GMM 教师是否只是
 可替换的实现细节。R27--R33 完成后，才依据逐项结果组合被证明可删的组件并复跑最终凝练版。
 
+R33 的固定提交 `251158d` 同样在 4090-2 完成：online target-macro Accuracy/AUC 为
+**73.2095/81.3834**，final-holdout 为 **72.7143/80.1045**。相对 R26，online
+分别下降 **5.6000/3.1035** 个百分点，final-holdout 分别下降 **5.9143/3.3736**
+个百分点；online AUC 还比 Source 低 1.1197 个百分点，因而是明确失败而非边界波动。
+R26 与 R33 的 658 个 batch 上，131 个非 feature-supervision/head 语义字段按 `1e-10`
+容差完全一致，说明退化来自冻结 Source 自举标签，而不是 GMM、分段或路由轨迹变化。专家
+GMM 的 equal-prior posterior 与连续可靠度是纠正 Source 整体偏移、建立两类 feature
+distribution 的必要教师，不能被 Source 自己的概率循环替代。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
