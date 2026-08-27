@@ -1306,14 +1306,15 @@ R35 已由固定提交 `3139506` 在 4090-2 完成，online Accuracy/AUC 仍为
 **78.8571/84.5472**，final-holdout 仍为 **73.6857/82.1075**，四个聚合值与 R34
 逐位完全相同。排除有意删除的 archive 聚合统计、计时和方法名后，658 个 batch 的 148 个
 共同语义字段按 `1e-10` 容差无任何不一致；流末 `memory_size=0`，五个完成段状态均已丢弃，
-历史 selection/recall 都是 0。因此 shadow archive 被正式删除，R35 晋级为当前最简
-forward-online 核心；R26 的历史专家库只作为 retention 扩展，不再混入这个核心实现。
+历史 selection/recall 都是 0。因此 shadow archive 被正式删除，R35 在当时仅含
+online Accuracy/AUC 的门槛下晋级为最简 forward-online 消融；加入 forgetting 后的最终
+三指标判定见下文，不能再把该结论外推为完整 CTTA 核心。
 
 若 R35 验证通过，最后一个结构消融 **ASCAL-JMP-GlobalStreamCore（R36）**再删除参数
 无关的 BIC change-point scan 与 current-state reset：一个 GMM、一个 real/fake Gaussian
 feature distribution 和一个 residual MLP 累积整个因果流，其他监督、可靠度、平衡回放和
 训练预算完全不变。它回答“分段本身是否必要”。R36 只有同时不低于 R35 的 online
-target-macro Accuracy/AUC 才能继续简化；否则 R35 的因果分段 reset 就是最终核心的必要
+target-macro Accuracy/AUC 才能继续简化；否则 R35 的因果分段 reset 就是 forward-only 核心的必要
 组成，而不是为了路由历史专家留下的冗余模块。
 
 R36 已由固定提交 `b6c8e06` 在 4090-2 完成：online target-macro Accuracy/AUC 为
@@ -1323,9 +1324,11 @@ Accuracy 明确失败而拒绝；不能用 final-holdout 的 **+2.2857/+0.4962**
 门槛。状态审计确认 658 个 batch 中 segment check/change 都为 0，始终只有一个 global
 expert 且没有 memory，故失败确实回答了分段问题：参数无关的因果 BIC reset 必须保留。
 
-本轮组件凝练至此结束，预注册门槛下的完整结论为：
+第一阶段按 forward-online 双指标完成的逐项消融仍保留如下；它用于判断 GMM 教师、连续
+reliability、Gaussian memory、平衡回放和非线性专家 head 是否可删，但不能单独决定完整
+CTTA 核心：
 
-| 版本 | 唯一消融 | Online Accuracy | Online AUC | 判定 |
+| 版本 | 唯一消融 | Online Accuracy | Online AUC | 当时的前向判定 |
 | --- | --- | ---: | ---: | --- |
 | R26 | 完整参考 | 78.8095 | 84.4869 | 参考 |
 | R27 | 每专家 head 改为共享 head | 77.8095 | 84.4293 | 拒绝 |
@@ -1335,25 +1338,68 @@ expert 且没有 memory，故失败确实回答了分段问题：参数无关的
 | R31 | 累计 Gaussian replay 改为当前批重采样 | 77.1524 | 82.1093 | 拒绝 |
 | R32 | 平衡 replay 改为伪类别 prior replay | 78.7524 | 84.4383 | 拒绝 |
 | R33 | GMM 教师改为 Source 自举 | 73.2095 | 81.3834 | 拒绝 |
-| R34 | 完全关闭历史召回 | 78.8571 | 84.5472 | 接受，存在 retention 代价 |
-| **R35** | **删除未使用的 shadow archive** | **78.8571** | **84.5472** | **最终最简 online 核心** |
+| R34 | 完全关闭历史召回 | 78.8571 | 84.5472 | 前向通过，retention 待审 |
+| R35 | 删除未使用的 shadow archive | 78.8571 | 84.5472 | 前向通过，retention 待审 |
 | R36 | 删除因果分段 reset | 77.8857 | 84.5346 | 拒绝 |
 
-因此最终凝练的 **R35** 只剩四个有因果关系的核心：冻结 Base 提供 source score 与 CLIP
-feature；参数无关的 BIC change-point 维护一个“当前段”；当前段 GMM posterior 产生 hard
-pseudo-label 与连续 `|2p-1|` reliability，并把到达特征压缩为 real/fake 两个对角 Gaussian
-充分统计；每次从两个分布各生成 128 个新伪特征，更新当前段零出生的 `768 -> 64 -> 1`
-GELU residual，正式输出始终是 `Base logit + residual logit`。段切换时旧 GMM、统计、MLP
-和 optimizer 全部直接丢弃。它没有历史路由、专家库、原图/逐样本特征、target label、
-置信度阈值、memory capacity 或融合系数；方法级可见量只剩 hidden dim 64、学习率 `1e-3`
-和每次 256 个 replay 样本，`1e-6` 只作为方差数值下界。
+前述 R27--R36 最初只用 online Accuracy/AUC 做前向门槛；在把 continual retention
+明确加入目标后，R35 不能再作为完整 CTTA 主方法。它虽然有 78.8571/84.5472 的 online
+Accuracy/AUC，但 final-holdout 只有 73.6857/82.1075，average AUC forgetting 为
+**2.9163 个百分点**。历史专家不能再被称为可选扩展，而必须纳入三指标核心。重新按
+“online Accuracy、online AUC 均不下降，average AUC forgetting 不增加”的门槛凝练后，
+新增了两个只改变一项机制的版本。
 
-R35 相对 Source 的 online Accuracy/AUC 提高 **10.5429/2.0442** 个百分点，相对复杂的
-R26 还提高 **0.0476/0.0604** 个百分点，满足“凝练后不掉 Accuracy 与 AUC”的目标。若论文
-需要强调流结束后的旧域保持，则应把 R26 历史专家路由作为单独的 retention 扩展报告；它能
-把 final-holdout 从 R35 的 73.6857/82.1075 提升到 78.6286/83.4781，但不能再混入最简
-forward-online 核心并声称没有额外复杂度。以上仍是 GenImage matched-JPEG seed1 诊断，
-正式主表必须继续遵守四数据集、三个 seed 的冻结验收协议。
+**ASCAL-JMP-CLIPExpertMemory（R37）**从 R26 出发，只关闭 BIC 段变化时继承的
+source-score/GMM 历史 memory 搜索。当前 batch 的历史身份选择只比较冻结 CLIP 特征：
+先将归一化特征投影到 source real/fake 分类方向的正交子空间，再选择 batch 平均余弦相似度
+最大的 active 或历史专家。GMM 仍负责无标签 BIC 分段、所选专家的 hard pseudo-label 和
+连续 `|2p-1|` reliability，但不参与历史身份路由，也不进入最终预测；正式输出仍为
+`sigmoid(Base logit + selected expert residual logit)`。预测结束后才用同一个 CLIP 选中
+专家更新类条件 Gaussian 统计和 MLP，保持 Predict-Then-Adapt。
+
+R37 由固定提交 `437aeb1` 在 4090-2 完成。它与 R26 使用完全相同的 online/holdout
+manifest，score-based segment-change memory comparison 在全部 658 个 batch 中均为 0。
+除方法名和被关闭入口的四个诊断字段外，其余非计时预测、路由、GMM、回放和专家状态轨迹
+逐项一致；所有 Accuracy、AUC、final holdout 和 forgetting 数值也逐位一致。流末仍只有
+**3 个专家身份**，657 次 batch 路由中有 184 次选择历史 memory，产生 166 次历史专家
+visit；这些 visit 是 CLIP 特征路由，不是 source-score 路由。
+
+**ASCAL-JMP-SegmentExpertMemory（R38）**进一步检验能否把“CLIP 选中哪个专家”与
+“当前 BIC 分段学习状态”完全解耦：历史专家仍可预测并接收当前 batch 更新，但逐批路由不再
+切换 active score state，只有 BIC change-point 才能创建新状态。这个改动没有增加阈值、
+hysteresis、cooldown 或 memory cap，却没有通过三指标门槛。R38 抑制了 314 次路由状态
+handoff，最终形成 5 个已完成 memory 加 1 个 active expert，6 个 head 全部就绪，专家参数
+从 R37 的 147843 增至 295686；online Accuracy/AUC 降至 78.6095/84.4782，
+final-holdout 降至 77.6000/83.1221，average AUC forgetting 增至 **1.2489 个百分点**。
+因此“路由专家也是当前持续学习状态”不是可删除的偶然耦合：它使再次到来的相似 batch
+继续访问同一专家，而不是按每个 BIC 段重复创建相近专家。
+
+重新按三指标审视后的关键结果如下；AUC 和 Accuracy 均为 target-macro，forgetting 是固定
+holdout 上的 average AUC forgetting：
+
+| 版本 | 唯一变化 | Online Accuracy | Online AUC | Final Accuracy | Final AUC | Forgetting | 三指标判定 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Source | 冻结源模型 | 68.3143 | 82.5031 | 67.8000 | 81.6334 | 0.0000 | 无学习对照 |
+| R26 | 原完整历史版本 | 78.8095 | 84.4869 | 78.6286 | 83.4781 | 0.7752 | 参考 |
+| R35 | 删除全部历史专家 | **78.8571** | **84.5472** | 73.6857 | 82.1075 | 2.9163 | 拒绝：严重遗忘 |
+| R36 | R35 再删除 BIC 分段 | 77.8857 | 84.5346 | 75.9714 | 82.6038 | 1.6696 | 拒绝 |
+| **R37** | **删除 score-based 历史召回** | **78.8095** | **84.4869** | **78.6286** | **83.4781** | **0.7752** | **接受：当前核心** |
+| R38 | 路由与 active BIC 状态解耦 | 78.6095 | 84.4782 | 77.6000 | 83.1221 | 1.2489 | 拒绝 |
+
+因此当前三指标核心确定为 **R37**，不是 R35。它可以凝练为四个有因果关系的模块：
+
+1. 冻结 Base，只提供不可漂移的 source logit 与 CLIP feature；
+2. 在线 GMM/BIC，只负责发现新段，并为到达样本产生 pseudo-label 与连续可靠度；
+3. CLIP feature prototype memory，只负责在 active 与历史专家间无标签路由；
+4. 每专家 real/fake 对角 Gaussian 充分统计与零出生 `768 -> 64 -> 1` residual MLP，使用
+   每类 128 个当次新采样伪特征持续更新，最终只输出 `Base logit + one residual logit`。
+
+专家数不是预先指定的，也没有 capacity 超参数：BIC 只在无标签流中提出新状态，CLIP 路由
+负责复用已有身份；本次锁定流最终增量得到 3 个专家。方法不保存原图或逐样本特征，不读取
+target label，不使用 route threshold、confidence threshold、融合系数或 memory cap。方法级
+可见量仍只有 hidden dim 64、学习率 `1e-3` 和每批 256 个新 replay 样本，`1e-6` 只是
+方差数值下界。以上仍是 GenImage matched-JPEG seed1 候选诊断；四数据集、三个正式 seed
+全部验收前，R37 不进入论文正文数值表。
 
 第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
 训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
