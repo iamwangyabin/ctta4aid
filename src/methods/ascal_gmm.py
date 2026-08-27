@@ -7104,12 +7104,10 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         scores: np.ndarray,
         features: np.ndarray,
     ) -> bool:
-        posterior = np.asarray(
-            joint_density_fake_posterior(scores, mixture),
-            dtype=np.float64,
-        ).reshape(-1)
-        labels = (posterior >= 0.5).astype(np.int64)
-        reliability = np.abs(2.0 * posterior - 1.0)
+        labels, reliability, posterior = self._gaussian_replay_supervision(
+            mixture,
+            scores,
+        )
         if not (
             posterior.shape == (int(scores.size),)
             and features.shape
@@ -7156,6 +7154,19 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             return False
         self._train_gaussian_replay_head(state, int(scores.size))
         return self._gaussian_replay_ready(state)
+
+    def _gaussian_replay_supervision(
+        self,
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        posterior = np.asarray(
+            joint_density_fake_posterior(scores, mixture),
+            dtype=np.float64,
+        ).reshape(-1)
+        labels = (posterior >= 0.5).astype(np.int64)
+        reliability = np.abs(2.0 * posterior - 1.0)
+        return labels, reliability, posterior
 
     def _gaussian_replay_state_stats(self) -> dict[str, Any]:
         states = self._all_ordinal_ridge_states()
@@ -7618,6 +7629,70 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedLinearGaussianReplay(
             head.weight.zero_()
             head.bias.zero_()
         return head
+
+
+class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedUniformGaussianReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP
+):
+    """Ablate continuous GMM confidence while retaining its hard pseudo-class."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_feature_routed_per_expert_hard_gmm_label_"
+                    "uniform_weight_expanded_gaussian_replay_mlp"
+                ),
+                "research_name": "ASCAL-JMP-UniformConfidence",
+                "research_version": "R29",
+                "ablation_parent": "ASCAL-JMP-ExpandedGaussianReplay-R26",
+                "ablation_question": (
+                    "whether_continuous_gmm_posterior_confidence_is_needed_"
+                    "beyond_the_same_hard_pseudo_class"
+                ),
+                "gmm_role": (
+                    "prediction_time_selected_old_expert_equal_prior_hard_"
+                    "pseudo_label_only"
+                ),
+                "reliability_rule": "uniform_one_for_every_arrived_sample",
+                "confidence_threshold": "none",
+                "feature_memory": (
+                    "per_expert_uniform_weight_real_and_fake_diagonal_"
+                    "gaussian_sufficient_statistics"
+                ),
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R26 routing segmentation GMM hard labels replay heads and prediction stay unchanged",
+                    "every hard pseudo-labeled feature contributes unit mass instead of posterior confidence",
+                    "no confidence threshold or replacement score is introduced",
+                    "no other R26 component or hyperparameter is changed",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_feature_routed_uniform_gaussian_replay_mlp"
+
+    def _gaussian_replay_supervision(
+        self,
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        labels, _, posterior = super()._gaussian_replay_supervision(
+            mixture,
+            scores,
+        )
+        reliability = np.ones(labels.size, dtype=np.float64)
+        return labels, reliability, posterior
 
 
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
