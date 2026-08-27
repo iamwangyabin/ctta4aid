@@ -1302,6 +1302,13 @@ archive 也完全删除，段切换时直接丢弃旧 GMM/feature distribution/M
 archive 从未影响预测，R35 预期与 R34 逐样本完全等价；只有在线指标非劣且轨迹审计成立，
 才能把它确定为不含历史路由与 memory 的最简 forward-online 核心。
 
+R35 已由固定提交 `3139506` 在 4090-2 完成，online Accuracy/AUC 仍为
+**78.8571/84.5472**，final-holdout 仍为 **73.6857/82.1075**，四个聚合值与 R34
+逐位完全相同。排除有意删除的 archive 聚合统计、计时和方法名后，658 个 batch 的 148 个
+共同语义字段按 `1e-10` 容差无任何不一致；流末 `memory_size=0`，五个完成段状态均已丢弃，
+历史 selection/recall 都是 0。因此 shadow archive 被正式删除，R35 晋级为当前最简
+forward-online 核心；R26 的历史专家库只作为 retention 扩展，不再混入这个核心实现。
+
 若 R35 验证通过，最后一个结构消融 **ASCAL-JMP-GlobalStreamCore（R36）**再删除参数
 无关的 BIC change-point scan 与 current-state reset：一个 GMM、一个 real/fake Gaussian
 feature distribution 和一个 residual MLP 累积整个因果流，其他监督、可靠度、平衡回放和
