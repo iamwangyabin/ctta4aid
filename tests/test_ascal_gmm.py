@@ -10921,6 +10921,52 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertIsInstance(method, ASCALGMMCurrentSegmentGaussianReplayMLP)
         self.assertEqual(method.adaptation_mode, "static")
 
+    def test_cli_builds_clip_expert_memory_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP,
+        )
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "gaussian_replay_mlp_static"
+        )
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {
+                method_name: {
+                    "adaptation_mode": "static",
+                    "feature_replay_samples_per_update": 256,
+                }
+            },
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
     def test_cli_builds_global_stream_core_with_lora_profile(self) -> None:
         from src.cli.common import build_fresh_method
         from src.methods.ascal_gmm import ASCALGMMGlobalStreamGaussianReplayMLP
