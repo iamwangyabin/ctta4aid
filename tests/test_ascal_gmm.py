@@ -2272,31 +2272,49 @@ class ASCALGMMConfigTests(unittest.TestCase):
             "gaussian_replay_mlp_static"
         )
         method_name = static_name.removesuffix("_static")
-        path = (
-            PROJECT_ROOT
-            / "configs/experiments/clip_vlm_bias_controlled"
-            / "matched_jpeg_ascal_gmm_segmented_memory_posterior_clip_routed_"
-            "gaussian_replay_mlp_continual_genimage_seed1.yaml"
-        )
-        config = load_config(path)
-        self.assertEqual(config["methods"], [static_name, method_name])
-        adaptive = method_config(config, method_name)
-        reference = adaptive["reference"]
-        self.assertEqual(reference["research_name"], "ASCAL-JMP-CLIPExpertMemory")
-        self.assertEqual(reference["research_version"], "R37")
-        self.assertEqual(
-            reference["ablation_variable"],
-            "segment_change_score_memory_recall_disabled",
-        )
-        self.assertEqual(adaptive["feature_replay_samples_per_update"], 256)
-        self.assertFalse(reference["routing_score_used"])
-        self.assertFalse(reference["segment_change_score_memory_recall"])
-        self.assertEqual(
-            reference["historical_expert_recall"],
-            "clip_feature_route_only",
-        )
-        self.assertTrue(reference["episodic_memory_updated"])
-        self.assertFalse(reference["target_labels_used"])
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_segmented_memory_posterior_clip_routed_"
+                f"gaussian_replay_mlp_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(config["methods"], [static_name, method_name])
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["data"]["shuffle"])
+                self.assertIn(dataset, config["output_dir"])
+                self.assertIn(dataset, config["data"]["locked_online_manifest"])
+                self.assertIn(
+                    dataset,
+                    config["data"]["locked_final_holdout_manifest"],
+                )
+                adaptive = method_config(config, method_name)
+                reference = adaptive["reference"]
+                self.assertEqual(
+                    reference["research_name"], "ASCAL-JMP-CLIPExpertMemory"
+                )
+                self.assertEqual(reference["research_version"], "R37")
+                self.assertEqual(
+                    reference["ablation_variable"],
+                    "segment_change_score_memory_recall_disabled",
+                )
+                self.assertEqual(adaptive["feature_replay_samples_per_update"], 256)
+                self.assertEqual(adaptive["feature_replay_seed"], 1)
+                self.assertFalse(reference["routing_score_used"])
+                self.assertFalse(reference["segment_change_score_memory_recall"])
+                self.assertEqual(
+                    reference["historical_expert_recall"],
+                    "clip_feature_route_only",
+                )
+                self.assertTrue(reference["episodic_memory_updated"])
+                self.assertFalse(reference["target_labels_used"])
 
     def test_segment_expert_memory_config_decouples_route_and_segmentation(
         self,
