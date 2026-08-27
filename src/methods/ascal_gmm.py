@@ -8088,6 +8088,108 @@ class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP(
         return None
 
 
+class ASCALGMMSegmentedMemoryPosteriorSegmentCLIPRoutedGaussianReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP
+):
+    """Keep BIC segment identity independent from per-batch expert routing."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.routing_learning_state_handoffs_suppressed = 0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "bic_segment_created_clip_routed_historical_expert_memory_"
+                    "with_selected_expert_gaussian_replay_residual_learning"
+                ),
+                "research_name": "ASCAL-JMP-SegmentExpertMemory",
+                "research_version": "R38",
+                "ablation_parent": "ASCAL-JMP-CLIPExpertMemory-R37",
+                "ablation_question": (
+                    "whether_per_batch_route_induced_learning_state_handoffs_"
+                    "are_needed_beyond_bic_created_experts"
+                ),
+                "expert_creation_rule": (
+                    "one_novel_state_only_after_parameter_free_causal_bic_"
+                    "segment_change"
+                ),
+                "prediction_route_state_mutation": False,
+                "adaptation_rule": (
+                    "update_the_prediction_selected_experts_feature_"
+                    "distribution_and_residual_without_restarting_score_history"
+                ),
+                "score_segmentation_state": (
+                    "one_independent_current_stream_state_changed_only_by_bic"
+                ),
+                "segment_change_score_memory_recall": False,
+                "historical_expert_recall": "clip_feature_route_only",
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R37 Base feature route GMM teacher Gaussian replay and expert archive stay unchanged",
+                    "a batch may select and update a historical expert without changing the active BIC segment identity",
+                    "only the parameter-free BIC change detector can finalize a segment and create a novel expert",
+                    "per-batch feature routing no longer clears score history or increments segment changes",
+                    "no hysteresis route threshold cooldown memory cap or new target parameter is introduced",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_segment_clip_routed_gaussian_replay_mlp"
+
+    def _apply_routing_learning_assignment(
+        self,
+        routing_state: dict[str, Any],
+        scores: np.ndarray,
+    ) -> None:
+        del scores
+        proposed_expert = routing_state["prediction_routing_proposed_expert"]
+        proposed_memory_index = routing_state[
+            "prediction_routing_proposed_memory_index"
+        ]
+        selected_expert = routing_state["prediction_routing_expert"]
+        selected_memory_index = routing_state["prediction_routing_memory_index"]
+
+        self.last_routing_proposed_expert = proposed_expert
+        self.last_routing_proposed_memory_index = proposed_memory_index
+        self.last_routing_admission_reason = routing_state[
+            "prediction_routing_admission_reason"
+        ]
+        if proposed_expert == "episodic_memory":
+            self.routing_memory_proposals += 1
+            if selected_expert != "episodic_memory":
+                self.routing_memory_admission_fallbacks += 1
+
+        if selected_expert != "episodic_memory":
+            return
+        if selected_memory_index is None:
+            raise RuntimeError(
+                "ASCAL segment expert route selected memory without an index"
+            )
+        if int(selected_memory_index) == self.active_memory_index:
+            self.routing_active_memory_identity_reuses += 1
+            return
+        self.routing_learning_state_handoffs_suppressed += 1
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats["routing_learning_state_handoffs_suppressed"] = (
+            self.routing_learning_state_handoffs_suppressed
+        )
+        return stats
+
+
 class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP(
     ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP
 ):

@@ -105,6 +105,8 @@ training:
     - ascal_gmm_global_stream_gaussian_replay_mlp_static
     - ascal_gmm_segmented_memory_posterior_clip_routed_gaussian_replay_mlp
     - ascal_gmm_segmented_memory_posterior_clip_routed_gaussian_replay_mlp_static
+    - ascal_gmm_segmented_memory_posterior_segment_clip_routed_gaussian_replay_mlp
+    - ascal_gmm_segmented_memory_posterior_segment_clip_routed_gaussian_replay_mlp_static
     - ascal_gmm_segmented_memory_posterior_feature_routed_current_batch_replay_mlp
     - ascal_gmm_segmented_memory_posterior_feature_routed_current_batch_replay_mlp_static
     - ascal_gmm_segmented_memory_posterior_feature_routed_prior_gaussian_replay_mlp
