@@ -1,0 +1,59 @@
+extends: ascal_gmm_segmented_memory_posterior_feature_routed_expanded_gaussian_replay_mlp.yaml
+
+methods:
+  - ascal_gmm_segmented_memory_posterior_feature_routed_shared_gaussian_replay_mlp_static
+  - ascal_gmm_segmented_memory_posterior_feature_routed_shared_gaussian_replay_mlp
+
+method_configs:
+  ascal_gmm_segmented_memory_posterior_feature_routed_shared_gaussian_replay_mlp_static:
+    adaptation_mode: static
+    reference:
+      role: exact_single_view_non_adaptive_control_for_shared_gaussian_replay_mlp
+      source_setup: lora_r4_binary_detector_from_fixed_clip_vitl14_with_score_anchors
+      protocol: predict_then_adapt
+
+  ascal_gmm_segmented_memory_posterior_feature_routed_shared_gaussian_replay_mlp:
+    adaptation_mode: full
+    feature_replay_hidden_dim: 64
+    feature_replay_learning_rate: 0.001
+    feature_replay_variance_floor: 0.000001
+    feature_replay_samples_per_update: 256
+    feature_replay_seed: 0
+    reference:
+      profile: ascal_jmp_shared_residual_head_r27
+      research_name: ASCAL-JMP-SharedResidualHead
+      research_version: R27
+      ablation_parent: ASCAL-JMP-ExpandedGaussianReplay-R26
+      ablation_variable: per_expert_residual_heads_replaced_by_one_shared_head
+      protocol: predict_then_adapt
+      target_labels_used: false
+      generator_boundaries_used: false
+      semantic_features_used: true
+      frozen_scope: clip_backbone_lora_branches_binary_head_and_source_score
+      routing_coordinate: l2_normalized_frozen_clip_feature_orthogonal_to_source_binary_head
+      routing_rule: maximum_mean_cosine_similarity_to_historical_expert_prototype
+      routing_score_used: false
+      gmm_role: selected_old_expert_equal_prior_pseudo_label_and_continuous_reliability_only
+      gmm_in_final_prediction: false
+      feature_memory: per_expert_real_and_fake_weighted_diagonal_gaussian_sufficient_statistics
+      raw_images_stored: false
+      raw_features_stored: false
+      replay_rule: 128_real_and_128_fake_fresh_pseudo_features_from_selected_expert_gaussians
+      replay_samples_per_update: 256
+      generated_feature_reuse: false
+      replay_minibatch: current_stream_batch_size
+      replay_passes: 1
+      residual_head: one_shared_l2_clip_feature_to_64_gelu_to_one_zero_initialized_mlp
+      residual_head_count: 1
+      prediction_rule: frozen_base_logit_plus_shared_residual_mlp_logit
+      cold_start_rule: exact_frozen_source_probability
+      training_objective: balanced_binary_cross_entropy_on_base_plus_shared_mlp
+      optimizer: one_shared_adam_state
+      learning_rate: 0.001
+      epochs: one_fresh_generated_replay_pass_per_predicted_batch
+      confidence_threshold: none
+      memory_capacity: none
+      fusion_weight: none
+      prediction_mutates_experts: false
+      target_selected_hyperparameters: 0
+      seed1_acceptance_rule: online_target_macro_accuracy_and_auc_both_not_below_r26

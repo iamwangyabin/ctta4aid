@@ -6609,9 +6609,12 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         if self.adaptation_mode == "static":
             return 0
         total = 0
+        seen_heads: set[int] = set()
         for state in self._all_ordinal_ridge_states():
-            head = state.get("mlp_head")
-            if head is not None:
+            head_state = self._gaussian_replay_head_state(state)
+            head = head_state.get("mlp_head")
+            if head is not None and id(head) not in seen_heads:
+                seen_heads.add(id(head))
                 total += sum(parameter.numel() for parameter in head.parameters())
         return total
 
@@ -6711,7 +6714,7 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             raise TypeError(
                 "ASCAL Gaussian replay MLP requires a finite feature dimension"
             )
-        return {
+        state = {
             "candidate_samples": 0,
             "route_feature_sum": np.zeros(feature_dim, dtype=np.float64),
             "route_feature_mass": 0.0,
@@ -6719,6 +6722,13 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             "class_mass": np.zeros(2, dtype=np.float64),
             "feature_mean": np.zeros((2, feature_dim), dtype=np.float64),
             "feature_m2": np.zeros((2, feature_dim), dtype=np.float64),
+        }
+        state.update(self._new_gaussian_replay_head_state())
+        return state
+
+    @staticmethod
+    def _new_gaussian_replay_head_state() -> dict[str, Any]:
+        return {
             "mlp_head": None,
             "mlp_optimizer": None,
             "head_updates": 0,
@@ -6726,6 +6736,12 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             "generated_samples": 0,
             "last_loss": 0.0,
         }
+
+    def _gaussian_replay_head_state(
+        self,
+        distribution_state: dict[str, Any],
+    ) -> dict[str, Any]:
+        return distribution_state
 
     def _batch_scores_and_gaussian_replay_features(
         self,
@@ -6796,9 +6812,11 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         self._feature_route_query = self._feature_route_coordinates(normalized)
         return scores, feature_values
 
-    @staticmethod
-    def _gaussian_replay_ready(state: dict[str, Any] | None) -> bool:
-        if state is None or int(state.get("head_updates", 0)) <= 0:
+    def _gaussian_replay_ready(self, state: dict[str, Any] | None) -> bool:
+        if state is None:
+            return False
+        head_state = self._gaussian_replay_head_state(state)
+        if int(head_state.get("head_updates", 0)) <= 0:
             return False
         class_samples = np.asarray(
             state.get("class_samples", []), dtype=np.int64
@@ -6812,7 +6830,7 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             and np.all(class_samples >= 2)
             and np.all(np.isfinite(class_mass))
             and np.all(class_mass > np.finfo(np.float64).eps)
-            and state.get("mlp_head") is not None
+            and head_state.get("mlp_head") is not None
         )
 
     @staticmethod
@@ -6827,7 +6845,8 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         )
 
     def _ensure_gaussian_replay_head(self, state: dict[str, Any]) -> Any:
-        head = state.get("mlp_head")
+        head_state = self._gaussian_replay_head_state(state)
+        head = head_state.get("mlp_head")
         if head is not None:
             return head
 
@@ -6867,8 +6886,8 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             lr=self.gaussian_replay_learning_rate,
         )
         head.eval()
-        state["mlp_head"] = head
-        state["mlp_optimizer"] = optimizer
+        head_state["mlp_head"] = head
+        head_state["mlp_optimizer"] = optimizer
         return head
 
     def _gaussian_replay_residual(
@@ -6878,7 +6897,8 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
     ) -> np.ndarray:
         import torch
 
-        head = state.get("mlp_head")
+        head_state = self._gaussian_replay_head_state(state)
+        head = head_state.get("mlp_head")
         if head is None:
             return np.zeros(int(features.shape[0]), dtype=np.float64)
         normalized = self._normalized_feature_values(features)
@@ -7007,7 +7027,8 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             + self._gaussian_replay_source_bias
         ) / self.temperature
         head = self._ensure_gaussian_replay_head(state)
-        optimizer = state.get("mlp_optimizer")
+        head_state = self._gaussian_replay_head_state(state)
+        optimizer = head_state.get("mlp_optimizer")
         if optimizer is None:
             raise RuntimeError("ASCAL Gaussian replay MLP lost its optimizer")
 
@@ -7056,17 +7077,19 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             )
             optimizer_steps += 1
         head.eval()
-        state["head_updates"] = int(state["head_updates"]) + 1
-        state["optimizer_steps"] = int(state["optimizer_steps"]) + optimizer_steps
-        state["generated_samples"] = int(
-            state["generated_samples"]
+        head_state["head_updates"] = int(head_state["head_updates"]) + 1
+        head_state["optimizer_steps"] = int(
+            head_state["optimizer_steps"]
+        ) + optimizer_steps
+        head_state["generated_samples"] = int(
+            head_state["generated_samples"]
         ) + generated_samples
-        state["last_loss"] = weighted_loss / float(generated_samples)
+        head_state["last_loss"] = weighted_loss / float(generated_samples)
         self.gaussian_replay_updates += 1
         self.gaussian_replay_optimizer_steps += optimizer_steps
         self.gaussian_replay_generated_samples += generated_samples
-        self.gaussian_replay_last_loss = float(state["last_loss"])
-        return float(state["last_loss"])
+        self.gaussian_replay_last_loss = float(head_state["last_loss"])
+        return float(head_state["last_loss"])
 
     def _update_gaussian_replay_state(
         self,
@@ -7425,6 +7448,98 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP(
         generated_samples: int,
     ) -> int:
         return min(int(stream_batch_size), int(generated_samples))
+
+
+class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSharedGaussianReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP
+):
+    """Share one residual MLP while preserving every routed feature distribution."""
+
+    def _reset_state(self) -> None:
+        self._shared_gaussian_replay_state = (
+            self._new_gaussian_replay_head_state()
+        )
+        super()._reset_state()
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_feature_routed_per_expert_gaussian_memory_"
+                    "with_one_shared_expanded_replay_residual_mlp"
+                ),
+                "research_name": "ASCAL-JMP-SharedResidualHead",
+                "research_version": "R27",
+                "ablation_parent": "ASCAL-JMP-ExpandedGaussianReplay-R26",
+                "ablation_question": (
+                    "whether_expert_specific_residual_parameters_are_needed_"
+                    "when_routing_gmms_and_feature_distributions_remain_per_expert"
+                ),
+                "expert_head": (
+                    "one_global_hidden_layer_gelu_mlp_with_zero_initialized_"
+                    "output_shared_by_all_experts"
+                ),
+                "head_count": 1,
+                "head_state_scope": "shared_across_all_routed_experts",
+                "prediction_rule": (
+                    "sigmoid_of_frozen_source_logit_plus_the_shared_mlp_"
+                    "residual_logit"
+                ),
+                "optimizer": (
+                    "one_shared_adam_state_updated_after_prediction_from_the_"
+                    "selected_experts_generated_distribution"
+                ),
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R26 routing segmentation GMMs feature moments and replay budget stay unchanged",
+                    "all experts address one shared residual MLP and one optimizer state",
+                    "the selected expert still supplies the only replay distribution for each update",
+                    "the shared residual is zero at birth and Base remains frozen",
+                    "no other R26 component or hyperparameter is changed",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_feature_routed_shared_gaussian_replay_mlp"
+
+    def _gaussian_replay_head_state(
+        self,
+        distribution_state: dict[str, Any],
+    ) -> dict[str, Any]:
+        del distribution_state
+        return self._shared_gaussian_replay_state
+
+    def _gaussian_replay_state_stats(self) -> dict[str, Any]:
+        stats = super()._gaussian_replay_state_stats()
+        shared = self._shared_gaussian_replay_state
+        stats.update(
+            {
+                "gaussian_replay_head_scope": "shared",
+                "gaussian_replay_head_count": int(
+                    shared.get("mlp_head") is not None
+                ),
+                "gaussian_replay_shared_head_updates": int(
+                    shared["head_updates"]
+                ),
+                "gaussian_replay_shared_optimizer_steps": int(
+                    shared["optimizer_steps"]
+                ),
+                "gaussian_replay_shared_generated_samples": int(
+                    shared["generated_samples"]
+                ),
+            }
+        )
+        return stats
 
 
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(

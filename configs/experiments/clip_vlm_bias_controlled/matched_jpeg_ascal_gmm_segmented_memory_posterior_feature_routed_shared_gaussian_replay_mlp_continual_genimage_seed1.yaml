@@ -1,0 +1,21 @@
+extends:
+  - ../controlled_ctta/genimage_continual_seed1.yaml
+  - matched_jpeg.yaml
+  - ../../methods/ascal_gmm_segmented_memory_posterior_feature_routed_shared_gaussian_replay_mlp.yaml
+
+methods:
+  - ascal_gmm_segmented_memory_posterior_feature_routed_shared_gaussian_replay_mlp_static
+  - ascal_gmm_segmented_memory_posterior_feature_routed_shared_gaussian_replay_mlp
+
+method_configs:
+  ascal_gmm_segmented_memory_posterior_feature_routed_shared_gaussian_replay_mlp:
+    feature_replay_seed: 1
+
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/ascal_gmm_segmented_memory_posterior_feature_routed_shared_gaussian_replay_mlp_continual/genimage/seed1
+
+data:
+  root: ${GENIMAGE_MATCHED_JPEG_ARROW_ROOT}
+  num_workers: 0
+  shuffle: false
+  locked_online_manifest: ../../../results/controlled_ctta_genimage_20260812/genimage_continual/per_seed/seed1_online_manifest.csv
+  locked_final_holdout_manifest: ../../../results/controlled_ctta_genimage_20260812/genimage_continual/per_seed/seed1_final_holdout_manifest.csv

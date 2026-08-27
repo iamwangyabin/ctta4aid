@@ -1219,6 +1219,16 @@ fake/real recall 为 68.9905%/88.6286%，同时高于 R12 的 66.1524%/87.4667%�
 说明大量新采样不只是移动阈值，而是训练出了更有效的样本级 residual。R26 仍只是
 seed1 候选诊断，在其他数据集和 seed2/seed3 验收前不进入正文正式表。
 
+R26 之后的凝练采用逐项向后消融，而不是同时删除多个组件。首个候选
+**ASCAL-JMP-SharedResidualHead（R27）**只把三个专家各自的 residual MLP 与 Adam
+状态替换为一个全局共享的 `768 -> 64 -> 1` residual MLP；每专家的分段、历史 GMM、
+CLIP 路由原型、real/fake 对角高斯充分统计、256 个独立平衡回放样本以及
+Predict-Then-Adapt 顺序全部保持 R26 不变。当前 batch 仍先路由并由选中专家的 GMM
+与特征分布产生伪监督，但生成样本统一更新共享 head，推理为 `Base logit + shared
+residual logit`。R27 只回答“多个分类 head 是否必要”，只有 online target-macro
+Accuracy 不低于 78.8095 且 AUC 不低于 84.4869 时才接受；否则恢复 R26 的专家专属
+head，再消融下一项。该门槛在运行前固定，不读取 target label 调参。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
