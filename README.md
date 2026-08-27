@@ -1316,6 +1316,45 @@ feature distribution 和一个 residual MLP 累积整个因果流，其他监督
 target-macro Accuracy/AUC 才能继续简化；否则 R35 的因果分段 reset 就是最终核心的必要
 组成，而不是为了路由历史专家留下的冗余模块。
 
+R36 已由固定提交 `b6c8e06` 在 4090-2 完成：online target-macro Accuracy/AUC 为
+**77.8857/84.5346**，final-holdout 为 **75.9714/82.6038**。相对 R35，online
+Accuracy/AUC 分别下降 **0.9714/0.0126** 个百分点，因此即使 AUC 仍略高于 R26，也因
+Accuracy 明确失败而拒绝；不能用 final-holdout 的 **+2.2857/+0.4962** 覆盖主 online
+门槛。状态审计确认 658 个 batch 中 segment check/change 都为 0，始终只有一个 global
+expert 且没有 memory，故失败确实回答了分段问题：参数无关的因果 BIC reset 必须保留。
+
+本轮组件凝练至此结束，预注册门槛下的完整结论为：
+
+| 版本 | 唯一消融 | Online Accuracy | Online AUC | 判定 |
+| --- | --- | ---: | ---: | --- |
+| R26 | 完整参考 | 78.8095 | 84.4869 | 参考 |
+| R27 | 每专家 head 改为共享 head | 77.8095 | 84.4293 | 拒绝 |
+| R28 | 非线性 head 改为线性 head | 77.3238 | 83.8303 | 拒绝 |
+| R29 | 连续 reliability 改为单位权重 | 78.8095 | 84.4713 | 拒绝 |
+| R30 | 仅删逐批 feature candidates | 79.0095 | 84.6232 | 实现审计无效 |
+| R31 | 累计 Gaussian replay 改为当前批重采样 | 77.1524 | 82.1093 | 拒绝 |
+| R32 | 平衡 replay 改为伪类别 prior replay | 78.7524 | 84.4383 | 拒绝 |
+| R33 | GMM 教师改为 Source 自举 | 73.2095 | 81.3834 | 拒绝 |
+| R34 | 完全关闭历史召回 | 78.8571 | 84.5472 | 接受，存在 retention 代价 |
+| **R35** | **删除未使用的 shadow archive** | **78.8571** | **84.5472** | **最终最简 online 核心** |
+| R36 | 删除因果分段 reset | 77.8857 | 84.5346 | 拒绝 |
+
+因此最终凝练的 **R35** 只剩四个有因果关系的核心：冻结 Base 提供 source score 与 CLIP
+feature；参数无关的 BIC change-point 维护一个“当前段”；当前段 GMM posterior 产生 hard
+pseudo-label 与连续 `|2p-1|` reliability，并把到达特征压缩为 real/fake 两个对角 Gaussian
+充分统计；每次从两个分布各生成 128 个新伪特征，更新当前段零出生的 `768 -> 64 -> 1`
+GELU residual，正式输出始终是 `Base logit + residual logit`。段切换时旧 GMM、统计、MLP
+和 optimizer 全部直接丢弃。它没有历史路由、专家库、原图/逐样本特征、target label、
+置信度阈值、memory capacity 或融合系数；方法级可见量只剩 hidden dim 64、学习率 `1e-3`
+和每次 256 个 replay 样本，`1e-6` 只作为方差数值下界。
+
+R35 相对 Source 的 online Accuracy/AUC 提高 **10.5429/2.0442** 个百分点，相对复杂的
+R26 还提高 **0.0476/0.0604** 个百分点，满足“凝练后不掉 Accuracy 与 AUC”的目标。若论文
+需要强调流结束后的旧域保持，则应把 R26 历史专家路由作为单独的 retention 扩展报告；它能
+把 final-holdout 从 R35 的 73.6857/82.1075 提升到 78.6286/83.4781，但不能再混入最简
+forward-online 核心并声称没有额外复杂度。以上仍是 GenImage matched-JPEG seed1 诊断，
+正式主表必须继续遵守四数据集、三个 seed 的冻结验收协议。
+
 第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
 训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
 Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度有放回采样；当前批缺少
