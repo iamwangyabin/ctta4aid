@@ -1299,6 +1299,14 @@ feature memory，但每次 256 个回放样本不再 real/fake 各半，而按�
 是否是抵抗在线伪类别塌缩的必要组件；不读取真实 target class prior，也不改变 GMM、路由、
 head 或总训练预算。R32 若下降，就证明平衡回放应作为核心设计而不是可删实现细节。
 
+R32 已由固定提交 `0338d1a` 在 4090-2 完成：online target-macro Accuracy/AUC 为
+**78.7524/84.4383**，final-holdout 为 **78.5429/83.3038**。相对 R26，online
+分别下降 **0.0571/0.0486** 个百分点，final-holdout 分别下降 **0.0857/0.1743**
+个百分点，故严格拒绝按累计伪类别质量分配 replay。R26 与 R32 的 658 个 batch 上，154 个
+非 replay-readout 语义字段按 `1e-10` 容差完全一致；下降可归因于唯一改变的类采样比例。
+虽然差距不大，结果仍说明显式 real/fake 等量回放在当前不平衡伪标签流中是必要保护，必须
+保留在凝练核心中。
+
 第七个也是本轮最后一个基础组件消融 **ASCAL-JMP-SourceSupervision（R33）**保留
 R26 的 GMM 分段与专家身份，但不再让选中专家 GMM 给 feature memory 提供 posterior；
 伪标签与连续可靠度都改为冻结 Source probability 的 `0.5` 决策和 `|2p_source-1|`。
