@@ -11,6 +11,7 @@ from .ascal_gmm import (
     ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP,
     ASCALGMMSegmentedMemoryPosteriorNoHistoricalRecallGaussianReplayMLP,
     ASCALGMMSegmentedMemoryPosteriorConditionalResidual,
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP,
     ASCALGMMDensityShift,
     ASCALGMMSegmentedMemoryPosteriorEvidenceGatedRidgeExpert,
     ASCALGMMSegmentedMemoryPosteriorEqualPriorRidgeExpert,
@@ -399,6 +400,18 @@ def build_method(
             model, device, effective_config
         )
     if normalized in {
+        "ascalgmmsegmentedmemoryposteriorcliproutedgaussianreplaymlp",
+        "ascalgmmsegmentedmemoryposteriorcliproutedgaussianreplaymlpstatic",
+    }:
+        effective_config = dict(config)
+        if normalized == (
+            "ascalgmmsegmentedmemoryposteriorcliproutedgaussianreplaymlpstatic"
+        ):
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP(
+            model, device, effective_config
+        )
+    if normalized in {
         "ascalgmmsegmentedmemoryposteriorfeatureroutedcurrentbatchreplaymlp",
         "ascalgmmsegmentedmemoryposteriorfeatureroutedcurrentbatchreplaymlpstatic",
     }:
@@ -575,6 +588,7 @@ __all__ = [
     "ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP",
     "ASCALGMMSegmentedMemoryPosteriorNoHistoricalRecallGaussianReplayMLP",
     "ASCALGMMSegmentedMemoryPosteriorConditionalResidual",
+    "ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP",
     "ASCALGMMDensityShift",
     "ASCALGMMSegmentedMemoryPosteriorEvidenceGatedRidgeExpert",
     "ASCALGMMSegmentedMemoryPosteriorEqualPriorRidgeExpert",

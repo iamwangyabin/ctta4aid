@@ -8016,6 +8016,78 @@ class ASCALGMMGlobalStreamGaussianReplayMLP(
         self.last_segment_gain = None
 
 
+class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP
+):
+    """Recall historical experts only through frozen CLIP feature routing."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_only_routed_historical_expert_memory_with_"
+                    "gmm_supervised_balanced_gaussian_replay_residual_mlp"
+                ),
+                "research_name": "ASCAL-JMP-CLIPExpertMemory",
+                "research_version": "R37",
+                "ablation_parent": "ASCAL-JMP-ExpandedGaussianReplay-R26",
+                "ablation_question": (
+                    "whether_segment_change_score_recall_can_be_removed_while_"
+                    "retaining_clip_routed_expert_memory_and_continual_retention"
+                ),
+                "routing_coordinate": (
+                    "l2_normalized_frozen_clip_feature_orthogonal_to_source_"
+                    "binary_head"
+                ),
+                "routing_rule": (
+                    "maximum_mean_cosine_similarity_to_active_or_historical_"
+                    "expert_prototype"
+                ),
+                "routing_score_used": False,
+                "segment_change_score_memory_recall": False,
+                "historical_expert_recall": "clip_feature_route_only",
+                "expert_memory": (
+                    "gmm_route_prototype_real_fake_diagonal_gaussians_"
+                    "residual_mlp_and_adam_state"
+                ),
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R26 frozen Base GMM supervision feature route replay and expert heads stay unchanged",
+                    "historical prediction and learning assignments use only frozen CLIP feature similarity",
+                    "the BIC segment-change callback always starts a novel state and never score-recalls memory",
+                    "completed expert states remain archived for later CLIP-routed reuse",
+                    "no route threshold memory capacity fusion weight or target-selected parameter is added",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_clip_routed_gaussian_replay_mlp"
+
+    def _select_recalled_memory(
+        self,
+        scores: np.ndarray,
+        new_mixture: dict[str, Any],
+        *,
+        excluded_index: int | None,
+    ) -> int | None:
+        del scores, excluded_index
+        self.last_memory_fixed_score = None
+        self.last_memory_new_bic = float(new_mixture["bic"])
+        self.last_memory_identity_penalty = None
+        self.last_memory_recall_gain = None
+        return None
+
+
 class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP(
     ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP
 ):
