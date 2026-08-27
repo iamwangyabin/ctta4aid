@@ -1244,6 +1244,13 @@ Accuracy/AUC 分别下降 **1.0000/0.0575** 个百分点，final-holdout 分别�
 完全相同数量的随机数，后续 Gaussian replay 抽样保持对齐。R28 只回答“非线性隐藏层是否
 必要”，使用与 R27 相同的 R26 双指标非劣门槛，不能与共享 head 的效果混为一次改动。
 
+R28 已由固定提交 `b287e04` 在 4090-2 完成：online target-macro Accuracy/AUC 为
+**77.3238/83.8303**，final-holdout 为 **78.3714/84.1525**。虽然 holdout AUC
+比 R26 高 0.6735 个百分点，但主要 online Accuracy/AUC 分别下降 **1.4857/0.6565**
+个百分点，因而仍按预注册门槛拒绝；不能用流结束后的单个次要提升覆盖 online 双指标失败。
+R26 与 R28 的 658 个 batch 上，154 个共同非 head 语义字段逐项精确一致，说明线性 head
+确实欠拟合在线样本级修正，`768 -> 64 -> 1` GELU 非线性层应保留。
+
 第三个单变量候选 **ASCAL-JMP-UniformConfidence（R29）**仍从 R26 出发，保留完全
 相同的 GMM hard pseudo-label，但把 `|2p-1|` 连续可靠度替换为每个样本权重 1；其余
 路由、分段、每专家统计、256 回放和 MLP 均不变。它用于直接判断 GMM posterior 的
