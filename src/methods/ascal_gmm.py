@@ -6593,6 +6593,7 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         ) = None
         self._pending_gaussian_replay_mixture: dict[str, Any] | None = None
         self.gaussian_replay_updates = 0
+        self.gaussian_replay_optimizer_steps = 0
         self.gaussian_replay_candidate_samples = 0
         self.gaussian_replay_generated_samples = 0
         self.gaussian_replay_applied_batches = 0
@@ -6721,6 +6722,7 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             "mlp_head": None,
             "mlp_optimizer": None,
             "head_updates": 0,
+            "optimizer_steps": 0,
             "generated_samples": 0,
             "last_loss": 0.0,
         }
@@ -6970,6 +6972,20 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         order = self._gaussian_replay_rng.permutation(features.shape[0])
         return features[order], targets[order]
 
+    def _gaussian_replay_samples_per_update(
+        self,
+        stream_batch_size: int,
+    ) -> int:
+        return int(stream_batch_size)
+
+    def _gaussian_replay_minibatch_size(
+        self,
+        stream_batch_size: int,
+        generated_samples: int,
+    ) -> int:
+        del stream_batch_size
+        return int(generated_samples)
+
     def _train_gaussian_replay_head(
         self,
         state: dict[str, Any],
@@ -6978,7 +6994,13 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         import torch
         import torch.nn.functional as functional
 
-        synthetic, labels = self._sample_gaussian_replay(state, samples)
+        requested_samples = self._gaussian_replay_samples_per_update(samples)
+        if requested_samples < 1:
+            raise ValueError("ASCAL Gaussian replay requires positive replay samples")
+        synthetic, labels = self._sample_gaussian_replay(
+            state,
+            requested_samples,
+        )
         normalized = self._normalized_feature_values(synthetic)
         source_margin = (
             synthetic @ self._gaussian_replay_source_direction
@@ -7001,28 +7023,47 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             device=self.device,
             dtype=torch.float32,
         )
-        head.train()
-        optimizer.zero_grad(set_to_none=True)
-        residual = head(feature_tensor).reshape(-1)
-        loss = functional.binary_cross_entropy_with_logits(
-            source_tensor + residual,
-            label_tensor,
-        )
-        if not bool(torch.isfinite(loss)):
-            head.eval()
-            raise FloatingPointError(
-                "ASCAL Gaussian replay MLP produced a non-finite loss"
-            )
-        loss.backward()
-        optimizer.step()
-        head.eval()
         generated_samples = int(labels.size)
+        minibatch_size = self._gaussian_replay_minibatch_size(
+            int(samples),
+            generated_samples,
+        )
+        if minibatch_size < 1:
+            raise ValueError(
+                "ASCAL Gaussian replay requires a positive replay minibatch"
+            )
+        minibatch_size = min(minibatch_size, generated_samples)
+        weighted_loss = 0.0
+        optimizer_steps = 0
+        head.train()
+        for start in range(0, generated_samples, minibatch_size):
+            stop = min(start + minibatch_size, generated_samples)
+            optimizer.zero_grad(set_to_none=True)
+            residual = head(feature_tensor[start:stop]).reshape(-1)
+            loss = functional.binary_cross_entropy_with_logits(
+                source_tensor[start:stop] + residual,
+                label_tensor[start:stop],
+            )
+            if not bool(torch.isfinite(loss)):
+                head.eval()
+                raise FloatingPointError(
+                    "ASCAL Gaussian replay MLP produced a non-finite loss"
+                )
+            loss.backward()
+            optimizer.step()
+            weighted_loss += float(loss.detach().cpu().item()) * float(
+                stop - start
+            )
+            optimizer_steps += 1
+        head.eval()
         state["head_updates"] = int(state["head_updates"]) + 1
+        state["optimizer_steps"] = int(state["optimizer_steps"]) + optimizer_steps
         state["generated_samples"] = int(
             state["generated_samples"]
         ) + generated_samples
-        state["last_loss"] = float(loss.detach().cpu().item())
+        state["last_loss"] = weighted_loss / float(generated_samples)
         self.gaussian_replay_updates += 1
+        self.gaussian_replay_optimizer_steps += optimizer_steps
         self.gaussian_replay_generated_samples += generated_samples
         self.gaussian_replay_last_loss = float(state["last_loss"])
         return float(state["last_loss"])
@@ -7101,6 +7142,9 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
                 self._gaussian_replay_ready(state) for state in states
             ),
             "gaussian_replay_updates": self.gaussian_replay_updates,
+            "gaussian_replay_optimizer_steps": (
+                self.gaussian_replay_optimizer_steps
+            ),
             "gaussian_replay_candidate_samples": (
                 self.gaussian_replay_candidate_samples
             ),
@@ -7294,6 +7338,93 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.discard_pending_prediction(
             self
         )
+
+
+class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP
+):
+    """Train each routed residual on a larger set of fresh Gaussian draws."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.expanded_replay_samples = int(
+            self.config.get("feature_replay_samples_per_update", 256)
+        )
+        if (
+            self.expanded_replay_samples < 2
+            or self.expanded_replay_samples % 2 != 0
+        ):
+            raise ValueError(
+                "ASCAL expanded Gaussian replay samples must be a positive even "
+                "integer"
+            )
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_feature_routed_per_expert_expanded_distinct_"
+                    "gaussian_replay_mlp"
+                ),
+                "research_name": "ASCAL-JMP-ExpandedGaussianReplay",
+                "research_version": "R26",
+                "feature_replay_samples_per_update": (
+                    self.expanded_replay_samples
+                ),
+                "feature_replay_balance": "equal_real_and_fake_draws",
+                "feature_replay_draw_rule": (
+                    "one_fresh_independent_draw_per_generated_pseudo_feature"
+                ),
+                "feature_replay_minibatch_rule": (
+                    "current_unlabeled_stream_batch_size"
+                ),
+                "feature_replay_passes": 1,
+                "generated_feature_reuse": False,
+                "optimizer_steps_per_predicted_batch": (
+                    "ceil_generated_replay_samples_over_stream_batch_size"
+                ),
+                "expert_initialization": (
+                    "independent_random_hidden_layer_zero_output_residual_"
+                    "without_base_parameter_copy"
+                ),
+                "frozen_base": True,
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "the R25 frozen Base feature router GMM and Gaussian moments stay unchanged",
+                    "each ready expert draws one balanced set of fresh pseudo-features",
+                    "each generated pseudo-feature is consumed exactly once",
+                    "the replay set is split by the current stream batch size",
+                    "only the selected zero-born residual MLP receives gradients",
+                    "the final prediction remains frozen Base plus one expert residual",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_feature_routed_expanded_gaussian_replay_mlp"
+
+    def _gaussian_replay_samples_per_update(
+        self,
+        stream_batch_size: int,
+    ) -> int:
+        del stream_batch_size
+        return self.expanded_replay_samples
+
+    def _gaussian_replay_minibatch_size(
+        self,
+        stream_batch_size: int,
+        generated_samples: int,
+    ) -> int:
+        return min(int(stream_batch_size), int(generated_samples))
 
 
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(

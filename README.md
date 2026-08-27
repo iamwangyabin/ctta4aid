@@ -1184,6 +1184,16 @@ online AUC 提高 0.5388 个百分点，Accuracy 却下降 1.9429 个百分点�
 实际用生成伪特征更新 MLP，共生成 10484 个临时伪特征，最终三个专家全部就绪。
 因此 R25 是值得保留的排序学习候选，但仍只是 seed1 诊断，不进入正文正式表。
 
+`ascal_gmm_segmented_memory_posterior_feature_routed_expanded_gaussian_replay_mlp`
+的研究版本名为 **ASCAL-JMP-ExpandedGaussianReplay（R26）**。它只修改 R25 的生成
+回放量：每次专家适应从当前累计 real/fake 对角高斯中分别独立采样 128 个伪特征，
+得到 256 个当次新生成且平衡的训练样本。它们按当前 stream batch size 分批，只遍历
+一次，每个生成特征恰好用于一次 minibatch；不是对 R25 的同一组 16 个特征重复训练。
+冻结 Source、CLIP 特征路由、GMM 伪监督、类条件高斯统计、`768 -> 64 -> 1` 专家
+MLP 及 `Base logit + residual logit` 预测全部不变。每个专家只在创建时以零 residual
+出生，不复制 Base 参数；后续只累积更新当前路由专家，其他专家与 Base 均不受梯度修改。
+256 是运行 seed1 前固定的唯一新计算预算，不根据 target label 或结果调整。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
