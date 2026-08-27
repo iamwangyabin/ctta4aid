@@ -1194,6 +1194,31 @@ MLP 及 `Base logit + residual logit` 预测全部不变。每个专家只在创
 出生，不复制 Base 参数；后续只累积更新当前路由专家，其他专家与 Base 均不受梯度修改。
 256 是运行 seed1 前固定的唯一新计算预算，不根据 target label 或结果调整。
 
+R26 已由最终固定提交 `ae29fa3` 在 4090-2 上完成 GenImage matched-JPEG seed1。
+Source、R12、R25 和 R26 使用相同的 online manifest `891a3eba...` 与 holdout
+manifest `20beba40...`。下表仍只报告 target-macro 指标，不用 pooled AUC：
+
+| 方法 | Online Accuracy | Online AUC | Final-holdout Accuracy | Final-holdout AUC |
+| --- | ---: | ---: | ---: | ---: |
+| 旧神经 Source static | 68.3143 | 82.5031 | 67.8000 | 81.6334 |
+| R12 GMM ordinal route | 76.8095 | 82.2337 | 74.2571 | 81.4473 |
+| R25 16-sample Gaussian replay | 74.8667 | 82.7725 | 77.4571 | **83.5714** |
+| R26 256-sample distinct replay | **78.8095** | **84.4869** | **78.6286** | 83.4781 |
+
+R26 相对 Source 的 online Accuracy/AUC 分别提高 **10.4952/1.9838** 个百分点；
+相对 R12 分别提高 **2.0000/2.2531** 个百分点，相对 R25 分别提高
+**3.9429/1.7143** 个百分点。它因而是当前 GenImage seed1 上同时兼顾 Accuracy 和
+AUC 的最强在线候选。最终 holdout 相对 R25 的 Accuracy 还提高 1.1714 个百分点，
+但 AUC 微降 0.0934 个百分点；这个很小的流结束后差异不改变 R26 的主要 online 结论。
+
+R25 与 R26 的 658 个批次上，84 个路由、分段、GMM 和特征统计字段逐项完全一致，
+不一致字段数为 0。因此这个改善可以归因于唯一改动的专家训练量，而不是路由或 GMM
+轨迹巧合变化。R26 共完成 657 次专家回放更新，生成 168192 个当次独立伪特征，
+分成 10554 个只遍历一次的 minibatch optimizer step；三个专家全部就绪。它的宏平均
+fake/real recall 为 68.9905%/88.6286%，同时高于 R12 的 66.1524%/87.4667%，
+说明大量新采样不只是移动阈值，而是训练出了更有效的样本级 residual。R26 仍只是
+seed1 候选诊断，在其他数据集和 seed2/seed3 验收前不进入正文正式表。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
