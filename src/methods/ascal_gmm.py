@@ -7981,6 +7981,70 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedPriorGaussianReplayMLP(
         return total_samples - fake_samples, fake_samples
 
 
+class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSourceReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP
+):
+    """Use frozen Source pseudo-supervision instead of the selected expert GMM."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_feature_routed_source_confidence_gaussian_"
+                    "replay_residual_mlp"
+                ),
+                "research_name": "ASCAL-JMP-SourceSupervision",
+                "research_version": "R33",
+                "ablation_parent": "ASCAL-JMP-ExpandedGaussianReplay-R26",
+                "ablation_question": (
+                    "whether_expert_gmm_pseudo_supervision_is_needed_beyond_"
+                    "the_frozen_source_probability"
+                ),
+                "gmm_role": "segmentation_and_expert_identity_only",
+                "pseudo_label": "frozen_source_probability_at_one_half",
+                "reliability_rule": (
+                    "absolute_frozen_source_signed_probability_without_threshold"
+                ),
+                "gmm_in_feature_supervision": False,
+                "gmm_in_final_prediction": False,
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R26 routing segmentation feature moments replay heads and prediction stay unchanged",
+                    "the frozen Source probability replaces the selected GMM posterior for labels and reliability",
+                    "GMMs remain only to define causal expert state and historical routing",
+                    "no source threshold confidence threshold or new hyperparameter is introduced",
+                    "no other R26 component or hyperparameter is changed",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_feature_routed_source_gaussian_replay_mlp"
+
+    def _gaussian_replay_supervision(
+        self,
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        del mixture
+        probability = np.asarray(
+            self._source_probability(scores),
+            dtype=np.float64,
+        ).reshape(-1)
+        labels = (probability >= 0.5).astype(np.int64)
+        reliability = np.abs(2.0 * probability - 1.0)
+        return labels, reliability, probability
+
+
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
     ASCALGMMSegmentedMemoryPosteriorProjection
 ):

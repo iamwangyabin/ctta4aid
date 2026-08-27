@@ -1276,6 +1276,12 @@ feature memory，但每次 256 个回放样本不再 real/fake 各半，而按�
 是否是抵抗在线伪类别塌缩的必要组件；不读取真实 target class prior，也不改变 GMM、路由、
 head 或总训练预算。R32 若下降，就证明平衡回放应作为核心设计而不是可删实现细节。
 
+第七个也是本轮最后一个基础组件消融 **ASCAL-JMP-SourceSupervision（R33）**保留
+R26 的 GMM 分段与专家身份，但不再让选中专家 GMM 给 feature memory 提供 posterior；
+伪标签与连续可靠度都改为冻结 Source probability 的 `0.5` 决策和 `|2p_source-1|`。
+路由、Gaussian replay、平衡训练和每专家 MLP 全部不变。它直接检验 GMM 教师是否只是
+可替换的实现细节。R27--R33 完成后，才依据逐项结果组合被证明可删的组件并复跑最终凝练版。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
