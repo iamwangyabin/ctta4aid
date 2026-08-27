@@ -6971,10 +6971,15 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         state: dict[str, Any],
         samples: int,
     ) -> tuple[np.ndarray, np.ndarray]:
-        per_class = max(1, int(math.ceil(samples / 2.0)))
+        class_counts = self._gaussian_replay_class_counts(state, samples)
         generated: list[np.ndarray] = []
         labels: list[np.ndarray] = []
         for class_index in (0, 1):
+            class_samples = int(class_counts[class_index])
+            if class_samples < 1:
+                raise ValueError(
+                    "ASCAL Gaussian replay requires both pseudo-classes"
+                )
             mass = float(state["class_mass"][class_index])
             mean = np.asarray(
                 state["feature_mean"][class_index], dtype=np.float64
@@ -6987,16 +6992,25 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
                 self.gaussian_replay_variance_floor,
             )
             noise = self._gaussian_replay_rng.standard_normal(
-                (per_class, self.gaussian_replay_feature_dim)
+                (class_samples, self.gaussian_replay_feature_dim)
             )
             generated.append(mean[None, :] + noise * np.sqrt(variance)[None, :])
             labels.append(
-                np.full(per_class, class_index, dtype=np.float32)
+                np.full(class_samples, class_index, dtype=np.float32)
             )
         features = np.concatenate(generated, axis=0)
         targets = np.concatenate(labels, axis=0)
         order = self._gaussian_replay_rng.permutation(features.shape[0])
         return features[order], targets[order]
+
+    def _gaussian_replay_class_counts(
+        self,
+        state: dict[str, Any],
+        samples: int,
+    ) -> tuple[int, int]:
+        del state
+        per_class = max(1, int(math.ceil(samples / 2.0)))
+        return per_class, per_class
 
     def _gaussian_replay_samples_per_update(
         self,
@@ -7892,6 +7906,79 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP(
             }
         )
         return stats
+
+
+class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedPriorGaussianReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP
+):
+    """Replay according to accumulated pseudo-class mass instead of balancing it."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_feature_routed_empirical_prior_gaussian_"
+                    "replay_residual_mlp"
+                ),
+                "research_name": "ASCAL-JMP-PriorReplay",
+                "research_version": "R32",
+                "ablation_parent": "ASCAL-JMP-ExpandedGaussianReplay-R26",
+                "ablation_question": (
+                    "whether_equal_real_fake_feature_replay_is_needed_instead_"
+                    "of_the_accumulated_pseudo_class_mass"
+                ),
+                "feature_replay_balance": (
+                    "accumulated_reliability_weighted_pseudo_class_mass"
+                ),
+                "class_count_rule": (
+                    "nearest_integer_empirical_mass_allocation_with_one_sample_"
+                    "minimum_per_class"
+                ),
+                "feature_replay_samples_per_update": self.expanded_replay_samples,
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R26 routing segmentation GMM confidence Gaussian moments heads and prediction stay unchanged",
+                    "the same total replay budget follows each selected experts accumulated pseudo-class mass",
+                    "at least one generated feature per class keeps the binary objective defined",
+                    "no target class prior or target label is read",
+                    "no other R26 component or hyperparameter is changed",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_feature_routed_prior_gaussian_replay_mlp"
+
+    def _gaussian_replay_class_counts(
+        self,
+        state: dict[str, Any],
+        samples: int,
+    ) -> tuple[int, int]:
+        total_samples = int(samples)
+        if total_samples < 2:
+            raise ValueError("ASCAL prior replay requires at least two samples")
+        mass = np.asarray(state["class_mass"], dtype=np.float64).reshape(-1)
+        total_mass = float(mass.sum())
+        if (
+            mass.shape != (2,)
+            or not np.all(np.isfinite(mass))
+            or np.any(mass <= np.finfo(np.float64).eps)
+            or not math.isfinite(total_mass)
+            or total_mass <= np.finfo(np.float64).eps
+        ):
+            raise ValueError("ASCAL prior replay received invalid class mass")
+        fake_samples = int(math.floor(total_samples * mass[1] / total_mass + 0.5))
+        fake_samples = min(max(fake_samples, 1), total_samples - 1)
+        return total_samples - fake_samples, fake_samples
 
 
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(

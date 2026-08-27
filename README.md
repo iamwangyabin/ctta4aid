@@ -1255,6 +1255,12 @@ Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度
 只为严格审计其他轨迹，不进入训练。它单独检验累计分布式 feature replay 是否必要；若
 R31 下降，则 Gaussian memory 与生成回放应保留在凝练后的核心方法中。
 
+第六个单变量候选 **ASCAL-JMP-PriorReplay（R32）**继续使用 R26 的累计 Gaussian
+feature memory，但每次 256 个回放样本不再 real/fake 各半，而按该专家累计的可靠度加权
+伪类别质量分配，并只保留每类至少一个样本以维持二分类目标。它检验 equal-class replay
+是否是抵抗在线伪类别塌缩的必要组件；不读取真实 target class prior，也不改变 GMM、路由、
+head 或总训练预算。R32 若下降，就证明平衡回放应作为核心设计而不是可删实现细节。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
