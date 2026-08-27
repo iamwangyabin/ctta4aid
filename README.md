@@ -1158,6 +1158,32 @@ Adam learning rate `1e-3`、每个已预测 batch 一步更新，回放量直接
 “分布式特征回放能否训练出提升排序的专家头”，若单高斯的伪特征流形质量不足，再把 fake
 分布扩成多分量，而不在同一版本同时增加结构。
 
+R25 已由固定提交 `f9e3927` 在 4090-2 上完成 GenImage matched-JPEG seed1。旧神经
+Source static、R12 与 R25 的 online manifest 哈希均为 `891a3eba...`，最终 holdout
+manifest 哈希均为 `20beba40...`，因此下表使用完全相同的样本身份和顺序。指标均为
+target-macro，不使用 pooled AUC：
+
+| 方法 | Online Accuracy | Online AUC | Final-holdout Accuracy | Final-holdout AUC |
+| --- | ---: | ---: | ---: | ---: |
+| 旧神经 Source static | 68.3143 | 82.5031 | 67.8000 | 81.6334 |
+| R12 GMM ordinal route | **76.8095** | 82.2337 | 74.2571 | 81.4473 |
+| R25 Gaussian replay MLP | 74.8667 | **82.7725** | **77.4571** | **83.5714** |
+
+R25 相对 Source 的因果 online Accuracy 提高 **6.5524** 个百分点，target-macro AUC
+提高 **0.2694** 个百分点，说明“高置信伪特征分布 + 生成回放 + 样本级 residual”的
+确能在保留大部分 Accuracy 收益的同时改变排序。但它尚未取代 R12：相对 R12，R25
+online AUC 提高 0.5388 个百分点，Accuracy 却下降 1.9429 个百分点。最终固定 holdout
+上 R25 相对 Source 的 Accuracy/AUC 分别提高 9.6571/1.9381 个百分点，相对 R12
+分别提高 3.2000/2.1241 个百分点；这证明最终学到的专家状态有效，但不能用这个
+流结束后的结果代替更严格的 online 结论。
+
+逐 target 看，R25 相对 Source 的 AUC 在 ADM、VQDM 和 BigGAN 上分别提高
+6.2705、4.7301 和 0.6378 个百分点，但在 glide 和 Midjourney 上分别下降 6.4060 和
+3.2764 个百分点，表明单个对角高斯对部分 fake 域的多模态特征仍然过于粗糙。整条流创建
+3 个特征路由专家，658 次 GMM refit 无失败；三个 cold-start batch 后有 654 个 batch
+实际用生成伪特征更新 MLP，共生成 10484 个临时伪特征，最终三个专家全部就绪。
+因此 R25 是值得保留的排序学习候选，但仍只是 seed1 诊断，不进入正文正式表。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
