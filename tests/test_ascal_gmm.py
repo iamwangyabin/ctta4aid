@@ -2316,6 +2316,53 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertTrue(reference["episodic_memory_updated"])
                 self.assertFalse(reference["target_labels_used"])
 
+    def test_rank_screen_configs_pre_register_only_objective_rate_and_width(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        expected = {
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "decoupled_rank_replay_mlp": ("R39", 64, 0.001),
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "conservative_rank_replay_mlp": ("R40", 64, 0.0003),
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "compact_rank_replay_mlp": ("R41", 32, 0.001),
+        }
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_clip_routed_rank_screen_r39_r41_"
+                f"continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(config["methods"], list(expected))
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["data"]["shuffle"])
+                self.assertIn(dataset, config["output_dir"])
+                for name, (version, hidden_dim, learning_rate) in expected.items():
+                    adaptive = method_config(config, name)
+                    reference = adaptive["reference"]
+                    self.assertEqual(reference["research_version"], version)
+                    self.assertEqual(
+                        adaptive["feature_replay_hidden_dim"], hidden_dim
+                    )
+                    self.assertEqual(
+                        adaptive["feature_replay_learning_rate"], learning_rate
+                    )
+                    self.assertEqual(adaptive["feature_replay_samples_per_update"], 256)
+                    self.assertEqual(adaptive["feature_replay_seed"], 1)
+                    self.assertFalse(reference["routing_score_used"])
+                    self.assertFalse(reference["target_labels_used"])
+                    self.assertEqual(reference["target_selected_hyperparameters"], 0)
+
     def test_segment_expert_memory_config_decouples_route_and_segmentation(
         self,
     ) -> None:
@@ -7691,6 +7738,59 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertFalse(metadata["segment_change_score_memory_recall"])
         self.assertEqual(metadata["historical_expert_recall"], "clip_feature_route_only")
 
+    def test_decoupled_rank_loss_keeps_pairwise_gradient_out_of_bias(self) -> None:
+        import torch
+
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedDecoupledRankReplayMLP,
+        )
+
+        method = ASCALGMMSegmentedMemoryPosteriorCLIPRoutedDecoupledRankReplayMLP(
+            self.detector(),
+            "cpu",
+            {
+                "score_anchors": self.anchors(),
+                "feature_replay_hidden_dim": 4,
+                "feature_replay_learning_rate": 0.01,
+                "feature_replay_samples_per_update": 8,
+                "feature_replay_seed": 1,
+            },
+        )
+        head = method._new_gaussian_replay_head()
+        with torch.no_grad():
+            head[0].weight.zero_()
+            head[0].bias.zero_()
+            head[0].weight[0, 0] = 1.0
+            head[2].weight.zero_()
+            head[2].bias.zero_()
+        features = torch.tensor(
+            [
+                [-1.0, 0.0, 0.0],
+                [-0.5, 0.0, 0.0],
+                [0.5, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+            ]
+        )
+        source_margin = torch.zeros(4)
+        labels = torch.tensor([0.0, 0.0, 1.0, 1.0])
+
+        loss = method._gaussian_replay_minibatch_loss(
+            head,
+            features,
+            source_margin,
+            labels,
+        )
+        loss.backward()
+
+        self.assertTrue(torch.isfinite(loss))
+        self.assertEqual(method.decoupled_rank_pairs, 4)
+        self.assertGreater(float(head[2].weight.grad.abs().sum()), 0.0)
+        self.assertAlmostEqual(float(head[2].bias.grad.item()), 0.0, places=7)
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_version"], "R39")
+        self.assertEqual(metadata["ranking_margin_hyperparameter"], "none_logistic_softplus")
+        self.assertEqual(metadata["target_selected_hyperparameters"], 0)
+
     def test_segment_expert_memory_route_never_restarts_score_state(self) -> None:
         method = self.segment_clip_routed_gaussian_replay_memory_method()
         method.active_memory_index = 1
@@ -9622,6 +9722,57 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
+
+    def test_method_factory_maps_pre_registered_rank_screen_aliases(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedCompactRankReplayMLP,
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedConservativeRankReplayMLP,
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedDecoupledRankReplayMLP,
+        )
+
+        cases = (
+            (
+                "ascal_gmm_segmented_memory_posterior_clip_routed_"
+                "decoupled_rank_replay_mlp_static",
+                ASCALGMMSegmentedMemoryPosteriorCLIPRoutedDecoupledRankReplayMLP,
+                64,
+                0.001,
+            ),
+            (
+                "ascal_gmm_segmented_memory_posterior_clip_routed_"
+                "conservative_rank_replay_mlp_static",
+                ASCALGMMSegmentedMemoryPosteriorCLIPRoutedConservativeRankReplayMLP,
+                64,
+                0.0003,
+            ),
+            (
+                "ascal_gmm_segmented_memory_posterior_clip_routed_"
+                "compact_rank_replay_mlp_static",
+                ASCALGMMSegmentedMemoryPosteriorCLIPRoutedCompactRankReplayMLP,
+                32,
+                0.001,
+            ),
+        )
+        for name, expected_type, hidden_dim, learning_rate in cases:
+            with self.subTest(name=name):
+                method = build_method(
+                    name,
+                    self.detector(),
+                    "cpu",
+                    {
+                        "score_anchors": self.anchors(),
+                        "feature_replay_samples_per_update": 8,
+                    },
+                )
+                self.assertIsInstance(method, expected_type)
+                self.assertEqual(method.adaptation_mode, "static")
+                self.assertEqual(method.gaussian_replay_hidden_dim, hidden_dim)
+                self.assertEqual(
+                    method.gaussian_replay_learning_rate,
+                    learning_rate,
+                )
+                self.assertEqual(method.trainable_parameters, 0)
 
     def test_method_factory_maps_segment_expert_memory_static_alias(self) -> None:
         from src.methods import build_method

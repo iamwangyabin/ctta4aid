@@ -7037,6 +7037,21 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         del observed_features, observed_labels, observed_reliability
         return self._sample_gaussian_replay(state, requested_samples)
 
+    def _gaussian_replay_minibatch_loss(
+        self,
+        head: Any,
+        features: Any,
+        source_margin: Any,
+        labels: Any,
+    ) -> Any:
+        import torch.nn.functional as functional
+
+        residual = head(features).reshape(-1)
+        return functional.binary_cross_entropy_with_logits(
+            source_margin + residual,
+            labels,
+        )
+
     def _train_gaussian_replay_head(
         self,
         state: dict[str, Any],
@@ -7046,7 +7061,6 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         observed_reliability: np.ndarray,
     ) -> float | None:
         import torch
-        import torch.nn.functional as functional
 
         requested_samples = self._gaussian_replay_samples_per_update(samples)
         if requested_samples < 1:
@@ -7100,9 +7114,10 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         for start in range(0, generated_samples, minibatch_size):
             stop = min(start + minibatch_size, generated_samples)
             optimizer.zero_grad(set_to_none=True)
-            residual = head(feature_tensor[start:stop]).reshape(-1)
-            loss = functional.binary_cross_entropy_with_logits(
-                source_tensor[start:stop] + residual,
+            loss = self._gaussian_replay_minibatch_loss(
+                head,
+                feature_tensor[start:stop],
+                source_tensor[start:stop],
                 label_tensor[start:stop],
             )
             if not bool(torch.isfinite(loss)):
@@ -8086,6 +8101,218 @@ class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP(
         self.last_memory_identity_penalty = None
         self.last_memory_recall_gain = None
         return None
+
+
+class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedDecoupledRankReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP
+):
+    """Separate threshold calibration from sample-level ranking gradients."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.decoupled_rank_minibatches = 0
+        self.decoupled_rank_pairs = 0
+        self.decoupled_rank_last_calibration_loss = 0.0
+        self.decoupled_rank_last_ranking_loss = 0.0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "clip_routed_expert_memory_with_decoupled_calibration_"
+                    "and_pairwise_ranking_replay"
+                ),
+                "research_name": "ASCAL-JMP-DecoupledRank",
+                "research_version": "R39",
+                "ablation_parent": "ASCAL-JMP-CLIPExpertMemory-R37",
+                "ablation_question": (
+                    "whether_separating_global_threshold_calibration_from_"
+                    "feature_dependent_ranking_improves_auc_without_losing_"
+                    "r37_accuracy"
+                ),
+                "training_objective": (
+                    "equal_mean_of_bias_only_balanced_bce_and_feature_only_"
+                    "pairwise_logistic_auc_surrogate"
+                ),
+                "calibration_gradient_scope": (
+                    "expert_output_bias_only_with_feature_residual_detached"
+                ),
+                "ranking_gradient_scope": (
+                    "expert_hidden_and_output_weights_only_with_bias_cancelled"
+                ),
+                "ranking_pairs": (
+                    "all_pseudo_fake_real_pairs_within_each_replay_minibatch"
+                ),
+                "ranking_margin_hyperparameter": "none_logistic_softplus",
+                "objective_mix": "fixed_equal_mean_without_tuned_coefficient",
+                "prediction_rule": (
+                    "sigmoid_of_frozen_source_logit_plus_selected_expert_"
+                    "calibration_bias_and_feature_ranking_residual"
+                ),
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R37 segmentation routing GMM supervision Gaussian replay and prediction stay unchanged",
+                    "balanced BCE updates only the scalar expert calibration bias",
+                    "a parameter-free pairwise logistic loss updates only the feature-dependent residual",
+                    "the two mean losses are averaged equally without a tunable mixing coefficient",
+                    "no target label confidence threshold fusion weight or ranking margin is introduced",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_clip_routed_decoupled_rank_replay_mlp"
+
+    def _gaussian_replay_minibatch_loss(
+        self,
+        head: Any,
+        features: Any,
+        source_margin: Any,
+        labels: Any,
+    ) -> Any:
+        import torch
+        import torch.nn.functional as functional
+
+        if len(head) != 3 or not hasattr(head[2], "weight"):
+            raise TypeError(
+                "ASCAL decoupled ranking requires the 768-to-hidden-to-1 MLP"
+            )
+        hidden = head[1](head[0](features))
+        feature_residual = functional.linear(
+            hidden,
+            head[2].weight,
+            bias=None,
+        ).reshape(-1)
+        calibration_bias = head[2].bias.reshape(())
+        calibration_loss = functional.binary_cross_entropy_with_logits(
+            source_margin + feature_residual.detach() + calibration_bias,
+            labels,
+        )
+
+        real = labels < 0.5
+        fake = labels >= 0.5
+        real_count = int(torch.count_nonzero(real).item())
+        fake_count = int(torch.count_nonzero(fake).item())
+        if real_count < 1 or fake_count < 1:
+            ranking_loss = calibration_loss.detach().new_zeros(())
+            loss = calibration_loss
+        else:
+            ranking_logit = source_margin + feature_residual
+            pair_margin = (
+                ranking_logit[fake][:, None] - ranking_logit[real][None, :]
+            )
+            ranking_loss = functional.softplus(-pair_margin).mean()
+            loss = 0.5 * (calibration_loss + ranking_loss)
+            self.decoupled_rank_minibatches += 1
+            self.decoupled_rank_pairs += real_count * fake_count
+
+        self.decoupled_rank_last_calibration_loss = float(
+            calibration_loss.detach().cpu().item()
+        )
+        self.decoupled_rank_last_ranking_loss = float(
+            ranking_loss.detach().cpu().item()
+        )
+        return loss
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(
+            {
+                "decoupled_rank_minibatches": self.decoupled_rank_minibatches,
+                "decoupled_rank_pairs": self.decoupled_rank_pairs,
+                "decoupled_rank_last_calibration_loss": (
+                    self.decoupled_rank_last_calibration_loss
+                ),
+                "decoupled_rank_last_ranking_loss": (
+                    self.decoupled_rank_last_ranking_loss
+                ),
+            }
+        )
+        return stats
+
+
+class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedConservativeRankReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedDecoupledRankReplayMLP
+):
+    """Use the R39 objective with a pre-registered conservative update rate."""
+
+    def _reset_state(self) -> None:
+        self.config.setdefault("feature_replay_learning_rate", 3e-4)
+        super()._reset_state()
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "research_name": "ASCAL-JMP-ConservativeRank",
+                "research_version": "R40",
+                "ablation_parent": "ASCAL-JMP-DecoupledRank-R39",
+                "ablation_question": (
+                    "whether_a_three_times_smaller_pre_registered_learning_"
+                    "rate_preserves_high_source_auc_more_reliably"
+                ),
+                "learning_rate": self.gaussian_replay_learning_rate,
+                "intentional_changes": [
+                    "R39 architecture objective routing replay and expert memory stay unchanged",
+                    "the Adam learning rate is reduced from 0.001 to 0.0003",
+                    "no other method setting or target-selected parameter changes",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_clip_routed_conservative_rank_replay_mlp"
+
+
+class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedCompactRankReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedDecoupledRankReplayMLP
+):
+    """Use the R39 objective with a smaller per-expert ranking head."""
+
+    def _reset_state(self) -> None:
+        self.config.setdefault("feature_replay_hidden_dim", 32)
+        super()._reset_state()
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "research_name": "ASCAL-JMP-CompactRank",
+                "research_version": "R41",
+                "ablation_parent": "ASCAL-JMP-DecoupledRank-R39",
+                "ablation_question": (
+                    "whether_halving_the_hidden_width_reduces_pseudo_label_"
+                    "overfit_while_retaining_ranking_capacity"
+                ),
+                "expert_hidden_dim": self.gaussian_replay_hidden_dim,
+                "expert_head": (
+                    "one_768_to_32_to_1_gelu_residual_mlp_per_expert"
+                ),
+                "intentional_changes": [
+                    "R39 objective learning rate routing replay and expert memory stay unchanged",
+                    "the per-expert hidden width is reduced from 64 to 32",
+                    "no other method setting or target-selected parameter changes",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_clip_routed_compact_rank_replay_mlp"
 
 
 class ASCALGMMSegmentedMemoryPosteriorSegmentCLIPRoutedGaussianReplayMLP(

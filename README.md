@@ -1401,6 +1401,16 @@ target label，不使用 route threshold、confidence threshold、融合系数�
 方差数值下界。以上仍是 GenImage matched-JPEG seed1 候选诊断；四数据集、三个正式 seed
 全部验收前，R37 不进入论文正文数值表。
 
+针对 R37 在跨数据集检查中暴露出的排序瓶颈，后续候选已在查看新结果前固定为三个小改动，
+不再改路由、GMM、分段、专家记忆或最终 `Base + one expert residual` 结构。
+**ASCAL-JMP-DecoupledRank（R39）**把一个专家输出拆成标量校准 bias 与特征相关 residual：
+平衡 BCE 在 residual `detach` 后只更新 bias，所有 replay minibatch 内的 pseudo-fake/real
+样本对则用无 margin 的 pairwise logistic loss 只更新特征权重；两项 mean loss 固定等权，
+不增加可调混合系数。**ASCAL-JMP-ConservativeRank（R40）**只把 R39 学习率从 `1e-3`
+降为 `3e-4`；**ASCAL-JMP-CompactRank（R41）**只把 R39 隐藏宽度从 64 降为 32。
+四个 matched-JPEG 数据集共享同一组三版本 seed1 screen 配置；它们是预注册的探索候选，
+不得根据正式 target label 继续细扫并把最优行伪装成无偏主结果。
+
 第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
 训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
 Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度有放回采样；当前批缺少
