@@ -91,6 +91,8 @@ training:
     - ascal_gmm_segmented_memory_posterior_feature_routed_expanded_gaussian_replay_mlp_static
     - ascal_gmm_segmented_memory_posterior_feature_routed_shared_gaussian_replay_mlp
     - ascal_gmm_segmented_memory_posterior_feature_routed_shared_gaussian_replay_mlp_static
+    - ascal_gmm_segmented_memory_posterior_feature_routed_linear_gaussian_replay
+    - ascal_gmm_segmented_memory_posterior_feature_routed_linear_gaussian_replay_static
     - ascal_gmm_segmented_memory_posterior_routed_residual
     - ascal_gmm_segmented_memory_posterior_routed_residual_static
     - ascal_gmm_segmented_memory_posterior_routed_ridge_residual

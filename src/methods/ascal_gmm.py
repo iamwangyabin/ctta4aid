@@ -6851,6 +6851,19 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             return head
 
         import torch
+
+        head = self._new_gaussian_replay_head()
+        optimizer = torch.optim.Adam(
+            head.parameters(),
+            lr=self.gaussian_replay_learning_rate,
+        )
+        head.eval()
+        head_state["mlp_head"] = head
+        head_state["mlp_optimizer"] = optimizer
+        return head
+
+    def _new_gaussian_replay_head(self) -> Any:
+        import torch
         import torch.nn as nn
 
         head = nn.Sequential(
@@ -6881,13 +6894,6 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             first.bias.zero_()
             output.weight.zero_()
             output.bias.zero_()
-        optimizer = torch.optim.Adam(
-            head.parameters(),
-            lr=self.gaussian_replay_learning_rate,
-        )
-        head.eval()
-        head_state["mlp_head"] = head
-        head_state["mlp_optimizer"] = optimizer
         return head
 
     def _gaussian_replay_residual(
@@ -7540,6 +7546,78 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSharedGaussianReplayMLP(
             }
         )
         return stats
+
+
+class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedLinearGaussianReplay(
+    ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP
+):
+    """Replace each R26 nonlinear residual MLP with one zero-born linear head."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_feature_routed_per_expert_expanded_gaussian_"
+                    "replay_linear_residual"
+                ),
+                "research_name": "ASCAL-JMP-LinearResidualHead",
+                "research_version": "R28",
+                "ablation_parent": "ASCAL-JMP-ExpandedGaussianReplay-R26",
+                "ablation_question": (
+                    "whether_the_hidden_gelu_layer_is_needed_for_sample_level_"
+                    "ranking_adaptation"
+                ),
+                "expert_head": (
+                    "one_zero_initialized_linear_residual_logit_per_expert"
+                ),
+                "expert_head_parameters": self.gaussian_replay_feature_dim + 1,
+                "prediction_rule": (
+                    "sigmoid_of_frozen_source_logit_plus_selected_expert_"
+                    "linear_residual_logit"
+                ),
+                "replay_rng_alignment": (
+                    "consume_the_exact_r26_hidden_initialization_draw_count_"
+                    "before_each_linear_head_birth"
+                ),
+                "fixed_method_hyperparameters": [
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R26 routing segmentation GMMs feature moments replay and expert scope stay unchanged",
+                    "each 768 to 64 to 1 GELU residual is replaced by one 768 to 1 linear residual",
+                    "the output remains exactly zero at expert birth and Base stays frozen",
+                    "discarded random draws keep all subsequent Gaussian replay samples aligned with R26",
+                    "no other R26 component or hyperparameter is changed",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_feature_routed_linear_gaussian_replay"
+
+    def _new_gaussian_replay_head(self) -> Any:
+        import torch
+        import torch.nn as nn
+
+        self._gaussian_replay_rng.normal(
+            0.0,
+            math.sqrt(2.0 / float(self.gaussian_replay_feature_dim)),
+            size=(
+                self.gaussian_replay_hidden_dim,
+                self.gaussian_replay_feature_dim,
+            ),
+        )
+        head = nn.Linear(self.gaussian_replay_feature_dim, 1).to(self.device)
+        with torch.no_grad():
+            head.weight.zero_()
+            head.bias.zero_()
+        return head
 
 
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(

@@ -1229,6 +1229,13 @@ residual logit`。R27 只回答“多个分类 head 是否必要”，只有 onl
 Accuracy 不低于 78.8095 且 AUC 不低于 84.4869 时才接受；否则恢复 R26 的专家专属
 head，再消融下一项。该门槛在运行前固定，不读取 target label 调参。
 
+与 R27 并行的第二个单变量候选 **ASCAL-JMP-LinearResidualHead（R28）**从 R26
+出发，只把每专家 `768 -> 64 -> 1` GELU residual MLP 改为零初始化的 `768 -> 1`
+线性 residual；专家数量、路由、GMM、高斯统计、回放量、Adam 学习率和最终加法均不变。
+为避免网络结构改变连带改变后续伪特征，线性 head 出生时会消耗并丢弃与 R26 隐层初始化
+完全相同数量的随机数，后续 Gaussian replay 抽样保持对齐。R28 只回答“非线性隐藏层是否
+必要”，使用与 R27 相同的 R26 双指标非劣门槛，不能与共享 head 的效果混为一次改动。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与
