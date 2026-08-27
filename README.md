@@ -1309,6 +1309,15 @@ Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度
 只为严格审计其他轨迹，不进入训练。它单独检验累计分布式 feature replay 是否必要；若
 R31 下降，则 Gaussian memory 与生成回放应保留在凝练后的核心方法中。
 
+R31 的固定提交 `ed10158` 因 4090-1 中途离线而由同一源码归档在 4090-2 完成重跑：
+online target-macro Accuracy/AUC 为 **77.1524/82.1093**，final-holdout 为
+**75.8571/82.1958**。相对 R26，online 分别下降 **1.6571/2.3775** 个百分点，
+final-holdout 分别下降 **2.7714/1.2823** 个百分点；online AUC 甚至比 Source 低
+0.3938 个百分点，因此明确拒绝 current-batch resampling。该流有 44 次因当前批缺少一个
+伪类别而跳过 head 更新；排除这三个有意变化的更新计数字段后，658 个 batch 的 151 个共同
+非训练语义字段按 `1e-10` 容差完全一致。累计 class-conditional Gaussian 充分统计与从中
+持续生成新伪特征，是克服小 batch 覆盖不足的必要核心，而不是可删缓存。
+
 第六个单变量候选 **ASCAL-JMP-PriorReplay（R32）**继续使用 R26 的累计 Gaussian
 feature memory，但每次 256 个回放样本不再 real/fake 各半，而按该专家累计的可靠度加权
 伪类别质量分配，并只保留每类至少一个样本以维持二分类目标。它检验 equal-class replay
