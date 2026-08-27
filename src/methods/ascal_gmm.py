@@ -6438,6 +6438,97 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSourceRidge(
         return stats
 
 
+class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSourceRidgeGMMReadout(
+    ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSourceRidge
+):
+    """Diagnose the routed GMM decision while updating Ridge only in shadow."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_feature_routed_gmm_expert_with_r12_ordinal_"
+                    "readout_and_shadow_source_initialized_ridge"
+                ),
+                "research_name": "ASCAL-JMP-SourceRidgeGMMReadout",
+                "research_version": "R24",
+                "diagnostic_question": (
+                    "classification_ability_of_the_current_feature_routed_"
+                    "expert_gmms_without_expert_ridge_logits"
+                ),
+                "protected_scope": (
+                    "r23_source_checkpoint_feature_route_gmm_segmentation_"
+                    "memory_handoff_pseudo_supervision_and_state_updates"
+                ),
+                "prediction_rule": (
+                    "selected_expert_gmm_bayes_decision_with_r12_immutable_"
+                    "source_ridge_probability_as_within_class_ordinal_rank"
+                ),
+                "gmm_in_final_prediction": True,
+                "gmm_role": "selected_old_expert_binary_decision",
+                "expert_ridge_in_final_prediction": False,
+                "base_probability_in_final_prediction": True,
+                "ridge_state_role": (
+                    "shadow_update_only_to_preserve_the_exact_r23_expert_and_"
+                    "feature_route_state_trajectory"
+                ),
+                "accuracy_invariance": (
+                    "final_threshold_decision_equals_the_selected_gmm_routed_"
+                    "decision_exactly"
+                ),
+                "within_decision_order": (
+                    "immutable_source_ridge_probability_preserves_global_"
+                    "sample_order_inside_each_gmm_decision_side"
+                ),
+                "new_target_hyperparameters": 0,
+                "intentional_changes": [
+                    "the R23 expert Ridge logit is excluded from final prediction",
+                    "the selected historical GMM supplies the final binary decision",
+                    (
+                        "the immutable source-Ridge probability is used only for "
+                        "R12 within-decision ordering"
+                    ),
+                    (
+                        "shadow Ridge and route-prototype updates remain exact so "
+                        "the R23 state trajectory is unchanged"
+                    ),
+                    "no target label threshold optimizer or new parameter is added",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_feature_routed_source_ridge_gmm_readout"
+
+    def _rms_ridge_expert_probability(
+        self,
+        base_probability: np.ndarray,
+        features: np.ndarray,
+        state: dict[str, Any],
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, float]:
+        (
+            _,
+            base_margin,
+            ridge_margin,
+            base_rms,
+            ridge_rms,
+        ) = super()._rms_ridge_expert_probability(
+            base_probability,
+            features,
+            state,
+        )
+        probability = np.asarray(base_probability, dtype=np.float64).reshape(-1)
+        if not np.all(np.isfinite(probability)):
+            raise FloatingPointError(
+                "ASCAL source-Ridge GMM readout produced a non-finite prediction"
+            )
+        return probability.copy(), base_margin, ridge_margin, base_rms, ridge_rms
+
+
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
     ASCALGMMSegmentedMemoryPosteriorProjection
 ):

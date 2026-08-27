@@ -189,6 +189,7 @@ def build_fresh_method(
         "ascalgmmsegmentedmemoryposteriorfeatureroutedtrustedridgestatic",
         "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridge",
         "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgestatic",
+        "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgegmmreadout",
         "ascalgmmsegmentedmemoryposteriorroutedresidual",
         "ascalgmmsegmentedmemoryposteriorroutedresidualstatic",
         "ascalgmmsegmentedmemoryposteriorroutedridgeresidual",
@@ -267,6 +268,7 @@ def build_fresh_method(
         if normalized_name in {
             "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridge",
             "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgestatic",
+            "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgegmmreadout",
         }:
             source_analytic_ridge = checkpoint_metadata.get(
                 "source_analytic_ridge"
