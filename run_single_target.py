@@ -151,6 +151,8 @@ def main() -> None:
         "poundttastatic",
         "ascal",
         "ascalstatic",
+        "ascalgmmsegmentedmemoryposteriorfeatureroutedgaussianreplaymlp",
+        "ascalgmmsegmentedmemoryposteriorfeatureroutedgaussianreplaymlpstatic",
     }
     normalized_methods = {
         str(name).lower().replace("_", "").replace("-", "")

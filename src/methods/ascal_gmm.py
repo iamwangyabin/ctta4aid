@@ -6529,6 +6529,773 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedSourceRidgeGMMReadout(
         return probability.copy(), base_margin, ridge_margin, base_rms, ridge_rms
 
 
+class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorFeatureRoutedTrustedRidge
+):
+    """Learn one Base-anchored MLP from each expert's Gaussian feature replay."""
+
+    _ORDINAL_RIDGE_MEMORY_KEY = "gaussian_replay_mlp_state"
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        classifier = getattr(self.model, "classifier", None)
+        weight = getattr(classifier, "weight", None)
+        if weight is None or weight.ndim != 2 or int(weight.shape[0]) != 2:
+            raise TypeError(
+                "ASCAL Gaussian replay MLP requires a two-class linear classifier"
+            )
+        bias = getattr(classifier, "bias", None)
+        self.gaussian_replay_feature_dim = int(weight.shape[1])
+        self.gaussian_replay_hidden_dim = int(
+            self.config.get("feature_replay_hidden_dim", 64)
+        )
+        self.gaussian_replay_learning_rate = float(
+            self.config.get("feature_replay_learning_rate", 1e-3)
+        )
+        self.gaussian_replay_variance_floor = float(
+            self.config.get("feature_replay_variance_floor", 1e-6)
+        )
+        self.gaussian_replay_seed = int(
+            self.config.get("feature_replay_seed", 0)
+        )
+        if self.gaussian_replay_hidden_dim < 1:
+            raise ValueError("ASCAL Gaussian replay MLP hidden dimension must be positive")
+        if not (
+            math.isfinite(self.gaussian_replay_learning_rate)
+            and self.gaussian_replay_learning_rate > 0.0
+        ):
+            raise ValueError("ASCAL Gaussian replay MLP learning rate must be positive")
+        if not (
+            math.isfinite(self.gaussian_replay_variance_floor)
+            and self.gaussian_replay_variance_floor > 0.0
+        ):
+            raise ValueError("ASCAL Gaussian replay variance floor must be positive")
+
+        self._gaussian_replay_source_direction = (
+            weight[1].detach().float().cpu().numpy()
+            - weight[0].detach().float().cpu().numpy()
+        ).astype(np.float64)
+        if bias is None:
+            self._gaussian_replay_source_bias = 0.0
+        else:
+            self._gaussian_replay_source_bias = float(
+                bias[1].detach().float().cpu().item()
+                - bias[0].detach().float().cpu().item()
+            )
+        self._gaussian_replay_rng = np.random.default_rng(
+            self.gaussian_replay_seed
+        )
+        self._feature_route_query = None
+        self._pending_gaussian_replay_features: np.ndarray | None = None
+        self._pending_gaussian_replay_state: dict[str, Any] | None = None
+        self._pending_gaussian_replay_assignment: (
+            tuple[str, int | None] | None
+        ) = None
+        self._pending_gaussian_replay_mixture: dict[str, Any] | None = None
+        self.gaussian_replay_updates = 0
+        self.gaussian_replay_candidate_samples = 0
+        self.gaussian_replay_generated_samples = 0
+        self.gaussian_replay_applied_batches = 0
+        self.gaussian_replay_applied_samples = 0
+        self.gaussian_replay_cold_start_batches = 0
+        self.gaussian_replay_label_changes = 0
+        self.gaussian_replay_last_loss = 0.0
+        self.gaussian_replay_last_effective_support = 0.0
+        self.gaussian_replay_last_reliability = 0.0
+
+    @property
+    def trainable_parameters(self) -> int:
+        if self.adaptation_mode == "static":
+            return 0
+        total = 0
+        for state in self._all_ordinal_ridge_states():
+            head = state.get("mlp_head")
+            if head is not None:
+                total += sum(parameter.numel() for parameter in head.parameters())
+        return total
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        getter = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.reproduction_metadata.fget
+        if getter is None:
+            raise RuntimeError(
+                "ASCAL Gaussian replay MLP lost the R12 metadata getter"
+            )
+        metadata = getter(self)
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_feature_routed_per_expert_class_conditional_"
+                    "gaussian_replay_mlp"
+                ),
+                "research_name": "ASCAL-JMP-GaussianReplayMLP",
+                "research_version": "R25",
+                "routing_coordinate": (
+                    "l2_normalized_frozen_clip_feature_orthogonal_to_"
+                    "source_binary_head"
+                ),
+                "routing_rule": (
+                    "maximum_mean_cosine_similarity_to_historical_expert_"
+                    "prototype_with_active_tie_priority"
+                ),
+                "routing_score_used": False,
+                "gmm_role": (
+                    "prediction_time_selected_old_expert_equal_prior_pseudo_"
+                    "label_and_continuous_reliability_only"
+                ),
+                "gmm_in_final_prediction": False,
+                "feature_memory": (
+                    "per_expert_reliability_weighted_real_and_fake_diagonal_"
+                    "gaussian_sufficient_statistics"
+                ),
+                "raw_features_stored": False,
+                "feature_replay": (
+                    "balanced_real_fake_sampling_from_each_selected_experts_"
+                    "cumulative_feature_distributions"
+                ),
+                "feature_replay_samples_per_update": (
+                    "the_current_stream_batch_size_rounded_up_to_an_even_number"
+                ),
+                "expert_head": (
+                    "one_hidden_layer_gelu_mlp_with_zero_initialized_output_"
+                    "per_expert"
+                ),
+                "expert_hidden_dim": self.gaussian_replay_hidden_dim,
+                "prediction_rule": (
+                    "sigmoid_of_frozen_source_logit_plus_selected_expert_mlp_"
+                    "residual_logit"
+                ),
+                "cold_start_rule": "exact_frozen_source_probability",
+                "training_objective": (
+                    "balanced_binary_cross_entropy_on_source_logit_plus_mlp_"
+                    "using_generated_pseudo_features"
+                ),
+                "optimizer": "adam_one_step_after_each_predicted_batch",
+                "learning_rate": self.gaussian_replay_learning_rate,
+                "epochs": "none",
+                "confidence_threshold": "none_continuous_gmm_reliability",
+                "memory_capacity": "none_fixed_size_sufficient_statistics",
+                "fusion_weight": "none_additive_logit_residual",
+                "prediction_mutates_experts": False,
+                "target_labels_used": False,
+                "generator_boundaries_used": False,
+                "semantic_features_used": True,
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "the old neural LoRA source detector and source score stay frozen",
+                    "the R22 CLIP feature router selects one historical expert",
+                    "the selected old GMM supplies pseudo-labels and reliability only",
+                    "arrived features are discarded after weighted Gaussian moments update",
+                    "balanced pseudo-features remove the observed stream class prior",
+                    "the zero-output expert head is exactly neutral at expert birth",
+                    "one post-prediction optimizer step updates only the selected expert",
+                    "the final score contains Base plus one expert MLP and no GMM fusion",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_feature_routed_gaussian_replay_mlp"
+
+    def _new_ordinal_ridge_state(self) -> dict[str, Any]:
+        classifier = getattr(self.model, "classifier", None)
+        feature_dim = int(getattr(classifier, "in_features", 0))
+        if feature_dim < 1:
+            raise TypeError(
+                "ASCAL Gaussian replay MLP requires a finite feature dimension"
+            )
+        return {
+            "candidate_samples": 0,
+            "route_feature_sum": np.zeros(feature_dim, dtype=np.float64),
+            "route_feature_mass": 0.0,
+            "class_samples": np.zeros(2, dtype=np.int64),
+            "class_mass": np.zeros(2, dtype=np.float64),
+            "feature_mean": np.zeros((2, feature_dim), dtype=np.float64),
+            "feature_m2": np.zeros((2, feature_dim), dtype=np.float64),
+            "mlp_head": None,
+            "mlp_optimizer": None,
+            "head_updates": 0,
+            "generated_samples": 0,
+            "last_loss": 0.0,
+        }
+
+    def _batch_scores_and_gaussian_replay_features(
+        self,
+        images: Any,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        import torch
+
+        if images.dim() == 5:
+            batch, views = int(images.shape[0]), int(images.shape[1])
+            flat = images.reshape(batch * views, *images.shape[2:])
+        elif images.dim() == 4:
+            batch, views = int(images.shape[0]), 1
+            flat = images
+        else:
+            raise ValueError(
+                "ASCAL Gaussian replay MLP expects (B, C, H, W) or "
+                "(B, V, C, H, W) images"
+            )
+        forward_features = getattr(self.model, "forward_features", None)
+        forward_classifier_features = getattr(
+            self.model, "forward_classifier_features", None
+        )
+        classifier = getattr(self.model, "classifier", None)
+        if not callable(forward_features) or not callable(classifier):
+            raise TypeError(
+                "ASCAL Gaussian replay MLP requires forward_features and classifier"
+            )
+        with torch.no_grad():
+            features = forward_features(flat.to(self.device, non_blocking=True))
+            classifier_features = (
+                forward_classifier_features(features)
+                if callable(forward_classifier_features)
+                else features
+            )
+            logits = classifier(classifier_features)
+        scores = (
+            binary_score(logits)
+            .view(batch, views)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        feature_values = (
+            classifier_features.detach()
+            .float()
+            .view(batch, views, -1)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        if feature_values.shape != (batch, self.gaussian_replay_feature_dim):
+            raise ValueError(
+                "ASCAL Gaussian replay feature dimension does not match the source head"
+            )
+        if not np.all(np.isfinite(feature_values)):
+            raise FloatingPointError(
+                "ASCAL Gaussian replay received non-finite CLIP features"
+            )
+        norms = np.linalg.norm(feature_values, axis=1, keepdims=True)
+        normalized = np.divide(
+            feature_values,
+            norms,
+            out=np.zeros_like(feature_values),
+            where=norms > np.finfo(np.float64).eps,
+        )
+        self._feature_route_query = self._feature_route_coordinates(normalized)
+        return scores, feature_values
+
+    @staticmethod
+    def _gaussian_replay_ready(state: dict[str, Any] | None) -> bool:
+        if state is None or int(state.get("head_updates", 0)) <= 0:
+            return False
+        class_samples = np.asarray(
+            state.get("class_samples", []), dtype=np.int64
+        ).reshape(-1)
+        class_mass = np.asarray(
+            state.get("class_mass", []), dtype=np.float64
+        ).reshape(-1)
+        return bool(
+            class_samples.shape == (2,)
+            and class_mass.shape == (2,)
+            and np.all(class_samples >= 2)
+            and np.all(np.isfinite(class_mass))
+            and np.all(class_mass > np.finfo(np.float64).eps)
+            and state.get("mlp_head") is not None
+        )
+
+    @staticmethod
+    def _normalized_feature_values(features: np.ndarray) -> np.ndarray:
+        values = np.asarray(features, dtype=np.float64)
+        norms = np.linalg.norm(values, axis=1, keepdims=True)
+        return np.divide(
+            values,
+            norms,
+            out=np.zeros_like(values),
+            where=norms > np.finfo(np.float64).eps,
+        )
+
+    def _ensure_gaussian_replay_head(self, state: dict[str, Any]) -> Any:
+        head = state.get("mlp_head")
+        if head is not None:
+            return head
+
+        import torch
+        import torch.nn as nn
+
+        head = nn.Sequential(
+            nn.Linear(
+                self.gaussian_replay_feature_dim,
+                self.gaussian_replay_hidden_dim,
+            ),
+            nn.GELU(),
+            nn.Linear(self.gaussian_replay_hidden_dim, 1),
+        ).to(self.device)
+        first = head[0]
+        output = head[2]
+        initialization = self._gaussian_replay_rng.normal(
+            0.0,
+            math.sqrt(2.0 / float(self.gaussian_replay_feature_dim)),
+            size=(
+                self.gaussian_replay_hidden_dim,
+                self.gaussian_replay_feature_dim,
+            ),
+        )
+        with torch.no_grad():
+            first.weight.copy_(
+                torch.from_numpy(initialization).to(
+                    device=first.weight.device,
+                    dtype=first.weight.dtype,
+                )
+            )
+            first.bias.zero_()
+            output.weight.zero_()
+            output.bias.zero_()
+        optimizer = torch.optim.Adam(
+            head.parameters(),
+            lr=self.gaussian_replay_learning_rate,
+        )
+        head.eval()
+        state["mlp_head"] = head
+        state["mlp_optimizer"] = optimizer
+        return head
+
+    def _gaussian_replay_residual(
+        self,
+        state: dict[str, Any],
+        features: np.ndarray,
+    ) -> np.ndarray:
+        import torch
+
+        head = state.get("mlp_head")
+        if head is None:
+            return np.zeros(int(features.shape[0]), dtype=np.float64)
+        normalized = self._normalized_feature_values(features)
+        with torch.no_grad():
+            residual = head(
+                torch.from_numpy(normalized).to(
+                    device=self.device,
+                    dtype=torch.float32,
+                )
+            ).reshape(-1)
+        values = residual.detach().cpu().numpy().astype(np.float64)
+        if not np.all(np.isfinite(values)):
+            raise FloatingPointError(
+                "ASCAL Gaussian replay MLP produced a non-finite residual"
+            )
+        return values
+
+    @staticmethod
+    def _update_weighted_diagonal_gaussian(
+        state: dict[str, Any],
+        class_index: int,
+        features: np.ndarray,
+        weights: np.ndarray,
+    ) -> None:
+        positive = np.asarray(weights, dtype=np.float64).reshape(-1) > (
+            np.finfo(np.float64).eps
+        )
+        if not np.any(positive):
+            return
+        values = np.asarray(features, dtype=np.float64)[positive]
+        selected_weights = np.asarray(weights, dtype=np.float64).reshape(-1)[
+            positive
+        ]
+        batch_mass = float(selected_weights.sum())
+        batch_mean = np.average(values, axis=0, weights=selected_weights)
+        centered = values - batch_mean[None, :]
+        batch_m2 = np.sum(
+            selected_weights[:, None] * centered * centered,
+            axis=0,
+        )
+
+        old_mass = float(state["class_mass"][class_index])
+        old_mean = np.asarray(
+            state["feature_mean"][class_index], dtype=np.float64
+        )
+        old_m2 = np.asarray(state["feature_m2"][class_index], dtype=np.float64)
+        total_mass = old_mass + batch_mass
+        delta = batch_mean - old_mean
+        combined_mean = old_mean + delta * (batch_mass / total_mass)
+        combined_m2 = (
+            old_m2
+            + batch_m2
+            + delta * delta * (old_mass * batch_mass / total_mass)
+        )
+        state["class_samples"][class_index] = int(
+            state["class_samples"][class_index]
+        ) + int(values.shape[0])
+        state["class_mass"][class_index] = total_mass
+        state["feature_mean"][class_index] = combined_mean
+        state["feature_m2"][class_index] = combined_m2
+
+    def _sample_gaussian_replay(
+        self,
+        state: dict[str, Any],
+        samples: int,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        per_class = max(1, int(math.ceil(samples / 2.0)))
+        generated: list[np.ndarray] = []
+        labels: list[np.ndarray] = []
+        for class_index in (0, 1):
+            mass = float(state["class_mass"][class_index])
+            mean = np.asarray(
+                state["feature_mean"][class_index], dtype=np.float64
+            )
+            variance = np.asarray(
+                state["feature_m2"][class_index], dtype=np.float64
+            ) / mass
+            variance = np.maximum(
+                variance,
+                self.gaussian_replay_variance_floor,
+            )
+            noise = self._gaussian_replay_rng.standard_normal(
+                (per_class, self.gaussian_replay_feature_dim)
+            )
+            generated.append(mean[None, :] + noise * np.sqrt(variance)[None, :])
+            labels.append(
+                np.full(per_class, class_index, dtype=np.float32)
+            )
+        features = np.concatenate(generated, axis=0)
+        targets = np.concatenate(labels, axis=0)
+        order = self._gaussian_replay_rng.permutation(features.shape[0])
+        return features[order], targets[order]
+
+    def _train_gaussian_replay_head(
+        self,
+        state: dict[str, Any],
+        samples: int,
+    ) -> float:
+        import torch
+        import torch.nn.functional as functional
+
+        synthetic, labels = self._sample_gaussian_replay(state, samples)
+        normalized = self._normalized_feature_values(synthetic)
+        source_margin = (
+            synthetic @ self._gaussian_replay_source_direction
+            + self._gaussian_replay_source_bias
+        ) / self.temperature
+        head = self._ensure_gaussian_replay_head(state)
+        optimizer = state.get("mlp_optimizer")
+        if optimizer is None:
+            raise RuntimeError("ASCAL Gaussian replay MLP lost its optimizer")
+
+        feature_tensor = torch.from_numpy(normalized).to(
+            device=self.device,
+            dtype=torch.float32,
+        )
+        source_tensor = torch.from_numpy(source_margin).to(
+            device=self.device,
+            dtype=torch.float32,
+        )
+        label_tensor = torch.from_numpy(labels).to(
+            device=self.device,
+            dtype=torch.float32,
+        )
+        head.train()
+        optimizer.zero_grad(set_to_none=True)
+        residual = head(feature_tensor).reshape(-1)
+        loss = functional.binary_cross_entropy_with_logits(
+            source_tensor + residual,
+            label_tensor,
+        )
+        if not bool(torch.isfinite(loss)):
+            head.eval()
+            raise FloatingPointError(
+                "ASCAL Gaussian replay MLP produced a non-finite loss"
+            )
+        loss.backward()
+        optimizer.step()
+        head.eval()
+        generated_samples = int(labels.size)
+        state["head_updates"] = int(state["head_updates"]) + 1
+        state["generated_samples"] = int(
+            state["generated_samples"]
+        ) + generated_samples
+        state["last_loss"] = float(loss.detach().cpu().item())
+        self.gaussian_replay_updates += 1
+        self.gaussian_replay_generated_samples += generated_samples
+        self.gaussian_replay_last_loss = float(state["last_loss"])
+        return float(state["last_loss"])
+
+    def _update_gaussian_replay_state(
+        self,
+        state: dict[str, Any],
+        mixture: dict[str, Any],
+        scores: np.ndarray,
+        features: np.ndarray,
+    ) -> bool:
+        posterior = np.asarray(
+            joint_density_fake_posterior(scores, mixture),
+            dtype=np.float64,
+        ).reshape(-1)
+        labels = (posterior >= 0.5).astype(np.int64)
+        reliability = np.abs(2.0 * posterior - 1.0)
+        if not (
+            posterior.shape == (int(scores.size),)
+            and features.shape
+            == (int(scores.size), self.gaussian_replay_feature_dim)
+            and np.all(np.isfinite(posterior))
+            and np.all(np.isfinite(reliability))
+        ):
+            raise RuntimeError(
+                "ASCAL Gaussian replay received invalid pseudo-supervision"
+            )
+
+        route_features = self._feature_route_coordinates(
+            self._normalized_feature_values(features)
+        )
+        state["route_feature_sum"] = np.asarray(
+            state["route_feature_sum"], dtype=np.float64
+        ) + np.sum(route_features, axis=0)
+        state["route_feature_mass"] = float(
+            state["route_feature_mass"]
+        ) + float(route_features.shape[0])
+        state["candidate_samples"] = int(state["candidate_samples"]) + int(
+            scores.size
+        )
+        self.gaussian_replay_candidate_samples += int(scores.size)
+        self.gaussian_replay_last_effective_support = float(reliability.sum())
+        self.gaussian_replay_last_reliability = float(np.mean(reliability))
+        for class_index in (0, 1):
+            class_weights = np.where(labels == class_index, reliability, 0.0)
+            self._update_weighted_diagonal_gaussian(
+                state,
+                class_index,
+                features,
+                class_weights,
+            )
+
+        class_samples = np.asarray(state["class_samples"], dtype=np.int64)
+        class_mass = np.asarray(state["class_mass"], dtype=np.float64)
+        distribution_ready = bool(
+            np.all(class_samples >= 2)
+            and np.all(np.isfinite(class_mass))
+            and np.all(class_mass > np.finfo(np.float64).eps)
+        )
+        if not distribution_ready:
+            return False
+        self._train_gaussian_replay_head(state, int(scores.size))
+        return self._gaussian_replay_ready(state)
+
+    def _gaussian_replay_state_stats(self) -> dict[str, Any]:
+        states = self._all_ordinal_ridge_states()
+        class_masses = [
+            np.asarray(state["class_mass"], dtype=np.float64) for state in states
+        ]
+        class_samples = [
+            np.asarray(state["class_samples"], dtype=np.int64) for state in states
+        ]
+        return {
+            "gaussian_replay_expert_count": len(states),
+            "gaussian_replay_ready_experts": sum(
+                self._gaussian_replay_ready(state) for state in states
+            ),
+            "gaussian_replay_updates": self.gaussian_replay_updates,
+            "gaussian_replay_candidate_samples": (
+                self.gaussian_replay_candidate_samples
+            ),
+            "gaussian_replay_generated_samples": (
+                self.gaussian_replay_generated_samples
+            ),
+            "gaussian_replay_applied_batches": (
+                self.gaussian_replay_applied_batches
+            ),
+            "gaussian_replay_applied_samples": (
+                self.gaussian_replay_applied_samples
+            ),
+            "gaussian_replay_cold_start_batches": (
+                self.gaussian_replay_cold_start_batches
+            ),
+            "gaussian_replay_label_changes": self.gaussian_replay_label_changes,
+            "gaussian_replay_real_samples": int(
+                sum(int(samples[0]) for samples in class_samples)
+            ),
+            "gaussian_replay_fake_samples": int(
+                sum(int(samples[1]) for samples in class_samples)
+            ),
+            "gaussian_replay_real_mass": float(
+                sum(float(mass[0]) for mass in class_masses)
+            ),
+            "gaussian_replay_fake_mass": float(
+                sum(float(mass[1]) for mass in class_masses)
+            ),
+            "gaussian_replay_last_loss": self.gaussian_replay_last_loss,
+            "gaussian_replay_last_effective_support": (
+                self.gaussian_replay_last_effective_support
+            ),
+            "gaussian_replay_last_reliability": (
+                self.gaussian_replay_last_reliability
+            ),
+            "gaussian_replay_trainable_parameters": self.trainable_parameters,
+            "gaussian_replay_distribution_values": (
+                len(states) * self.gaussian_replay_feature_dim * 4
+            ),
+        }
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute._state_stats(self)
+        stats.update(self._gaussian_replay_state_stats())
+        return stats
+
+    def predict(self, images: Any) -> PredictionBatch:
+        scores, features = self._batch_scores_and_gaussian_replay_features(images)
+        self._ordinal_ridge_precomputed_scores = scores
+        try:
+            ordinal = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.predict(
+                self,
+                images,
+            )
+        finally:
+            self._ordinal_ridge_precomputed_scores = None
+            self._feature_route_query = None
+        if self._pending is None:
+            raise RuntimeError(
+                "ASCAL Gaussian replay MLP lost the routed prediction state"
+            )
+
+        context = self._ordinal_ridge_context()
+        assignment = None if context is None else context[0]
+        mixture = None if context is None else context[1]
+        state = (
+            None
+            if assignment is None
+            else self._peek_ordinal_ridge_state(assignment)
+        )
+        ready = self._gaussian_replay_ready(state)
+        source_probability = np.asarray(
+            self._source_probability(scores), dtype=np.float64
+        ).reshape(-1)
+        source_margin = np.asarray(scores, dtype=np.float64).reshape(-1) / (
+            self.temperature
+        )
+        residual = np.zeros_like(source_margin)
+        if ready:
+            if state is None:
+                raise RuntimeError(
+                    "ASCAL Gaussian replay MLP lost its selected expert state"
+                )
+            residual = self._gaussian_replay_residual(state, features)
+            probability = self._stable_sigmoid(source_margin + residual)
+        else:
+            probability = source_probability.copy()
+
+        source_labels = (source_probability >= 0.5).astype(np.int64)
+        final_labels = (probability >= 0.5).astype(np.int64)
+        label_changes = int(np.count_nonzero(source_labels != final_labels))
+        self._pending_gaussian_replay_features = features.copy()
+        self._pending_gaussian_replay_state = state
+        self._pending_gaussian_replay_assignment = assignment
+        self._pending_gaussian_replay_mixture = (
+            None if mixture is None else _copy_gmm(mixture)
+        )
+        pending_state = dict(self._pending)
+        pending_state.pop("scores")
+        pending_state.update(
+            {
+                "prediction_gaussian_replay_routed": context is not None,
+                "prediction_gaussian_replay_ready": ready,
+                "prediction_gaussian_replay_applied": ready,
+                "prediction_gaussian_replay_residual_mean": float(
+                    np.mean(residual)
+                ),
+                "prediction_gaussian_replay_residual_abs_mean": float(
+                    np.mean(np.abs(residual))
+                ),
+                "prediction_gaussian_replay_residual_max_abs": float(
+                    np.max(np.abs(residual))
+                ),
+                "prediction_gaussian_replay_label_changes": label_changes,
+                "prediction_gaussian_replay_internal_r12_fake_count": int(
+                    ordinal.pred_label.sum().item()
+                ),
+                "prediction_gaussian_replay_source_fake_count": int(
+                    source_labels.sum()
+                ),
+                "prediction_gaussian_replay_final_fake_count": int(
+                    final_labels.sum()
+                ),
+            }
+        )
+        return self._prediction_batch(scores, probability, **pending_state)
+
+    def adapt(self, images: Any) -> AdaptationStats:
+        if self._pending is None:
+            return ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.adapt(self, images)
+        scores = np.asarray(self._pending["scores"], dtype=np.float64).reshape(-1)
+        prediction_state = dict(self._pending)
+        features = self._pending_gaussian_replay_features
+        state = self._pending_gaussian_replay_state
+        assignment = self._pending_gaussian_replay_assignment
+        mixture = self._pending_gaussian_replay_mixture
+        self._pending_gaussian_replay_features = None
+        self._pending_gaussian_replay_state = None
+        self._pending_gaussian_replay_assignment = None
+        self._pending_gaussian_replay_mixture = None
+
+        updated = False
+        if self.adaptation_mode == "full" and assignment is not None:
+            if features is None or features.shape != (
+                int(scores.size),
+                self.gaussian_replay_feature_dim,
+            ):
+                raise RuntimeError(
+                    "ASCAL Gaussian replay MLP lost its prediction features"
+                )
+            if mixture is None:
+                raise RuntimeError(
+                    "ASCAL Gaussian replay MLP lost its selected GMM"
+                )
+            if state is None:
+                state = self._ensure_ordinal_ridge_state(assignment)
+            updated = self._update_gaussian_replay_state(
+                state,
+                mixture,
+                scores,
+                features,
+            )
+
+        stats = ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.adapt(self, images)
+        routed = bool(prediction_state.get("prediction_gaussian_replay_routed"))
+        applied = bool(prediction_state.get("prediction_gaussian_replay_applied"))
+        if applied:
+            self.gaussian_replay_applied_batches += 1
+            self.gaussian_replay_applied_samples += int(scores.size)
+        elif routed:
+            self.gaussian_replay_cold_start_batches += 1
+        self.gaussian_replay_label_changes += int(
+            prediction_state.get("prediction_gaussian_replay_label_changes", 0)
+            or 0
+        )
+        stats.extra.update(
+            {
+                **self._gaussian_replay_state_stats(),
+                "gaussian_replay_updated": updated,
+            }
+        )
+        return stats
+
+    def discard_pending_prediction(self) -> None:
+        self._ordinal_ridge_precomputed_scores = None
+        self._feature_route_query = None
+        self._pending_gaussian_replay_features = None
+        self._pending_gaussian_replay_state = None
+        self._pending_gaussian_replay_assignment = None
+        self._pending_gaussian_replay_mixture = None
+        ASCALGMMSegmentedMemoryPosteriorOrdinalRoute.discard_pending_prediction(
+            self
+        )
+
+
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
     ASCALGMMSegmentedMemoryPosteriorProjection
 ):

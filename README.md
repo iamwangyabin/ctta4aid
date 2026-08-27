@@ -1140,14 +1140,23 @@ seed1 诊断，不进入正式三 seed 主结果。R24 只适合回答“R23 当
 能力”，不能替代旧 R12/R22 对 GMM 专家上限的结论；当前首要问题应定位为 Source-Ridge
 替换后 GMM score coordinate 的类别可分性下降。
 
-若继续修正 Ridge 伪监督，可保持 R23 的 source checkpoint、CLIP 特征路由、GMM 专家、
-Predict-Then-Adapt 和单一 Ridge 读出不变，只把 hard one-hot target 累积改成无阈值的
-**class-balanced soft evidence**。每个专家仅保存 GMM soft membership 与可靠度形成的两组
-充分统计；令
-`M_y = sum_i c_i q_iy`、`m = min(M_real, M_fake)`，两类历史统计都只保留到各自可被另一类证据
-支持的质量 `m`。这会下调多数伪类而绝不放大小数伪类；任一类没有证据时 `m=0`，专家严格保持
-Source-Ridge。它不存图片、不假设当前 batch 的 real/fake 比例，也不增加阈值、学习率、epoch、
-融合权重或数据集参数，直接针对本轮暴露的“高置信单类伪监督把解析分类器拉偏”问题。
+`ascal_gmm_segmented_memory_posterior_feature_routed_gaussian_replay_mlp` 的研究版本名为
+**ASCAL-JMP-GaussianReplayMLP（R25）**。它回到旧的神经网络 LoRA Source checkpoint 与
+R22 的 CLIP 特征路由，不再强制 Ridge 充当专家分类器。每个专家仍用预测时选中的旧 GMM
+posterior 产生 hard 伪类和连续可靠度，但最终预测不读取 GMM posterior；可靠目标 CLIP 特征
+只用于在线更新 real/fake 两个类别条件对角高斯的样本数、质量、均值和二阶中心矩，随后立即
+丢弃。每批预测完成后，从两类累计高斯中等量采样与当前 batch 同量的伪特征，对该专家独立的
+`768 -> 64 -> 1` GELU MLP 做一次 Adam 更新。MLP 输出层从零初始化，正式预测统一为冻结
+Source logit 加所选专家 MLP residual logit，因此新专家和未就绪专家严格等于旧 Source，且不
+存在概率平均、融合系数或 GMM/Ridge/Source 三路读出。
+
+R25 是固定的 GenImage matched-JPEG seed1 诊断而非正式三 seed 结果。它只保存每类对角高斯
+充分统计、路由原型、MLP 与 optimizer 状态，不保存图片、逐样本特征或固定容量 replay bank；
+平衡生成回放也不继承当前 stream 的 observed class ratio。首版固定 hidden dimension 64、
+Adam learning rate `1e-3`、每个已预测 batch 一步更新，回放量直接由当前 batch size 决定；
+不使用置信度阈值、epoch、memory capacity 或 target label 选择这些参数。首版故意只验证
+“分布式特征回放能否训练出提升排序的专家头”，若单高斯的伪特征流形质量不足，再把 fake
+分布扩成多分量，而不在同一版本同时增加结构。
 
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
