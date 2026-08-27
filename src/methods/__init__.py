@@ -6,6 +6,7 @@ from .ascal import ASCAL
 from .ascal_gmm import (
     ASCALGMM,
     ASCALGMMCurrentSegmentGaussianReplayMLP,
+    ASCALGMMGlobalStreamGaussianReplayMLP,
     ASCALGMMSegmentedMemoryPosteriorAnalyticExpert,
     ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP,
     ASCALGMMSegmentedMemoryPosteriorNoHistoricalRecallGaussianReplayMLP,
@@ -388,6 +389,16 @@ def build_method(
             model, device, effective_config
         )
     if normalized in {
+        "ascalgmmglobalstreamgaussianreplaymlp",
+        "ascalgmmglobalstreamgaussianreplaymlpstatic",
+    }:
+        effective_config = dict(config)
+        if normalized == "ascalgmmglobalstreamgaussianreplaymlpstatic":
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMGlobalStreamGaussianReplayMLP(
+            model, device, effective_config
+        )
+    if normalized in {
         "ascalgmmsegmentedmemoryposteriorfeatureroutedcurrentbatchreplaymlp",
         "ascalgmmsegmentedmemoryposteriorfeatureroutedcurrentbatchreplaymlpstatic",
     }:
@@ -559,6 +570,7 @@ __all__ = [
     "ASCAL",
     "ASCALGMM",
     "ASCALGMMCurrentSegmentGaussianReplayMLP",
+    "ASCALGMMGlobalStreamGaussianReplayMLP",
     "ASCALGMMSegmentedMemoryPosteriorAnalyticExpert",
     "ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP",
     "ASCALGMMSegmentedMemoryPosteriorNoHistoricalRecallGaussianReplayMLP",

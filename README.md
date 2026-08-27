@@ -1302,6 +1302,13 @@ archive 也完全删除，段切换时直接丢弃旧 GMM/feature distribution/M
 archive 从未影响预测，R35 预期与 R34 逐样本完全等价；只有在线指标非劣且轨迹审计成立，
 才能把它确定为不含历史路由与 memory 的最简 forward-online 核心。
 
+若 R35 验证通过，最后一个结构消融 **ASCAL-JMP-GlobalStreamCore（R36）**再删除参数
+无关的 BIC change-point scan 与 current-state reset：一个 GMM、一个 real/fake Gaussian
+feature distribution 和一个 residual MLP 累积整个因果流，其他监督、可靠度、平衡回放和
+训练预算完全不变。它回答“分段本身是否必要”。R36 只有同时不低于 R35 的 online
+target-macro Accuracy/AUC 才能继续简化；否则 R35 的因果分段 reset 就是最终核心的必要
+组成，而不是为了路由历史专家留下的冗余模块。
+
 第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
 训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
 Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度有放回采样；当前批缺少

@@ -7966,6 +7966,56 @@ class ASCALGMMCurrentSegmentGaussianReplayMLP(
         return stats
 
 
+class ASCALGMMGlobalStreamGaussianReplayMLP(
+    ASCALGMMCurrentSegmentGaussianReplayMLP
+):
+    """Use one global online GMM, feature distribution, and residual head."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_global_stream_gmm_supervised_balanced_"
+                    "gaussian_replay_residual_mlp"
+                ),
+                "research_name": "ASCAL-JMP-GlobalStreamCore",
+                "research_version": "R36",
+                "ablation_parent": "ASCAL-JMP-CurrentSegmentCore-R35",
+                "ablation_question": (
+                    "whether_parameter_free_causal_segment_resets_are_needed_"
+                    "beyond_one_global_accumulating_online_state"
+                ),
+                "segmentation_rule": "none",
+                "segment_reset_scope": "none",
+                "state_scope": "one_global_stream_gmm_feature_distribution_and_mlp",
+                "score_history": "all_causally_arrived_source_scores",
+                "completed_expert_state_rule": "not_applicable_no_segment_change",
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R35 GMM supervision confidence replay head and prediction stay unchanged",
+                    "the BIC change-point scan and every current-state reset are disabled",
+                    "one GMM and one feature distribution and MLP accumulate the full stream",
+                    "no historical archive route threshold or new hyperparameter is introduced",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "global_stream_gmm_gaussian_replay_mlp"
+
+    def _detect_segment_change(self) -> None:
+        self.last_segment_gain = None
+
+
 class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP(
     ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP
 ):
