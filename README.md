@@ -1116,7 +1116,19 @@ R24 在 10500 个在线样本中有 10484 个使用旧 GMM，只有首批 16 个
 275 个修正了 Source 错误，96 个破坏了 Source 正确决定，净增 179 个正确样本。逐 target
 Accuracy 在 BigGAN、ADM、glide、VQDM、wukong 和 Midjourney 分别提高 0.47、0.47、1.40、
 2.20、0.80 和 6.80 个百分点，仅 SD v1.5 下降 0.20；但 target-macro AUC 基本不变。这说明
-当前 GMM 确实学到了一定的**阈值/类别分界能力**，却没有提供更好的样本级排序。
+当前 **Source-Ridge score 坐标上的 GMM** 学到了一定的阈值/类别分界能力，却没有提供更好的
+样本级排序；这个结论不能外推成“此前成功的 GMM 专家只能提升 1.70 个百分点”。
+
+旧的神经网络 Source checkpoint `f7a351...` 上，GenImage Source Accuracy/AUC 为
+68.3143%/82.5031%，R01 GMM projection 为 76.2667%/82.1521%，R12 GMM ordinal route 为
+76.8095%/82.2337%；因此 R01、R12 的 Accuracy 分别真正提高 **7.9524** 和 **8.4952** 个
+百分点。即便改用 R22 的 CLIP 特征路由，其最终 Ridge 融合前的内部 GMM 决策仍有
+75.8762% Accuracy，相对旧 Source 提高 **7.5619** 个百分点。R24 换成了新的解析
+Source-Ridge checkpoint `ccef3f...`，其 Static Accuracy/AUC 已降至 65.0667%/75.4417%；更
+关键的是 GMM 拟合坐标也从旧神经网络 margin 换成了这个较弱的 Source-Ridge margin。R12
+在平衡 GenImage 流上的 predicted-fake rate 为 39.3429%，R24 只有 18.2762%；R24 的宏平均
+fake recall 也只有 35.0476%，同时 real recall 达到 98.4952%，说明主要退化是新 score 坐标
+让 GMM 严重塌向 real，而不是 GMM 专家结构本身失效。
 
 这个对照只改变最终读出：R23 与 R24 的在线、holdout manifest 哈希完全一致；对真实 658 个
 batch 的 172 个因果状态字段逐项比较，91073 个数值在 `rtol=atol=1e-12` 下无一不一致，类别
@@ -1124,7 +1136,9 @@ batch 的 172 个因果状态字段逐项比较，91073 个数值在 `rtol=atol=
 高 1.3714 个百分点、AUC 低 3.5144 个百分点，因而把两个模块的作用分开了：GMM 分界更利于
 当前阈值分类，Ridge 学到了额外排序方向，但现有 Ridge 读出会牺牲部分 GMM 的正确硬决定。
 R24 的最终 holdout Accuracy/AUC 相对 Static 为 -1.0571/-0.0075 个百分点，所以它仍只是
-seed1 诊断，不进入正式三 seed 主结果。
+seed1 诊断，不进入正式三 seed 主结果。R24 只适合回答“R23 当前状态中的 GMM 还能剩下多少
+能力”，不能替代旧 R12/R22 对 GMM 专家上限的结论；当前首要问题应定位为 Source-Ridge
+替换后 GMM score coordinate 的类别可分性下降。
 
 若继续修正 Ridge 伪监督，可保持 R23 的 source checkpoint、CLIP 特征路由、GMM 专家、
 Predict-Then-Adapt 和单一 Ridge 读出不变，只把 hard one-hot target 累积改成无阈值的
