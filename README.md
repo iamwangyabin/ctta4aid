@@ -1248,6 +1248,13 @@ CLIP 特征路由召回；active GMM 尚未就绪时严格回退 Source。它单
 路由”是否必要，其他 GMM 置信度、Gaussian replay、MLP 和训练量不变。即使 R30 通过，
 也只能先说明历史召回可删；真正删除历史 memory 还必须再做一个独立版本验证。
 
+第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
+训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
+Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度有放回采样；当前批缺少
+任一伪类别就跳过该次 head 更新，样本随后立即丢弃。类条件高斯统计仍以 shadow 状态更新，
+只为严格审计其他轨迹，不进入训练。它单独检验累计分布式 feature replay 是否必要；若
+R31 下降，则 Gaussian memory 与生成回放应保留在凝练后的核心方法中。
+
 ASCAL 诊断迭代采用不可复用的 `Rxx + 研究名 + method id`：每轮只允许一个结构变化，设计
 依据只读取无标签在线状态，seed1 指标只用于候选晋级，不能据此添加逐数据集规则；每版必须
 固定配置、commit、源码归档和 `run_record.json`。边界校准版本沿用 Accuracy 与

@@ -2165,6 +2165,36 @@ class ASCALGMMConfigTests(unittest.TestCase):
         self.assertTrue(reference["episodic_memory_updated"])
         self.assertFalse(reference["target_labels_used"])
 
+    def test_current_batch_replay_config_removes_only_gaussian_draws(self) -> None:
+        from src.config import load_config, method_config
+
+        static_name = (
+            "ascal_gmm_segmented_memory_posterior_feature_routed_"
+            "current_batch_replay_mlp_static"
+        )
+        method_name = static_name.removesuffix("_static")
+        path = (
+            PROJECT_ROOT
+            / "configs/experiments/clip_vlm_bias_controlled"
+            / "matched_jpeg_ascal_gmm_segmented_memory_posterior_feature_"
+            "routed_current_batch_replay_mlp_continual_genimage_seed1.yaml"
+        )
+        config = load_config(path)
+        self.assertEqual(config["methods"], [static_name, method_name])
+        adaptive = method_config(config, method_name)
+        reference = adaptive["reference"]
+        self.assertEqual(reference["research_name"], "ASCAL-JMP-CurrentBatchReplay")
+        self.assertEqual(reference["research_version"], "R31")
+        self.assertEqual(
+            reference["ablation_variable"],
+            "cumulative_gaussian_draws_replaced_by_current_batch_resampling",
+        )
+        self.assertEqual(adaptive["feature_replay_samples_per_update"], 256)
+        self.assertEqual(reference["feature_memory_role"], "shadow_statistics_not_used_for_training")
+        self.assertTrue(reference["replay_replacement"])
+        self.assertFalse(reference["routing_score_used"])
+        self.assertFalse(reference["target_labels_used"])
+
     def test_source_ridge_inheritance_config_uses_one_analytic_coordinate(
         self,
     ) -> None:
@@ -3339,6 +3369,29 @@ class ASCALGMMMethodTests(unittest.TestCase):
         )
 
         return ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP(
+            self.detector(),
+            "cpu",
+            {
+                "adaptation_mode": adaptation_mode,
+                "score_anchors": self.anchors(),
+                "feature_replay_hidden_dim": 4,
+                "feature_replay_learning_rate": 0.01,
+                "feature_replay_samples_per_update": replay_samples,
+                "feature_replay_seed": 1,
+            },
+        )
+
+    def segmented_memory_posterior_current_batch_replay_method(
+        self,
+        *,
+        adaptation_mode: str = "full",
+        replay_samples: int = 8,
+    ):
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP,
+        )
+
+        return ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP(
             self.detector(),
             "cpu",
             {
@@ -7039,6 +7092,76 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(metadata["research_version"], "R30")
         self.assertFalse(metadata["historical_expert_recall"])
 
+    def test_current_batch_replay_uses_only_arrived_features(self) -> None:
+        method = self.segmented_memory_posterior_current_batch_replay_method(
+            replay_samples=8
+        )
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-7.5, -3.5],
+            "sigmas": [0.5, 0.5],
+            "components": 2,
+            "bic": 0.0,
+        }
+        scores = np.array([-8.0, -7.0, -4.0, -3.0])
+        images = self.score_feature_batch(
+            scores,
+            np.array([-1.0, -0.5, 0.5, 1.0]),
+        )
+        _, features = method._batch_scores_and_gaussian_replay_features(images)
+        method._feature_route_query = None
+        labels, reliability, _ = method._gaussian_replay_supervision(
+            mixture,
+            scores,
+        )
+        replay = method._gaussian_replay_training_samples(
+            method._novel_ordinal_ridge_state,
+            8,
+            features,
+            labels,
+            reliability,
+        )
+        self.assertIsNotNone(replay)
+        replay_features, replay_labels = replay
+        self.assertEqual(replay_features.shape, (8, 3))
+        np.testing.assert_array_equal(
+            np.bincount(replay_labels.astype(np.int64), minlength=2),
+            np.array([4, 4]),
+        )
+        for row in replay_features:
+            self.assertTrue(np.any(np.all(features == row[None, :], axis=1)))
+
+        state = method._novel_ordinal_ridge_state
+        self.assertTrue(
+            method._update_gaussian_replay_state(
+                state,
+                mixture,
+                scores,
+                features,
+            )
+        )
+        updates = int(state["head_updates"])
+        one_class_scores = np.array([-9.0, -8.5, -8.0, -7.5])
+        one_class_images = self.score_feature_batch(
+            one_class_scores,
+            np.array([-1.0, -0.5, 0.5, 1.0]),
+        )
+        _, one_class_features = method._batch_scores_and_gaussian_replay_features(
+            one_class_images
+        )
+        method._feature_route_query = None
+        method._update_gaussian_replay_state(
+            state,
+            mixture,
+            one_class_scores,
+            one_class_features,
+        )
+        self.assertEqual(state["head_updates"], updates)
+        self.assertEqual(method.current_batch_replay_skipped_updates, 1)
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_name"], "ASCAL-JMP-CurrentBatchReplay")
+        self.assertEqual(metadata["research_version"], "R31")
+
     def test_source_ridge_experts_clone_complete_source_statistics(self) -> None:
         method = (
             self.segmented_memory_posterior_feature_routed_source_ridge_method()
@@ -8723,6 +8846,29 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_current_batch_replay_static_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_feature_routed_"
+            "current_batch_replay_mlp_static",
+            self.detector(),
+            "cpu",
+            {
+                "score_anchors": self.anchors(),
+                "feature_replay_samples_per_update": 8,
+            },
+        )
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_method_factory_maps_feature_routed_source_ridge_static_alias(
         self,
     ) -> None:
@@ -9983,6 +10129,52 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertIsInstance(
             method,
             ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_current_batch_replay_with_lora_profile(self) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP,
+        )
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_feature_routed_"
+            "current_batch_replay_mlp_static"
+        )
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {
+                method_name: {
+                    "adaptation_mode": "static",
+                    "feature_replay_samples_per_update": 256,
+                }
+            },
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(self.detector(), {"family": "clip_lora_source_detector"}),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP,
         )
         self.assertEqual(method.adaptation_mode, "static")
 

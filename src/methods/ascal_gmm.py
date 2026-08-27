@@ -7012,21 +7012,41 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         del stream_batch_size
         return int(generated_samples)
 
+    def _gaussian_replay_training_samples(
+        self,
+        state: dict[str, Any],
+        requested_samples: int,
+        observed_features: np.ndarray,
+        observed_labels: np.ndarray,
+        observed_reliability: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray] | None:
+        del observed_features, observed_labels, observed_reliability
+        return self._sample_gaussian_replay(state, requested_samples)
+
     def _train_gaussian_replay_head(
         self,
         state: dict[str, Any],
         samples: int,
-    ) -> float:
+        observed_features: np.ndarray,
+        observed_labels: np.ndarray,
+        observed_reliability: np.ndarray,
+    ) -> float | None:
         import torch
         import torch.nn.functional as functional
 
         requested_samples = self._gaussian_replay_samples_per_update(samples)
         if requested_samples < 1:
             raise ValueError("ASCAL Gaussian replay requires positive replay samples")
-        synthetic, labels = self._sample_gaussian_replay(
+        training_samples = self._gaussian_replay_training_samples(
             state,
             requested_samples,
+            observed_features,
+            observed_labels,
+            observed_reliability,
         )
+        if training_samples is None:
+            return None
+        synthetic, labels = training_samples
         normalized = self._normalized_feature_values(synthetic)
         source_margin = (
             synthetic @ self._gaussian_replay_source_direction
@@ -7152,7 +7172,13 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         )
         if not distribution_ready:
             return False
-        self._train_gaussian_replay_head(state, int(scores.size))
+        self._train_gaussian_replay_head(
+            state,
+            int(scores.size),
+            features,
+            labels,
+            reliability,
+        )
         return self._gaussian_replay_ready(state)
 
     def _gaussian_replay_supervision(
@@ -7755,6 +7781,117 @@ class ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP(
             for candidate in candidates
             if candidate["expert"] == "active_learning_state"
         ]
+
+
+class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP
+):
+    """Replace cumulative Gaussian draws with balanced current-batch resampling."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.current_batch_replay_skipped_updates = 0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_feature_routed_balanced_current_batch_"
+                    "resampled_residual_mlp"
+                ),
+                "research_name": "ASCAL-JMP-CurrentBatchReplay",
+                "research_version": "R31",
+                "ablation_parent": "ASCAL-JMP-ExpandedGaussianReplay-R26",
+                "ablation_question": (
+                    "whether_cumulative_class_conditional_gaussian_feature_"
+                    "replay_is_needed_beyond_current_batch_pseudo_features"
+                ),
+                "feature_memory_role": "shadow_statistics_not_used_for_training",
+                "feature_replay": (
+                    "balanced_reliability_weighted_resampling_with_replacement_"
+                    "from_the_current_arrived_batch_only"
+                ),
+                "feature_replay_samples_per_update": self.expanded_replay_samples,
+                "missing_current_class_rule": "skip_the_post_prediction_head_update",
+                "raw_features_stored": False,
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R26 routing segmentation GMM supervision heads prediction and replay budget stay unchanged",
+                    "the head trains on balanced resamples of only the just-arrived pseudo-labeled features",
+                    "cumulative Gaussian moments remain shadow audit state and never generate training features",
+                    "a batch without reliable samples from both pseudo-classes performs no head update",
+                    "no image or current feature is retained after adaptation",
+                    "no other R26 component or hyperparameter is changed",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_feature_routed_current_batch_replay_mlp"
+
+    def _gaussian_replay_training_samples(
+        self,
+        state: dict[str, Any],
+        requested_samples: int,
+        observed_features: np.ndarray,
+        observed_labels: np.ndarray,
+        observed_reliability: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray] | None:
+        del state
+        features = np.asarray(observed_features, dtype=np.float64)
+        labels = np.asarray(observed_labels, dtype=np.int64).reshape(-1)
+        reliability = np.asarray(
+            observed_reliability,
+            dtype=np.float64,
+        ).reshape(-1)
+        per_class = max(1, int(math.ceil(requested_samples / 2.0)))
+        replay_features: list[np.ndarray] = []
+        replay_labels: list[np.ndarray] = []
+        for class_index in (0, 1):
+            indices = np.flatnonzero(
+                (labels == class_index)
+                & (reliability > np.finfo(np.float64).eps)
+            )
+            if indices.size == 0:
+                self.current_batch_replay_skipped_updates += 1
+                return None
+            probabilities = reliability[indices]
+            probabilities = probabilities / float(probabilities.sum())
+            selected = self._gaussian_replay_rng.choice(
+                indices,
+                size=per_class,
+                replace=True,
+                p=probabilities,
+            )
+            replay_features.append(features[selected])
+            replay_labels.append(
+                np.full(per_class, class_index, dtype=np.float32)
+            )
+        synthetic = np.concatenate(replay_features, axis=0)
+        targets = np.concatenate(replay_labels, axis=0)
+        order = self._gaussian_replay_rng.permutation(targets.size)
+        return synthetic[order], targets[order]
+
+    def _gaussian_replay_state_stats(self) -> dict[str, Any]:
+        stats = super()._gaussian_replay_state_stats()
+        stats.update(
+            {
+                "current_batch_replay_skipped_updates": (
+                    self.current_batch_replay_skipped_updates
+                ),
+                "gaussian_replay_feature_source": "current_batch_resampling",
+            }
+        )
+        return stats
 
 
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
