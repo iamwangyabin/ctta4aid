@@ -7695,6 +7695,68 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedUniformGaussianReplayMLP(
         return labels, reliability, posterior
 
 
+class ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorFeatureRoutedExpandedGaussianReplayMLP
+):
+    """Use only the currently active learner and never recall a historical expert."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_active_state_only_expanded_gaussian_replay_"
+                    "per_expert_mlp"
+                ),
+                "research_name": "ASCAL-JMP-ActiveOnly",
+                "research_version": "R30",
+                "ablation_parent": "ASCAL-JMP-ExpandedGaussianReplay-R26",
+                "ablation_question": (
+                    "whether_prediction_time_historical_clip_feature_routing_"
+                    "is_needed_beyond_the_current_active_learning_state"
+                ),
+                "routing_coordinate": "none_active_learning_state_only",
+                "routing_rule": (
+                    "use_the_current_active_gmm_when_ready_otherwise_exact_"
+                    "source_fallback"
+                ),
+                "historical_expert_recall": False,
+                "episodic_memory_updated": True,
+                "feature_route_statistics_updated": True,
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R26 segmentation GMMs feature moments replay heads and prediction stay unchanged",
+                    "prediction and adaptation can select only the current active learning state",
+                    "archived experts remain auditable but are never recalled for a current batch",
+                    "no routing threshold replacement similarity or new hyperparameter is introduced",
+                    "no other R26 component or hyperparameter is changed",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_active_only_expanded_gaussian_replay_mlp"
+
+    def _routing_candidates(self, scores: np.ndarray) -> list[dict[str, Any]]:
+        candidates = ASCALGMMSegmentedMemoryPosteriorPreRoute._routing_candidates(
+            self,
+            scores,
+        )
+        return [
+            candidate
+            for candidate in candidates
+            if candidate["expert"] == "active_learning_state"
+        ]
+
+
 class ASCALGMMSegmentedMemoryPosteriorCurrentProjection(
     ASCALGMMSegmentedMemoryPosteriorProjection
 ):

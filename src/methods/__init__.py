@@ -6,6 +6,7 @@ from .ascal import ASCAL
 from .ascal_gmm import (
     ASCALGMM,
     ASCALGMMSegmentedMemoryPosteriorAnalyticExpert,
+    ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP,
     ASCALGMMSegmentedMemoryPosteriorConditionalResidual,
     ASCALGMMDensityShift,
     ASCALGMMSegmentedMemoryPosteriorEvidenceGatedRidgeExpert,
@@ -348,6 +349,18 @@ def build_method(
             model, device, effective_config
         )
     if normalized in {
+        "ascalgmmsegmentedmemoryposterioractivegaussianreplaymlp",
+        "ascalgmmsegmentedmemoryposterioractivegaussianreplaymlpstatic",
+    }:
+        effective_config = dict(config)
+        if normalized == (
+            "ascalgmmsegmentedmemoryposterioractivegaussianreplaymlpstatic"
+        ):
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP(
+            model, device, effective_config
+        )
+    if normalized in {
         "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridge",
         "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgestatic",
     }:
@@ -483,6 +496,7 @@ __all__ = [
     "ASCAL",
     "ASCALGMM",
     "ASCALGMMSegmentedMemoryPosteriorAnalyticExpert",
+    "ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP",
     "ASCALGMMSegmentedMemoryPosteriorConditionalResidual",
     "ASCALGMMDensityShift",
     "ASCALGMMSegmentedMemoryPosteriorEvidenceGatedRidgeExpert",
