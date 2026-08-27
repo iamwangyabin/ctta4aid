@@ -30,10 +30,13 @@ method_configs:
       generator_boundaries_used: false
       semantic_features_used: true
       frozen_scope: clip_backbone_lora_branches_binary_head_and_source_score
-      routing_coordinate: none_active_learning_state_only
-      routing_rule: current_active_gmm_when_ready_otherwise_source_fallback
+      routing_coordinate: active_candidate_after_inherited_score_segment_recall
+      routing_rule: no_per_batch_memory_candidate_but_segment_callback_can_recall_score_memory
       routing_score_used: false
-      historical_expert_recall: false
+      per_batch_historical_feature_candidates: false
+      segment_change_score_memory_recall: true
+      historical_expert_recall: segment_change_callback_only
+      implementation_audit_status: invalidated_as_complete_no_historical_recall_ablation
       episodic_memory_updated: true
       gmm_role: active_old_gmm_equal_prior_pseudo_label_and_continuous_reliability_only
       gmm_in_final_prediction: false

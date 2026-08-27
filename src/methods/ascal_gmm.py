@@ -7758,10 +7758,15 @@ class ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP(
                 ),
                 "routing_coordinate": "none_active_learning_state_only",
                 "routing_rule": (
-                    "use_the_current_active_gmm_when_ready_otherwise_exact_"
-                    "source_fallback"
+                    "use_only_the_active_candidate_after_the_inherited_score_"
+                    "segment_change_memory_callback"
                 ),
-                "historical_expert_recall": False,
+                "per_batch_historical_feature_candidates": False,
+                "segment_change_score_memory_recall": True,
+                "historical_expert_recall": "segment_change_callback_only",
+                "implementation_audit_status": (
+                    "invalidated_as_a_complete_no_historical_recall_ablation"
+                ),
                 "episodic_memory_updated": True,
                 "feature_route_statistics_updated": True,
                 "fixed_method_hyperparameters": [
@@ -7772,8 +7777,9 @@ class ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP(
                 "target_selected_hyperparameters": 0,
                 "intentional_changes": [
                     "R26 segmentation GMMs feature moments replay heads and prediction stay unchanged",
-                    "prediction and adaptation can select only the current active learning state",
-                    "archived experts remain auditable but are never recalled for a current batch",
+                    "the per-batch candidate list excludes archived experts",
+                    "the inherited segment-change callback can still recall archived score memory",
+                    "a recalled state is exposed as the active candidate on following batches",
                     "no routing threshold replacement similarity or new hyperparameter is introduced",
                     "no other R26 component or hyperparameter is changed",
                 ],
@@ -7795,6 +7801,78 @@ class ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP(
             for candidate in candidates
             if candidate["expert"] == "active_learning_state"
         ]
+
+
+class ASCALGMMSegmentedMemoryPosteriorNoHistoricalRecallGaussianReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorActiveGaussianReplayMLP
+):
+    """Disable both per-batch and segment-change historical expert recall."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "frozen_clip_segmented_current_state_only_expanded_"
+                    "gaussian_replay_residual_mlp"
+                ),
+                "research_name": "ASCAL-JMP-NoHistoricalRecall",
+                "research_version": "R34",
+                "ablation_parent": "ASCAL-JMP-ExpandedGaussianReplay-R26",
+                "ablation_question": (
+                    "whether_any_historical_expert_recall_is_needed_beyond_"
+                    "the_current_segment_learning_state"
+                ),
+                "routing_coordinate": "none_current_segment_state_only",
+                "routing_rule": (
+                    "current_active_gmm_when_ready_otherwise_exact_source_"
+                    "fallback"
+                ),
+                "per_batch_historical_feature_candidates": False,
+                "segment_change_score_memory_recall": False,
+                "historical_expert_recall": False,
+                "episodic_memory_updated": True,
+                "episodic_memory_role": "shadow_archive_never_read",
+                "completed_expert_state_rule": (
+                    "archive_for_audit_then_start_a_fresh_current_segment_state"
+                ),
+                "implementation_audit_status": "valid_no_historical_recall_ablation",
+                "fixed_method_hyperparameters": [
+                    "feature_replay_hidden_dim",
+                    "feature_replay_learning_rate",
+                    "feature_replay_samples_per_update",
+                ],
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R26 segmentation GMM confidence feature replay heads and training budget stay unchanged",
+                    "archived experts are excluded from every per-batch candidate list",
+                    "the segment-change callback cannot select an archived score memory",
+                    "each discovered segment therefore learns only its fresh active expert state",
+                    "the archive remains shadow audit state and is never read for prediction or adaptation",
+                    "no threshold similarity replacement or new hyperparameter is introduced",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_no_historical_recall_expanded_gaussian_replay_mlp"
+
+    def _select_recalled_memory(
+        self,
+        scores: np.ndarray,
+        new_mixture: dict[str, Any],
+        *,
+        excluded_index: int | None,
+    ) -> int | None:
+        del scores, excluded_index
+        self.last_memory_fixed_score = None
+        self.last_memory_new_bic = float(new_mixture["bic"])
+        self.last_memory_identity_penalty = None
+        self.last_memory_recall_gain = None
+        return None
 
 
 class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedCurrentBatchReplayMLP(

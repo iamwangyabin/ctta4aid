@@ -1265,11 +1265,26 @@ R29 已由固定提交 `f1f18ef` 在 4090-1 完成：online target-macro Accurac
 把连续 GMM reliability 改成单位权重。虽然差距很小，也不能在看到结果后放宽门槛，故
 `|2p-1|` 连续可靠度保留为核心组件。
 
-第四个单变量候选 **ASCAL-JMP-ActiveOnly（R30）**仍保留 R26 的分段、历史档案和
-每专家学习状态，但预测与适应只允许使用当前 active learning state，历史专家永远不被
-CLIP 特征路由召回；active GMM 尚未就绪时严格回退 Source。它单独检验“预测前历史专家
-路由”是否必要，其他 GMM 置信度、Gaussian replay、MLP 和训练量不变。即使 R30 通过，
-也只能先说明历史召回可删；真正删除历史 memory 还必须再做一个独立版本验证。
+第四个候选 **ASCAL-JMP-ActiveOnly（R30）**原本计划保留 R26 的分段与 shadow 档案，
+只允许当前 active candidate 进入预测和适应，从而检验历史专家路由是否必要。完成后做逐批
+状态审计才发现：R30 确实删除了每个 batch 的 CLIP feature memory candidates，但继承的
+segment-change callback 仍会按 source-score GMM 描述长度召回旧 memory，再把旧 head
+挂到名为 `active_learning_state` 的候选上。因此它实际只是“无逐批 feature router”，不是
+“无历史召回”，不能用来决定删除路由或 memory。
+
+R30 的固定提交 `d391e46` 在 4090-2 得到 online target-macro Accuracy/AUC
+**79.0095/84.6232**，表面上相对 R26 提高 **0.2000/0.1363** 个百分点；但 658 个
+batch 中发生了 3 次 score-based memory recall，并有 **280** 个 batch 的 active candidate
+实际绑定历史 memory state。其 final-holdout Accuracy/AUC 还下降 **2.8571/1.0776**
+个百分点。故 `run_record.json` 将“指标门槛通过”和“消融有效”分开记录：前者为真，后者为
+假，R30 不晋级，也不能作为路由可删的证据。
+
+修正后的 **ASCAL-JMP-NoHistoricalRecall（R34）**同时关闭两个历史入口：每批候选列表
+不含 archive，segment-change callback 也永远不能选回旧 score memory。完成段仍只写入
+shadow archive 供审计，随后启动全新的 current-segment GMM/feature distribution/MLP；
+旧状态不再被预测或适应读取。R34 不增加阈值或相似度，其他 GMM 置信度、256 平衡 Gaussian
+replay、非线性 head 与 Predict-Then-Adapt 顺序均保持 R26。只有 R34 通过 R26 的 online
+Accuracy/AUC 双非劣门槛，才能继续做“连 shadow archive 也删除”的下一步消融。
 
 第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
 训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
