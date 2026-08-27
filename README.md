@@ -1229,6 +1229,14 @@ residual logit`。R27 只回答“多个分类 head 是否必要”，只有 onl
 Accuracy 不低于 78.8095 且 AUC 不低于 84.4869 时才接受；否则恢复 R26 的专家专属
 head，再消融下一项。该门槛在运行前固定，不读取 target label 调参。
 
+R27 已由固定提交 `cdddf3b` 在 4090-1 完成：online target-macro Accuracy/AUC 为
+**77.8095/84.4293**，final-holdout 为 **76.6571/82.1957**。相对 R26，online
+Accuracy/AUC 分别下降 **1.0000/0.0575** 个百分点，final-holdout 分别下降
+**1.9714/1.2824** 个百分点，因此严格拒绝“共享一个 residual head”，R26 的每专家
+独立 head 与 optimizer 必须保留。跨服务器按 `1e-10` 数值容差审计的 658 个 batch、
+154 个共同非 head 语义字段没有不一致，说明下降来自 head 共享，而不是路由、分段、GMM
+或 feature memory 轨迹改变。该结论仍只属于 GenImage matched-JPEG seed1 诊断。
+
 与 R27 并行的第二个单变量候选 **ASCAL-JMP-LinearResidualHead（R28）**从 R26
 出发，只把每专家 `768 -> 64 -> 1` GELU residual MLP 改为零初始化的 `768 -> 1`
 线性 residual；专家数量、路由、GMM、高斯统计、回放量、Adam 学习率和最终加法均不变。
