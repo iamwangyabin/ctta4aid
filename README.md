@@ -1093,9 +1093,43 @@ Accuracy 从 65.6048% 提高到 65.7509%，AUC 从 78.6947% 提高到 79.9287%�
 严重失衡的 GMM posterior 持续用偏向 real 的 cross-covariance 更新 target Gram，并改变 Ridge
 的样本级排序方向。
 
-下一候选应保持 R23 的 source checkpoint、CLIP 特征路由、GMM 专家、Predict-Then-Adapt 和
-单一 Ridge 读出不变，只把 hard one-hot target 累积改成无阈值的 **class-balanced soft
-evidence**。每个专家仅保存 GMM soft membership 与可靠度形成的两组充分统计；令
+在改写 Ridge 监督前，先用
+`ascal_gmm_segmented_memory_posterior_feature_routed_source_ridge_gmm_readout` 做了一个只回答
+“当前专家 GMM 自己能分到什么程度”的 **R24 / ASCAL-JMP-SourceRidgeGMMReadout** 诊断。
+R24 完整保留 R23 的 source checkpoint、CLIP 特征路由、GMM、分段、记忆、伪监督和 Ridge
+状态更新；Ridge 只在后台影子更新，绝不进入最终 logit。所选历史 GMM 仍先产生 hard real/fake
+决定，最终概率恢复 R12 的 ordinal readout：GMM 决定落在 `[0, 0.5)` 还是 `[0.5, 1]`，冻结
+Source-Ridge 概率只负责各区间内部排序。因此阈值 0.5 的 Accuracy 直接衡量 GMM 决策，而不是
+专家 Ridge 分类。
+
+R24 已由固定提交 `aaa2584` 在 4090-1 上完成 GenImage matched-JPEG seed1。Static、R23 与
+R24 的 target-macro 在线结果为：
+
+| 读出 | Accuracy | AUC | 相对 Static Accuracy (pp) | 相对 Static AUC (pp) |
+| --- | ---: | ---: | ---: | ---: |
+| Source-Ridge Static | 65.0667 | 75.4417 | 0.0000 | 0.0000 |
+| R23 expert Ridge | 65.4000 | 78.8682 | +0.3333 | +3.4266 |
+| R24 expert GMM | **66.7714** | 75.3538 | **+1.7048** | -0.0879 |
+
+R24 在 10500 个在线样本中有 10484 个使用旧 GMM，只有首批 16 个走 source fallback；四个
+专家完成 658 次 GMM refit 且没有拟合失败。GMM 相对 Source-Ridge 改变 371 个硬决定，其中
+275 个修正了 Source 错误，96 个破坏了 Source 正确决定，净增 179 个正确样本。逐 target
+Accuracy 在 BigGAN、ADM、glide、VQDM、wukong 和 Midjourney 分别提高 0.47、0.47、1.40、
+2.20、0.80 和 6.80 个百分点，仅 SD v1.5 下降 0.20；但 target-macro AUC 基本不变。这说明
+当前 GMM 确实学到了一定的**阈值/类别分界能力**，却没有提供更好的样本级排序。
+
+这个对照只改变最终读出：R23 与 R24 的在线、holdout manifest 哈希完全一致；对真实 658 个
+batch 的 172 个因果状态字段逐项比较，91073 个数值在 `rtol=atol=1e-12` 下无一不一致，类别
+状态也零差异，最大绝对差仅为累计能量上的 `2.91e-11` 跨机浮点误差。R24 比 R23 的 Accuracy
+高 1.3714 个百分点、AUC 低 3.5144 个百分点，因而把两个模块的作用分开了：GMM 分界更利于
+当前阈值分类，Ridge 学到了额外排序方向，但现有 Ridge 读出会牺牲部分 GMM 的正确硬决定。
+R24 的最终 holdout Accuracy/AUC 相对 Static 为 -1.0571/-0.0075 个百分点，所以它仍只是
+seed1 诊断，不进入正式三 seed 主结果。
+
+若继续修正 Ridge 伪监督，可保持 R23 的 source checkpoint、CLIP 特征路由、GMM 专家、
+Predict-Then-Adapt 和单一 Ridge 读出不变，只把 hard one-hot target 累积改成无阈值的
+**class-balanced soft evidence**。每个专家仅保存 GMM soft membership 与可靠度形成的两组
+充分统计；令
 `M_y = sum_i c_i q_iy`、`m = min(M_real, M_fake)`，两类历史统计都只保留到各自可被另一类证据
 支持的质量 `m`。这会下调多数伪类而绝不放大小数伪类；任一类没有证据时 `m=0`，专家严格保持
 Source-Ridge。它不存图片、不假设当前 batch 的 real/fake 比例，也不增加阈值、学习率、epoch、
