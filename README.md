@@ -1623,6 +1623,14 @@ python run_single_target.py \
 该结果显示 IAPL 的主要提升来自多视图与 OIS，而不是两步 prompt 参数更新；TENT、
 EATA、T2A 和 OST 的参数适应在这轮配对实验中均未提高宏平均 AUC。
 
+## 静态无 TTA 基线补充实验
+
+UnivFD/Ojha、RINE 和 NPR 已在同一 GenImage SD v1.4 Arrow 源训练集上关闭 JPEG 扰动后
+重新训练，并以冻结 checkpoint 在四套正式 `matched_jpeg` target 上完成 seed 0 评估。
+逐 target 指标、固定阈值 Accuracy、source/checkpoint 身份和完整协议披露见
+[`results/clip_vlm_bias_controlled_static_nojpeg_seed0_20260829/`](results/clip_vlm_bias_controlled_static_nojpeg_seed0_20260829/README.md)。
+该目录是单 seed 的 method-native 静态检测器补充比较，不替代 CLIP 主实验的三 seed 正文表。
+
 ## 实验边界
 
 - CLIP 主结果只使用固定 OpenAI CLIP ViT-L/14 预训练权重，并锁定目标样本 identity、目标内顺序和 seed；每种方法保留原生 source training、分类器或 prompt 构造、batch/views、在线状态与预测/适应顺序。每个数据集分别报告逐 target AUC 和阈值 0.5 的 Accuracy；target 单元格为三 seed 均值，Mean 为 target-macro 均值及跨 seed 标准差。
