@@ -1435,8 +1435,18 @@ MLP 全部使用该拼接特征。Source logit 仍仅由原第 24 层最终特�
 路由和 residual 前，则在四个 768 维块中分别删除同一个 Source head 方向，再整体归一化。
 除 `768 -> 64 -> 1` 随输入维度变为 `3072 -> 64 -> 1` 外，R44 的 GMM、分段、伪标签、
 可靠度、每批 128/128 replay、学习率、训练目标、专家记忆、最终 `Base + residual` 和
-Predict-Then-Adapt 顺序均不变，也不引入层权重或 target-selected 超参数。当前仅注册为
-GenImage matched-JPEG seed1 探索诊断，结果完成前不进入正式数值表。
+Predict-Then-Adapt 顺序均不变，也不引入层权重或 target-selected 超参数。
+
+R48 已由固定提交 `58a4c0b` 在 4090-2 完成 GenImage matched-JPEG seed1 探索筛选：online
+target-macro Accuracy/AUC 为 **77.9524/83.8588**，final-holdout 为
+**78.2857/83.4301**，average AUC forgetting 为 **0.4839 个百分点**。相对同一锁定流上的
+R44，online Accuracy/AUC 分别下降 **0.8667/0.5094** 个百分点，final Accuracy 下降
+**0.4286** 个百分点，只有 final AUC 提高 **0.0438** 个百分点且 forgetting 减少
+**0.2232** 个百分点；相对 R37 的 online Accuracy/AUC 也分别下降
+**0.8571/0.6281** 个百分点。逐 target online AUC 虽有 4/7 提高，但 BigGAN、ADM 与 VQDM
+的较大退化主导了宏平均。拼接还把流末 3 个专家的参数从 R44 的 147843 增至 590211，吞吐
+从 55.6468 降至 42.9893 sample/s。由于 online Accuracy 与 AUC 同时退化，R48 未通过既定
+三指标门槛，明确拒绝且不扩展到其余数据集或 seed；该单 seed 结果不得进入正式数值表。
 
 **ASCAL-JMP-WithinClassOrderGuard（R45）**保留 R44 的完整预测式，只在 replay 训练损失中
 加入 real 与 fake 两个伪类别各自的 residual 方差均值。该项中的标量 expert bias 自动抵消，
