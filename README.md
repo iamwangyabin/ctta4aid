@@ -1421,6 +1421,12 @@ Predict 阶段约束不可靠的样本级修正。**ASCAL-JMP-GMMConfidenceGate�
 单变量敏感性检查。两者的 R37 训练目标、CLIP 路由、BIC 分段、Gaussian replay、学习率、
 隐藏宽度和专家记忆完全一致，不增加可学习融合系数或读取 target label。
 
+进一步的单变量候选 **ASCAL-JMP-OrthogonalResidual（R44）**不改 R37 的训练目标和最终
+`Base + residual` 结构，只把专家 MLP 的输入投影到冻结 Source 二分类头方向的正交补空间，
+并重新归一化；Base logit 仍完整保留原真假方向。该坐标与 R37 已用于专家路由的 CLIP
+坐标完全相同，因此不增加投影维度、阈值或融合超参数。它检验当前 residual 是否主要在
+重复拟合 Base score；若有效，新增排序只能来自 Source 尚未使用的 CLIP 特征信息。
+
 第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
 训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
 Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度有放回采样；当前批缺少

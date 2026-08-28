@@ -2413,6 +2413,46 @@ class ASCALGMMConfigTests(unittest.TestCase):
                         reference["target_selected_hyperparameters"], 0
                     )
 
+    def test_orthogonal_residual_configs_change_only_the_head_coordinate(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "orthogonal_residual_replay_mlp"
+        )
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_clip_routed_orthogonal_residual_"
+                f"r44_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(config["methods"], [method_name])
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["data"]["shuffle"])
+                self.assertIn(dataset, config["output_dir"])
+                adaptive = method_config(config, method_name)
+                reference = adaptive["reference"]
+                self.assertEqual(reference["research_version"], "R44")
+                self.assertFalse(reference["source_coordinate_in_residual_input"])
+                self.assertTrue(reference["source_coordinate_in_base_logit"])
+                self.assertEqual(adaptive["feature_replay_hidden_dim"], 64)
+                self.assertEqual(adaptive["feature_replay_learning_rate"], 0.001)
+                self.assertEqual(adaptive["feature_replay_samples_per_update"], 256)
+                self.assertEqual(adaptive["feature_replay_seed"], 1)
+                self.assertFalse(reference["routing_score_used"])
+                self.assertFalse(reference["target_labels_used"])
+                self.assertEqual(reference["target_selected_hyperparameters"], 0)
+
     def test_segment_expert_memory_config_decouples_route_and_segmentation(
         self,
     ) -> None:
@@ -7909,6 +7949,47 @@ class ASCALGMMMethodTests(unittest.TestCase):
 
         self.assertLess(gated_residuals[1][1], gated_residuals[0][1])
 
+    def test_orthogonal_residual_reuses_the_source_free_route_coordinate(
+        self,
+    ) -> None:
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrthogonalResidualReplayMLP,
+        )
+
+        method = ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrthogonalResidualReplayMLP(
+            self.detector(),
+            "cpu",
+            {
+                "score_anchors": self.anchors(),
+                "feature_replay_hidden_dim": 4,
+                "feature_replay_samples_per_update": 8,
+                "feature_replay_seed": 1,
+            },
+        )
+        features = np.array(
+            [
+                [1.0, 1.0, 0.0],
+                [1.0, 0.0, 1.0],
+                [-0.5, 1.0, 2.0],
+            ]
+        )
+        normalized = method._normalized_feature_values(features)
+        projected = method._gaussian_replay_head_features(features)
+        route_coordinate = method._feature_route_coordinates(normalized)
+        direction = method._ordinal_ridge_source_direction
+
+        np.testing.assert_allclose(projected, route_coordinate, atol=1e-12)
+        np.testing.assert_allclose(projected @ direction, 0.0, atol=1e-12)
+        np.testing.assert_allclose(
+            np.linalg.norm(projected, axis=1),
+            np.ones(features.shape[0]),
+            atol=1e-12,
+        )
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_version"], "R44")
+        self.assertFalse(metadata["source_coordinate_in_residual_input"])
+        self.assertFalse(metadata["gmm_in_final_prediction"])
+
     def test_segment_expert_memory_route_never_restarts_score_state(self) -> None:
         method = self.segment_clip_routed_gaussian_replay_memory_method()
         method.active_memory_index = 1
@@ -9928,6 +10009,29 @@ class ASCALGMMMethodTests(unittest.TestCase):
                 self.assertEqual(method.adaptation_mode, "static")
                 self.assertEqual(method._confidence_gate_exponent, exponent)
                 self.assertEqual(method.trainable_parameters, 0)
+
+    def test_method_factory_maps_orthogonal_residual_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrthogonalResidualReplayMLP,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "orthogonal_residual_replay_mlp_static",
+            self.detector(),
+            "cpu",
+            {
+                "score_anchors": self.anchors(),
+                "feature_replay_samples_per_update": 8,
+            },
+        )
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrthogonalResidualReplayMLP,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
 
     def test_method_factory_maps_segment_expert_memory_static_alias(self) -> None:
         from src.methods import build_method

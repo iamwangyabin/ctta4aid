@@ -6844,6 +6844,12 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             where=norms > np.finfo(np.float64).eps,
         )
 
+    def _gaussian_replay_head_features(
+        self,
+        features: np.ndarray,
+    ) -> np.ndarray:
+        return self._normalized_feature_values(features)
+
     def _ensure_gaussian_replay_head(self, state: dict[str, Any]) -> Any:
         head_state = self._gaussian_replay_head_state(state)
         head = head_state.get("mlp_head")
@@ -6907,7 +6913,7 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         head = head_state.get("mlp_head")
         if head is None:
             return np.zeros(int(features.shape[0]), dtype=np.float64)
-        normalized = self._normalized_feature_values(features)
+        normalized = self._gaussian_replay_head_features(features)
         with torch.no_grad():
             residual = head(
                 torch.from_numpy(normalized).to(
@@ -7085,7 +7091,7 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
         if training_samples is None:
             return None
         synthetic, labels = training_samples
-        normalized = self._normalized_feature_values(synthetic)
+        normalized = self._gaussian_replay_head_features(synthetic)
         source_margin = (
             synthetic @ self._gaussian_replay_source_direction
             + self._gaussian_replay_source_bias
@@ -8492,6 +8498,63 @@ class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedQuadraticConfidenceGatedReplayML
             "segmented_memory_clip_routed_quadratic_confidence_gated_"
             "replay_mlp"
         )
+
+
+class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrthogonalResidualReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP
+):
+    """Train the residual only in the subspace unseen by the Source head."""
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "clip_routed_expert_memory_with_source_orthogonal_"
+                    "gaussian_replay_residual"
+                ),
+                "research_name": "ASCAL-JMP-OrthogonalResidual",
+                "research_version": "R44",
+                "ablation_parent": "ASCAL-JMP-CLIPExpertMemory-R37",
+                "ablation_question": (
+                    "whether_removing_the_frozen_source_decision_direction_"
+                    "from_the_expert_input_prevents_duplicate_ranking"
+                ),
+                "residual_coordinate": (
+                    "l2_normalized_frozen_clip_feature_orthogonal_to_source_"
+                    "binary_head"
+                ),
+                "source_coordinate_in_residual_input": False,
+                "source_coordinate_in_base_logit": True,
+                "training_objective": "unchanged_r37_balanced_replay_bce",
+                "prediction_rule": (
+                    "frozen_source_logit_plus_selected_expert_residual_from_"
+                    "the_source_orthogonal_clip_subspace"
+                ),
+                "gmm_in_final_prediction": False,
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R37 segmentation routing GMM supervision replay optimizer and expert memory stay unchanged",
+                    "the Base logit retains the complete frozen source decision direction",
+                    "the expert MLP sees only normalized CLIP features orthogonal to that direction",
+                    "the same parameter-free coordinate already used by R37 routing is reused for the residual",
+                    "no new threshold loss coefficient fusion weight or target label is introduced",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_clip_routed_orthogonal_residual_replay_mlp"
+
+    def _gaussian_replay_head_features(
+        self,
+        features: np.ndarray,
+    ) -> np.ndarray:
+        normalized = self._normalized_feature_values(features)
+        return self._feature_route_coordinates(normalized)
 
 
 class ASCALGMMSegmentedMemoryPosteriorSegmentCLIPRoutedGaussianReplayMLP(
