@@ -1450,6 +1450,15 @@ Source 排序，却也惩罚了 GenImage 与 AIGCDetectionBenchmark 中有用的
 learning rate 或额外 replay；标量 intercept 负责恢复阈值校准，缩放后的 feature residual
 只负责排序。尺度来源被明确记为一个 seed1 选择超参数，独立 seed 验证前 R47 仍非正式结果。
 
+R46 在 GenImage seed1 上的 online Accuracy/AUC 比 R37 分别下降 1.5429/1.3788 个百分点，
+forgetting 还增加 0.4629，因而在单库门槛即被拒绝。R47 则已用固定提交 `3b73f51` 完成四个
+matched-JPEG 数据集 seed1：等权数据集宏平均 online Accuracy/AUC 为 **82.3600/88.7496**，
+final-holdout 为 **82.4697/88.4688**，AUC forgetting 为 **0.4630**。相对 R37，online
+Accuracy/AUC 同时提高 **0.2368/0.2077**，final AUC 提高 **0.3958**，forgetting 降低
+**0.2929**；final Accuracy 仅低 0.0242。39 个 target 中有 28 个 AUC 高于 R37。R47 因而
+成为当前最好的 seed1 探索核心，但它的 `0.75` 来自已披露的 seed1 尺度筛选；完整独立 seed
+验收前仍不得进入正式正文数值表，也不能把这组筛选结果写成无偏三 seed 结论。
+
 第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
 训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
 Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度有放回采样；当前批缺少
