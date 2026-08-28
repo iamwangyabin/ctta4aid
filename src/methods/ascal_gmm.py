@@ -8574,6 +8574,273 @@ class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrthogonalResidualReplayMLP(
         return self._feature_route_coordinates(normalized)
 
 
+class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedMultiLayerOrthogonalResidualReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrthogonalResidualReplayMLP
+):
+    """Use concatenated projected CLS features from several frozen CLIP layers."""
+
+    def _reset_state(self) -> None:
+        raw_layers = self.config.get("clip_feature_layers", [4, 8, 16, 24])
+        if not isinstance(raw_layers, (list, tuple)):
+            raise TypeError("ASCAL multilayer CLIP feature layers must be a list")
+        try:
+            layers = tuple(int(layer) for layer in raw_layers)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                "ASCAL multilayer CLIP feature layers must be integers"
+            ) from exc
+        if (
+            not layers
+            or any(layer < 1 for layer in layers)
+            or layers != tuple(sorted(set(layers)))
+        ):
+            raise ValueError(
+                "ASCAL multilayer CLIP feature layers must be unique positive "
+                "integers in increasing order"
+            )
+        forward_multilayer = getattr(self.model, "forward_multilayer_features", None)
+        if not callable(forward_multilayer):
+            raise TypeError(
+                "ASCAL multilayer residual requires forward_multilayer_features"
+            )
+        depth = int(getattr(self.model, "clip_visual_transformer_depth", 0))
+        if depth < 1 or layers[-1] != depth:
+            raise ValueError(
+                "ASCAL multilayer residual requires the final CLIP visual block "
+                "as the last selected layer"
+            )
+        classifier = getattr(self.model, "classifier", None)
+        source_dim = int(getattr(classifier, "in_features", 0))
+        if source_dim < 1:
+            raise TypeError(
+                "ASCAL multilayer residual requires a finite source feature dimension"
+            )
+        normalization = str(
+            getattr(self.model, "classifier_feature_normalization", "none")
+        ).lower()
+        if normalization != "none":
+            raise ValueError(
+                "ASCAL multilayer residual currently requires the R44 raw source "
+                "classifier feature coordinate"
+            )
+
+        self.multilayer_clip_feature_layers = layers
+        self.multilayer_clip_layer_feature_dim = source_dim
+        self.multilayer_clip_feature_dim = len(layers) * source_dim
+        self.multilayer_clip_final_layer_position = len(layers) - 1
+        super()._reset_state()
+
+        source_direction = np.asarray(
+            self._gaussian_replay_source_direction,
+            dtype=np.float64,
+        ).reshape(-1)
+        if source_direction.size != source_dim:
+            raise ValueError(
+                "ASCAL multilayer residual source direction has an invalid dimension"
+            )
+        replay_source_direction = np.zeros(
+            self.multilayer_clip_feature_dim,
+            dtype=np.float64,
+        )
+        start = self.multilayer_clip_final_layer_position * source_dim
+        replay_source_direction[start : start + source_dim] = source_direction
+        self._gaussian_replay_source_direction = replay_source_direction
+        self.gaussian_replay_feature_dim = self.multilayer_clip_feature_dim
+        self.rms_ridge_expert_backbone_feature_dim = (
+            self.multilayer_clip_feature_dim
+        )
+        self.ordinal_ridge_feature_dim = self.multilayer_clip_feature_dim + 1
+        self._novel_ordinal_ridge_state = self._new_ordinal_ridge_state()
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "clip_multilayer_routed_expert_memory_with_blockwise_"
+                    "source_orthogonal_gaussian_replay_residual"
+                ),
+                "research_name": "ASCAL-JMP-MultiLayerOrthogonalResidual",
+                "research_version": "R48",
+                "ablation_parent": "ASCAL-JMP-OrthogonalResidual-R44",
+                "ablation_question": (
+                    "whether_complementary_intermediate_clip_semantics_improve_"
+                    "routing_and_residual_learning_over_the_final_layer_alone"
+                ),
+                "clip_feature_layers": list(self.multilayer_clip_feature_layers),
+                "clip_feature_layer_indexing": "one_based_visual_transformer_blocks",
+                "clip_layer_feature_projection": (
+                    "each_selected_cls_token_through_frozen_visual_ln_post_and_proj"
+                ),
+                "clip_layer_feature_dim": self.multilayer_clip_layer_feature_dim,
+                "downstream_feature_dim": self.multilayer_clip_feature_dim,
+                "downstream_feature_consumers": [
+                    "expert_routing",
+                    "class_conditional_diagonal_gaussian_statistics",
+                    "gaussian_replay",
+                    "expert_residual_mlp",
+                ],
+                "source_score_feature_layer": self.multilayer_clip_feature_layers[-1],
+                "source_score_rule": "unchanged_r44_final_clip_feature_binary_head",
+                "residual_coordinate": (
+                    "concatenated_projected_cls_features_with_source_binary_head_"
+                    "direction_removed_independently_from_each_layer"
+                ),
+                "residual_head": (
+                    f"one_zero_initialized_{self.multilayer_clip_feature_dim}_to_"
+                    f"{self.gaussian_replay_hidden_dim}_to_1_gelu_mlp_per_expert"
+                ),
+                "training_objective": "unchanged_r44_balanced_replay_bce",
+                "prediction_rule": (
+                    "unchanged_r44_source_logit_plus_selected_expert_residual"
+                ),
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R44 Base score GMM segmentation pseudo-label reliability replay optimizer and prediction order stay unchanged",
+                    "blocks 4 8 16 and 24 replace the single final-layer downstream feature",
+                    "each selected CLS token is mapped through the same frozen CLIP post-projection before concatenation",
+                    "the source binary-head direction is removed independently from every selected layer before routing and residual prediction",
+                    "the original final-layer feature alone still computes the immutable Base logit",
+                    "no layer weight fusion threshold target label or additional training objective is introduced",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return (
+            "segmented_memory_clip_routed_multilayer_orthogonal_residual_"
+            "replay_mlp"
+        )
+
+    def _new_ordinal_ridge_state(self) -> dict[str, Any]:
+        state = super()._new_ordinal_ridge_state()
+        feature_dim = int(getattr(self, "multilayer_clip_feature_dim", 0))
+        if feature_dim > 0:
+            state["route_feature_sum"] = np.zeros(feature_dim, dtype=np.float64)
+            state["feature_mean"] = np.zeros((2, feature_dim), dtype=np.float64)
+            state["feature_m2"] = np.zeros((2, feature_dim), dtype=np.float64)
+        return state
+
+    def _batch_scores_and_gaussian_replay_features(
+        self,
+        images: Any,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        import torch
+
+        if images.dim() == 5:
+            batch, views = int(images.shape[0]), int(images.shape[1])
+            flat = images.reshape(batch * views, *images.shape[2:])
+        elif images.dim() == 4:
+            batch, views = int(images.shape[0]), 1
+            flat = images
+        else:
+            raise ValueError(
+                "ASCAL multilayer residual expects (B, C, H, W) or "
+                "(B, V, C, H, W) images"
+            )
+        forward_multilayer = getattr(self.model, "forward_multilayer_features")
+        forward_classifier_features = getattr(
+            self.model, "forward_classifier_features", None
+        )
+        classifier = getattr(self.model, "classifier", None)
+        if not callable(classifier):
+            raise TypeError("ASCAL multilayer residual requires a source classifier")
+        with torch.no_grad():
+            final_features, multilayer_features = forward_multilayer(
+                flat.to(self.device, non_blocking=True),
+                self.multilayer_clip_feature_layers,
+            )
+            classifier_features = (
+                forward_classifier_features(final_features)
+                if callable(forward_classifier_features)
+                else final_features
+            )
+            logits = classifier(classifier_features)
+        expected_flat = batch * views
+        if final_features.shape != (
+            expected_flat,
+            self.multilayer_clip_layer_feature_dim,
+        ) or multilayer_features.shape != (
+            expected_flat,
+            self.multilayer_clip_feature_dim,
+        ):
+            raise ValueError(
+                "ASCAL multilayer residual received invalid CLIP feature shapes"
+            )
+        final_start = (
+            self.multilayer_clip_final_layer_position
+            * self.multilayer_clip_layer_feature_dim
+        )
+        final_slice = multilayer_features[
+            :,
+            final_start : final_start + self.multilayer_clip_layer_feature_dim,
+        ]
+        if not torch.equal(final_slice, classifier_features):
+            raise RuntimeError(
+                "ASCAL multilayer residual final slice differs from the Base "
+                "classifier feature"
+            )
+        scores = (
+            binary_score(logits)
+            .view(batch, views)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        feature_values = (
+            multilayer_features.detach()
+            .float()
+            .view(batch, views, self.multilayer_clip_feature_dim)
+            .mean(dim=1)
+            .cpu()
+            .numpy()
+            .astype(np.float64)
+        )
+        if not np.all(np.isfinite(feature_values)):
+            raise FloatingPointError(
+                "ASCAL multilayer residual received non-finite CLIP features"
+            )
+        normalized = self._normalized_feature_values(feature_values)
+        self._feature_route_query = self._feature_route_coordinates(normalized)
+        return scores, feature_values
+
+    def _feature_route_coordinates(self, features: np.ndarray) -> np.ndarray:
+        values = np.asarray(features, dtype=np.float64)
+        if values.ndim != 2 or int(values.shape[1]) != (
+            self.multilayer_clip_feature_dim
+        ):
+            raise ValueError(
+                "ASCAL multilayer feature route received invalid CLIP features"
+            )
+        direction = np.asarray(
+            self._ordinal_ridge_source_direction,
+            dtype=np.float64,
+        ).reshape(-1)
+        if direction.size != self.multilayer_clip_layer_feature_dim:
+            raise ValueError(
+                "ASCAL multilayer feature route source direction is invalid"
+            )
+        blocks = values.reshape(
+            values.shape[0],
+            len(self.multilayer_clip_feature_layers),
+            self.multilayer_clip_layer_feature_dim,
+        )
+        coefficients = np.einsum("bld,d->bl", blocks, direction)
+        projected = blocks - coefficients[:, :, None] * direction[None, None, :]
+        flattened = projected.reshape(values.shape)
+        norms = np.linalg.norm(flattened, axis=1, keepdims=True)
+        return np.divide(
+            flattened,
+            norms,
+            out=np.zeros_like(flattened),
+            where=norms > np.finfo(np.float64).eps,
+        )
+
+
 class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrderGuardReplayMLP(
     ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrthogonalResidualReplayMLP
 ):

@@ -148,6 +148,115 @@ def _clip_lora_detector_class() -> Any:
         def forward_features(self, images: Any) -> Any:
             return self.encode_image(images).float()
 
+        @property
+        def clip_visual_transformer_depth(self) -> int:
+            resblocks = getattr(
+                getattr(self.clip.visual, "transformer", None),
+                "resblocks",
+                None,
+            )
+            if resblocks is None:
+                raise TypeError(
+                    "CLIP multilayer features require visual transformer blocks"
+                )
+            return len(resblocks)
+
+        def forward_multilayer_features(
+            self,
+            images: Any,
+            layers: Any,
+        ) -> tuple[Any, Any]:
+            """Return the final feature and selected projected CLS features.
+
+            Layer numbers are one-based. Each captured block output is passed
+            through the visual tower's frozen ``ln_post`` and ``proj`` so all
+            selected layers share the detector head's 768-dimensional CLIP
+            coordinate. The normal final feature is produced by the unchanged
+            visual forward and is returned separately for source scoring.
+            """
+
+            try:
+                selected = tuple(int(layer) for layer in layers)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    "CLIP multilayer feature layers must be integers"
+                ) from exc
+            if (
+                not selected
+                or any(layer < 1 for layer in selected)
+                or selected != tuple(sorted(set(selected)))
+            ):
+                raise ValueError(
+                    "CLIP multilayer feature layers must be unique positive "
+                    "integers in increasing order"
+                )
+
+            visual = self.clip.visual
+            resblocks = getattr(
+                getattr(visual, "transformer", None),
+                "resblocks",
+                None,
+            )
+            if resblocks is None:
+                raise TypeError(
+                    "CLIP multilayer features require visual transformer blocks"
+                )
+            depth = len(resblocks)
+            if selected[-1] > depth:
+                raise ValueError(
+                    f"CLIP multilayer feature layer {selected[-1]} exceeds "
+                    f"visual depth {depth}"
+                )
+            ln_post = getattr(visual, "ln_post", None)
+            if not callable(ln_post):
+                raise TypeError("CLIP multilayer features require visual ln_post")
+            projection = getattr(visual, "proj", None)
+            batch = int(images.shape[0])
+            captured: dict[int, Any] = {}
+            handles = []
+
+            def capture(layer: int) -> Any:
+                def hook(_module: Any, _inputs: Any, output: Any) -> None:
+                    sequence = output[0] if isinstance(output, (tuple, list)) else output
+                    if sequence.ndim != 3 or int(sequence.shape[1]) != batch:
+                        raise ValueError(
+                            "CLIP visual block output must have token-batch-width "
+                            "shape for multilayer feature capture"
+                        )
+                    feature = ln_post(sequence[0])
+                    if projection is not None:
+                        feature = feature @ projection
+                    captured[layer] = feature.float()
+
+                return hook
+
+            try:
+                for layer in selected:
+                    handles.append(
+                        resblocks[layer - 1].register_forward_hook(capture(layer))
+                    )
+                final_features = self.forward_features(images)
+            finally:
+                for handle in handles:
+                    handle.remove()
+
+            missing = [layer for layer in selected if layer not in captured]
+            if missing:
+                raise RuntimeError(
+                    f"CLIP multilayer feature hooks missed layers {missing}"
+                )
+            # Reuse the normal visual output for the final block so its slice is
+            # exactly the coordinate used by the frozen source classifier.
+            if selected[-1] == depth:
+                captured[depth] = final_features
+            concatenated = torch.cat([captured[layer] for layer in selected], dim=1)
+            expected_dim = len(selected) * self.feature_dim
+            if concatenated.shape != (batch, expected_dim):
+                raise ValueError(
+                    "CLIP multilayer feature concatenation has an invalid shape"
+                )
+            return final_features, concatenated
+
         def forward_classifier_features(self, features: Any) -> Any:
             if self.classifier_feature_normalization == "l2":
                 return torch.nn.functional.normalize(features.float(), dim=1)

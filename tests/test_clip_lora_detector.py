@@ -48,12 +48,21 @@ class ClipLoRADetectorTests(unittest.TestCase):
                 super().__init__()
                 self.conv1 = nn.Conv2d(3, 8, kernel_size=1)
                 self.transformer = Transformer()
+                self.ln_post = nn.LayerNorm(8)
+                self.proj = nn.Parameter(self.torch_eye(8))
+
+            @staticmethod
+            def torch_eye(size):
+                import torch
+
+                return torch.eye(size)
 
             def forward(self, images):
                 values = self.conv1(images).mean(dim=(2, 3))
+                values = values.unsqueeze(0)
                 for block in self.transformer.resblocks:
                     values = block(values)
-                return values
+                return self.ln_post(values[0]) @ self.proj
 
         class FakeClip(nn.Module):
             def __init__(self) -> None:
@@ -150,6 +159,28 @@ class ClipLoRADetectorTests(unittest.TestCase):
         self.assertTrue(torch.allclose(features.norm(dim=1), torch.ones(3)))
         self.assertTrue(torch.equal(actual, expected))
         self.assertEqual(metadata["classifier_feature_normalization"], "l2")
+
+    def test_multilayer_features_are_one_based_and_reuse_final_output(self) -> None:
+        torch = self.torch
+        torch.manual_seed(0)
+        model, _metadata = self.build()
+        model.eval()
+        images = torch.randn(3, 3, 8, 8)
+        with torch.no_grad():
+            final, multilayer = model.forward_multilayer_features(images, (1, 2))
+            expected_final = model.forward_features(images)
+        self.assertEqual(model.clip_visual_transformer_depth, 2)
+        self.assertEqual(tuple(multilayer.shape), (3, 16))
+        self.assertTrue(torch.equal(final, expected_final))
+        self.assertTrue(torch.equal(multilayer[:, 8:], final))
+
+    def test_multilayer_features_reject_invalid_layer_lists(self) -> None:
+        torch = self.torch
+        model, _metadata = self.build()
+        images = torch.randn(1, 3, 8, 8)
+        for layers in ((), (0, 1), (2, 1), (1, 1), (1, 3)):
+            with self.subTest(layers=layers), self.assertRaises(ValueError):
+                model.forward_multilayer_features(images, layers)
 
     def test_classifier_coordinate_rejects_unknown_normalization(self) -> None:
         with self.assertRaises(ValueError):

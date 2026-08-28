@@ -1427,6 +1427,17 @@ Predict 阶段约束不可靠的样本级修正。**ASCAL-JMP-GMMConfidenceGate�
 坐标完全相同，因此不增加投影维度、阈值或融合超参数。它检验当前 residual 是否主要在
 重复拟合 Base score；若有效，新增排序只能来自 Source 尚未使用的 CLIP 特征信息。
 
+在 R44 上新增的单变量诊断 **ASCAL-JMP-MultiLayerOrthogonalResidual（R48）**只把后续
+使用的单层 CLIP 特征替换为视觉 Transformer 第 `4/8/16/24` 块的多层特征。每层 CLS
+token 都经过同一组冻结 `ln_post` 与 `proj` 映射到 768 维 CLIP 输出坐标，随后按层顺序
+拼接成 3072 维；专家路由、real/fake 对角 Gaussian 统计、Gaussian replay 和 residual
+MLP 全部使用该拼接特征。Source logit 仍仅由原第 24 层最终特征及冻结二分类头计算；进入
+路由和 residual 前，则在四个 768 维块中分别删除同一个 Source head 方向，再整体归一化。
+除 `768 -> 64 -> 1` 随输入维度变为 `3072 -> 64 -> 1` 外，R44 的 GMM、分段、伪标签、
+可靠度、每批 128/128 replay、学习率、训练目标、专家记忆、最终 `Base + residual` 和
+Predict-Then-Adapt 顺序均不变，也不引入层权重或 target-selected 超参数。当前仅注册为
+GenImage matched-JPEG seed1 探索诊断，结果完成前不进入正式数值表。
+
 **ASCAL-JMP-WithinClassOrderGuard（R45）**保留 R44 的完整预测式，只在 replay 训练损失中
 加入 real 与 fake 两个伪类别各自的 residual 方差均值。该项中的标量 expert bias 自动抵消，
 两类 residual 均值之间的距离也不受约束，因此阈值校准和类间分离仍由原平衡 BCE 完整学习；

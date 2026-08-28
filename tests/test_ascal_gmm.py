@@ -2453,6 +2453,38 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["target_labels_used"])
                 self.assertEqual(reference["target_selected_hyperparameters"], 0)
 
+    def test_multilayer_orthogonal_residual_config_changes_only_features(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "multilayer_orthogonal_residual_replay_mlp"
+        )
+        path = (
+            PROJECT_ROOT
+            / "configs/experiments/clip_vlm_bias_controlled"
+            / "matched_jpeg_ascal_gmm_clip_routed_multilayer_orthogonal_"
+            "residual_r48_continual_genimage_seed1.yaml"
+        )
+        config = load_config(path)
+        self.assertEqual(config["methods"], [method_name])
+        self.assertEqual(config["seed"], 1)
+        self.assertFalse(config["data"]["shuffle"])
+        adaptive = method_config(config, method_name)
+        reference = adaptive["reference"]
+        self.assertEqual(reference["research_version"], "R48")
+        self.assertEqual(reference["ablation_parent"], "ASCAL-JMP-OrthogonalResidual-R44")
+        self.assertEqual(adaptive["clip_feature_layers"], [4, 8, 16, 24])
+        self.assertEqual(reference["downstream_feature_dim"], 3072)
+        self.assertEqual(adaptive["feature_replay_hidden_dim"], 64)
+        self.assertEqual(adaptive["feature_replay_learning_rate"], 0.001)
+        self.assertEqual(adaptive["feature_replay_samples_per_update"], 256)
+        self.assertEqual(adaptive["feature_replay_seed"], 1)
+        self.assertFalse(reference["target_labels_used"])
+        self.assertEqual(reference["target_selected_hyperparameters"], 0)
+
     def test_order_guard_configs_add_only_fixed_within_class_variance(
         self,
     ) -> None:
@@ -3479,6 +3511,48 @@ class ASCALGMMMethodTests(unittest.TestCase):
                 return self.classifier(self.forward_features(images))
 
         return TinyDetector()
+
+    def multilayer_detector(self):
+        torch = self.torch
+        nn = self.nn
+
+        class TinyMultiLayerDetector(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.classifier = nn.Linear(3, 2, bias=False)
+                with torch.no_grad():
+                    self.classifier.weight.copy_(
+                        torch.tensor(
+                            [
+                                [-2.0, 2.0, 0.0],
+                                [2.0, -2.0, 0.0],
+                            ]
+                        )
+                    )
+                self.feature_dim = 3
+                self.classifier_feature_normalization = "none"
+                self.clip_visual_transformer_depth = 24
+
+            def forward_features(self, images):
+                return images.mean(dim=(2, 3))
+
+            def forward_classifier_features(self, features):
+                return features.float()
+
+            def forward_multilayer_features(self, images, layers):
+                final = self.forward_features(images)
+                selected = []
+                for layer in layers:
+                    if int(layer) == self.clip_visual_transformer_depth:
+                        selected.append(final)
+                    else:
+                        selected.append(final + float(layer) / 100.0)
+                return final, torch.cat(selected, dim=1)
+
+            def forward(self, images):
+                return self.classifier(self.forward_features(images))
+
+        return TinyMultiLayerDetector()
 
     def anchors(self) -> dict:
         return {
@@ -8138,6 +8212,58 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertFalse(metadata["source_coordinate_in_residual_input"])
         self.assertFalse(metadata["gmm_in_final_prediction"])
 
+    def test_multilayer_orthogonal_residual_concatenates_and_projects_blocks(
+        self,
+    ) -> None:
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedMultiLayerOrthogonalResidualReplayMLP,
+        )
+
+        method = ASCALGMMSegmentedMemoryPosteriorCLIPRoutedMultiLayerOrthogonalResidualReplayMLP(
+            self.multilayer_detector(),
+            "cpu",
+            {
+                "score_anchors": self.anchors(),
+                "clip_feature_layers": [4, 8, 16, 24],
+                "feature_replay_hidden_dim": 4,
+                "feature_replay_samples_per_update": 8,
+                "feature_replay_seed": 1,
+            },
+        )
+        self.assertEqual(method.gaussian_replay_feature_dim, 12)
+        state = method._new_ordinal_ridge_state()
+        self.assertEqual(state["route_feature_sum"].shape, (12,))
+        self.assertEqual(state["feature_mean"].shape, (2, 12))
+        np.testing.assert_allclose(
+            method._gaussian_replay_source_direction[:9],
+            np.zeros(9),
+        )
+
+        features = np.arange(1.0, 25.0).reshape(2, 12)
+        normalized = method._normalized_feature_values(features)
+        projected = method._feature_route_coordinates(normalized)
+        blocks = projected.reshape(2, 4, 3)
+        direction = method._ordinal_ridge_source_direction
+        np.testing.assert_allclose(
+            np.einsum("bld,d->bl", blocks, direction),
+            np.zeros((2, 4)),
+            atol=1e-12,
+        )
+        np.testing.assert_allclose(
+            np.linalg.norm(projected, axis=1),
+            np.ones(2),
+            atol=1e-12,
+        )
+
+        images = self.torch.arange(24.0).reshape(2, 3, 2, 2)
+        scores, extracted = method._batch_scores_and_gaussian_replay_features(images)
+        self.assertEqual(scores.shape, (2,))
+        self.assertEqual(extracted.shape, (2, 12))
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_version"], "R48")
+        self.assertEqual(metadata["clip_feature_layers"], [4, 8, 16, 24])
+        self.assertEqual(metadata["downstream_feature_dim"], 12)
+
     def test_order_guard_penalizes_variation_but_not_output_bias(self) -> None:
         import torch
         import torch.nn.functional as functional
@@ -10460,6 +10586,30 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)
 
+    def test_method_factory_maps_multilayer_orthogonal_residual_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedMultiLayerOrthogonalResidualReplayMLP,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "multilayer_orthogonal_residual_replay_mlp_static",
+            self.multilayer_detector(),
+            "cpu",
+            {
+                "score_anchors": self.anchors(),
+                "clip_feature_layers": [4, 8, 16, 24],
+                "feature_replay_samples_per_update": 8,
+            },
+        )
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedMultiLayerOrthogonalResidualReplayMLP,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
     def test_method_factory_maps_order_guard_alias(self) -> None:
         from src.methods import build_method
         from src.methods.ascal_gmm import (
@@ -12012,6 +12162,58 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertIsInstance(
             method,
             ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+
+    def test_cli_builds_multilayer_orthogonal_residual_with_lora_profile(
+        self,
+    ) -> None:
+        from src.cli.common import build_fresh_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedMultiLayerOrthogonalResidualReplayMLP,
+        )
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "multilayer_orthogonal_residual_replay_mlp_static"
+        )
+        config = {
+            "model": {"family": "clip_vlm_main"},
+            "method_defaults": {
+                "checkpoint": "/tmp/clip.pt",
+                "source_checkpoint": "/tmp/ascal.pt",
+                "lora_rank": 4,
+            },
+            "method_configs": {
+                method_name: {
+                    "adaptation_mode": "static",
+                    "clip_feature_layers": [4, 8, 16, 24],
+                    "feature_replay_samples_per_update": 256,
+                }
+            },
+        }
+        checkpoint_metadata = {
+            "lora_rank": 4,
+            "score_anchors": self.anchors(),
+        }
+        with patch(
+            "src.cli.common.build_clip_lora_detector",
+            return_value=(
+                self.multilayer_detector(),
+                {"family": "clip_lora_source_detector"},
+            ),
+        ), patch(
+            "src.cli.common.load_checkpoint",
+            return_value=checkpoint_metadata,
+        ), patch(
+            "src.cli.common.checkpoint_sha256",
+            return_value="0" * 64,
+        ):
+            method, _ = build_fresh_method(config, method_name, "cpu")
+
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedMultiLayerOrthogonalResidualReplayMLP,
         )
         self.assertEqual(method.adaptation_mode, "static")
 
