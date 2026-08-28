@@ -1440,6 +1440,16 @@ Source 排序，却也惩罚了 GenImage 与 AIGCDetectionBenchmark 中有用的
 零。expert bias 和整类平移仍在 pair difference 中自动抵消，BCE、路由、GMM、回放量与
 预测式均不改变，也不新增阈值、margin 或可调 loss 权重。
 
+随后对 R37 的同一条因果状态轨迹做 evaluator-side residual scale 诊断，预先固定
+`{0, 0.25, 0.5, 0.75, 1}`。四数据集 seed1 上，保留原 expert bias、只把特征 residual
+缩为 `0.75` 时，online target-macro AUC 比原 R37 提高 0.1161 个百分点，final AUC 提高
+0.2731，forgetting 降低 0.2499；但 online Accuracy 下降 0.8748，因此不能按 Accuracy
+优先规则直接取代 R37。**ASCAL-JMP-CalibratedShrink（R47）**固定使用该诊断尺度，同时在
+每次不变的 R37 replay 更新后，把 MLP 权重和 Adam 状态冻结，只在同一批 128/128 平衡
+伪特征上求解一个 BCE 驻点 intercept。该一维单调方程用确定性二分求解，无 optimizer、
+learning rate 或额外 replay；标量 intercept 负责恢复阈值校准，缩放后的 feature residual
+只负责排序。尺度来源被明确记为一个 seed1 选择超参数，独立 seed 验证前 R47 仍非正式结果。
+
 第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
 训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
 Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度有放回采样；当前批缺少

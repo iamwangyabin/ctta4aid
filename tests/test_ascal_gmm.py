@@ -2548,6 +2548,59 @@ class ASCALGMMConfigTests(unittest.TestCase):
                     reference["target_selected_hyperparameters"], 0
                 )
 
+    def test_calibrated_shrink_configs_disclose_selected_scale(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "calibrated_shrink_replay_mlp"
+        )
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_clip_routed_calibrated_shrink_"
+                f"r47_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(config["methods"], [method_name])
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["data"]["shuffle"])
+                self.assertIn(dataset, config["output_dir"])
+                adaptive = method_config(config, method_name)
+                reference = adaptive["reference"]
+                self.assertEqual(reference["research_version"], "R47")
+                self.assertEqual(adaptive["feature_residual_scale"], 0.75)
+                self.assertEqual(
+                    reference["feature_residual_scale_selection"],
+                    "fixed_from_seed1_four_dataset_scale_sweep",
+                )
+                self.assertEqual(
+                    reference["calibration_optimizer"],
+                    "none_deterministic_monotone_bisection",
+                )
+                self.assertEqual(adaptive["feature_replay_hidden_dim"], 64)
+                self.assertEqual(
+                    adaptive["feature_replay_learning_rate"], 0.001
+                )
+                self.assertEqual(
+                    adaptive["feature_replay_samples_per_update"], 256
+                )
+                self.assertEqual(adaptive["feature_replay_seed"], 1)
+                self.assertFalse(reference["routing_score_used"])
+                self.assertFalse(reference["target_labels_used"])
+                self.assertEqual(
+                    reference["target_selected_hyperparameters"], 1
+                )
+
     def test_segment_expert_memory_config_decouples_route_and_segmentation(
         self,
     ) -> None:
@@ -8265,6 +8318,105 @@ class ASCALGMMMethodTests(unittest.TestCase):
             "only_pairs_whose_final_order_inverts_source_order",
         )
 
+    def test_calibrated_shrink_solves_only_balanced_replay_intercept(
+        self,
+    ) -> None:
+        import numpy as np
+        import torch
+        import torch.nn.functional as functional
+
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedCalibratedShrinkReplayMLP,
+        )
+
+        method = (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedCalibratedShrinkReplayMLP(
+                self.detector(),
+                "cpu",
+                {
+                    "score_anchors": self.anchors(),
+                    "feature_replay_hidden_dim": 4,
+                    "feature_replay_samples_per_update": 8,
+                    "feature_replay_seed": 1,
+                    "feature_residual_scale": 0.75,
+                },
+            )
+        )
+        state = method._new_ordinal_ridge_state()
+        head = method._ensure_gaussian_replay_head(state)
+        features = torch.tensor(
+            [
+                [1.0, 0.0, 0.0],
+                [-1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [0.0, -1.0, 0.0],
+            ]
+        )
+        source_margin = torch.tensor([-1.0, 0.5, -0.25, 1.25])
+        labels = torch.tensor([0.0, 0.0, 1.0, 1.0])
+        with torch.no_grad():
+            head[2].weight.fill_(0.25)
+            head[2].bias.fill_(0.4)
+        parameters_before = [
+            parameter.detach().clone() for parameter in head.parameters()
+        ]
+
+        method._after_gaussian_replay_head_update(
+            state,
+            head,
+            features,
+            source_margin,
+            labels,
+        )
+
+        for before, after in zip(
+            parameters_before,
+            head.parameters(),
+            strict=True,
+        ):
+            self.assertTrue(torch.equal(before, after))
+        head_state = method._gaussian_replay_head_state(state)
+        calibrated_bias = head_state["calibrated_prediction_bias"]
+        with torch.no_grad():
+            hidden = head[1](head[0](features))
+            feature_residual = functional.linear(
+                hidden,
+                head[2].weight,
+                bias=None,
+            ).reshape(-1)
+            balance = torch.mean(
+                torch.sigmoid(
+                    source_margin
+                    + 0.75 * feature_residual
+                    + calibrated_bias
+                )
+                - labels
+            )
+        self.assertLess(abs(float(balance.item())), 1e-6)
+        self.assertLess(
+            abs(method.calibrated_shrink_last_balance_error),
+            1e-6,
+        )
+
+        full_residual = method._gaussian_replay_residual(
+            state,
+            features.numpy().astype(np.float64),
+        )
+        learned_bias = float(head[2].bias.detach().item())
+        expected = calibrated_bias + 0.75 * (
+            full_residual - learned_bias
+        )
+        actual = method._gaussian_replay_prediction_residual(
+            state,
+            features.numpy().astype(np.float64),
+            np.zeros(4),
+            {},
+        )
+        np.testing.assert_allclose(actual, expected, rtol=0.0, atol=1e-12)
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_version"], "R47")
+        self.assertEqual(metadata["target_selected_hyperparameters"], 1)
+
     def test_segment_expert_memory_route_never_restarts_score_state(self) -> None:
         method = self.segment_clip_routed_gaussian_replay_memory_method()
         method.active_memory_index = 1
@@ -10350,6 +10502,30 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertIsInstance(
             method,
             ASCALGMMSegmentedMemoryPosteriorCLIPRoutedNonInversionGuardReplayMLP,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
+    def test_method_factory_maps_calibrated_shrink_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedCalibratedShrinkReplayMLP,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "calibrated_shrink_replay_mlp_static",
+            self.detector(),
+            "cpu",
+            {
+                "score_anchors": self.anchors(),
+                "feature_replay_samples_per_update": 8,
+                "feature_residual_scale": 0.75,
+            },
+        )
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedCalibratedShrinkReplayMLP,
         )
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)

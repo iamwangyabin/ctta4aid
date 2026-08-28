@@ -7068,6 +7068,16 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             labels,
         )
 
+    def _after_gaussian_replay_head_update(
+        self,
+        state: dict[str, Any],
+        head: Any,
+        features: Any,
+        source_margin: Any,
+        labels: Any,
+    ) -> None:
+        del state, head, features, source_margin, labels
+
     def _train_gaussian_replay_head(
         self,
         state: dict[str, Any],
@@ -7148,6 +7158,13 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             )
             optimizer_steps += 1
         head.eval()
+        self._after_gaussian_replay_head_update(
+            state,
+            head,
+            feature_tensor,
+            source_tensor,
+            label_tensor,
+        )
         head_state["head_updates"] = int(head_state["head_updates"]) + 1
         head_state["optimizer_steps"] = int(
             head_state["optimizer_steps"]
@@ -8808,6 +8825,199 @@ class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedNonInversionGuardReplayMLP(
                 ),
                 "noninversion_guard_last_loss": (
                     self.noninversion_guard_last_loss
+                ),
+            }
+        )
+        return stats
+
+
+class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedCalibratedShrinkReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP
+):
+    """Shrink feature ranking while re-solving one expert intercept."""
+
+    def _reset_state(self) -> None:
+        self.calibrated_shrink_scale = float(
+            self.config.get("feature_residual_scale", 0.75)
+        )
+        if not (
+            math.isfinite(self.calibrated_shrink_scale)
+            and 0.0 <= self.calibrated_shrink_scale <= 1.0
+        ):
+            raise ValueError(
+                "ASCAL calibrated shrink scale must be between zero and one"
+            )
+        super()._reset_state()
+        self.calibrated_shrink_updates = 0
+        self.calibrated_shrink_last_bias = 0.0
+        self.calibrated_shrink_last_learned_bias = 0.0
+        self.calibrated_shrink_last_bias_delta = 0.0
+        self.calibrated_shrink_last_balance_error = 0.0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "clip_routed_expert_residual_with_shrunk_feature_ranking_"
+                    "and_balanced_replay_intercept_recalibration"
+                ),
+                "research_name": "ASCAL-JMP-CalibratedShrink",
+                "research_version": "R47",
+                "ablation_parent": "ASCAL-JMP-CLIPExpertMemory-R37",
+                "ablation_question": (
+                    "whether_decoupling_feature_ranking_scale_from_scalar_"
+                    "calibration_recovers_r37_accuracy_at_the_auc_optimal_"
+                    "diagnostic_scale"
+                ),
+                "training_objective": "unchanged_r37_balanced_replay_bce",
+                "feature_residual_scale": self.calibrated_shrink_scale,
+                "feature_residual_scale_selection": (
+                    "fixed_from_seed1_four_dataset_evaluator_side_scale_sweep"
+                ),
+                "calibration_rule": (
+                    "per_expert_scalar_intercept_is_the_unique_balanced_"
+                    "replay_bce_stationary_point_with_head_weights_frozen"
+                ),
+                "calibration_solver": (
+                    "deterministic_monotone_bisection_without_optimizer_"
+                    "learning_rate_or_extra_replay"
+                ),
+                "prediction_rule": (
+                    "source_logit_plus_recalibrated_expert_intercept_plus_"
+                    "scaled_feature_dependent_expert_residual"
+                ),
+                "ranking_effect_of_calibration": (
+                    "none_within_one_routed_expert_state_scalar_shift_only"
+                ),
+                "target_selected_hyperparameters": 1,
+                "formal_candidate_status": (
+                    "exploratory_until_independent_seed_validation"
+                ),
+                "intentional_changes": [
+                    "R37 routing segmentation GMM supervision Gaussian replay MLP optimizer and expert memory stay unchanged",
+                    "the feature-dependent residual is multiplied by the predeclared diagnostic scale 0.75 at prediction only",
+                    "after each unchanged R37 update one scalar intercept is solved on the same already-generated balanced replay batch",
+                    "the intercept solve does not change MLP parameters Adam state replay RNG or future adaptation trajectory",
+                    "no target label confidence threshold extra replay optimizer step or calibration learning rate is introduced",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_clip_routed_calibrated_shrink_replay_mlp"
+
+    def _after_gaussian_replay_head_update(
+        self,
+        state: dict[str, Any],
+        head: Any,
+        features: Any,
+        source_margin: Any,
+        labels: Any,
+    ) -> None:
+        import torch
+        import torch.nn.functional as functional
+
+        if len(head) != 3 or not hasattr(head[2], "weight"):
+            raise TypeError(
+                "ASCAL calibrated shrink requires the 768-to-hidden-to-1 MLP"
+            )
+        with torch.no_grad():
+            hidden = head[1](head[0](features))
+            feature_residual = functional.linear(
+                hidden,
+                head[2].weight,
+                bias=None,
+            ).reshape(-1)
+            fixed_margin = (
+                source_margin
+                + self.calibrated_shrink_scale * feature_residual
+            )
+            lower = -float(torch.max(fixed_margin).cpu().item()) - 32.0
+            upper = -float(torch.min(fixed_margin).cpu().item()) + 32.0
+            for _ in range(64):
+                midpoint = 0.5 * (lower + upper)
+                balance = torch.mean(
+                    torch.sigmoid(fixed_margin + midpoint) - labels
+                )
+                if float(balance.cpu().item()) > 0.0:
+                    upper = midpoint
+                else:
+                    lower = midpoint
+            calibrated_bias = 0.5 * (lower + upper)
+            balance_error = float(
+                torch.mean(
+                    torch.sigmoid(fixed_margin + calibrated_bias) - labels
+                )
+                .cpu()
+                .item()
+            )
+        learned_bias = float(
+            head[2].bias.detach().cpu().reshape(-1)[0].item()
+        )
+        head_state = self._gaussian_replay_head_state(state)
+        head_state["calibrated_prediction_bias"] = calibrated_bias
+        head_state["calibrated_prediction_scale"] = (
+            self.calibrated_shrink_scale
+        )
+        self.calibrated_shrink_updates += 1
+        self.calibrated_shrink_last_bias = calibrated_bias
+        self.calibrated_shrink_last_learned_bias = learned_bias
+        self.calibrated_shrink_last_bias_delta = (
+            calibrated_bias - learned_bias
+        )
+        self.calibrated_shrink_last_balance_error = balance_error
+
+    def _gaussian_replay_prediction_residual(
+        self,
+        state: dict[str, Any],
+        features: np.ndarray,
+        scores: np.ndarray,
+        mixture: dict[str, Any],
+    ) -> np.ndarray:
+        del scores, mixture
+        full_residual = self._gaussian_replay_residual(state, features)
+        head_state = self._gaussian_replay_head_state(state)
+        head = head_state.get("mlp_head")
+        if head is None or len(head) != 3 or head[2].bias is None:
+            raise TypeError(
+                "ASCAL calibrated shrink requires the standard MLP bias"
+            )
+        learned_bias = float(
+            head[2].bias.detach().cpu().reshape(-1)[0].item()
+        )
+        calibrated_bias = float(
+            head_state.get("calibrated_prediction_bias", learned_bias)
+        )
+        residual = calibrated_bias + self.calibrated_shrink_scale * (
+            full_residual - learned_bias
+        )
+        if not np.all(np.isfinite(residual)):
+            raise FloatingPointError(
+                "ASCAL calibrated-shrink MLP produced a non-finite residual"
+            )
+        return residual
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(
+            {
+                "calibrated_shrink_scale": self.calibrated_shrink_scale,
+                "calibrated_shrink_updates": self.calibrated_shrink_updates,
+                "calibrated_shrink_last_bias": (
+                    self.calibrated_shrink_last_bias
+                ),
+                "calibrated_shrink_last_learned_bias": (
+                    self.calibrated_shrink_last_learned_bias
+                ),
+                "calibrated_shrink_last_bias_delta": (
+                    self.calibrated_shrink_last_bias_delta
+                ),
+                "calibrated_shrink_last_balance_error": (
+                    self.calibrated_shrink_last_balance_error
                 ),
             }
         )
