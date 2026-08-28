@@ -2363,6 +2363,56 @@ class ASCALGMMConfigTests(unittest.TestCase):
                     self.assertFalse(reference["target_labels_used"])
                     self.assertEqual(reference["target_selected_hyperparameters"], 0)
 
+    def test_confidence_gate_screen_configs_change_only_gate_exponent(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        expected = {
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "confidence_gated_replay_mlp": ("R42", 1),
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "quadratic_confidence_gated_replay_mlp": ("R43", 2),
+        }
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_clip_routed_confidence_gate_screen_"
+                f"r42_r43_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(config["methods"], list(expected))
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["data"]["shuffle"])
+                self.assertIn(dataset, config["output_dir"])
+                for name, (version, exponent) in expected.items():
+                    adaptive = method_config(config, name)
+                    reference = adaptive["reference"]
+                    self.assertEqual(reference["research_version"], version)
+                    self.assertEqual(
+                        reference["confidence_gate_exponent"], exponent
+                    )
+                    self.assertEqual(adaptive["feature_replay_hidden_dim"], 64)
+                    self.assertEqual(
+                        adaptive["feature_replay_learning_rate"], 0.001
+                    )
+                    self.assertEqual(
+                        adaptive["feature_replay_samples_per_update"], 256
+                    )
+                    self.assertEqual(adaptive["feature_replay_seed"], 1)
+                    self.assertFalse(reference["routing_score_used"])
+                    self.assertFalse(reference["target_labels_used"])
+                    self.assertEqual(
+                        reference["target_selected_hyperparameters"], 0
+                    )
+
     def test_segment_expert_memory_config_decouples_route_and_segmentation(
         self,
     ) -> None:
@@ -7791,6 +7841,74 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertEqual(metadata["ranking_margin_hyperparameter"], "none_logistic_softplus")
         self.assertEqual(metadata["target_selected_hyperparameters"], 0)
 
+    def test_gmm_confidence_gate_keeps_bias_and_attenuates_feature_residual(
+        self,
+    ) -> None:
+        import torch
+
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedConfidenceGatedReplayMLP as LinearGate,
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedQuadraticConfidenceGatedReplayMLP as QuadraticGate,
+            joint_density_fake_posterior,
+        )
+
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-1.0, 1.0],
+            "sigmas": [1.0, 1.0],
+            "components": 2,
+            "bic": 0.0,
+        }
+        scores = np.array([0.0, 0.5])
+        features = np.array([[1.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
+        posterior = joint_density_fake_posterior(scores, mixture)
+        confidence = np.abs(2.0 * posterior - 1.0)
+
+        gated_residuals = []
+        for expected_type in (LinearGate, QuadraticGate):
+            method = expected_type(
+                self.detector(),
+                "cpu",
+                {
+                    "score_anchors": self.anchors(),
+                    "feature_replay_hidden_dim": 4,
+                    "feature_replay_samples_per_update": 8,
+                    "feature_replay_seed": 1,
+                },
+            )
+            state = method._new_ordinal_ridge_state()
+            head = method._new_gaussian_replay_head()
+            state["mlp_head"] = head
+            with torch.no_grad():
+                head[0].weight.zero_()
+                head[0].bias.zero_()
+                head[0].weight[0, 0] = 1.0
+                head[2].weight.zero_()
+                head[2].weight[0, 0] = 2.0
+                head[2].bias.fill_(1.5)
+            full = method._gaussian_replay_residual(state, features)
+            gated = method._gaussian_replay_prediction_residual(
+                state,
+                features,
+                scores,
+                mixture,
+            )
+            expected = 1.5 + np.power(
+                confidence, method._confidence_gate_exponent
+            ) * (full - 1.5)
+            np.testing.assert_allclose(gated, expected, atol=1e-7)
+            self.assertAlmostEqual(gated[0], 1.5, places=7)
+            self.assertEqual(method.confidence_gate_samples, 2)
+            metadata = method.reproduction_metadata
+            self.assertTrue(metadata["gmm_in_final_prediction"])
+            self.assertEqual(
+                metadata["gmm_final_prediction_role"],
+                "continuous_feature_residual_gate_only_not_score_fusion",
+            )
+            gated_residuals.append(gated)
+
+        self.assertLess(gated_residuals[1][1], gated_residuals[0][1])
+
     def test_segment_expert_memory_route_never_restarts_score_state(self) -> None:
         method = self.segment_clip_routed_gaussian_replay_memory_method()
         method.active_memory_index = 1
@@ -9772,6 +9890,43 @@ class ASCALGMMMethodTests(unittest.TestCase):
                     method.gaussian_replay_learning_rate,
                     learning_rate,
                 )
+                self.assertEqual(method.trainable_parameters, 0)
+
+    def test_method_factory_maps_confidence_gate_screen_aliases(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedConfidenceGatedReplayMLP as LinearGate,
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedQuadraticConfidenceGatedReplayMLP as QuadraticGate,
+        )
+
+        cases = (
+            (
+                "ascal_gmm_segmented_memory_posterior_clip_routed_"
+                "confidence_gated_replay_mlp_static",
+                LinearGate,
+                1.0,
+            ),
+            (
+                "ascal_gmm_segmented_memory_posterior_clip_routed_"
+                "quadratic_confidence_gated_replay_mlp_static",
+                QuadraticGate,
+                2.0,
+            ),
+        )
+        for name, expected_type, exponent in cases:
+            with self.subTest(name=name):
+                method = build_method(
+                    name,
+                    self.detector(),
+                    "cpu",
+                    {
+                        "score_anchors": self.anchors(),
+                        "feature_replay_samples_per_update": 8,
+                    },
+                )
+                self.assertIsInstance(method, expected_type)
+                self.assertEqual(method.adaptation_mode, "static")
+                self.assertEqual(method._confidence_gate_exponent, exponent)
                 self.assertEqual(method.trainable_parameters, 0)
 
     def test_method_factory_maps_segment_expert_memory_static_alias(self) -> None:

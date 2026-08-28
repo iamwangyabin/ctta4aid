@@ -12,9 +12,11 @@ from .ascal_gmm import (
     ASCALGMMSegmentedMemoryPosteriorNoHistoricalRecallGaussianReplayMLP,
     ASCALGMMSegmentedMemoryPosteriorConditionalResidual,
     ASCALGMMSegmentedMemoryPosteriorCLIPRoutedCompactRankReplayMLP,
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedConfidenceGatedReplayMLP,
     ASCALGMMSegmentedMemoryPosteriorCLIPRoutedConservativeRankReplayMLP,
     ASCALGMMSegmentedMemoryPosteriorCLIPRoutedDecoupledRankReplayMLP,
     ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP,
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedQuadraticConfidenceGatedReplayMLP,
     ASCALGMMSegmentedMemoryPosteriorSegmentCLIPRoutedGaussianReplayMLP,
     ASCALGMMDensityShift,
     ASCALGMMSegmentedMemoryPosteriorEvidenceGatedRidgeExpert,
@@ -446,6 +448,26 @@ def build_method(
             model, device, effective_config
         )
     if normalized in {
+        "ascalgmmsegmentedmemoryposteriorcliproutedconfidencegatedreplaymlp",
+        "ascalgmmsegmentedmemoryposteriorcliproutedconfidencegatedreplaymlpstatic",
+    }:
+        effective_config = dict(config)
+        if normalized.endswith("static"):
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMSegmentedMemoryPosteriorCLIPRoutedConfidenceGatedReplayMLP(
+            model, device, effective_config
+        )
+    if normalized in {
+        "ascalgmmsegmentedmemoryposteriorcliproutedquadraticconfidencegatedreplaymlp",
+        "ascalgmmsegmentedmemoryposteriorcliproutedquadraticconfidencegatedreplaymlpstatic",
+    }:
+        effective_config = dict(config)
+        if normalized.endswith("static"):
+            effective_config.setdefault("adaptation_mode", "static")
+        return ASCALGMMSegmentedMemoryPosteriorCLIPRoutedQuadraticConfidenceGatedReplayMLP(
+            model, device, effective_config
+        )
+    if normalized in {
         "ascalgmmsegmentedmemoryposteriorsegmentcliproutedgaussianreplaymlp",
         "ascalgmmsegmentedmemoryposteriorsegmentcliproutedgaussianreplaymlpstatic",
     }:
@@ -636,8 +658,10 @@ __all__ = [
     "ASCALGMMSegmentedMemoryPosteriorConditionalResidual",
     "ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP",
     "ASCALGMMSegmentedMemoryPosteriorCLIPRoutedCompactRankReplayMLP",
+    "ASCALGMMSegmentedMemoryPosteriorCLIPRoutedConfidenceGatedReplayMLP",
     "ASCALGMMSegmentedMemoryPosteriorCLIPRoutedConservativeRankReplayMLP",
     "ASCALGMMSegmentedMemoryPosteriorCLIPRoutedDecoupledRankReplayMLP",
+    "ASCALGMMSegmentedMemoryPosteriorCLIPRoutedQuadraticConfidenceGatedReplayMLP",
     "ASCALGMMSegmentedMemoryPosteriorSegmentCLIPRoutedGaussianReplayMLP",
     "ASCALGMMDensityShift",
     "ASCALGMMSegmentedMemoryPosteriorEvidenceGatedRidgeExpert",

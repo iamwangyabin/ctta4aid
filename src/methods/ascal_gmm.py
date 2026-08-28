@@ -6922,6 +6922,16 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
             )
         return values
 
+    def _gaussian_replay_prediction_residual(
+        self,
+        state: dict[str, Any],
+        features: np.ndarray,
+        scores: np.ndarray,
+        mixture: dict[str, Any],
+    ) -> np.ndarray:
+        del scores, mixture
+        return self._gaussian_replay_residual(state, features)
+
     @staticmethod
     def _update_weighted_diagonal_gaussian(
         state: dict[str, Any],
@@ -7323,7 +7333,16 @@ class ASCALGMMSegmentedMemoryPosteriorFeatureRoutedGaussianReplayMLP(
                 raise RuntimeError(
                     "ASCAL Gaussian replay MLP lost its selected expert state"
                 )
-            residual = self._gaussian_replay_residual(state, features)
+            if mixture is None:
+                raise RuntimeError(
+                    "ASCAL Gaussian replay MLP lost its selected GMM"
+                )
+            residual = self._gaussian_replay_prediction_residual(
+                state,
+                features,
+                scores,
+                mixture,
+            )
             probability = self._stable_sigmoid(source_margin + residual)
         else:
             probability = source_probability.copy()
@@ -8313,6 +8332,166 @@ class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedCompactRankReplayMLP(
     @property
     def _prediction_mode_name(self) -> str:
         return "segmented_memory_clip_routed_compact_rank_replay_mlp"
+
+
+class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedConfidenceGatedReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP
+):
+    """Gate only the feature-dependent residual by GMM confidence."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.confidence_gate_batches = 0
+        self.confidence_gate_samples = 0
+        self.confidence_gate_last_mean = 0.0
+        self.confidence_gate_last_min = 0.0
+        self.confidence_gate_last_max = 0.0
+
+    @property
+    def _confidence_gate_exponent(self) -> float:
+        return 1.0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "clip_routed_expert_memory_with_gmm_confidence_gated_"
+                    "feature_residual"
+                ),
+                "research_name": "ASCAL-JMP-GMMConfidenceGate",
+                "research_version": "R42",
+                "ablation_parent": "ASCAL-JMP-CLIPExpertMemory-R37",
+                "ablation_question": (
+                    "whether_continuous_gmm_confidence_can_protect_source_"
+                    "ordering_from_uncertain_feature_residuals"
+                ),
+                "training_objective": "unchanged_r37_balanced_replay_bce",
+                "gmm_in_final_prediction": True,
+                "gmm_final_prediction_role": (
+                    "continuous_feature_residual_gate_only_not_score_fusion"
+                ),
+                "confidence_gate": "absolute_two_posterior_minus_one",
+                "confidence_gate_exponent": self._confidence_gate_exponent,
+                "prediction_rule": (
+                    "frozen_source_logit_plus_expert_bias_plus_gmm_confidence_"
+                    "gated_feature_residual"
+                ),
+                "confidence_threshold": "none",
+                "fusion_weight": "none",
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R37 training routing segmentation replay and expert memory stay unchanged",
+                    "the scalar expert bias is always retained because it cannot reorder samples within an expert",
+                    "only the feature-dependent residual is multiplied by absolute two-posterior-minus-one",
+                    "uncertain samples therefore fall back to the frozen Source ordering plus expert bias",
+                    "no confidence threshold learned fusion coefficient or target label is introduced",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_clip_routed_confidence_gated_replay_mlp"
+
+    def _gaussian_replay_prediction_residual(
+        self,
+        state: dict[str, Any],
+        features: np.ndarray,
+        scores: np.ndarray,
+        mixture: dict[str, Any],
+    ) -> np.ndarray:
+        head_state = self._gaussian_replay_head_state(state)
+        head = head_state.get("mlp_head")
+        if head is None or len(head) != 3 or not hasattr(head[2], "bias"):
+            raise TypeError(
+                "ASCAL confidence gating requires the 768-to-hidden-to-1 MLP"
+            )
+        full_residual = self._gaussian_replay_residual(state, features)
+        bias_parameter = head[2].bias
+        if bias_parameter is None or int(bias_parameter.numel()) != 1:
+            raise TypeError(
+                "ASCAL confidence gating requires one scalar output bias"
+            )
+        bias = float(bias_parameter.detach().cpu().reshape(-1)[0].item())
+        posterior = np.asarray(
+            joint_density_fake_posterior(scores, mixture),
+            dtype=np.float64,
+        ).reshape(-1)
+        if posterior.shape != full_residual.shape or not np.all(
+            np.isfinite(posterior)
+        ):
+            raise RuntimeError(
+                "ASCAL confidence gating received an invalid GMM posterior"
+            )
+        confidence = np.clip(np.abs(2.0 * posterior - 1.0), 0.0, 1.0)
+        gate = np.power(confidence, self._confidence_gate_exponent)
+        residual = bias + gate * (full_residual - bias)
+        if not np.all(np.isfinite(residual)):
+            raise FloatingPointError(
+                "ASCAL confidence-gated MLP produced a non-finite residual"
+            )
+        self.confidence_gate_batches += 1
+        self.confidence_gate_samples += int(gate.size)
+        self.confidence_gate_last_mean = float(np.mean(gate))
+        self.confidence_gate_last_min = float(np.min(gate))
+        self.confidence_gate_last_max = float(np.max(gate))
+        return residual
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(
+            {
+                "confidence_gate_batches": self.confidence_gate_batches,
+                "confidence_gate_samples": self.confidence_gate_samples,
+                "confidence_gate_last_mean": self.confidence_gate_last_mean,
+                "confidence_gate_last_min": self.confidence_gate_last_min,
+                "confidence_gate_last_max": self.confidence_gate_last_max,
+                "confidence_gate_exponent": self._confidence_gate_exponent,
+            }
+        )
+        return stats
+
+
+class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedQuadraticConfidenceGatedReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedConfidenceGatedReplayMLP
+):
+    """Use a squared confidence gate as a conservative sensitivity check."""
+
+    @property
+    def _confidence_gate_exponent(self) -> float:
+        return 2.0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "research_name": "ASCAL-JMP-GMMConfidenceGateSquared",
+                "research_version": "R43",
+                "ablation_parent": "ASCAL-JMP-GMMConfidenceGate-R42",
+                "ablation_question": (
+                    "whether_a_more_conservative_squared_confidence_gate_"
+                    "better_preserves_source_auc"
+                ),
+                "confidence_gate_exponent": self._confidence_gate_exponent,
+                "intentional_changes": [
+                    "R42 training prediction decomposition routing replay and memory stay unchanged",
+                    "the parameter-free confidence is squared before gating the feature residual",
+                    "no other method setting or target-selected parameter changes",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return (
+            "segmented_memory_clip_routed_quadratic_confidence_gated_"
+            "replay_mlp"
+        )
 
 
 class ASCALGMMSegmentedMemoryPosteriorSegmentCLIPRoutedGaussianReplayMLP(

@@ -1411,6 +1411,16 @@ target label，不使用 route threshold、confidence threshold、融合系数�
 四个 matched-JPEG 数据集共享同一组三版本 seed1 screen 配置；它们是预注册的探索候选，
 不得根据正式 target label 继续细扫并把最优行伪装成无偏主结果。
 
+直接 pseudo-pair 排序不再继续扩展；后续最小候选回到 R37 的平衡 replay BCE，并只在
+Predict 阶段约束不可靠的样本级修正。**ASCAL-JMP-GMMConfidenceGate（R42）**将专家
+输出拆成标量 bias 与特征 residual，使用所选专家已有 GMM 的连续可靠度
+`c(s)=abs(2p_GMM(s)-1)`，最终输出
+`source logit + bias + c(s) * feature residual`。GMM 不提供额外分类分数，bias 始终保留，
+只有会改变排序的特征 residual 被无阈值门控；当前 batch 仍先预测、后更新。
+**ASCAL-JMP-GMMConfidenceGateSquared（R43）**只把门从 `c` 改为 `c^2`，作为更保守的
+单变量敏感性检查。两者的 R37 训练目标、CLIP 路由、BIC 分段、Gaussian replay、学习率、
+隐藏宽度和专家记忆完全一致，不增加可学习融合系数或读取 target label。
+
 第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
 训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
 Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度有放回采样；当前批缺少
