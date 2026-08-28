@@ -2496,6 +2496,58 @@ class ASCALGMMConfigTests(unittest.TestCase):
                 self.assertFalse(reference["target_labels_used"])
                 self.assertEqual(reference["target_selected_hyperparameters"], 0)
 
+    def test_noninversion_guard_configs_keep_r37_and_add_no_threshold(
+        self,
+    ) -> None:
+        from src.config import load_config, method_config
+
+        method_name = (
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "noninversion_guard_replay_mlp"
+        )
+        for dataset in (
+            "genimage",
+            "aigc_detection_benchmark",
+            "aigi_holmes_p3",
+            "opensdid_global",
+        ):
+            path = (
+                PROJECT_ROOT
+                / "configs/experiments/clip_vlm_bias_controlled"
+                / "matched_jpeg_ascal_gmm_clip_routed_noninversion_guard_"
+                f"r46_continual_{dataset}_seed1.yaml"
+            )
+            with self.subTest(dataset=dataset):
+                config = load_config(path)
+                self.assertEqual(config["methods"], [method_name])
+                self.assertEqual(config["seed"], 1)
+                self.assertFalse(config["data"]["shuffle"])
+                self.assertIn(dataset, config["output_dir"])
+                adaptive = method_config(config, method_name)
+                reference = adaptive["reference"]
+                self.assertEqual(reference["research_version"], "R46")
+                self.assertEqual(
+                    reference["order_guard_weight"],
+                    "fixed_unit_not_configurable",
+                )
+                self.assertEqual(
+                    reference["ranking_margin"],
+                    "none_zero_margin",
+                )
+                self.assertEqual(adaptive["feature_replay_hidden_dim"], 64)
+                self.assertEqual(
+                    adaptive["feature_replay_learning_rate"], 0.001
+                )
+                self.assertEqual(
+                    adaptive["feature_replay_samples_per_update"], 256
+                )
+                self.assertEqual(adaptive["feature_replay_seed"], 1)
+                self.assertFalse(reference["routing_score_used"])
+                self.assertFalse(reference["target_labels_used"])
+                self.assertEqual(
+                    reference["target_selected_hyperparameters"], 0
+                )
+
     def test_segment_expert_memory_config_decouples_route_and_segmentation(
         self,
     ) -> None:
@@ -8118,6 +8170,101 @@ class ASCALGMMMethodTests(unittest.TestCase):
             "feature_dependent_residual_only_output_bias_cancels",
         )
 
+    def test_noninversion_guard_penalizes_only_reversed_pair_orders(
+        self,
+    ) -> None:
+        import torch
+        import torch.nn as nn
+        import torch.nn.functional as functional
+
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedNonInversionGuardReplayMLP,
+        )
+
+        method = (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedNonInversionGuardReplayMLP(
+                self.detector(),
+                "cpu",
+                {
+                    "score_anchors": self.anchors(),
+                    "feature_replay_hidden_dim": 4,
+                    "feature_replay_samples_per_update": 8,
+                    "feature_replay_seed": 1,
+                },
+            )
+        )
+        head = nn.Linear(3, 1)
+        with torch.no_grad():
+            head.weight.copy_(torch.tensor([[2.0, 0.0, 0.0]]))
+            head.bias.zero_()
+        features = torch.tensor(
+            [
+                [1.0, 0.0, 0.0],
+                [-1.0, 0.0, 0.0],
+                [-1.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+            ]
+        )
+        source_margin = torch.tensor([-1.0, 1.0, 1.0, -1.0])
+        labels = torch.tensor([0.0, 0.0, 1.0, 1.0])
+        final_margin = source_margin + head(features).reshape(-1)
+        expected_bce = functional.binary_cross_entropy_with_logits(
+            final_margin,
+            labels,
+        )
+
+        loss = method._gaussian_replay_minibatch_loss(
+            head,
+            features,
+            source_margin,
+            labels,
+        )
+        self.assertTrue(torch.allclose(loss, expected_bce + 2.0))
+        self.assertAlmostEqual(method.noninversion_guard_last_loss, 2.0)
+        self.assertEqual(method.noninversion_guard_pairs, 2)
+        self.assertEqual(method.noninversion_guard_violating_pairs, 2)
+        guard_before = method.noninversion_guard_last_loss
+
+        with torch.no_grad():
+            head.bias.fill_(3.0)
+        method._gaussian_replay_minibatch_loss(
+            head,
+            features,
+            source_margin,
+            labels,
+        )
+        self.assertAlmostEqual(
+            method.noninversion_guard_last_loss,
+            guard_before,
+            places=7,
+        )
+
+        with torch.no_grad():
+            head.weight.zero_()
+            head.bias.zero_()
+        zero_guard_loss = method._gaussian_replay_minibatch_loss(
+            head,
+            features,
+            source_margin,
+            labels,
+        )
+        expected_zero_guard_bce = (
+            functional.binary_cross_entropy_with_logits(
+                source_margin,
+                labels,
+            )
+        )
+        self.assertTrue(
+            torch.allclose(zero_guard_loss, expected_zero_guard_bce)
+        )
+        self.assertEqual(method.noninversion_guard_last_loss, 0.0)
+        metadata = method.reproduction_metadata
+        self.assertEqual(metadata["research_version"], "R46")
+        self.assertEqual(
+            metadata["order_guard_scope"],
+            "only_pairs_whose_final_order_inverts_source_order",
+        )
+
     def test_segment_expert_memory_route_never_restarts_score_state(self) -> None:
         method = self.segment_clip_routed_gaussian_replay_memory_method()
         method.active_memory_index = 1
@@ -10180,6 +10327,29 @@ class ASCALGMMMethodTests(unittest.TestCase):
         self.assertIsInstance(
             method,
             ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrderGuardReplayMLP,
+        )
+        self.assertEqual(method.adaptation_mode, "static")
+        self.assertEqual(method.trainable_parameters, 0)
+
+    def test_method_factory_maps_noninversion_guard_alias(self) -> None:
+        from src.methods import build_method
+        from src.methods.ascal_gmm import (
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedNonInversionGuardReplayMLP,
+        )
+
+        method = build_method(
+            "ascal_gmm_segmented_memory_posterior_clip_routed_"
+            "noninversion_guard_replay_mlp_static",
+            self.detector(),
+            "cpu",
+            {
+                "score_anchors": self.anchors(),
+                "feature_replay_samples_per_update": 8,
+            },
+        )
+        self.assertIsInstance(
+            method,
+            ASCALGMMSegmentedMemoryPosteriorCLIPRoutedNonInversionGuardReplayMLP,
         )
         self.assertEqual(method.adaptation_mode, "static")
         self.assertEqual(method.trainable_parameters, 0)

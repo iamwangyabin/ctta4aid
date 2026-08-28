@@ -165,6 +165,8 @@ def main() -> None:
         "ascalgmmsegmentedmemoryposteriorcliproutedconfidencegatedreplaymlpstatic",
         "ascalgmmsegmentedmemoryposteriorcliproutedquadraticconfidencegatedreplaymlp",
         "ascalgmmsegmentedmemoryposteriorcliproutedquadraticconfidencegatedreplaymlpstatic",
+        "ascalgmmsegmentedmemoryposteriorcliproutednoninversionguardreplaymlp",
+        "ascalgmmsegmentedmemoryposteriorcliproutednoninversionguardreplaymlpstatic",
         "ascalgmmsegmentedmemoryposteriorcliproutedorthogonalresidualreplaymlp",
         "ascalgmmsegmentedmemoryposteriorcliproutedorthogonalresidualreplaymlpstatic",
         "ascalgmmsegmentedmemoryposteriorcliproutedorderguardreplaymlp",

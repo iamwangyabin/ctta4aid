@@ -1,0 +1,12 @@
+extends:
+  - matched_jpeg_ascal_gmm_segmented_memory_posterior_clip_routed_gaussian_replay_mlp_continual_aigi_holmes_p3_seed1.yaml
+  - ../../methods/ascal_gmm_segmented_memory_posterior_clip_routed_noninversion_guard_replay_mlp.yaml
+
+methods:
+  - ascal_gmm_segmented_memory_posterior_clip_routed_noninversion_guard_replay_mlp
+
+method_configs:
+  ascal_gmm_segmented_memory_posterior_clip_routed_noninversion_guard_replay_mlp:
+    feature_replay_seed: 1
+
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/ascal_gmm_clip_routed_noninversion_guard_r46_continual/aigi_holmes_p3/seed1

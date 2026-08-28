@@ -8661,6 +8661,159 @@ class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrderGuardReplayMLP(
         return stats
 
 
+class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedNonInversionGuardReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP
+):
+    """Penalize only Source-order inversions inside each replay class."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.noninversion_guard_minibatches = 0
+        self.noninversion_guard_pairs = 0
+        self.noninversion_guard_violating_pairs = 0
+        self.noninversion_guard_last_bce = 0.0
+        self.noninversion_guard_last_loss = 0.0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "clip_routed_expert_residual_with_within_pseudo_class_"
+                    "source_order_noninversion_guard"
+                ),
+                "research_name": "ASCAL-JMP-NonInversionGuard",
+                "research_version": "R46",
+                "ablation_parent": "ASCAL-JMP-CLIPExpertMemory-R37",
+                "ablation_question": (
+                    "whether_guarding_only_actual_source_order_inversions_"
+                    "improves_auc_without_suppressing_useful_residuals"
+                ),
+                "training_objective": (
+                    "r37_balanced_replay_bce_plus_mean_within_pseudo_class_"
+                    "zero_margin_noninversion_hinge"
+                ),
+                "order_guard": (
+                    "relu_of_negative_source_orientation_times_final_pair_"
+                    "difference_within_each_replay_pseudo_class"
+                ),
+                "order_guard_scope": (
+                    "only_pairs_whose_final_order_inverts_source_order"
+                ),
+                "order_guard_weight": "fixed_unit_not_configurable",
+                "ranking_margin_hyperparameter": "none_zero_margin",
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R37 routing segmentation GMM replay expert memory input coordinates and prediction stay unchanged",
+                    "balanced BCE retains the complete R37 class-separation and calibration gradient",
+                    "within each replay pseudo-class a zero-margin hinge activates only after the final logit reverses Source order",
+                    "expert bias and class-level residual shifts cancel exactly in every guarded pair",
+                    "order-preserving sample-dependent residual variation is not penalized",
+                    "no pair threshold loss coefficient confidence cutoff fusion weight or target label is introduced",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_clip_routed_noninversion_guard_replay_mlp"
+
+    def _gaussian_replay_minibatch_loss(
+        self,
+        head: Any,
+        features: Any,
+        source_margin: Any,
+        labels: Any,
+    ) -> Any:
+        import torch
+        import torch.nn.functional as functional
+
+        residual = head(features).reshape(-1)
+        final_margin = source_margin + residual
+        bce = functional.binary_cross_entropy_with_logits(
+            final_margin,
+            labels,
+        )
+        class_losses = []
+        guarded_pairs = 0
+        violating_pairs = 0
+        for class_index in (0, 1):
+            selected = labels == float(class_index)
+            selected_source = source_margin[selected]
+            selected_final = final_margin[selected]
+            samples = int(selected_source.numel())
+            if samples < 2:
+                continue
+            pair_indices = torch.triu_indices(
+                samples,
+                samples,
+                offset=1,
+                device=selected_source.device,
+            )
+            source_difference = (
+                selected_source[pair_indices[0]]
+                - selected_source[pair_indices[1]]
+            )
+            final_difference = (
+                selected_final[pair_indices[0]]
+                - selected_final[pair_indices[1]]
+            )
+            non_ties = torch.abs(source_difference) > torch.finfo(
+                source_difference.dtype
+            ).eps
+            if not bool(torch.any(non_ties)):
+                continue
+            oriented_final = (
+                torch.sign(source_difference[non_ties])
+                * final_difference[non_ties]
+            )
+            violations = functional.relu(-oriented_final)
+            class_losses.append(violations.mean())
+            guarded_pairs += int(oriented_final.numel())
+            violating_pairs += int(
+                torch.count_nonzero(oriented_final < 0.0).item()
+            )
+        if class_losses:
+            guard = torch.stack(class_losses).mean()
+            loss = bce + guard
+            self.noninversion_guard_minibatches += 1
+            self.noninversion_guard_pairs += guarded_pairs
+            self.noninversion_guard_violating_pairs += violating_pairs
+        else:
+            guard = bce.detach().new_zeros(())
+            loss = bce
+        self.noninversion_guard_last_bce = float(
+            bce.detach().cpu().item()
+        )
+        self.noninversion_guard_last_loss = float(
+            guard.detach().cpu().item()
+        )
+        return loss
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(
+            {
+                "noninversion_guard_minibatches": (
+                    self.noninversion_guard_minibatches
+                ),
+                "noninversion_guard_pairs": self.noninversion_guard_pairs,
+                "noninversion_guard_violating_pairs": (
+                    self.noninversion_guard_violating_pairs
+                ),
+                "noninversion_guard_last_bce": (
+                    self.noninversion_guard_last_bce
+                ),
+                "noninversion_guard_last_loss": (
+                    self.noninversion_guard_last_loss
+                ),
+            }
+        )
+        return stats
+
+
 class ASCALGMMSegmentedMemoryPosteriorSegmentCLIPRoutedGaussianReplayMLP(
     ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP
 ):

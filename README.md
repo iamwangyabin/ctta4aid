@@ -1433,6 +1433,13 @@ Predict 阶段约束不可靠的样本级修正。**ASCAL-JMP-GMMConfidenceGate�
 受抑制的只有同一伪类别内部、没有额外证据支持的样本重排。方差项固定单位系数且不暴露为
 配置，不引入 pairwise 伪排序、margin、confidence threshold 或 target label。
 
+四数据集检查表明 R45 的方差约束过强：它能保护 AIGI-Holmes P3 与 OpenSDID 中原本较强的
+Source 排序，却也惩罚了 GenImage 与 AIGCDetectionBenchmark 中有用的类内 residual 变化。
+因此 **ASCAL-JMP-NonInversionGuard（R46）**回到 R37 的完整特征输入，只在同一 replay
+伪类别内最终 logit 真正翻转 Source 两两顺序时施加零 margin hinge；顺序未翻转时损失严格为
+零。expert bias 和整类平移仍在 pair difference 中自动抵消，BCE、路由、GMM、回放量与
+预测式均不改变，也不新增阈值、margin 或可调 loss 权重。
+
 第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
 训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
 Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度有放回采样；当前批缺少
