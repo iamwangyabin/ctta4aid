@@ -8557,6 +8557,110 @@ class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrthogonalResidualReplayMLP(
         return self._feature_route_coordinates(normalized)
 
 
+class ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrderGuardReplayMLP(
+    ASCALGMMSegmentedMemoryPosteriorCLIPRoutedOrthogonalResidualReplayMLP
+):
+    """Preserve Base ordering within each replay pseudo-class."""
+
+    def _reset_state(self) -> None:
+        super()._reset_state()
+        self.order_guard_minibatches = 0
+        self.order_guard_last_bce = 0.0
+        self.order_guard_last_variance = 0.0
+
+    @property
+    def reproduction_metadata(self) -> dict[str, Any]:
+        metadata = super().reproduction_metadata
+        metadata.update(
+            {
+                "adaptive_role": (
+                    "source_orthogonal_expert_residual_with_within_pseudo_"
+                    "class_order_guard"
+                ),
+                "research_name": "ASCAL-JMP-WithinClassOrderGuard",
+                "research_version": "R45",
+                "ablation_parent": "ASCAL-JMP-OrthogonalResidual-R44",
+                "ablation_question": (
+                    "whether_suppressing_unnecessary_within_pseudo_class_"
+                    "residual_variation_recovers_auc_without_losing_accuracy"
+                ),
+                "training_objective": (
+                    "r44_balanced_replay_bce_plus_mean_within_pseudo_class_"
+                    "residual_variance"
+                ),
+                "order_guard": (
+                    "mean_squared_deviation_from_each_replay_pseudo_class_"
+                    "residual_mean"
+                ),
+                "order_guard_scope": (
+                    "feature_dependent_residual_only_output_bias_cancels"
+                ),
+                "order_guard_weight": "fixed_unit_not_configurable",
+                "ranking_margin_hyperparameter": "none",
+                "target_selected_hyperparameters": 0,
+                "intentional_changes": [
+                    "R44 source-orthogonal coordinate routing GMM replay optimizer and prediction stay unchanged",
+                    "balanced BCE retains the complete R44 class-separation and calibration gradient",
+                    "the mean within-class residual variance is added with a fixed unit coefficient",
+                    "the variance term cancels expert bias and leaves class-level residual shifts unconstrained",
+                    "no pairwise pseudo-order target margin threshold or configurable loss weight is introduced",
+                ],
+            }
+        )
+        return metadata
+
+    @property
+    def _prediction_mode_name(self) -> str:
+        return "segmented_memory_clip_routed_order_guard_replay_mlp"
+
+    def _gaussian_replay_minibatch_loss(
+        self,
+        head: Any,
+        features: Any,
+        source_margin: Any,
+        labels: Any,
+    ) -> Any:
+        import torch
+        import torch.nn.functional as functional
+
+        residual = head(features).reshape(-1)
+        bce = functional.binary_cross_entropy_with_logits(
+            source_margin + residual,
+            labels,
+        )
+        class_variances = []
+        for class_index in (0, 1):
+            selected = residual[labels == float(class_index)]
+            if int(selected.numel()) > 1:
+                centered = selected - selected.mean()
+                class_variances.append(torch.mean(centered * centered))
+        if class_variances:
+            variance = torch.stack(class_variances).mean()
+            loss = bce + variance
+        else:
+            variance = bce.detach().new_zeros(())
+            loss = bce
+        self.order_guard_minibatches += 1
+        self.order_guard_last_bce = float(bce.detach().cpu().item())
+        self.order_guard_last_variance = float(
+            variance.detach().cpu().item()
+        )
+        return loss
+
+    def _state_stats(self) -> dict[str, Any]:
+        stats = super()._state_stats()
+        stats.update(
+            {
+                "order_guard_minibatches": self.order_guard_minibatches,
+                "order_guard_last_bce": self.order_guard_last_bce,
+                "order_guard_last_variance": (
+                    self.order_guard_last_variance
+                ),
+            }
+        )
+        return stats
+
+
 class ASCALGMMSegmentedMemoryPosteriorSegmentCLIPRoutedGaussianReplayMLP(
     ASCALGMMSegmentedMemoryPosteriorCLIPRoutedGaussianReplayMLP
 ):

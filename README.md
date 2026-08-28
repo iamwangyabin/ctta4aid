@@ -1427,6 +1427,12 @@ Predict 阶段约束不可靠的样本级修正。**ASCAL-JMP-GMMConfidenceGate�
 坐标完全相同，因此不增加投影维度、阈值或融合超参数。它检验当前 residual 是否主要在
 重复拟合 Base score；若有效，新增排序只能来自 Source 尚未使用的 CLIP 特征信息。
 
+**ASCAL-JMP-WithinClassOrderGuard（R45）**保留 R44 的完整预测式，只在 replay 训练损失中
+加入 real 与 fake 两个伪类别各自的 residual 方差均值。该项中的标量 expert bias 自动抵消，
+两类 residual 均值之间的距离也不受约束，因此阈值校准和类间分离仍由原平衡 BCE 完整学习；
+受抑制的只有同一伪类别内部、没有额外证据支持的样本重排。方差项固定单位系数且不暴露为
+配置，不引入 pairwise 伪排序、margin、confidence threshold 或 target label。
+
 第五个单变量候选 **ASCAL-JMP-CurrentBatchReplay（R31）**保留 R26 的 256 样本平衡
 训练预算、路由、GMM 伪标签、连续可靠度和专家 MLP，但训练特征不再从累计 real/fake
 Gaussian memory 生成，而只在当前 batch 的两类伪特征中按可靠度有放回采样；当前批缺少

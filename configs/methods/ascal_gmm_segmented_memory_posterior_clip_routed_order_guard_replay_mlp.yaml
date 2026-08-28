@@ -1,0 +1,46 @@
+extends: ascal_gmm_segmented_memory_posterior_clip_routed_orthogonal_residual_replay_mlp.yaml
+
+methods:
+  - ascal_gmm_segmented_memory_posterior_clip_routed_order_guard_replay_mlp_static
+  - ascal_gmm_segmented_memory_posterior_clip_routed_order_guard_replay_mlp
+
+method_configs:
+  ascal_gmm_segmented_memory_posterior_clip_routed_order_guard_replay_mlp_static:
+    adaptation_mode: static
+    reference:
+      role: exact_single_view_non_adaptive_control_for_within_class_order_guard
+      source_setup: lora_r4_binary_detector_from_fixed_clip_vitl14_with_score_anchors
+      protocol: predict_then_adapt
+
+  ascal_gmm_segmented_memory_posterior_clip_routed_order_guard_replay_mlp:
+    adaptation_mode: full
+    feature_replay_hidden_dim: 64
+    feature_replay_learning_rate: 0.001
+    feature_replay_variance_floor: 0.000001
+    feature_replay_samples_per_update: 256
+    feature_replay_seed: 0
+    reference:
+      profile: ascal_jmp_within_class_order_guard_r45
+      research_name: ASCAL-JMP-WithinClassOrderGuard
+      research_version: R45
+      ablation_parent: ASCAL-JMP-OrthogonalResidual-R44
+      ablation_variable: within_pseudo_class_residual_variance_guard
+      protocol: predict_then_adapt
+      target_labels_used: false
+      generator_boundaries_used: false
+      routing_score_used: false
+      historical_expert_recall: clip_feature_route_only
+      gmm_role: selected_expert_equal_prior_pseudo_label_and_continuous_reliability_only
+      gmm_in_final_prediction: false
+      replay_rule: 128_real_and_128_fake_fresh_pseudo_features_per_update
+      residual_head: one_zero_initialized_768_to_64_to_1_gelu_mlp_per_expert
+      residual_coordinate: l2_normalized_clip_feature_orthogonal_to_source_binary_head
+      training_objective: balanced_bce_plus_mean_within_pseudo_class_residual_variance
+      order_guard_scope: feature_residual_variation_only_output_bias_cancels
+      order_guard_weight: fixed_unit_not_configurable
+      ranking_margin: none
+      prediction_rule: unchanged_r44_source_logit_plus_one_orthogonal_expert_residual
+      learning_rate: 0.001
+      confidence_threshold: none
+      fusion_weight: none
+      target_selected_hyperparameters: 0
