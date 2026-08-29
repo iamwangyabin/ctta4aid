@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "experiment": "clip_vlm_bias_controlled_static_nojpeg_aigi_det_calib_seeds01_20260829",
+  "official_method": {
+    "name": "AIGI-Det-Calib",
+    "paper": "https://arxiv.org/abs/2602.01973",
+    "repository": "https://github.com/muliyangm/AIGI-Det-Calib",
+    "commit": "66d4bc606f7cf325d9bd4e67ca34b0c59d6a9d53",
+    "license": "No license file found at the fixed commit; no upstream code is vendored here.",
+    "file_sha256": {
+      "run.py": "72bacc0c4a77c81c040b60b105a205fdc18cca655f83e4f4b324b495b167bb7d",
+      "src/calibration.py": "c179d5aee8dd577606f5382d9fdb403ed5dc1cb28c79dff39cc82d9c3613d927",
+      "src/metric.py": "d60a6ee7797a50491cf9157f0f000628c87c22b1136f3edd06421542c6bcdd1f"
+    }
+  },
+  "released_code_findings": {
+    "n_shots_bug": "run_n_experiment accepts n_shot but calls balanced_sample(label.numpy()) without forwarding it; actual released sample count is always balanced_sample's default 20.",
+    "label_use_in_unsupervised_path": "The unsupervised core ignores label values, but run.py selects its calibration subset with balanced_sample(label), exactly 10 real and 10 fake in the released path.",
+    "paper_release_mismatch": "Paper: 100 images and 10 runs. README text: 50 shots and 20 runs. CLI defaults: 100 shots and 20 runs. Released execution: 20 shots and 20 runs.",
+    "benchmark_std_axis": "run.py averages the experiment axis before taking std across datasets; it does not compute the stated benchmark-level variation across experiments.",
+    "unsupervised_solution": "For real_ratio=0.5, the released moment objective estimates the target logit mean; an additive offset changes Accuracy but preserves ranking and AUC."
+  },
+  "audit_adapter": {
+    "all_rows_adapter_sha256": "6e44c40cb4c48984f5fdf21bf804fd855f91825af82b75ed59afbeea5741bed6",
+    "same_sample_causal_adapter_sha256": "2c25ca200cd07a68a2513268ad10c6eb5dc922fdef97d90554d5989f892e8ef6",
+    "location_policy": "One-off adapter executed from /tmp and not added to the project repository.",
+    "score_conversion": "Saved float32 sigmoid probabilities were inverted to logits; exact zero was clipped to float32 tiny.",
+    "exact_zero_count": {
+      "univfd": 0,
+      "rine": 0,
+      "npr": 9
+    }
+  },
+  "base_result": {
+    "reference": "results/clip_vlm_bias_controlled_static_nojpeg_seeds01_20260829",
+    "file_sha256": {
+      "README.md": "9952c7744f047a281758c7693ff515b2037c1464b984a9d8072f6f6923554bf3",
+      "per_seed_summary.json": "ca2bb7830e52c366faf366405fe0f9986c52f2c0c8d7a7953077edaac0f7a6a3",
+      "seeds01_summary.json": "7eab5da29ccca0615b39e955860fd2cf06786526e50c9f256f1667f3c3c71ee5",
+      "source_models.json": "ac01929c0adb9c805ffc84ef9adf994a859657a99efcc21d1fbb0c1382837d2c",
+      "table.csv": "3e4593a5564d19312eef591e109ab6f1b9e2e1b5ed4fdef183e6f8cf0002593b"
+    },
+    "validation": "All 468 target-level base AUC/Accuracy checks (3 methods x 2 seeds x 39 targets x 2 metrics) matched exactly; maximum absolute difference 0."
+  },
+  "execution_environments": {
+    "4090-1_univfd": {
+      "numpy": "2.4.4",
+      "scipy": "1.17.1",
+      "scikit_learn": "1.9.0",
+      "torch": "2.12.0+cu126"
+    },
+    "4090-2_rine_npr": {
+      "numpy": "2.2.6",
+      "scipy": "1.17.1",
+      "scikit_learn": "1.5.2",
+      "torch": "2.12.0+cu126"
+    }
+  },
+  "protocols": {
+    "primary": "Strict label-free random 100-shot subset selection, 10 deterministic repetitions, official unsupervised core, evaluation on the 100-shot-excluded holdout.",
+    "released_exact": "20 label-balanced shots due to release bug, 20 repetitions, average offset evaluated on the complete target.",
+    "paper_intended": "100 label-balanced shots, 10 repetitions, complete-target evaluation; includes target-label-dependent selection.",
+    "causal_same_sample": "First 100 locked-stream samples predicted at source threshold; their unlabeled logits estimate one offset used for the remaining 1400 samples.",
+    "oracle": "Best additive offset using every target label; diagnostic ceiling only."
+  }
+}
