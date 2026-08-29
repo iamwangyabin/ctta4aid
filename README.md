@@ -1626,10 +1626,14 @@ EATA、T2A 和 OST 的参数适应在这轮配对实验中均未提高宏平均 
 ## 静态无 TTA 基线补充实验
 
 UnivFD/Ojha、RINE 和 NPR 已在同一 GenImage SD v1.4 Arrow 源训练集上关闭 JPEG 扰动后
-重新训练，并以冻结 checkpoint 在四套正式 `matched_jpeg` target 上完成 seed 0 评估。
-逐 target 指标、固定阈值 Accuracy、source/checkpoint 身份和完整协议披露见
-[`results/clip_vlm_bias_controlled_static_nojpeg_seed0_20260829/`](results/clip_vlm_bias_controlled_static_nojpeg_seed0_20260829/README.md)。
-该目录是单 seed 的 method-native 静态检测器补充比较，不替代 CLIP 主实验的三 seed 正文表。
+重新训练，并以冻结 checkpoint 在四套正式 `matched_jpeg` target 上完成 seed 0 和 1
+评估。两 seed 的逐 target 均值/标准差、固定阈值 Accuracy、source/checkpoint 身份和完整
+协议披露见
+[`results/clip_vlm_bias_controlled_static_nojpeg_seeds01_20260829/`](results/clip_vlm_bias_controlled_static_nojpeg_seeds01_20260829/README.md)。
+原先确认的
+[`seed 0` 单独快照](results/clip_vlm_bias_controlled_static_nojpeg_seed0_20260829/README.md)
+保持不变。该实验是 method-native 静态检测器的两 seed 补充比较，不替代 CLIP 主实验的三
+seed 正文表。
 
 ## 实验边界
 

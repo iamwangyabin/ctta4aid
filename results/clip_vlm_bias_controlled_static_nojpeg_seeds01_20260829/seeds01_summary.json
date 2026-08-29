@@ -1,0 +1,2215 @@
+{
+  "data_profile": "matched_jpeg",
+  "format": "static_nojpeg_baseline_campaign_summary_v1",
+  "methods": {
+    "npr": {
+      "datasets": {
+        "aigc_detection_benchmark": {
+          "target_macro_across_seeds": {
+            "accuracy": {
+              "mean": 0.5070441176470588,
+              "std": 0.0027244408333951674
+            },
+            "auc": {
+              "mean": 0.5106522499999999,
+              "std": 0.02662837274673088
+            }
+          },
+          "target_order": [
+            "ProGAN",
+            "StyleGAN",
+            "BigGAN",
+            "CycleGAN",
+            "StarGAN",
+            "GauGAN",
+            "StyleGAN2",
+            "WFIR",
+            "ADM",
+            "GLIDE",
+            "Midjourney",
+            "SD v1.4",
+            "SD v1.5",
+            "VQDM",
+            "Wukong",
+            "DALL-E2",
+            "SDXL"
+          ],
+          "targets": {
+            "ADM": {
+              "accuracy": {
+                "mean": 0.50025,
+                "std": 0.00035355339059323483
+              },
+              "auc": {
+                "mean": 0.38586825,
+                "std": 0.023368111351262395
+              },
+              "average_precision": {
+                "mean": 0.4187716656828918,
+                "std": 0.01766902274008323
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "c031c60e4ce796182a8fe3f8e8a14a3d97dec80b3fcac13d6b238da9d0ae6153"
+            },
+            "BigGAN": {
+              "accuracy": {
+                "mean": 0.49624999999999997,
+                "std": 0.003889087296526015
+              },
+              "auc": {
+                "mean": 0.426359,
+                "std": 0.03188627319082623
+              },
+              "average_precision": {
+                "mean": 0.4435023929332158,
+                "std": 0.01925116372031987
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "47b3ab77e95a4bd0f25db86e25412391e3f8a18a0e34c3f7684a66559124f6a7"
+            },
+            "CycleGAN": {
+              "accuracy": {
+                "mean": 0.51525,
+                "std": 0.015202795795510824
+              },
+              "auc": {
+                "mean": 0.7296449999999999,
+                "std": 0.06968113064524703
+              },
+              "average_precision": {
+                "mean": 0.7127862924925308,
+                "std": 0.04335125469061913
+              },
+              "label_sha256": "7816815640ec7869e5ca8da87f2d19ef15ad83e27b41970949689166b1f2aae0",
+              "sample_id_sha256": "55ab9c679f601993327e878d9a37be8dc8c757be9b52cc72dde7364c55df148c"
+            },
+            "DALL-E2": {
+              "accuracy": {
+                "mean": 0.5015,
+                "std": 0.0
+              },
+              "auc": {
+                "mean": 0.4823125,
+                "std": 0.13650767121484417
+              },
+              "average_precision": {
+                "mean": 0.5204179058057911,
+                "std": 0.0950873489906522
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "a3cc5117f0d03cb1f604b7f13b6768033de5313e7682ea44564e7a93f07fcfff"
+            },
+            "GLIDE": {
+              "accuracy": {
+                "mean": 0.50225,
+                "std": 0.00035355339059323483
+              },
+              "auc": {
+                "mean": 0.49306375,
+                "std": 0.09639527128508434
+              },
+              "average_precision": {
+                "mean": 0.5064819328531605,
+                "std": 0.06477553903927893
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "6276dab14533ea22376c357016640d4306a4505f776e4b352c4cd4daf7218820"
+            },
+            "GauGAN": {
+              "accuracy": {
+                "mean": 0.4995,
+                "std": 0.0007071067811865482
+              },
+              "auc": {
+                "mean": 0.38562675,
+                "std": 0.006824641098622027
+              },
+              "average_precision": {
+                "mean": 0.42202766695446037,
+                "std": 0.002725696882875188
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "122ef1997d86389fe088ce76f2baab57e5f685a8166ec0a6f8735fac6721406e"
+            },
+            "Midjourney": {
+              "accuracy": {
+                "mean": 0.50225,
+                "std": 0.00035355339059323483
+              },
+              "auc": {
+                "mean": 0.5615235,
+                "std": 0.06461188213092077
+              },
+              "average_precision": {
+                "mean": 0.5470380799096723,
+                "std": 0.0501052994043179
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "d897e7959c70ae1da56c10a1d22aed7e4d0f9d15eec565f9fc898b0c26b7fac5"
+            },
+            "ProGAN": {
+              "accuracy": {
+                "mean": 0.50025,
+                "std": 0.00035355339059323483
+              },
+              "auc": {
+                "mean": 0.468886,
+                "std": 0.02154342230241052
+              },
+              "average_precision": {
+                "mean": 0.4759518153723175,
+                "std": 0.016299241150380527
+              },
+              "label_sha256": "0673cf1786e0dcc6068cb9798c2c98c43a361258dff99607687a78751ab781d6",
+              "sample_id_sha256": "ed5e8e58c6fc4b2af8cc296a6bfe4934957376f600923879d7c3b17874336821"
+            },
+            "SD v1.4": {
+              "accuracy": {
+                "mean": 0.53625,
+                "std": 0.008838834764831813
+              },
+              "auc": {
+                "mean": 0.70331325,
+                "std": 0.02678272999761233
+              },
+              "average_precision": {
+                "mean": 0.7325789551771009,
+                "std": 0.028402469698745877
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "3d1656515535a6ffc6e97a53b79204a748d5c29d9a0839cda44f87a43567e77e"
+            },
+            "SD v1.5": {
+              "accuracy": {
+                "mean": 0.53075,
+                "std": 0.01308147545195118
+              },
+              "auc": {
+                "mean": 0.7244935,
+                "std": 0.021911824935408747
+              },
+              "average_precision": {
+                "mean": 0.74951642677598,
+                "std": 0.02619528037297257
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "43b4ba427ebd5479bfdbf61239223ceef6f8a298c99ebfa66b4cb857f02ccdd2"
+            },
+            "SDXL": {
+              "accuracy": {
+                "mean": 0.5017499999999999,
+                "std": 0.0017677669529664096
+              },
+              "auc": {
+                "mean": 0.571571,
+                "std": 0.09790812624343301
+              },
+              "average_precision": {
+                "mean": 0.5822932030221394,
+                "std": 0.07412242551168667
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "0c0deed0f709ea9122efda6d16246abc24b3c89e35264cd28c2dcce4637d7c94"
+            },
+            "StarGAN": {
+              "accuracy": {
+                "mean": 0.5,
+                "std": 0.0
+              },
+              "auc": {
+                "mean": 0.45786950000000004,
+                "std": 0.009055209439874878
+              },
+              "average_precision": {
+                "mean": 0.4646881218591662,
+                "std": 0.0038404119683453195
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "724fc7f77b75fffbb7313e7f35b2ed0cf93f0395c947fa9a617cc183d2e6e3f9"
+            },
+            "StyleGAN": {
+              "accuracy": {
+                "mean": 0.5,
+                "std": 0.0007071067811865089
+              },
+              "auc": {
+                "mean": 0.37569449999999993,
+                "std": 0.014328104707182996
+              },
+              "average_precision": {
+                "mean": 0.42578462556638436,
+                "std": 0.00877444260093485
+              },
+              "label_sha256": "55d6435926654d5c45fa5b41e39a77f76378f9ba0ebdbac597a495c5db45bad8",
+              "sample_id_sha256": "fe6e3364eed2a5e5eba8bc1ed19c0c83550127f24d8823f84a524e0cb58c9be7"
+            },
+            "StyleGAN2": {
+              "accuracy": {
+                "mean": 0.4995,
+                "std": 0.0007071067811865482
+              },
+              "auc": {
+                "mean": 0.43882875,
+                "std": 0.010440078070828829
+              },
+              "average_precision": {
+                "mean": 0.4570967204401917,
+                "std": 0.007203128664106957
+              },
+              "label_sha256": "4e9a1704bbe34526f64a4b9a69428477fbde9c8a92272b294ec208814dc3093a",
+              "sample_id_sha256": "76ab42bb8b3c283c475e2a25a01596f667eca220ba2acdc91d78f5f187ad8f60"
+            },
+            "VQDM": {
+              "accuracy": {
+                "mean": 0.49724999999999997,
+                "std": 0.0024748737341529184
+              },
+              "auc": {
+                "mean": 0.34621175000000004,
+                "std": 0.025927837899157785
+              },
+              "average_precision": {
+                "mean": 0.40714377011544356,
+                "std": 0.007129582337528759
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "241d43c8c159b4e1e17cca2bb047d1ba247237fce97626a17cea9e10dc3a2e3c"
+            },
+            "WFIR": {
+              "accuracy": {
+                "mean": 0.5,
+                "std": 0.0
+              },
+              "auc": {
+                "mean": 0.45012549999999996,
+                "std": 0.003729281163977813
+              },
+              "average_precision": {
+                "mean": 0.4710547605148339,
+                "std": 0.0030000519081278786
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "57f293f60726aa564826273a7c5852a446136c450b15075c2ff444764008b6f6"
+            },
+            "Wukong": {
+              "accuracy": {
+                "mean": 0.5367500000000001,
+                "std": 0.015909902576697374
+              },
+              "auc": {
+                "mean": 0.67969575,
+                "std": 0.02560115456624947
+              },
+              "average_precision": {
+                "mean": 0.7129050448944438,
+                "std": 0.016609564103894376
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "a807692d532b6d524f29bd49572b43dbb142a138f27459ef3b5393b5465d4319"
+            }
+          }
+        },
+        "aigi_holmes_p3": {
+          "target_macro_across_seeds": {
+            "accuracy": {
+              "mean": 0.50345,
+              "std": 0.001979898987322429
+            },
+            "auc": {
+              "mean": 0.56610935,
+              "std": 0.06212321981453479
+            }
+          },
+          "target_order": [
+            "Janus",
+            "Janus-Pro-1B",
+            "Janus-Pro-7B",
+            "Show-o",
+            "LlamaGen",
+            "Infinity",
+            "VAR",
+            "PixArt-XL",
+            "SD3.5-L",
+            "FLUX"
+          ],
+          "targets": {
+            "FLUX": {
+              "accuracy": {
+                "mean": 0.5029999999999999,
+                "std": 0.0021213203435596446
+              },
+              "auc": {
+                "mean": 0.6175185000000001,
+                "std": 0.05564293971835058
+              },
+              "average_precision": {
+                "mean": 0.6097257271602226,
+                "std": 0.04232064760519083
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "0dfbd3a1d950a0226fad14cdaf5f3270b66876e6e267c5c2578e66975721b7c3"
+            },
+            "Infinity": {
+              "accuracy": {
+                "mean": 0.49974999999999997,
+                "std": 0.001060660171779783
+              },
+              "auc": {
+                "mean": 0.5574205,
+                "std": 0.05508715378833791
+              },
+              "average_precision": {
+                "mean": 0.5431899775925126,
+                "std": 0.04020627449077087
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "40ad69d249828dbd366dc1b6e8e20328db1ce86a7d534d0333712274b6cc89f1"
+            },
+            "Janus": {
+              "accuracy": {
+                "mean": 0.5005,
+                "std": 0.0
+              },
+              "auc": {
+                "mean": 0.5477164999999999,
+                "std": 0.06043005262698362
+              },
+              "average_precision": {
+                "mean": 0.5456658202904612,
+                "std": 0.04248341317520981
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "a134d3fb8ccb536c054ace32e5535f481c402ba2b39a17f484ab398435b50393"
+            },
+            "Janus-Pro-1B": {
+              "accuracy": {
+                "mean": 0.502,
+                "std": 0.0007071067811865482
+              },
+              "auc": {
+                "mean": 0.509409,
+                "std": 0.1082389563165684
+              },
+              "average_precision": {
+                "mean": 0.5243798018178398,
+                "std": 0.07352840570765443
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "375583d8375c23be34e0c7c0feb9c1d4038468939daa73d27bee355613c29884"
+            },
+            "Janus-Pro-7B": {
+              "accuracy": {
+                "mean": 0.50025,
+                "std": 0.00035355339059323483
+              },
+              "auc": {
+                "mean": 0.5244292500000001,
+                "std": 0.12308360252740819
+              },
+              "average_precision": {
+                "mean": 0.5205480157355964,
+                "std": 0.08504314618222757
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "254f98c9cc52b03afd0e73f077015ad72f84f5d48f5e591e72139ada4b5b835b"
+            },
+            "LlamaGen": {
+              "accuracy": {
+                "mean": 0.527,
+                "std": 0.016970562748477157
+              },
+              "auc": {
+                "mean": 0.7835279999999999,
+                "std": 0.009459674518713712
+              },
+              "average_precision": {
+                "mean": 0.7960844720414622,
+                "std": 0.004622443970704317
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "8590215d14f3c310289a4d3d219817ee6e76963a4720a2ed09f977f945b9d757"
+            },
+            "PixArt-XL": {
+              "accuracy": {
+                "mean": 0.5,
+                "std": 0.0007071067811865089
+              },
+              "auc": {
+                "mean": 0.6488210000000001,
+                "std": 0.04366384373826937
+              },
+              "average_precision": {
+                "mean": 0.6268833454919327,
+                "std": 0.039935431837837355
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "c85c29a2a021cc12a47f842388a5c6b06032c4d8f9bc041657ef953ae846b94c"
+            },
+            "SD3.5-L": {
+              "accuracy": {
+                "mean": 0.4995,
+                "std": 0.0007071067811865482
+              },
+              "auc": {
+                "mean": 0.44958149999999997,
+                "std": 0.05516847106817446
+              },
+              "average_precision": {
+                "mean": 0.4585653906359759,
+                "std": 0.031348379502489435
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "f6ff0c9132069e8348671211fa8fe0bf94060e78f9835707f6d8429abac86928"
+            },
+            "Show-o": {
+              "accuracy": {
+                "mean": 0.5009999999999999,
+                "std": 0.0007071067811865482
+              },
+              "auc": {
+                "mean": 0.50168675,
+                "std": 0.06817463964792923
+              },
+              "average_precision": {
+                "mean": 0.4905891536532556,
+                "std": 0.04955202101984154
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "9ebb1aff1d324678d57a61338960926fd5b5a66e99e6986296c09d94312ea409"
+            },
+            "VAR": {
+              "accuracy": {
+                "mean": 0.5015,
+                "std": 0.0014142135623730963
+              },
+              "auc": {
+                "mean": 0.5209824999999999,
+                "std": 0.042282864194611976
+              },
+              "average_precision": {
+                "mean": 0.5397302618782656,
+                "std": 0.023596096498968443
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "7b0a271f8ac91e8b40bd8225f04f804ecc570684fb919d5dd2bf87a37d8a589c"
+            }
+          }
+        },
+        "genimage": {
+          "target_macro_across_seeds": {
+            "accuracy": {
+              "mean": 0.5096696428571429,
+              "std": 0.0027821284664542494
+            },
+            "auc": {
+              "mean": 0.49632999262152777,
+              "std": 0.036280332675333926
+            }
+          },
+          "target_order": [
+            "BigGAN",
+            "ADM",
+            "glide",
+            "stable_diffusion_v_1_5",
+            "VQDM",
+            "wukong",
+            "Midjourney"
+          ],
+          "targets": {
+            "ADM": {
+              "accuracy": {
+                "mean": 0.49920833333333337,
+                "std": 0.0011195857368786948
+              },
+              "auc": {
+                "mean": 0.3868072777777778,
+                "std": 0.025115116863458915
+              },
+              "average_precision": {
+                "mean": 0.42057355750461767,
+                "std": 0.018109192392764425
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "f9ed2a6cdeb601cd8268d4b6a88c6c74ecea0aaa20a975ef4515538eb0e62028"
+            },
+            "BigGAN": {
+              "accuracy": {
+                "mean": 0.49766666666666665,
+                "std": 0.0014142135623730963
+              },
+              "auc": {
+                "mean": 0.3061566597222222,
+                "std": 0.03660081926603983
+              },
+              "average_precision": {
+                "mean": 0.402342830175353,
+                "std": 0.016914936195967456
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "f66cca516aab54ff759ea961892c0cbb25848050872fb4eadbc55f2e60b9cec6"
+            },
+            "Midjourney": {
+              "accuracy": {
+                "mean": 0.50125,
+                "std": 0.00023570226039548988
+              },
+              "auc": {
+                "mean": 0.5597904236111111,
+                "std": 0.0698586635519625
+              },
+              "average_precision": {
+                "mean": 0.5389804395828288,
+                "std": 0.05146788997210637
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "4202425bfb5c4a386a296d74d1d2800fa1a856ecd12939e9839464ba622153b6"
+            },
+            "VQDM": {
+              "accuracy": {
+                "mean": 0.49875,
+                "std": 0.0008249579113843323
+              },
+              "auc": {
+                "mean": 0.3356927152777778,
+                "std": 0.02366822907523852
+              },
+              "average_precision": {
+                "mean": 0.4024350536831655,
+                "std": 0.006850045220315483
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "88db8d8c3930b82f7bbaabd194e18344169a996c0306bc1506aa92beceb44bc9"
+            },
+            "glide": {
+              "accuracy": {
+                "mean": 0.5034166666666666,
+                "std": 0.00047140452079105826
+              },
+              "auc": {
+                "mean": 0.49449367361111113,
+                "std": 0.09494983699413634
+              },
+              "average_precision": {
+                "mean": 0.5085676141247053,
+                "std": 0.06464081864077736
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "a8ac2fe7b123ced32dd973889a93072cbdd0f098bf238181c6d3abaff8e3d7ea"
+            },
+            "stable_diffusion_v_1_5": {
+              "accuracy": {
+                "mean": 0.5316875,
+                "std": 0.010518213370149875
+              },
+              "auc": {
+                "mean": 0.69709281640625,
+                "std": 0.026219723844451075
+              },
+              "average_precision": {
+                "mean": 0.7267529822597917,
+                "std": 0.025995033014650115
+              },
+              "label_sha256": "05caefe78cab2c0c826fb9cf9428423188c044514bc4e40dfd20f33c62043396",
+              "sample_id_sha256": "11c52f2b5eac2ed4753d81de90860ccc769022c880ede090f2a0922b13c56e03"
+            },
+            "wukong": {
+              "accuracy": {
+                "mean": 0.5357083333333333,
+                "std": 0.011608336324479211
+              },
+              "auc": {
+                "mean": 0.6942763819444444,
+                "std": 0.02488639728252756
+              },
+              "average_precision": {
+                "mean": 0.7192386580413556,
+                "std": 0.018098083967056488
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "826c00820a845a0bcfadc36ce856b71f1a72751721c407d8742009e33e58007f"
+            }
+          }
+        },
+        "opensdid_global": {
+          "target_macro_across_seeds": {
+            "accuracy": {
+              "mean": 0.5070999999999999,
+              "std": 0.003676955262170035
+            },
+            "auc": {
+              "mean": 0.61770255,
+              "std": 0.05449905307842514
+            }
+          },
+          "target_order": [
+            "SD1.5",
+            "SD2.1",
+            "SDXL",
+            "SD3",
+            "Flux.1"
+          ],
+          "targets": {
+            "Flux.1": {
+              "accuracy": {
+                "mean": 0.5005,
+                "std": 0.0
+              },
+              "auc": {
+                "mean": 0.55055925,
+                "std": 0.0713834902209538
+              },
+              "average_precision": {
+                "mean": 0.5328130509020874,
+                "std": 0.0521641374568242
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "4ff61b8b8b41007110f6fbab8ceed82c5c00052629818ef118834e6c3ca45a89"
+            },
+            "SD1.5": {
+              "accuracy": {
+                "mean": 0.52325,
+                "std": 0.007424621202458717
+              },
+              "auc": {
+                "mean": 0.72690525,
+                "std": 0.05237999547656528
+              },
+              "average_precision": {
+                "mean": 0.7540192261239942,
+                "std": 0.046364152125895175
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "6bf57dd2b9af72e617987d470f29438e40367d0cbb7729ab8470f0fa935b399d"
+            },
+            "SD2.1": {
+              "accuracy": {
+                "mean": 0.508,
+                "std": 0.00777817459305203
+              },
+              "auc": {
+                "mean": 0.6739204999999999,
+                "std": 0.026312150434732617
+              },
+              "average_precision": {
+                "mean": 0.6975294196035154,
+                "std": 0.02382823860691576
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "56d2edcbe9adf6f078c8895b247b283a53018cad11d7fb3fd7a790469de03c65"
+            },
+            "SD3": {
+              "accuracy": {
+                "mean": 0.50275,
+                "std": 0.0017677669529664096
+              },
+              "auc": {
+                "mean": 0.6050285,
+                "std": 0.04196113060917203
+              },
+              "average_precision": {
+                "mean": 0.5904128477859069,
+                "std": 0.033096449621137225
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "861c249380110f65f6fb455260e7ce60dde7fadf7a60e7bd09925c3457c9c73f"
+            },
+            "SDXL": {
+              "accuracy": {
+                "mean": 0.501,
+                "std": 0.0014142135623730963
+              },
+              "auc": {
+                "mean": 0.5320992499999999,
+                "std": 0.0804584986507019
+              },
+              "average_precision": {
+                "mean": 0.5437275000622132,
+                "std": 0.06180319776658276
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "30c20961ddfb7b73e5483dec8eeb64e365a572fc1a67da66762adcd80ad0cc17"
+            }
+          }
+        }
+      },
+      "seeds_completed": [
+        0,
+        1
+      ]
+    },
+    "rine": {
+      "datasets": {
+        "aigc_detection_benchmark": {
+          "target_macro_across_seeds": {
+            "accuracy": {
+              "mean": 0.5405,
+              "std": 0.02641251800314457
+            },
+            "auc": {
+              "mean": 0.8294610441176471,
+              "std": 0.01683415353148293
+            }
+          },
+          "target_order": [
+            "ProGAN",
+            "StyleGAN",
+            "BigGAN",
+            "CycleGAN",
+            "StarGAN",
+            "GauGAN",
+            "StyleGAN2",
+            "WFIR",
+            "ADM",
+            "GLIDE",
+            "Midjourney",
+            "SD v1.4",
+            "SD v1.5",
+            "VQDM",
+            "Wukong",
+            "DALL-E2",
+            "SDXL"
+          ],
+          "targets": {
+            "ADM": {
+              "accuracy": {
+                "mean": 0.49975,
+                "std": 0.0003535533905932741
+              },
+              "auc": {
+                "mean": 0.636447,
+                "std": 0.020943088645183187
+              },
+              "average_precision": {
+                "mean": 0.6145777059532513,
+                "std": 0.01777130466661495
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "c031c60e4ce796182a8fe3f8e8a14a3d97dec80b3fcac13d6b238da9d0ae6153"
+            },
+            "BigGAN": {
+              "accuracy": {
+                "mean": 0.50225,
+                "std": 0.0031819805153394274
+              },
+              "auc": {
+                "mean": 0.7967839999999999,
+                "std": 0.02000829348045454
+              },
+              "average_precision": {
+                "mean": 0.7580776332367936,
+                "std": 0.014403028654526008
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "47b3ab77e95a4bd0f25db86e25412391e3f8a18a0e34c3f7684a66559124f6a7"
+            },
+            "CycleGAN": {
+              "accuracy": {
+                "mean": 0.5605,
+                "std": 0.028284271247461926
+              },
+              "auc": {
+                "mean": 0.8854647499999999,
+                "std": 0.058836587495579566
+              },
+              "average_precision": {
+                "mean": 0.8757296261190952,
+                "std": 0.06714758352570728
+              },
+              "label_sha256": "7816815640ec7869e5ca8da87f2d19ef15ad83e27b41970949689166b1f2aae0",
+              "sample_id_sha256": "55ab9c679f601993327e878d9a37be8dc8c757be9b52cc72dde7364c55df148c"
+            },
+            "DALL-E2": {
+              "accuracy": {
+                "mean": 0.502,
+                "std": 0.0014142135623730963
+              },
+              "auc": {
+                "mean": 0.72287325,
+                "std": 0.045632782570483206
+              },
+              "average_precision": {
+                "mean": 0.6980177441702522,
+                "std": 0.04147909749306724
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "a3cc5117f0d03cb1f604b7f13b6768033de5313e7682ea44564e7a93f07fcfff"
+            },
+            "GLIDE": {
+              "accuracy": {
+                "mean": 0.50625,
+                "std": 0.00530330085889915
+              },
+              "auc": {
+                "mean": 0.8663964999999998,
+                "std": 0.04560273053228274
+              },
+              "average_precision": {
+                "mean": 0.844874975733237,
+                "std": 0.0551840604434536
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "6276dab14533ea22376c357016640d4306a4505f776e4b352c4cd4daf7218820"
+            },
+            "GauGAN": {
+              "accuracy": {
+                "mean": 0.505,
+                "std": 0.005656854249492385
+              },
+              "auc": {
+                "mean": 0.85629175,
+                "std": 0.023241539237429935
+              },
+              "average_precision": {
+                "mean": 0.8388686692630756,
+                "std": 0.02598650965583044
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "122ef1997d86389fe088ce76f2baab57e5f685a8166ec0a6f8735fac6721406e"
+            },
+            "Midjourney": {
+              "accuracy": {
+                "mean": 0.51625,
+                "std": 0.019445436482630113
+              },
+              "auc": {
+                "mean": 0.8455575,
+                "std": 0.003276025717237352
+              },
+              "average_precision": {
+                "mean": 0.8379411270560353,
+                "std": 0.01478159138217936
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "d897e7959c70ae1da56c10a1d22aed7e4d0f9d15eec565f9fc898b0c26b7fac5"
+            },
+            "ProGAN": {
+              "accuracy": {
+                "mean": 0.512,
+                "std": 0.013435028842544414
+              },
+              "auc": {
+                "mean": 0.81586175,
+                "std": 0.030486555317467443
+              },
+              "average_precision": {
+                "mean": 0.8025290814489338,
+                "std": 0.03452346611216369
+              },
+              "label_sha256": "0673cf1786e0dcc6068cb9798c2c98c43a361258dff99607687a78751ab781d6",
+              "sample_id_sha256": "ed5e8e58c6fc4b2af8cc296a6bfe4934957376f600923879d7c3b17874336821"
+            },
+            "SD v1.4": {
+              "accuracy": {
+                "mean": 0.70775,
+                "std": 0.12975409434773147
+              },
+              "auc": {
+                "mean": 0.98792375,
+                "std": 0.00480019438408486
+              },
+              "average_precision": {
+                "mean": 0.9872454575093814,
+                "std": 0.005053433323315805
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "3d1656515535a6ffc6e97a53b79204a748d5c29d9a0839cda44f87a43567e77e"
+            },
+            "SD v1.5": {
+              "accuracy": {
+                "mean": 0.7065,
+                "std": 0.1258650070512054
+              },
+              "auc": {
+                "mean": 0.9903497499999999,
+                "std": 0.0019929804627743246
+              },
+              "average_precision": {
+                "mean": 0.9903301571560499,
+                "std": 0.0018911940841559029
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "43b4ba427ebd5479bfdbf61239223ceef6f8a298c99ebfa66b4cb857f02ccdd2"
+            },
+            "SDXL": {
+              "accuracy": {
+                "mean": 0.5185,
+                "std": 0.024041630560342638
+              },
+              "auc": {
+                "mean": 0.9129575000000001,
+                "std": 0.028941173447184356
+              },
+              "average_precision": {
+                "mean": 0.895401678786202,
+                "std": 0.04130395391444832
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "0c0deed0f709ea9122efda6d16246abc24b3c89e35264cd28c2dcce4637d7c94"
+            },
+            "StarGAN": {
+              "accuracy": {
+                "mean": 0.5015000000000001,
+                "std": 0.0007071067811865482
+              },
+              "auc": {
+                "mean": 0.8198875000000001,
+                "std": 0.04348635993619154
+              },
+              "average_precision": {
+                "mean": 0.8073555640123631,
+                "std": 0.04587847316175956
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "724fc7f77b75fffbb7313e7f35b2ed0cf93f0395c947fa9a617cc183d2e6e3f9"
+            },
+            "StyleGAN": {
+              "accuracy": {
+                "mean": 0.5035000000000001,
+                "std": 0.004949747468305837
+              },
+              "auc": {
+                "mean": 0.7456940000000001,
+                "std": 0.011296737936236197
+              },
+              "average_precision": {
+                "mean": 0.7262148072664736,
+                "std": 0.022208048601535683
+              },
+              "label_sha256": "55d6435926654d5c45fa5b41e39a77f76378f9ba0ebdbac597a495c5db45bad8",
+              "sample_id_sha256": "fe6e3364eed2a5e5eba8bc1ed19c0c83550127f24d8823f84a524e0cb58c9be7"
+            },
+            "StyleGAN2": {
+              "accuracy": {
+                "mean": 0.5025,
+                "std": 0.0035355339059327407
+              },
+              "auc": {
+                "mean": 0.7329807500000001,
+                "std": 0.026124413584327568
+              },
+              "average_precision": {
+                "mean": 0.7028979033156009,
+                "std": 0.0315054341867615
+              },
+              "label_sha256": "4e9a1704bbe34526f64a4b9a69428477fbde9c8a92272b294ec208814dc3093a",
+              "sample_id_sha256": "76ab42bb8b3c283c475e2a25a01596f667eca220ba2acdc91d78f5f187ad8f60"
+            },
+            "VQDM": {
+              "accuracy": {
+                "mean": 0.503,
+                "std": 0.004949747468305798
+              },
+              "auc": {
+                "mean": 0.7783570000000001,
+                "std": 0.031933649345165675
+              },
+              "average_precision": {
+                "mean": 0.7492726370407405,
+                "std": 0.030085653714838286
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "241d43c8c159b4e1e17cca2bb047d1ba247237fce97626a17cea9e10dc3a2e3c"
+            },
+            "WFIR": {
+              "accuracy": {
+                "mean": 0.5037499999999999,
+                "std": 0.005303300858899072
+              },
+              "auc": {
+                "mean": 0.7303897500000001,
+                "std": 0.022848387867090213
+              },
+              "average_precision": {
+                "mean": 0.6866271860669317,
+                "std": 0.023718297313000597
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "57f293f60726aa564826273a7c5852a446136c450b15075c2ff444764008b6f6"
+            },
+            "Wukong": {
+              "accuracy": {
+                "mean": 0.6375,
+                "std": 0.07495331880577402
+              },
+              "auc": {
+                "mean": 0.97662125,
+                "std": 0.00300131473274629
+              },
+              "average_precision": {
+                "mean": 0.976533415799514,
+                "std": 0.003432355059534028
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "a807692d532b6d524f29bd49572b43dbb142a138f27459ef3b5393b5465d4319"
+            }
+          }
+        },
+        "aigi_holmes_p3": {
+          "target_macro_across_seeds": {
+            "accuracy": {
+              "mean": 0.5111749999999999,
+              "std": 0.0112076424818068
+            },
+            "auc": {
+              "mean": 0.8681807000000001,
+              "std": 0.01103072436515394
+            }
+          },
+          "target_order": [
+            "Janus",
+            "Janus-Pro-1B",
+            "Janus-Pro-7B",
+            "Show-o",
+            "LlamaGen",
+            "Infinity",
+            "VAR",
+            "PixArt-XL",
+            "SD3.5-L",
+            "FLUX"
+          ],
+          "targets": {
+            "FLUX": {
+              "accuracy": {
+                "mean": 0.51425,
+                "std": 0.015202795795510824
+              },
+              "auc": {
+                "mean": 0.90020275,
+                "std": 0.004665844095659478
+              },
+              "average_precision": {
+                "mean": 0.8834277321683419,
+                "std": 0.009200985235676994
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "0dfbd3a1d950a0226fad14cdaf5f3270b66876e6e267c5c2578e66975721b7c3"
+            },
+            "Infinity": {
+              "accuracy": {
+                "mean": 0.50725,
+                "std": 0.00954594154601844
+              },
+              "auc": {
+                "mean": 0.9171002500000001,
+                "std": 6.823580438461915e-05
+              },
+              "average_precision": {
+                "mean": 0.8905243539894669,
+                "std": 0.0001843888875917654
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "40ad69d249828dbd366dc1b6e8e20328db1ce86a7d534d0333712274b6cc89f1"
+            },
+            "Janus": {
+              "accuracy": {
+                "mean": 0.501,
+                "std": 0.0014142135623730963
+              },
+              "auc": {
+                "mean": 0.721763,
+                "std": 0.005164707929786527
+              },
+              "average_precision": {
+                "mean": 0.6755259626055281,
+                "std": 0.0067945081260689655
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "a134d3fb8ccb536c054ace32e5535f481c402ba2b39a17f484ab398435b50393"
+            },
+            "Janus-Pro-1B": {
+              "accuracy": {
+                "mean": 0.512,
+                "std": 0.00777817459305203
+              },
+              "auc": {
+                "mean": 0.858783,
+                "std": 0.037430697462110016
+              },
+              "average_precision": {
+                "mean": 0.8491273607321076,
+                "std": 0.040424216194494406
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "375583d8375c23be34e0c7c0feb9c1d4038468939daa73d27bee355613c29884"
+            },
+            "Janus-Pro-7B": {
+              "accuracy": {
+                "mean": 0.50325,
+                "std": 0.0031819805153394274
+              },
+              "auc": {
+                "mean": 0.8314027500000001,
+                "std": 0.026411498937489397
+              },
+              "average_precision": {
+                "mean": 0.7939376376464397,
+                "std": 0.03022294233949977
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "254f98c9cc52b03afd0e73f077015ad72f84f5d48f5e591e72139ada4b5b835b"
+            },
+            "LlamaGen": {
+              "accuracy": {
+                "mean": 0.5245,
+                "std": 0.019798989873223347
+              },
+              "auc": {
+                "mean": 0.95195175,
+                "std": 0.002466742006169275
+              },
+              "average_precision": {
+                "mean": 0.9422062998325519,
+                "std": 0.005118012508798671
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "8590215d14f3c310289a4d3d219817ee6e76963a4720a2ed09f977f945b9d757"
+            },
+            "PixArt-XL": {
+              "accuracy": {
+                "mean": 0.51875,
+                "std": 0.01803122292025694
+              },
+              "auc": {
+                "mean": 0.9321714999999999,
+                "std": 0.001600889752606296
+              },
+              "average_precision": {
+                "mean": 0.9175178910897263,
+                "std": 0.001017363947716155
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "c85c29a2a021cc12a47f842388a5c6b06032c4d8f9bc041657ef953ae846b94c"
+            },
+            "SD3.5-L": {
+              "accuracy": {
+                "mean": 0.5017499999999999,
+                "std": 0.0024748737341528794
+              },
+              "auc": {
+                "mean": 0.90043075,
+                "std": 0.021511956050647835
+              },
+              "average_precision": {
+                "mean": 0.8806453347031225,
+                "std": 0.024184227120275528
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "f6ff0c9132069e8348671211fa8fe0bf94060e78f9835707f6d8429abac86928"
+            },
+            "Show-o": {
+              "accuracy": {
+                "mean": 0.5269999999999999,
+                "std": 0.031819805153394665
+              },
+              "auc": {
+                "mean": 0.9479075000000001,
+                "std": 0.006860349991071876
+              },
+              "average_precision": {
+                "mean": 0.9417163240632742,
+                "std": 0.009150419245027984
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "9ebb1aff1d324678d57a61338960926fd5b5a66e99e6986296c09d94312ea409"
+            },
+            "VAR": {
+              "accuracy": {
+                "mean": 0.502,
+                "std": 0.0028284271247461927
+              },
+              "auc": {
+                "mean": 0.72009375,
+                "std": 0.03151468857731265
+              },
+              "average_precision": {
+                "mean": 0.700165559257816,
+                "std": 0.030748894759461385
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "7b0a271f8ac91e8b40bd8225f04f804ecc570684fb919d5dd2bf87a37d8a589c"
+            }
+          }
+        },
+        "genimage": {
+          "target_macro_across_seeds": {
+            "accuracy": {
+              "mean": 0.5513586309523809,
+              "std": 0.032196507873133794
+            },
+            "auc": {
+              "mean": 0.8589263391617064,
+              "std": 0.017489167523780873
+            }
+          },
+          "target_order": [
+            "BigGAN",
+            "ADM",
+            "glide",
+            "stable_diffusion_v_1_5",
+            "VQDM",
+            "wukong",
+            "Midjourney"
+          ],
+          "targets": {
+            "ADM": {
+              "accuracy": {
+                "mean": 0.5002083333333334,
+                "std": 0.00017677669529661742
+              },
+              "auc": {
+                "mean": 0.6500914166666667,
+                "std": 0.016863377145562308
+              },
+              "average_precision": {
+                "mean": 0.6254944314624555,
+                "std": 0.017558291811782357
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "f9ed2a6cdeb601cd8268d4b6a88c6c74ecea0aaa20a975ef4515538eb0e62028"
+            },
+            "BigGAN": {
+              "accuracy": {
+                "mean": 0.5019583333333333,
+                "std": 0.0014731391274719688
+              },
+              "auc": {
+                "mean": 0.9009744375,
+                "std": 0.040314917276077174
+              },
+              "average_precision": {
+                "mean": 0.8811537463866985,
+                "std": 0.05001223013578597
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "f66cca516aab54ff759ea961892c0cbb25848050872fb4eadbc55f2e60b9cec6"
+            },
+            "Midjourney": {
+              "accuracy": {
+                "mean": 0.514625,
+                "std": 0.01702948831357595
+              },
+              "auc": {
+                "mean": 0.8478137222222222,
+                "std": 0.008438474833694956
+              },
+              "average_precision": {
+                "mean": 0.8405398644193853,
+                "std": 0.017962917091187417
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "4202425bfb5c4a386a296d74d1d2800fa1a856ecd12939e9839464ba622153b6"
+            },
+            "VQDM": {
+              "accuracy": {
+                "mean": 0.5049166666666667,
+                "std": 0.0045961940777125235
+              },
+              "auc": {
+                "mean": 0.7841112361111111,
+                "std": 0.029531214772374248
+              },
+              "average_precision": {
+                "mean": 0.761008374628837,
+                "std": 0.029671110899165232
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "88db8d8c3930b82f7bbaabd194e18344169a996c0306bc1506aa92beceb44bc9"
+            },
+            "glide": {
+              "accuracy": {
+                "mean": 0.5039583333333333,
+                "std": 0.00276950155964732
+              },
+              "auc": {
+                "mean": 0.8635392916666667,
+                "std": 0.04948792874151219
+              },
+              "average_precision": {
+                "mean": 0.8462719541223139,
+                "std": 0.05998225193280109
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "a8ac2fe7b123ced32dd973889a93072cbdd0f098bf238181c6d3abaff8e3d7ea"
+            },
+            "stable_diffusion_v_1_5": {
+              "accuracy": {
+                "mean": 0.70346875,
+                "std": 0.12502531774854647
+              },
+              "auc": {
+                "mean": 0.9899036171875,
+                "std": 0.0032787989016448034
+              },
+              "average_precision": {
+                "mean": 0.9893424731614604,
+                "std": 0.0035121733233287695
+              },
+              "label_sha256": "05caefe78cab2c0c826fb9cf9428423188c044514bc4e40dfd20f33c62043396",
+              "sample_id_sha256": "11c52f2b5eac2ed4753d81de90860ccc769022c880ede090f2a0922b13c56e03"
+            },
+            "wukong": {
+              "accuracy": {
+                "mean": 0.6303749999999999,
+                "std": 0.07430513758968635
+              },
+              "auc": {
+                "mean": 0.9760506527777779,
+                "std": 0.002055991533719891
+              },
+              "average_precision": {
+                "mean": 0.974740117743526,
+                "std": 0.0024682752386745352
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "826c00820a845a0bcfadc36ce856b71f1a72751721c407d8742009e33e58007f"
+            }
+          }
+        },
+        "opensdid_global": {
+          "target_macro_across_seeds": {
+            "accuracy": {
+              "mean": 0.5487500000000001,
+              "std": 0.0402343758495146
+            },
+            "auc": {
+              "mean": 0.93006955,
+              "std": 0.006886017967229019
+            }
+          },
+          "target_order": [
+            "SD1.5",
+            "SD2.1",
+            "SDXL",
+            "SD3",
+            "Flux.1"
+          ],
+          "targets": {
+            "Flux.1": {
+              "accuracy": {
+                "mean": 0.50325,
+                "std": 0.003889087296526054
+              },
+              "auc": {
+                "mean": 0.89000675,
+                "std": 0.002546645072443297
+              },
+              "average_precision": {
+                "mean": 0.8736536707190876,
+                "std": 0.0008084957666337983
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "4ff61b8b8b41007110f6fbab8ceed82c5c00052629818ef118834e6c3ca45a89"
+            },
+            "SD1.5": {
+              "accuracy": {
+                "mean": 0.643,
+                "std": 0.09828784258493012
+              },
+              "auc": {
+                "mean": 0.982066,
+                "std": 0.003125411972844447
+              },
+              "average_precision": {
+                "mean": 0.9822679322786614,
+                "std": 0.003375876149181218
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "6bf57dd2b9af72e617987d470f29438e40367d0cbb7729ab8470f0fa935b399d"
+            },
+            "SD2.1": {
+              "accuracy": {
+                "mean": 0.5642499999999999,
+                "std": 0.061871843353822925
+              },
+              "auc": {
+                "mean": 0.95493875,
+                "std": 0.005128291930555432
+              },
+              "average_precision": {
+                "mean": 0.9514382691929681,
+                "std": 0.00528052265668691
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "56d2edcbe9adf6f078c8895b247b283a53018cad11d7fb3fd7a790469de03c65"
+            },
+            "SD3": {
+              "accuracy": {
+                "mean": 0.5197499999999999,
+                "std": 0.01803122292025694
+              },
+              "auc": {
+                "mean": 0.9157824999999999,
+                "std": 0.004459722468943599
+              },
+              "average_precision": {
+                "mean": 0.9088488424129906,
+                "std": 0.0034350708867252433
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "861c249380110f65f6fb455260e7ce60dde7fadf7a60e7bd09925c3457c9c73f"
+            },
+            "SDXL": {
+              "accuracy": {
+                "mean": 0.5135000000000001,
+                "std": 0.0190918830920368
+              },
+              "auc": {
+                "mean": 0.90755375,
+                "std": 0.019170018391357766
+              },
+              "average_precision": {
+                "mean": 0.8850500950750295,
+                "std": 0.02761641139596434
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "30c20961ddfb7b73e5483dec8eeb64e365a572fc1a67da66762adcd80ad0cc17"
+            }
+          }
+        }
+      },
+      "seeds_completed": [
+        0,
+        1
+      ]
+    },
+    "univfd": {
+      "datasets": {
+        "aigc_detection_benchmark": {
+          "target_macro_across_seeds": {
+            "accuracy": {
+              "mean": 0.6192794117647058,
+              "std": 0.0002703643575125245
+            },
+            "auc": {
+              "mean": 0.7779372058823529,
+              "std": 0.0010701853160674634
+            }
+          },
+          "target_order": [
+            "ProGAN",
+            "StyleGAN",
+            "BigGAN",
+            "CycleGAN",
+            "StarGAN",
+            "GauGAN",
+            "StyleGAN2",
+            "WFIR",
+            "ADM",
+            "GLIDE",
+            "Midjourney",
+            "SD v1.4",
+            "SD v1.5",
+            "VQDM",
+            "Wukong",
+            "DALL-E2",
+            "SDXL"
+          ],
+          "targets": {
+            "ADM": {
+              "accuracy": {
+                "mean": 0.5085,
+                "std": 0.0014142135623730963
+              },
+              "auc": {
+                "mean": 0.61445975,
+                "std": 0.0015446747635020368
+              },
+              "average_precision": {
+                "mean": 0.5929607551388476,
+                "std": 0.0012740008591185072
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "c031c60e4ce796182a8fe3f8e8a14a3d97dec80b3fcac13d6b238da9d0ae6153"
+            },
+            "BigGAN": {
+              "accuracy": {
+                "mean": 0.532,
+                "std": 0.0007071067811865482
+              },
+              "auc": {
+                "mean": 0.760054,
+                "std": 4.5254833995984304e-05
+              },
+              "average_precision": {
+                "mean": 0.7313590085755607,
+                "std": 0.00017832995331290493
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "47b3ab77e95a4bd0f25db86e25412391e3f8a18a0e34c3f7684a66559124f6a7"
+            },
+            "CycleGAN": {
+              "accuracy": {
+                "mean": 0.6335,
+                "std": 0.0021213203435596446
+              },
+              "auc": {
+                "mean": 0.790789,
+                "std": 0.0016963491680664772
+              },
+              "average_precision": {
+                "mean": 0.7492057098664544,
+                "std": 0.0025655093181593874
+              },
+              "label_sha256": "7816815640ec7869e5ca8da87f2d19ef15ad83e27b41970949689166b1f2aae0",
+              "sample_id_sha256": "55ab9c679f601993327e878d9a37be8dc8c757be9b52cc72dde7364c55df148c"
+            },
+            "DALL-E2": {
+              "accuracy": {
+                "mean": 0.5845,
+                "std": 0.0
+              },
+              "auc": {
+                "mean": 0.75732425,
+                "std": 0.002930604054627643
+              },
+              "average_precision": {
+                "mean": 0.7524557013958204,
+                "std": 0.003060084842478036
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "a3cc5117f0d03cb1f604b7f13b6768033de5313e7682ea44564e7a93f07fcfff"
+            },
+            "GLIDE": {
+              "accuracy": {
+                "mean": 0.60625,
+                "std": 0.001060660171779783
+              },
+              "auc": {
+                "mean": 0.8273675,
+                "std": 0.0014375480861522952
+              },
+              "average_precision": {
+                "mean": 0.8117511369810912,
+                "std": 0.0021404997242127233
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "6276dab14533ea22376c357016640d4306a4505f776e4b352c4cd4daf7218820"
+            },
+            "GauGAN": {
+              "accuracy": {
+                "mean": 0.5860000000000001,
+                "std": 0.0007071067811865482
+              },
+              "auc": {
+                "mean": 0.8600397500000001,
+                "std": 0.0005073491155012174
+              },
+              "average_precision": {
+                "mean": 0.8409660511477568,
+                "std": 0.0006428107964165575
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "122ef1997d86389fe088ce76f2baab57e5f685a8166ec0a6f8735fac6721406e"
+            },
+            "Midjourney": {
+              "accuracy": {
+                "mean": 0.6785,
+                "std": 0.0
+              },
+              "auc": {
+                "mean": 0.86676125,
+                "std": 0.0008319111280659121
+              },
+              "average_precision": {
+                "mean": 0.867681253124372,
+                "std": 0.0007410893482937746
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "d897e7959c70ae1da56c10a1d22aed7e4d0f9d15eec565f9fc898b0c26b7fac5"
+            },
+            "ProGAN": {
+              "accuracy": {
+                "mean": 0.66525,
+                "std": 0.001767766952966331
+              },
+              "auc": {
+                "mean": 0.7727277499999999,
+                "std": 0.0005674531919022322
+              },
+              "average_precision": {
+                "mean": 0.7155129845318982,
+                "std": 0.0006769440864583523
+              },
+              "label_sha256": "0673cf1786e0dcc6068cb9798c2c98c43a361258dff99607687a78751ab781d6",
+              "sample_id_sha256": "ed5e8e58c6fc4b2af8cc296a6bfe4934957376f600923879d7c3b17874336821"
+            },
+            "SD v1.4": {
+              "accuracy": {
+                "mean": 0.7875000000000001,
+                "std": 0.0021213203435596446
+              },
+              "auc": {
+                "mean": 0.9472832499999999,
+                "std": 0.0006926110921721604
+              },
+              "average_precision": {
+                "mean": 0.9424410263994749,
+                "std": 0.0006451131968932654
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "3d1656515535a6ffc6e97a53b79204a748d5c29d9a0839cda44f87a43567e77e"
+            },
+            "SD v1.5": {
+              "accuracy": {
+                "mean": 0.7785,
+                "std": 0.0021213203435596446
+              },
+              "auc": {
+                "mean": 0.9549375,
+                "std": 0.0006979143930310942
+              },
+              "average_precision": {
+                "mean": 0.9472566898599093,
+                "std": 0.0008878858443879451
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "43b4ba427ebd5479bfdbf61239223ceef6f8a298c99ebfa66b4cb857f02ccdd2"
+            },
+            "SDXL": {
+              "accuracy": {
+                "mean": 0.688,
+                "std": 0.00424264068711921
+              },
+              "auc": {
+                "mean": 0.8864542499999999,
+                "std": 0.0023797678720833405
+              },
+              "average_precision": {
+                "mean": 0.8869190033725883,
+                "std": 0.0023383670357736033
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "0c0deed0f709ea9122efda6d16246abc24b3c89e35264cd28c2dcce4637d7c94"
+            },
+            "StarGAN": {
+              "accuracy": {
+                "mean": 0.70825,
+                "std": 0.0024748737341528794
+              },
+              "auc": {
+                "mean": 0.83273175,
+                "std": 0.0005815953275259772
+              },
+              "average_precision": {
+                "mean": 0.8053910350119915,
+                "std": 9.661860281979207e-05
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "724fc7f77b75fffbb7313e7f35b2ed0cf93f0395c947fa9a617cc183d2e6e3f9"
+            },
+            "StyleGAN": {
+              "accuracy": {
+                "mean": 0.5275000000000001,
+                "std": 0.0021213203435596446
+              },
+              "auc": {
+                "mean": 0.5960325,
+                "std": 0.003965454828894199
+              },
+              "average_precision": {
+                "mean": 0.5775012663022383,
+                "std": 0.0027180132302265366
+              },
+              "label_sha256": "55d6435926654d5c45fa5b41e39a77f76378f9ba0ebdbac597a495c5db45bad8",
+              "sample_id_sha256": "fe6e3364eed2a5e5eba8bc1ed19c0c83550127f24d8823f84a524e0cb58c9be7"
+            },
+            "StyleGAN2": {
+              "accuracy": {
+                "mean": 0.502,
+                "std": 0.0014142135623730963
+              },
+              "auc": {
+                "mean": 0.558979,
+                "std": 0.002368807716974909
+              },
+              "average_precision": {
+                "mean": 0.5294985185194274,
+                "std": 0.001262451581559682
+              },
+              "label_sha256": "4e9a1704bbe34526f64a4b9a69428477fbde9c8a92272b294ec208814dc3093a",
+              "sample_id_sha256": "76ab42bb8b3c283c475e2a25a01596f667eca220ba2acdc91d78f5f187ad8f60"
+            },
+            "VQDM": {
+              "accuracy": {
+                "mean": 0.518,
+                "std": 0.0021213203435596446
+              },
+              "auc": {
+                "mean": 0.6753155,
+                "std": 0.001175211470332079
+              },
+              "average_precision": {
+                "mean": 0.6407801417280526,
+                "std": 0.001102355319938973
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "241d43c8c159b4e1e17cca2bb047d1ba247237fce97626a17cea9e10dc3a2e3c"
+            },
+            "WFIR": {
+              "accuracy": {
+                "mean": 0.53325,
+                "std": 0.001767766952966331
+              },
+              "auc": {
+                "mean": 0.6138575,
+                "std": 0.0017097841969090156
+              },
+              "average_precision": {
+                "mean": 0.5715655929549613,
+                "std": 0.0020901457959454374
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "57f293f60726aa564826273a7c5852a446136c450b15075c2ff444764008b6f6"
+            },
+            "Wukong": {
+              "accuracy": {
+                "mean": 0.69025,
+                "std": 0.00035355339059331333
+              },
+              "auc": {
+                "mean": 0.9098179999999999,
+                "std": 0.000778524566086402
+              },
+              "average_precision": {
+                "mean": 0.899148837503706,
+                "std": 0.0008173859512481344
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "a807692d532b6d524f29bd49572b43dbb142a138f27459ef3b5393b5465d4319"
+            }
+          }
+        },
+        "aigi_holmes_p3": {
+          "target_macro_across_seeds": {
+            "accuracy": {
+              "mean": 0.6817249999999999,
+              "std": 0.0002474873734152644
+            },
+            "auc": {
+              "mean": 0.8785733499999999,
+              "std": 0.0008545385450639828
+            }
+          },
+          "target_order": [
+            "Janus",
+            "Janus-Pro-1B",
+            "Janus-Pro-7B",
+            "Show-o",
+            "LlamaGen",
+            "Infinity",
+            "VAR",
+            "PixArt-XL",
+            "SD3.5-L",
+            "FLUX"
+          ],
+          "targets": {
+            "FLUX": {
+              "accuracy": {
+                "mean": 0.72775,
+                "std": 0.002474873734152958
+              },
+              "auc": {
+                "mean": 0.919626,
+                "std": 0.0015690699474528499
+              },
+              "average_precision": {
+                "mean": 0.9115428896335814,
+                "std": 0.0019139447977155146
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "0dfbd3a1d950a0226fad14cdaf5f3270b66876e6e267c5c2578e66975721b7c3"
+            },
+            "Infinity": {
+              "accuracy": {
+                "mean": 0.81225,
+                "std": 0.00035355339059323483
+              },
+              "auc": {
+                "mean": 0.95636525,
+                "std": 0.0011140467337592932
+              },
+              "average_precision": {
+                "mean": 0.9521124144750213,
+                "std": 0.0012205167186912227
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "40ad69d249828dbd366dc1b6e8e20328db1ce86a7d534d0333712274b6cc89f1"
+            },
+            "Janus": {
+              "accuracy": {
+                "mean": 0.54375,
+                "std": 0.00035355339059331333
+              },
+              "auc": {
+                "mean": 0.72168075,
+                "std": 0.0016040717331216878
+              },
+              "average_precision": {
+                "mean": 0.6961211226154214,
+                "std": 0.0019292302560215693
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "a134d3fb8ccb536c054ace32e5535f481c402ba2b39a17f484ab398435b50393"
+            },
+            "Janus-Pro-1B": {
+              "accuracy": {
+                "mean": 0.69025,
+                "std": 0.0017677669529664096
+              },
+              "auc": {
+                "mean": 0.9264694999999998,
+                "std": 0.0004794183976445269
+              },
+              "average_precision": {
+                "mean": 0.919474446085756,
+                "std": 0.00048511278463096773
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "375583d8375c23be34e0c7c0feb9c1d4038468939daa73d27bee355613c29884"
+            },
+            "Janus-Pro-7B": {
+              "accuracy": {
+                "mean": 0.66025,
+                "std": 0.0010606601717798615
+              },
+              "auc": {
+                "mean": 0.88160125,
+                "std": 0.0009945456877389414
+              },
+              "average_precision": {
+                "mean": 0.8692705415199021,
+                "std": 0.0013333422654718831
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "254f98c9cc52b03afd0e73f077015ad72f84f5d48f5e591e72139ada4b5b835b"
+            },
+            "LlamaGen": {
+              "accuracy": {
+                "mean": 0.73275,
+                "std": 0.001767766952966331
+              },
+              "auc": {
+                "mean": 0.9464904999999999,
+                "std": 0.0003104198769409497
+              },
+              "average_precision": {
+                "mean": 0.936107234269242,
+                "std": 0.0004429459958486597
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "8590215d14f3c310289a4d3d219817ee6e76963a4720a2ed09f977f945b9d757"
+            },
+            "PixArt-XL": {
+              "accuracy": {
+                "mean": 0.7597499999999999,
+                "std": 0.00035355339059331333
+              },
+              "auc": {
+                "mean": 0.93587975,
+                "std": 0.0009111070875588847
+              },
+              "average_precision": {
+                "mean": 0.9282485420862916,
+                "std": 0.000999904064792109
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "c85c29a2a021cc12a47f842388a5c6b06032c4d8f9bc041657ef953ae846b94c"
+            },
+            "SD3.5-L": {
+              "accuracy": {
+                "mean": 0.5780000000000001,
+                "std": 0.0007071067811865482
+              },
+              "auc": {
+                "mean": 0.835615,
+                "std": 0.0013569379130969875
+              },
+              "average_precision": {
+                "mean": 0.8039180006277997,
+                "std": 0.002175756411141666
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "f6ff0c9132069e8348671211fa8fe0bf94060e78f9835707f6d8429abac86928"
+            },
+            "Show-o": {
+              "accuracy": {
+                "mean": 0.7835,
+                "std": 0.0014142135623730963
+              },
+              "auc": {
+                "mean": 0.95068975,
+                "std": 0.0011699081694730665
+              },
+              "average_precision": {
+                "mean": 0.9496036447382735,
+                "std": 0.001135013125608418
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "9ebb1aff1d324678d57a61338960926fd5b5a66e99e6986296c09d94312ea409"
+            },
+            "VAR": {
+              "accuracy": {
+                "mean": 0.529,
+                "std": 0.0
+              },
+              "auc": {
+                "mean": 0.71131575,
+                "std": 0.0003433003422660098
+              },
+              "average_precision": {
+                "mean": 0.6804340267876416,
+                "std": 0.001084233870112954
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "7b0a271f8ac91e8b40bd8225f04f804ecc570684fb919d5dd2bf87a37d8a589c"
+            }
+          }
+        },
+        "genimage": {
+          "target_macro_across_seeds": {
+            "accuracy": {
+              "mean": 0.625828869047619,
+              "std": 0.0003388219993184971
+            },
+            "auc": {
+              "mean": 0.7993386215897818,
+              "std": 0.0010715644703628965
+            }
+          },
+          "target_order": [
+            "BigGAN",
+            "ADM",
+            "glide",
+            "stable_diffusion_v_1_5",
+            "VQDM",
+            "wukong",
+            "Midjourney"
+          ],
+          "targets": {
+            "ADM": {
+              "accuracy": {
+                "mean": 0.513625,
+                "std": 0.0006481812160876757
+              },
+              "auc": {
+                "mean": 0.6242424027777778,
+                "std": 0.0013544041137976957
+              },
+              "average_precision": {
+                "mean": 0.5985062921849625,
+                "std": 0.0016166800600538437
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "f9ed2a6cdeb601cd8268d4b6a88c6c74ecea0aaa20a975ef4515538eb0e62028"
+            },
+            "BigGAN": {
+              "accuracy": {
+                "mean": 0.5444583333333333,
+                "std": 0.0005303300858898523
+              },
+              "auc": {
+                "mean": 0.7422487291666666,
+                "std": 0.0013672204242067662
+              },
+              "average_precision": {
+                "mean": 0.7175578083608763,
+                "std": 0.001054219780631373
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "f66cca516aab54ff759ea961892c0cbb25848050872fb4eadbc55f2e60b9cec6"
+            },
+            "Midjourney": {
+              "accuracy": {
+                "mean": 0.6933750000000001,
+                "std": 0.001119585736878734
+              },
+              "auc": {
+                "mean": 0.8687656180555555,
+                "std": 0.0008727956493168969
+              },
+              "average_precision": {
+                "mean": 0.8710495747512931,
+                "std": 0.0008819449003060777
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "4202425bfb5c4a386a296d74d1d2800fa1a856ecd12939e9839464ba622153b6"
+            },
+            "VQDM": {
+              "accuracy": {
+                "mean": 0.52825,
+                "std": 0.00035355339059323483
+              },
+              "auc": {
+                "mean": 0.6830440694444444,
+                "std": 0.0010106520088659955
+              },
+              "average_precision": {
+                "mean": 0.6631401653324966,
+                "std": 0.001118326189130581
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "88db8d8c3930b82f7bbaabd194e18344169a996c0306bc1506aa92beceb44bc9"
+            },
+            "glide": {
+              "accuracy": {
+                "mean": 0.615,
+                "std": 0.0
+              },
+              "auc": {
+                "mean": 0.8230700138888889,
+                "std": 0.0011863484021356753
+              },
+              "average_precision": {
+                "mean": 0.81234329644519,
+                "std": 0.0015649939296174184
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "a8ac2fe7b123ced32dd973889a93072cbdd0f098bf238181c6d3abaff8e3d7ea"
+            },
+            "stable_diffusion_v_1_5": {
+              "accuracy": {
+                "mean": 0.78584375,
+                "std": 0.0003093592167691001
+              },
+              "auc": {
+                "mean": 0.9504775664062499,
+                "std": 0.0008057205558033938
+              },
+              "average_precision": {
+                "mean": 0.9450909104698234,
+                "std": 0.00094262550870311
+              },
+              "label_sha256": "05caefe78cab2c0c826fb9cf9428423188c044514bc4e40dfd20f33c62043396",
+              "sample_id_sha256": "11c52f2b5eac2ed4753d81de90860ccc769022c880ede090f2a0922b13c56e03"
+            },
+            "wukong": {
+              "accuracy": {
+                "mean": 0.70025,
+                "std": 0.0007071067811865482
+              },
+              "auc": {
+                "mean": 0.9035219513888888,
+                "std": 0.000903810138414167
+              },
+              "average_precision": {
+                "mean": 0.8984481035726698,
+                "std": 0.0009667396590789843
+              },
+              "label_sha256": "660cd5c0a833afb59f0f8b4ae4f72e265596f28504d5ae08b73419f5b2c3462a",
+              "sample_id_sha256": "826c00820a845a0bcfadc36ce856b71f1a72751721c407d8742009e33e58007f"
+            }
+          }
+        },
+        "opensdid_global": {
+          "target_macro_across_seeds": {
+            "accuracy": {
+              "mean": 0.7293499999999999,
+              "std": 0.0007778174593051951
+            },
+            "auc": {
+              "mean": 0.9225201000000001,
+              "std": 0.0011525840533341653
+            }
+          },
+          "target_order": [
+            "SD1.5",
+            "SD2.1",
+            "SDXL",
+            "SD3",
+            "Flux.1"
+          ],
+          "targets": {
+            "Flux.1": {
+              "accuracy": {
+                "mean": 0.7262500000000001,
+                "std": 0.00035355339059331333
+              },
+              "auc": {
+                "mean": 0.920308,
+                "std": 0.0011943033534241151
+              },
+              "average_precision": {
+                "mean": 0.912629737073995,
+                "std": 0.001531273427402003
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "4ff61b8b8b41007110f6fbab8ceed82c5c00052629818ef118834e6c3ca45a89"
+            },
+            "SD1.5": {
+              "accuracy": {
+                "mean": 0.745,
+                "std": 0.0
+              },
+              "auc": {
+                "mean": 0.9361524999999999,
+                "std": 0.0008244865068635146
+              },
+              "average_precision": {
+                "mean": 0.9341598481479125,
+                "std": 0.0009972536687152774
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "6bf57dd2b9af72e617987d470f29438e40367d0cbb7729ab8470f0fa935b399d"
+            },
+            "SD2.1": {
+              "accuracy": {
+                "mean": 0.7545,
+                "std": 0.0021213203435596446
+              },
+              "auc": {
+                "mean": 0.9387945,
+                "std": 0.0007912524881478119
+              },
+              "average_precision": {
+                "mean": 0.9320368894726354,
+                "std": 0.0006560574534487092
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "56d2edcbe9adf6f078c8895b247b283a53018cad11d7fb3fd7a790469de03c65"
+            },
+            "SD3": {
+              "accuracy": {
+                "mean": 0.73075,
+                "std": 0.00035355339059323483
+              },
+              "auc": {
+                "mean": 0.9319175,
+                "std": 0.0011561195872401213
+              },
+              "average_precision": {
+                "mean": 0.9279969921986335,
+                "std": 0.0013235894971179302
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "861c249380110f65f6fb455260e7ce60dde7fadf7a60e7bd09925c3457c9c73f"
+            },
+            "SDXL": {
+              "accuracy": {
+                "mean": 0.69025,
+                "std": 0.0017677669529664096
+              },
+              "auc": {
+                "mean": 0.885428,
+                "std": 0.0017967583309951066
+              },
+              "average_precision": {
+                "mean": 0.8950334363324564,
+                "std": 0.0015362868560308272
+              },
+              "label_sha256": "ee3c682d9356f0e43fed676ff132d8d4582fb287578f216388b0df8cb903e60b",
+              "sample_id_sha256": "30c20961ddfb7b73e5483dec8eeb64e365a572fc1a67da66762adcd80ad0cc17"
+            }
+          }
+        }
+      },
+      "seeds_completed": [
+        0,
+        1
+      ]
+    }
+  },
+  "seeds": [
+    0,
+    1
+  ]
+}
