@@ -446,6 +446,16 @@ python run_continual_stream.py \
 
 将 `seed0` 换为 `seed2` 或 `seed3` 即得到其余正式运行；结果独立写入
 `clip_vlm_bias_controlled/matched_jpeg/genimage_recurrence/seed<seed>`，不进入正文单目标主表。
+Detect、Route 和 Update 的因果消融复用完全相同的 R47 实现、checkpoint、manifest 与
+固定读出，仅以 `ablation_mode` 关闭一个模块，不新增方法别名。例如：
+
+```bash
+python run_continual_stream.py \
+  --config configs/experiments/clip_vlm_bias_controlled/matched_jpeg_recurrence_genimage_ablation_no_detect_seed0.yaml
+```
+
+另外两项将文件名中的 `no_detect` 换成 `no_route` 或 `no_update`；三个正式 seed 均有锁定
+入口，输出位于相应 `seed<seed>/ablations/<mode>` 子目录。
 
 历史 ASCAL、PoundTTA 以及其他 Rxx 研究接口、配置和诊断入口已从当前框架删除；如需审计
 早期探索，只通过 Git 历史追溯，不在当前运行注册表中保留兼容别名。

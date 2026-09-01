@@ -210,7 +210,7 @@ class OursReadoutTests(unittest.TestCase):
 
         return TinyDetector()
 
-    def method(self, readout_mode: str):
+    def method(self, readout_mode: str, *, ablation_mode: str = "none"):
         from src.methods.ours import Ours
 
         return Ours(
@@ -224,6 +224,7 @@ class OursReadoutTests(unittest.TestCase):
                 "feature_replay_learning_rate": 0.01,
                 "feature_replay_samples_per_update": 8,
                 "feature_replay_seed": 1,
+                "ablation_mode": ablation_mode,
                 **(
                     {"feature_residual_scale": 0.75}
                     if readout_mode == "calibrated"
@@ -363,6 +364,74 @@ class OursReadoutTests(unittest.TestCase):
                     "feature_residual_scale": 0.5,
                 },
             )
+
+    def test_component_ablation_modes_are_strict_and_explicit(self) -> None:
+        from src.methods.ours import Ours, _CLIPExpertMemory
+
+        with self.assertRaises(ValueError):
+            self.method("calibrated", ablation_mode="unknown")
+        with self.assertRaises(ValueError):
+            self.method("base", ablation_mode="no_route")
+
+        no_detect = self.method("calibrated", ablation_mode="no_detect")
+        with patch.object(_CLIPExpertMemory, "_detect_segment_change") as detect:
+            no_detect._detect_segment_change()
+        detect.assert_not_called()
+
+        no_route = self.method("calibrated", ablation_mode="no_route")
+        candidates = [
+            {"expert": "active_learning_state", "memory_index": None},
+            {"expert": "episodic_memory", "memory_index": 0},
+        ]
+        with patch.object(
+            _CLIPExpertMemory,
+            "_routing_candidates",
+            return_value=candidates,
+        ):
+            retained = no_route._routing_candidates(np.zeros(2))
+        self.assertEqual(retained, candidates[:1])
+        self.assertEqual(
+            no_route.reproduction_metadata["component_ablation"], "no_route"
+        )
+
+        complete = Ours(
+            self.detector(),
+            "cpu",
+            {
+                "score_anchors": score_anchors(),
+                "feature_replay_samples_per_update": 8,
+                "readout_mode": "calibrated",
+                "feature_residual_scale": 0.75,
+            },
+        )
+        with patch.object(_CLIPExpertMemory, "_detect_segment_change") as detect:
+            complete._detect_segment_change()
+        detect.assert_called_once_with()
+
+    @unittest.skipUnless(SKLEARN_AVAILABLE, "scikit-learn is required")
+    def test_no_update_preserves_routing_prototype_without_training_readout(self) -> None:
+        method = self.method("calibrated", ablation_mode="no_update")
+        mixture = {
+            "weights": [0.5, 0.5],
+            "mus": [-7.5, -3.5],
+            "sigmas": [0.5, 0.5],
+            "components": 2,
+            "bic": 0.0,
+        }
+        method._mixture = copy.deepcopy(mixture)
+        method.boundary_history = [-5.5]
+        scores = np.array([-8.0, -7.0, -4.0, -3.0])
+        images = self.score_feature_batch(scores, np.array([-1.0, -0.5, 0.5, 1.0]))
+        state = method._novel_ordinal_ridge_state
+
+        method.predict(images)
+        stats = method.adapt(images)
+
+        self.assertFalse(stats.extra["gaussian_replay_updated"])
+        self.assertGreater(state["route_feature_mass"], 0.0)
+        np.testing.assert_array_equal(state["class_samples"], np.zeros(2))
+        self.assertIsNone(state["mlp_head"])
+        self.assertFalse(stats.extra["update_enabled"])
 
     @unittest.skipUnless(SKLEARN_AVAILABLE, "scikit-learn is required")
     def test_predict_then_adapt_updates_one_gaussian_replay_expert(self) -> None:

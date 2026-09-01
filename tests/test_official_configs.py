@@ -540,6 +540,33 @@ class OfficialConfigTests(unittest.TestCase):
                             )
                         )
 
+    def test_recurrence_component_ablations_change_exactly_one_module(self) -> None:
+        for mode in ("no_detect", "no_route", "no_update"):
+            for seed in (0, 2, 3):
+                filename = (
+                    "configs/experiments/clip_vlm_bias_controlled/"
+                    "matched_jpeg_recurrence_genimage_ablation_"
+                    f"{mode}_seed{seed}.yaml"
+                )
+                with self.subTest(mode=mode, seed=seed):
+                    config = self.load(filename)
+                    self.assertEqual(config["methods"], ["ours"])
+                    self.assertEqual(config["seed"], seed)
+                    ours = config["method_configs"]["ours"]
+                    self.assertEqual(ours["ablation_mode"], mode)
+                    self.assertEqual(ours["adaptation_mode"], "full")
+                    self.assertEqual(ours["readout_mode"], "calibrated")
+                    self.assertEqual(ours["feature_residual_scale"], 0.75)
+                    self.assertTrue(
+                        config["output_dir"].endswith(
+                            f"genimage_recurrence/seed{seed}/ablations/{mode}"
+                        )
+                    )
+                    self.assertEqual(
+                        config["reporting"]["disabled_component"],
+                        mode.removeprefix("no_"),
+                    )
+
     def test_every_cnn_wrapper_points_to_a_vendored_official_core(self) -> None:
         sources = self.load("configs/official_sources.yaml")
         for method in ("tent", "eata", "cotta", "rotta", "lame", "t2a"):

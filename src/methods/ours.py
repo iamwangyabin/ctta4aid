@@ -4006,6 +4006,8 @@ class _GaussianReplayExperts(
         self.gaussian_replay_candidate_samples += int(scores.size)
         self.gaussian_replay_last_effective_support = float(reliability.sum())
         self.gaussian_replay_last_reliability = float(np.mean(reliability))
+        if not self._gaussian_replay_parameter_update_enabled():
+            return False
         for class_index in (0, 1):
             class_weights = np.where(labels == class_index, reliability, 0.0)
             self._update_weighted_diagonal_gaussian(
@@ -4045,6 +4047,9 @@ class _GaussianReplayExperts(
         labels = (posterior >= 0.5).astype(np.int64)
         reliability = np.abs(2.0 * posterior - 1.0)
         return labels, reliability, posterior
+
+    def _gaussian_replay_parameter_update_enabled(self) -> bool:
+        return True
 
     def _gaussian_replay_state_stats(self) -> dict[str, Any]:
         states = self._all_ordinal_ridge_states()
@@ -4337,6 +4342,15 @@ class Ours(
     """Shrink feature ranking while re-solving one expert intercept."""
 
     def _reset_state(self) -> None:
+        self.ablation_mode = str(
+            self.config.get("ablation_mode", "none")
+        ).lower().replace("-", "_")
+        allowed_ablations = {"none", "no_detect", "no_route", "no_update"}
+        if self.ablation_mode not in allowed_ablations:
+            raise ValueError(
+                "Ours ablation_mode must be one of none, no_detect, no_route, "
+                "or no_update"
+            )
         self.readout_mode = str(
             self.config.get("readout_mode", "calibrated")
         ).lower()
@@ -4355,6 +4369,12 @@ class Ours(
                     "The final Ours calibrated readout fixes feature_residual_scale at 0.75"
                 )
         super()._reset_state()
+        if self.ablation_mode != "none" and (
+            self.readout_mode != "calibrated" or self.adaptation_mode != "full"
+        ):
+            raise ValueError(
+                "Ours component ablations require the full calibrated method"
+            )
         self.intercept_refit_updates = 0
         self.intercept_refit_last_bias = 0.0
         self.intercept_refit_last_learned_bias = 0.0
@@ -4364,6 +4384,9 @@ class Ours(
     @property
     def reproduction_metadata(self) -> dict[str, Any]:
         calibrated = self.readout_mode == "calibrated"
+        component_ablation = (
+            None if self.ablation_mode == "none" else self.ablation_mode
+        )
         return {
             "protocol": self.protocol_name,
             "research_name": "Ours",
@@ -4373,10 +4396,23 @@ class Ours(
             "target_labels_used": False,
             "generator_boundaries_used": False,
             "source_model_frozen": True,
-            "segmentation": "causal_bic_score_segments",
+            "component_ablation": component_ablation,
+            "segmentation": (
+                "disabled_single_continuous_score_state"
+                if self.ablation_mode == "no_detect"
+                else "causal_bic_score_segments"
+            ),
             "pseudo_supervision": "selected_expert_equal_prior_gmm",
-            "expert_routing": "frozen_clip_feature_similarity",
-            "expert_memory": "class_conditional_diagonal_gaussians_and_residual_mlp",
+            "expert_routing": (
+                "disabled_active_expert_only"
+                if self.ablation_mode == "no_route"
+                else "frozen_clip_feature_similarity"
+            ),
+            "expert_memory": (
+                "routing_prototype_only_no_class_statistics_or_residual_update"
+                if self.ablation_mode == "no_update"
+                else "class_conditional_diagonal_gaussians_and_residual_mlp"
+            ),
             "replay_rule": "128_real_and_128_fake_fresh_samples_per_update",
             "training_objective": "balanced_bce_on_source_plus_residual",
             "feature_residual_scale": self.feature_residual_scale,
@@ -4388,7 +4424,9 @@ class Ours(
             ),
             "target_selected_hyperparameters": 1 if calibrated else 0,
             "formal_status": (
-                "final_method_fixed_pending_formal_seed_validation"
+                "component_ablation"
+                if component_ablation is not None
+                else "final_method_fixed_pending_formal_seed_validation"
                 if calibrated
                 else "retained_readout_ablation"
             ),
@@ -4397,7 +4435,26 @@ class Ours(
 
     @property
     def _prediction_mode_name(self) -> str:
-        return f"ours_{self.readout_mode}_readout"
+        suffix = "" if self.ablation_mode == "none" else f"_{self.ablation_mode}"
+        return f"ours_{self.readout_mode}_readout{suffix}"
+
+    def _detect_segment_change(self) -> None:
+        if self.ablation_mode == "no_detect":
+            return
+        super()._detect_segment_change()
+
+    def _routing_candidates(self, scores: np.ndarray) -> list[dict[str, Any]]:
+        candidates = super()._routing_candidates(scores)
+        if self.ablation_mode == "no_route":
+            return [
+                candidate
+                for candidate in candidates
+                if candidate["expert"] == "active_learning_state"
+            ]
+        return candidates
+
+    def _gaussian_replay_parameter_update_enabled(self) -> bool:
+        return self.ablation_mode != "no_update"
 
     def _after_gaussian_replay_head_update(
         self,
@@ -4481,6 +4538,10 @@ class Ours(
         stats = super()._state_stats()
         stats.update(
             {
+                "ablation_mode": self.ablation_mode,
+                "detect_enabled": self.ablation_mode != "no_detect",
+                "route_enabled": self.ablation_mode != "no_route",
+                "update_enabled": self.ablation_mode != "no_update",
                 "readout_mode": self.readout_mode,
                 "feature_residual_scale": self.feature_residual_scale,
                 "intercept_refit_updates": self.intercept_refit_updates,

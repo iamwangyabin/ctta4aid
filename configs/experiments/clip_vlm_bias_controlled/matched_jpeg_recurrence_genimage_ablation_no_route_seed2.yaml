@@ -1,0 +1,15 @@
+extends: matched_jpeg_recurrence_genimage_seed2.yaml
+
+methods:
+  - ours
+
+method_configs:
+  ours:
+    ablation_mode: no_route
+
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/genimage_recurrence/seed2/ablations/no_route
+
+reporting:
+  study: no_boundary_component_ablation
+  disabled_component: route
+  reference_method: ours
