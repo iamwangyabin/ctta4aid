@@ -81,7 +81,7 @@ DATASET_TARGETS = {
 METRICS = ("auc", "average_precision", "accuracy", "balanced_accuracy")
 TABLE_METRICS = ("auc", "accuracy")
 METRIC_LABELS = {"auc": "AUC", "accuracy": "Accuracy"}
-LOCKED_SEED_DIRS = ("seed0", "seed1", "seed2")
+LOCKED_SEED_DIRS = ("seed0", "seed2", "seed3")
 
 
 class TableRow(NamedTuple):

@@ -1,4 +1,4 @@
-extends: matched_jpeg_aigc_detection_benchmark_seed1.yaml
+extends: matched_jpeg_opensdid_global_seed3.yaml
 
 methods:
   - ours_static
@@ -6,9 +6,9 @@ methods:
 
 method_configs:
   ours:
-    feature_replay_seed: 1
+    feature_replay_seed: 3
 
-output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/ours_single_target/aigc_detection_benchmark/seed1
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/ours_single_target/opensdid_global/seed3
 
 reporting:
   formal_method: ours

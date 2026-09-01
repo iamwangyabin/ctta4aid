@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from src.config import load_config
+from src.data.streams import load_locked_manifest, locked_sample_ids_by_domain
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -148,7 +149,7 @@ class OfficialConfigTests(unittest.TestCase):
             "ours",
         ]
         for dataset, target_count in expected_targets.items():
-            for seed in (0, 1, 2):
+            for seed in (0, 1, 2, 3):
                 filename = f"configs/experiments/clip_vlm/{dataset}_seed{seed}.yaml"
                 with self.subTest(filename=filename):
                     config = self.load(filename)
@@ -282,7 +283,7 @@ class OfficialConfigTests(unittest.TestCase):
             "opensdid_global": 5,
         }
         for dataset, target_count in expected_targets.items():
-            for seed in (0, 1, 2):
+            for seed in (0, 1, 2, 3):
                 filename = (
                     "configs/experiments/clip_vlm_bias_controlled/"
                     f"matched_jpeg_ours_{dataset}_seed{seed}.yaml"
@@ -314,7 +315,9 @@ class OfficialConfigTests(unittest.TestCase):
                     self.assertEqual(
                         config["reporting"]["formal_method"], "ours"
                     )
-                    self.assertEqual(config["reporting"]["validation_seeds"], [0, 2])
+                    self.assertEqual(
+                        config["reporting"]["validation_seeds"], [0, 2, 3]
+                    )
 
     def test_ours_readout_ablation_configs_are_complete_and_isolated(self) -> None:
         expected_targets = {
@@ -324,7 +327,7 @@ class OfficialConfigTests(unittest.TestCase):
             "opensdid_global": 5,
         }
         for dataset, target_count in expected_targets.items():
-            for seed in (0, 1, 2):
+            for seed in (0, 1, 2, 3):
                 filename = (
                     "configs/experiments/clip_vlm_bias_controlled/"
                     f"matched_jpeg_ours_no_calibrated_readout_{dataset}_seed{seed}.yaml"
@@ -429,7 +432,8 @@ class OfficialConfigTests(unittest.TestCase):
         )["methods"]
         for profile, dataset_roots in expected_roots.items():
             for dataset, expected_root in dataset_roots.items():
-                for seed in (0, 1, 2):
+                seeds = (0, 1, 2, 3) if profile == "matched_jpeg" else (0, 1, 2)
+                for seed in seeds:
                     filename = (
                         "configs/experiments/clip_vlm_bias_controlled/"
                         f"{profile}_{dataset}_seed{seed}.yaml"
@@ -460,6 +464,20 @@ class OfficialConfigTests(unittest.TestCase):
                             / config["data"]["locked_online_manifest"]
                         ).resolve()
                         self.assertTrue(manifest.is_file())
+                        if profile == "matched_jpeg" and seed == 3:
+                            rows = load_locked_manifest(manifest)
+                            grouped = locked_sample_ids_by_domain(
+                                rows, config["data"]["targets"]
+                            )
+                            self.assertEqual(len(rows), 1500 * len(grouped))
+                            self.assertTrue(
+                                all(
+                                    len(sample_ids) == 1500
+                                    for sample_ids in grouped.values()
+                                )
+                            )
+                            sample_ids = [str(row["sample_id"]) for row in rows]
+                            self.assertEqual(len(sample_ids), len(set(sample_ids)))
 
     def test_every_cnn_wrapper_points_to_a_vendored_official_core(self) -> None:
         sources = self.load("configs/official_sources.yaml")

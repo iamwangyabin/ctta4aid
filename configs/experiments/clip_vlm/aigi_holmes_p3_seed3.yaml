@@ -1,0 +1,7 @@
+extends: aigi_holmes_p3.yaml
+
+seed: 3
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm/aigi_holmes_p3/seed3
+
+data:
+  locked_online_manifest: ../../datasets/manifests/clip_vlm/aigi_holmes_p3_seed3_online_manifest.csv

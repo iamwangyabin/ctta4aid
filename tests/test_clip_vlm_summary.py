@@ -24,10 +24,14 @@ class ClipVlmSummaryTests(unittest.TestCase):
             for dataset_index, dataset in enumerate(SUMMARY_SCRIPT.DATASET_ORDER):
                 dataset_root = root / dataset
                 dataset_roots[dataset] = dataset_root
-                for seed, offset in enumerate((0.0, 0.01, 0.02)):
+                for seed_dir, offset in zip(
+                    SUMMARY_SCRIPT.LOCKED_SEED_DIRS,
+                    (0.0, 0.01, 0.02),
+                    strict=True,
+                ):
                     _write_seed(
                         dataset_root,
-                        f"seed{seed}",
+                        seed_dir,
                         dataset=dataset,
                         source_ft_auc=0.60 + dataset_index * 0.01 + offset,
                         sar_auc=0.70 + dataset_index * 0.01 + offset,
@@ -133,10 +137,10 @@ class ClipVlmSummaryTests(unittest.TestCase):
             for dataset in SUMMARY_SCRIPT.DATASET_ORDER:
                 dataset_root = root / dataset
                 dataset_roots[dataset] = dataset_root
-                for seed in range(3):
+                for seed_dir in SUMMARY_SCRIPT.LOCKED_SEED_DIRS:
                     _write_seed(
                         dataset_root,
-                        f"seed{seed}",
+                        seed_dir,
                         dataset=dataset,
                         source_ft_auc=0.6,
                         sar_auc=0.7,
@@ -178,10 +182,10 @@ class ClipVlmSummaryTests(unittest.TestCase):
                     if dataset == "opensdid_global"
                     else "all_jpeg_q90"
                 )
-                for seed in range(3):
+                for seed_dir in SUMMARY_SCRIPT.LOCKED_SEED_DIRS:
                     _write_seed(
                         dataset_root,
-                        f"seed{seed}",
+                        seed_dir,
                         dataset=dataset,
                         source_ft_auc=0.6,
                         sar_auc=0.7,

@@ -99,8 +99,9 @@ CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fish
 
 所有 target hidden labels 始终只进入 evaluator。CLIP-native 方法的类别语义属于任务定义，
 但 template 或 prompt 不得使用目标标签选择。主结果不再把一个数据集压缩成单个数值：
-每个数据集分别给出逐 target 的 AUC 表和 Accuracy 表。target 单元格报告三个正式 seed
-的均值，Mean 列报告 target-macro 均值及跨 seed 标准差；Accuracy 固定使用 0.5 阈值。
+每个数据集分别给出逐 target 的 AUC 表和 Accuracy 表。target 单元格报告三个正式验证
+seed `0/2/3` 的均值，Mean 列报告 target-macro 均值及跨 seed 标准差；Accuracy 固定使用
+0.5 阈值。
 正式结论中的 AUC 和 Accuracy 都以 target-macro 为准。把所有 target 样本混合计算的 pooled
 指标只用于诊断域间分数尺度，不用于方法晋级、最佳结果选择或论文主结论。
 
@@ -123,11 +124,14 @@ python scripts/summarize_clip_vlm_results.py \
 公共 detector 的 source checkpoint 由 `configs/train/genimage_sd14_clip_vitl14.yaml`
 从完整 GenImage SD v1.4 训练集微调一次：3 epoch、全 visual tower 和二分类 head、
 AdamW、CLIP 训练增强，并在相同 source checkpoint 的干净 source holdout 上计算 EATA
-所需的 LayerNorm Fisher。这个 checkpoint 在全部三个 online seed 和所有公共 detector
-方法之间共享。每种方法的分类器或 prompt 构造、可训练参数、batch/views、更新步数、
+所需的 LayerNorm Fisher。这个 checkpoint 在全部三个正式 online seed `0/2/3` 和所有公共
+detector 方法之间共享。每种方法的分类器或 prompt 构造、可训练参数、batch/views、更新步数、
 状态重置和预测/适应顺序均由其方法配置锁定。`configs/experiments/clip_vlm/` 提供这些
 方法原生基础配置，正文正式运行入口是
 `configs/experiments/clip_vlm_bias_controlled/matched_jpeg_<dataset>_seed<seed>.yaml`。
+新增验证 seed 3 的锁定样本身份与顺序保存在
+`configs/datasets/manifests/clip_vlm/`；生成时先逐数据集复现既有 seed-0 manifest，确认
+采样与 DataLoader 顺序完全一致后再冻结 seed-3 manifest。
 训练配置还固定排除了 preflight 检出的三条零字节 SD v1.4 源图逻辑路径；不会用空白或
 合成像素替代损坏样本。
 八张新表在完整三 seed campaign 验收前仍全部保持空白；此前完成的 ResNet-50 数值表原样
@@ -150,7 +154,8 @@ python scripts/summarize_clip_vlm_results.py \
 `matched_jpeg` 是 CLIP ViT-L/14 正文主实验的正式输入协议。原始编码的 CLIP campaign
 不覆盖、不改名，降为补充对照；`all_jpeg_q90` 也是独立敏感性审计。各 profile 只替换
 target Arrow 中的图像字节，模型 checkpoint、source setup、方法原生配置、锁定样本身份与
-顺序、三个 seed、阈值和 evaluator 都继承 `configs/experiments/clip_vlm/`。
+顺序、阈值和 evaluator 都继承 `configs/experiments/clip_vlm/`。正文 `matched_jpeg`
+固定使用验证 seed `0/2/3`；seed 1 仅保留为开发运行，不进入正文正式均值。
 
 | Profile | 所有 real/fake 共同处理 | 用途 |
 |---|---|---|
@@ -397,9 +402,9 @@ ViT-L/14 初始化的 rank-4 LoRA 二分类 source checkpoint 出发；部署时
 - `ours_no_calibrated_readout`：唯一保留的 readout 消融。直接使用完整 residual，不执行缩放和截距重拟合。
 - `ours_static`：同一 source checkpoint 的冻结非适应对照，不是第三个方法版本。
 
-`0.75` 来自四数据集 seed-1 开发筛选，方法固定后不得继续调整；seed 0 和 2 用于独立
-验证。论文正文统一写作 **Ours**，消融表写作 **Ours w/o calibrated readout**；R37/R47
-只作为内部追踪编号，不作为两个方法名。
+`0.75` 来自四数据集 seed-1 开发筛选，方法固定后不得继续调整；seed 0、2 和 3 用于独立
+验证，正文汇总器只接受 `seed0/seed2/seed3`。论文正文统一写作 **Ours**，消融表写作
+**Ours w/o calibrated readout**；R37/R47 只作为内部追踪编号，不作为两个方法名。
 
 一次性训练并标定 source checkpoint：
 
@@ -420,7 +425,7 @@ python run_single_target.py \
   --config configs/experiments/clip_vlm_bias_controlled/matched_jpeg_ours_genimage_seed0.yaml
 ```
 
-四个数据集、三个正式 seed 均有最终设置和 readout 消融的独立入口，输出分别写入
+四个数据集、三个正式 seed `0/2/3` 均有最终设置和 readout 消融的独立入口，输出分别写入
 `matched_jpeg/ours_single_target/` 与 `matched_jpeg/ours_no_calibrated_readout_ablation/`。完整三 seed
 验收之前不得将数值回填论文主表。
 
