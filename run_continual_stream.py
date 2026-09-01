@@ -52,8 +52,10 @@ def final_holdout_stream(
     data_config: dict | None = None,
 ):
     data_config = config["data"] if data_config is None else data_config
-    offset = int(data_config.get("max_samples_per_class", 0))
-    limit = int(data_config.get("final_eval_max_samples_per_class", 250))
+    configured_offset = data_config.get("max_samples_per_class", 0)
+    offset = 0 if configured_offset is None else int(configured_offset)
+    configured_limit = data_config.get("final_eval_max_samples_per_class", 250)
+    limit = None if configured_limit is None else int(configured_limit)
     for domain_index, domain in enumerate(domains):
         locked_sample_ids = None
         if locked_samples_by_domain is not None:

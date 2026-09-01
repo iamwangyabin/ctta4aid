@@ -138,8 +138,8 @@ class OnlineProtocolTest(unittest.TestCase):
     def test_final_holdout_is_seeded_and_globally_shuffled(self):
         config = {
             "data": {
-                "max_samples_per_class": 10,
-                "final_eval_max_samples_per_class": 2,
+                "max_samples_per_class": None,
+                "final_eval_max_samples_per_class": None,
             }
         }
         with patch(
@@ -152,6 +152,7 @@ class OnlineProtocolTest(unittest.TestCase):
         first = build_loader.call_args_list[0]
         second = build_loader.call_args_list[1]
         self.assertTrue(first.kwargs["shuffle"])
+        self.assertIsNone(first.kwargs["max_samples_per_class"])
         self.assertEqual(first.kwargs["sample_seed"], 7)
         self.assertEqual(first.kwargs["loader_seed"], 1_000_007)
         self.assertEqual(second.kwargs["sample_seed"], 8)
@@ -160,7 +161,7 @@ class OnlineProtocolTest(unittest.TestCase):
     def test_final_holdout_uses_locked_manifest_samples_without_shuffling(self):
         config = {
             "data": {
-                "max_samples_per_class": 10,
+                "max_samples_per_class": None,
                 "final_eval_max_samples_per_class": 2,
             }
         }
