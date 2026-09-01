@@ -520,10 +520,8 @@ UnivFD/Ojha、RINE 和 NPR 已在同一 GenImage SD v1.4 Arrow 源训练集上�
 评估。两 seed 的逐 target 均值/标准差、固定阈值 Accuracy、source/checkpoint 身份和完整
 协议披露见
 [`results/clip_vlm_bias_controlled_static_nojpeg_seeds01_20260829/`](results/clip_vlm_bias_controlled_static_nojpeg_seeds01_20260829/README.md)。
-原先确认的
-[`seed 0` 单独快照](results/clip_vlm_bias_controlled_static_nojpeg_seed0_20260829/README.md)
-保持不变。该实验是 method-native 静态检测器的两 seed 补充比较，不替代 CLIP 主实验的三
-seed 正文表。
+该实验是 method-native 静态检测器的两 seed 补充比较，不替代 CLIP 主实验的三 seed
+正文表。
 
 ## 实验边界
 

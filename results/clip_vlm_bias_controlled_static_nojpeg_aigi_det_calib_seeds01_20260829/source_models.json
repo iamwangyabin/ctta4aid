@@ -22,7 +22,6 @@
   },
   "audit_adapter": {
     "all_rows_adapter_sha256": "6e44c40cb4c48984f5fdf21bf804fd855f91825af82b75ed59afbeea5741bed6",
-    "same_sample_causal_adapter_sha256": "2c25ca200cd07a68a2513268ad10c6eb5dc922fdef97d90554d5989f892e8ef6",
     "location_policy": "One-off adapter executed from /tmp and not added to the project repository.",
     "score_conversion": "Saved float32 sigmoid probabilities were inverted to logits; exact zero was clipped to float32 tiny.",
     "exact_zero_count": {
@@ -34,7 +33,7 @@
   "base_result": {
     "reference": "results/clip_vlm_bias_controlled_static_nojpeg_seeds01_20260829",
     "file_sha256": {
-      "README.md": "9952c7744f047a281758c7693ff515b2037c1464b984a9d8072f6f6923554bf3",
+      "README.md": "0974731644e4cbffb34c29c154058039098341e0b46f0bcc621934a1977e21a6",
       "per_seed_summary.json": "ca2bb7830e52c366faf366405fe0f9986c52f2c0c8d7a7953077edaac0f7a6a3",
       "seeds01_summary.json": "7eab5da29ccca0615b39e955860fd2cf06786526e50c9f256f1667f3c3c71ee5",
       "source_models.json": "ac01929c0adb9c805ffc84ef9adf994a859657a99efcc21d1fbb0c1382837d2c",
@@ -60,7 +59,6 @@
     "primary": "Strict label-free random 100-shot subset selection, 10 deterministic repetitions, official unsupervised core, evaluation on the 100-shot-excluded holdout.",
     "released_exact": "20 label-balanced shots due to release bug, 20 repetitions, average offset evaluated on the complete target.",
     "paper_intended": "100 label-balanced shots, 10 repetitions, complete-target evaluation; includes target-label-dependent selection.",
-    "causal_same_sample": "First 100 locked-stream samples predicted at source threshold; their unlabeled logits estimate one offset used for the remaining 1400 samples.",
     "oracle": "Best additive offset using every target label; diagnostic ceiling only."
   }
 }

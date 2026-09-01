@@ -68,5 +68,4 @@ AUC 和 Accuracy 均先在数据集内部对 target 等权宏平均，再报告�
 - `source_models.json`：源数据、训练 recipe、实现版本、checkpoint 和验收记录。
 
 本目录只包含最终且可解释的汇总，不包含 checkpoint、raw predictions、日志、PID、monitor
-或失败过程文件。原有
-`results/clip_vlm_bias_controlled_static_nojpeg_seed0_20260829/` 单 seed 快照保持不变。
+或失败过程文件。
