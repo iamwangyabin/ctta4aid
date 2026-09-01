@@ -304,6 +304,42 @@ class OnlineProtocolTest(unittest.TestCase):
         self.assertEqual(diagnostics["false_splits"], 1)
         self.assertEqual(diagnostics["final_expert_count"], 3)
 
+    def test_recurrence_diagnostics_respect_no_detect_ablation(self):
+        domains = ["A_first", "B", "A_return"]
+        online = {
+            "by_domain": {domain: {"auc": 0.5} for domain in domains}
+        }
+        initial = {
+            "by_domain": {domain: {"auc": 0.5} for domain in domains}
+        }
+        checkpoints = [
+            {"by_domain": {domain: {"auc": 0.5} for domain in domains}}
+            for _ in domains
+        ]
+        batch_stats = [
+            {
+                "domain": domain,
+                "adaptation_mode": "full",
+                "detect_enabled": False,
+                "segment_changed": False,
+            }
+            for domain in domains
+        ]
+
+        diagnostics = recurrence_diagnostics(
+            online_summary=online,
+            batch_stats=batch_stats,
+            checkpoint_metrics=checkpoints,
+            initial_holdout=initial,
+            domains=domains,
+            pairs=[{"first": "A_first", "return": "A_return"}],
+        )
+
+        self.assertFalse(diagnostics["change_detection_active"])
+        self.assertEqual(diagnostics["transitions"], [])
+        self.assertIsNone(diagnostics["missed_transitions"])
+        self.assertIsNone(diagnostics["false_splits"])
+
     def test_pairwise_transfer_separates_current_and_cross_generator_gain(self):
         initial = {
             "by_domain": {

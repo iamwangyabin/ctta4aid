@@ -190,6 +190,7 @@ def recurrence_diagnostics(
 
     adaptive_detection = any(
         str(row.get("adaptation_mode", "")).lower() == "full"
+        and bool(row.get("detect_enabled", True))
         and "segment_changed" in row
         for row in batch_stats
     )
