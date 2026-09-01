@@ -429,6 +429,24 @@ python run_single_target.py \
 `matched_jpeg/ours_single_target/` 与 `matched_jpeg/ours_no_calibrated_readout_ablation/`。完整三 seed
 验收之前不得将数值回填论文主表。
 
+为验证 Detect、Route 和历史专家复用确实发生在未知边界的数据流中，补充实验固定使用
+GenImage `SD1.5_first -> BigGAN -> ADM -> SD1.5_return`。四个 episode 的名字只属于
+evaluator；方法只接收图像，不接收 generator identity、切换点或 label。每个 online episode
+从对应正式 seed 的锁定主 manifest 中取每类 224 个样本，每个独立 holdout episode 取每类
+112 个样本；online/holdout 以及两段 SD1.5 均互不重叠。比较集合固定为 Ours-Static、
+Ours w/o calibrated readout、Ours、CoTTA 和 RoTTA-LN。不同方法保留其原生 batch size，
+manifest 因而锁定完全相同的样本身份与全局顺序，但不把 delivery batch 划分强加给方法。
+输出同时报告 online AUC/Accuracy、返回域 holdout 恢复、检测延迟、误切分、历史专家路由率
+和最终专家数。
+
+```bash
+python run_continual_stream.py \
+  --config configs/experiments/clip_vlm_bias_controlled/matched_jpeg_recurrence_genimage_seed0.yaml
+```
+
+将 `seed0` 换为 `seed2` 或 `seed3` 即得到其余正式运行；结果独立写入
+`clip_vlm_bias_controlled/matched_jpeg/genimage_recurrence/seed<seed>`，不进入正文单目标主表。
+
 历史 ASCAL、PoundTTA 以及其他 Rxx 研究接口、配置和诊断入口已从当前框架删除；如需审计
 早期探索，只通过 Git 历史追溯，不在当前运行注册表中保留兼容别名。
 

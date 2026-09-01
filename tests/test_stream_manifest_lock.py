@@ -56,6 +56,30 @@ class StreamManifestLockTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "mismatch at position 0"):
                 list(lock_stream_to_manifest(stream, manifest, name="online"))
 
+    def test_manifest_can_lock_identity_without_delivery_batches(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            manifest_path = Path(temporary) / "online.csv"
+            _write_manifest(
+                manifest_path,
+                [
+                    {"batch": 0, "domain": "A", "position": 0, "sample_id": "A/a"},
+                    {"batch": 1, "domain": "A", "position": 1, "sample_id": "A/b"},
+                ],
+            )
+            manifest = load_locked_manifest(manifest_path)
+            stream = [StreamBatch(None, None, "A", ["A/a", "A/b"])]
+
+            observed = list(
+                lock_stream_to_manifest(
+                    stream,
+                    manifest,
+                    name="online",
+                    check_batches=False,
+                )
+            )
+
+            self.assertEqual(observed[0].sample_ids, ["A/a", "A/b"])
+
     def test_manifest_rejects_unknown_stream_domain(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             manifest_path = Path(temporary) / "online.csv"
@@ -83,6 +107,22 @@ class StreamManifestLockTests(unittest.TestCase):
 
 
 class DomainLoaderTests(unittest.TestCase):
+    def test_resolves_evaluator_episode_alias_to_dataset_generator(self) -> None:
+        data_config = {
+            "format": "arrow",
+            "root": "unused",
+            "split": "test",
+            "batch_size": 16,
+            "num_workers": 0,
+            "generator_aliases": {"A_return": "generator_a"},
+        }
+        with patch("src.data.streams.build_dataset", return_value=object()) as build, patch(
+            "torch.utils.data.DataLoader"
+        ):
+            build_domain_loader(data_config, "A_return", seed=7, transform=object())
+
+        self.assertEqual(build.call_args.kwargs["generator"], "generator_a")
+
     def test_uses_configured_worker_start_method(self) -> None:
         data_config = {
             "format": "arrow",

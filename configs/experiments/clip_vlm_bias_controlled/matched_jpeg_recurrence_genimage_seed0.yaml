@@ -1,0 +1,8 @@
+extends: matched_jpeg_recurrence_genimage.yaml
+
+seed: 0
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/genimage_recurrence/seed0
+
+data:
+  locked_online_manifest: ../../datasets/manifests/clip_vlm/genimage_recurrence_seed0_online_manifest.csv
+  locked_final_holdout_manifest: ../../datasets/manifests/clip_vlm/genimage_recurrence_seed0_holdout_manifest.csv

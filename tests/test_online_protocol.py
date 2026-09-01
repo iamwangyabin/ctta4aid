@@ -21,6 +21,7 @@ from run_continual_stream import (
     average_domain_metric,
     final_holdout_stream,
     holdout_matrix_rows,
+    recurrence_diagnostics,
 )
 from run_single_target import pairwise_transfer_rows, summarize_pairwise_transfer
 
@@ -239,6 +240,68 @@ class OnlineProtocolTest(unittest.TestCase):
             [row["temporal_relation"] for row in rows],
             ["initial", "initial", "current", "future", "past", "current"],
         )
+
+    def test_recurrence_diagnostics_separate_recovery_detection_and_reuse(self):
+        domains = ["A_first", "B", "C", "A_return"]
+        online = {
+            "by_domain": {
+                "A_first": {"auc": 0.70},
+                "B": {"auc": 0.60},
+                "C": {"auc": 0.65},
+                "A_return": {"auc": 0.76},
+            }
+        }
+        initial = {
+            "by_domain": {domain: {"auc": 0.50} for domain in domains}
+        }
+        checkpoints = []
+        for index, _ in enumerate(domains):
+            by_domain = {domain: {"auc": 0.50} for domain in domains}
+            if index == 0:
+                by_domain["A_first"] = {"auc": 0.72}
+            if index == 2:
+                by_domain["A_return"] = {"auc": 0.55}
+            if index == 3:
+                by_domain["A_return"] = {"auc": 0.78}
+            checkpoints.append({"by_domain": by_domain})
+        batch_stats = [
+            {"domain": "A_first", "adaptation_mode": "full", "segment_changed": False},
+            {"domain": "B", "adaptation_mode": "full", "segment_changed": False},
+            {"domain": "B", "adaptation_mode": "full", "segment_changed": True},
+            {"domain": "C", "adaptation_mode": "full", "segment_changed": True},
+            {"domain": "C", "adaptation_mode": "full", "segment_changed": True},
+            {
+                "domain": "A_return",
+                "adaptation_mode": "full",
+                "segment_changed": True,
+                "last_routing_memory_index": 0,
+            },
+            {
+                "domain": "A_return",
+                "adaptation_mode": "full",
+                "segment_changed": False,
+                "last_routing_memory_index": None,
+                "gaussian_replay_expert_count": 3,
+                "memory_size": 2,
+            },
+        ]
+
+        diagnostics = recurrence_diagnostics(
+            online_summary=online,
+            batch_stats=batch_stats,
+            checkpoint_metrics=checkpoints,
+            initial_holdout=initial,
+            domains=domains,
+            pairs=[{"first": "A_first", "return": "A_return"}],
+        )
+
+        pair = diagnostics["pairs"][0]
+        self.assertAlmostEqual(pair["return_holdout_gain_from_initial"], 0.28)
+        self.assertAlmostEqual(pair["return_holdout_gain_from_pre_return"], 0.23)
+        self.assertEqual(pair["historical_route_batches"], 1)
+        self.assertEqual(diagnostics["transitions"][0]["delay_batches"], 1)
+        self.assertEqual(diagnostics["false_splits"], 1)
+        self.assertEqual(diagnostics["final_expert_count"], 3)
 
     def test_pairwise_transfer_separates_current_and_cross_generator_gain(self):
         initial = {

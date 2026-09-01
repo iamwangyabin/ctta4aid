@@ -479,6 +479,67 @@ class OfficialConfigTests(unittest.TestCase):
                             sample_ids = [str(row["sample_id"]) for row in rows]
                             self.assertEqual(len(sample_ids), len(set(sample_ids)))
 
+    def test_matched_jpeg_recurrence_configs_lock_disjoint_return_episodes(self) -> None:
+        expected_methods = [
+            "ours_static",
+            "ours_no_calibrated_readout",
+            "ours",
+            "cotta",
+            "rotta",
+        ]
+        domains = ["SD1.5_first", "BigGAN", "ADM", "SD1.5_return"]
+        for seed in (0, 2, 3):
+            filename = (
+                "configs/experiments/clip_vlm_bias_controlled/"
+                f"matched_jpeg_recurrence_genimage_seed{seed}.yaml"
+            )
+            with self.subTest(seed=seed):
+                config = self.load(filename)
+                self.assertEqual(config["methods"], expected_methods)
+                self.assertEqual(config["seed"], seed)
+                self.assertEqual(config["data"]["stream"], domains)
+                self.assertFalse(config["data"]["locked_manifest_enforce_batches"])
+                self.assertFalse(
+                    config["protocol"]["stream_boundaries_available_to_method"]
+                )
+                self.assertEqual(
+                    config["evaluation"]["recurrence_pairs"],
+                    [{"first": "SD1.5_first", "return": "SD1.5_return"}],
+                )
+                manifests = {}
+                for kind, expected_per_episode in (("online", 448), ("holdout", 224)):
+                    manifest_path = (
+                        Path(config["_config_path"]).parent
+                        / config["data"][f"locked_{'final_' if kind == 'holdout' else ''}{kind}_manifest"]
+                    ).resolve()
+                    rows = load_locked_manifest(manifest_path)
+                    grouped = locked_sample_ids_by_domain(rows, domains)
+                    self.assertEqual(
+                        {domain: len(ids) for domain, ids in grouped.items()},
+                        {domain: expected_per_episode for domain in domains},
+                    )
+                    manifests[kind] = {
+                        sample_id for ids in grouped.values() for sample_id in ids
+                    }
+                self.assertTrue(manifests["online"].isdisjoint(manifests["holdout"]))
+                for kind, manifest_field in (
+                    ("online", "locked_online_manifest"),
+                    ("holdout", "locked_final_holdout_manifest"),
+                ):
+                    rows = load_locked_manifest(
+                        (
+                            Path(config["_config_path"]).parent
+                            / config["data"][manifest_field]
+                        ).resolve()
+                    )
+                    grouped = locked_sample_ids_by_domain(rows, domains)
+                    with self.subTest(seed=seed, manifest=kind):
+                        self.assertTrue(
+                            set(grouped["SD1.5_first"]).isdisjoint(
+                                grouped["SD1.5_return"]
+                            )
+                        )
+
     def test_every_cnn_wrapper_points_to_a_vendored_official_core(self) -> None:
         sources = self.load("configs/official_sources.yaml")
         for method in ("tent", "eata", "cotta", "rotta", "lame", "t2a"):

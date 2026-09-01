@@ -1,0 +1,55 @@
+extends:
+  - ../clip_vlm/genimage.yaml
+  - matched_jpeg.yaml
+
+methods:
+  - ours_static
+  - ours_no_calibrated_readout
+  - ours
+  - cotta
+  - rotta
+
+protocol:
+  name: predict_then_adapt
+  reset_between_targets: false
+  reset_between_domains: false
+  source_free_during_test: true
+  target_labels_available_to_method: false
+  generator_id_available_to_method: false
+  stream_boundaries_available_to_method: false
+  passes: 1
+  updates_per_batch: 1
+
+data:
+  root: ${GENIMAGE_MATCHED_JPEG_ARROW_ROOT}
+  stream:
+    - SD1.5_first
+    - BigGAN
+    - ADM
+    - SD1.5_return
+  generator_aliases:
+    SD1.5_first: stable_diffusion_v_1_5
+    BigGAN: BigGAN
+    ADM: ADM
+    SD1.5_return: stable_diffusion_v_1_5
+  max_samples_per_class: null
+  final_eval_max_samples_per_class: null
+  locked_manifest_enforce_batches: false
+
+evaluation:
+  threshold: 0.5
+  curve_window_batches: 20
+  evaluate_future_generators: true
+  recurrence_pairs:
+    - first: SD1.5_first
+      return: SD1.5_return
+
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/genimage_recurrence
+
+reporting:
+  study: no_boundary_recurrence
+  stream: SD1.5_first_to_BigGAN_to_ADM_to_SD1.5_return
+  episode_samples_per_class: 224
+  holdout_samples_per_class: 112
+  shared_sample_identity_across_methods: true
+  evaluator_only_episode_aliases: true

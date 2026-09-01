@@ -10,7 +10,7 @@ from src.cli.common import (
     seed_everything,
     write_json,
 )
-from src.config import load_config, require
+from src.config import load_config, require, validate_experiment_identity
 from src.data import (
     build_domain_loader,
     concatenate_domain_streams,
@@ -18,6 +18,7 @@ from src.data import (
     lock_stream_to_manifest,
     locked_sample_ids_by_domain,
 )
+from src.data.arrow import validate_arrow_data_profile
 from src.data.streams import as_stream
 from src.evaluation import (
     OnlineEvaluator,
@@ -156,6 +157,124 @@ def holdout_matrix_rows(
     return rows
 
 
+def recurrence_diagnostics(
+    *,
+    online_summary: dict,
+    batch_stats: list[dict],
+    checkpoint_metrics: list[dict],
+    initial_holdout: dict,
+    domains: list[str],
+    pairs: list[dict],
+) -> dict:
+    """Summarize return-domain recovery and causal change events.
+
+    Domain names are evaluator-only episode aliases. They are never passed to
+    the method, so these diagnostics do not expose generator boundaries during
+    adaptation.
+    """
+
+    if len(checkpoint_metrics) != len(domains):
+        raise ValueError("Recurrence diagnostics require one checkpoint per episode")
+    domain_indices = {domain: index for index, domain in enumerate(domains)}
+    if len(domain_indices) != len(domains):
+        raise ValueError("Recurrence diagnostics require unique episode aliases")
+
+    by_episode: dict[str, list[dict]] = {domain: [] for domain in domains}
+    for row in batch_stats:
+        domain = str(row["domain"])
+        if domain not in by_episode:
+            raise ValueError(f"Unknown recurrence episode in batch stats: {domain}")
+        by_episode[domain].append(row)
+
+    adaptive_detection = any(
+        str(row.get("adaptation_mode", "")).lower() == "full"
+        and "segment_changed" in row
+        for row in batch_stats
+    )
+    transition_events = []
+    false_splits = 0
+    missed_transitions = 0
+    if adaptive_detection:
+        false_splits += sum(
+            bool(row.get("segment_changed")) for row in by_episode[domains[0]]
+        )
+        for domain in domains[1:]:
+            offsets = [
+                offset
+                for offset, row in enumerate(by_episode[domain])
+                if bool(row.get("segment_changed"))
+            ]
+            detected = bool(offsets)
+            missed_transitions += int(not detected)
+            false_splits += max(0, len(offsets) - 1)
+            transition_events.append(
+                {
+                    "episode": domain,
+                    "detected": detected,
+                    "delay_batches": offsets[0] if detected else None,
+                    "change_events": len(offsets),
+                }
+            )
+
+    online_by_domain = online_summary["by_domain"]
+    pair_rows = []
+    for pair in pairs:
+        first = str(pair["first"])
+        returned = str(pair["return"])
+        if first not in domain_indices or returned not in domain_indices:
+            raise ValueError(f"Unknown recurrence pair: {first} -> {returned}")
+        first_index = domain_indices[first]
+        return_index = domain_indices[returned]
+        if first_index >= return_index:
+            raise ValueError("A recurrence return must follow its first episode")
+        pre_return = checkpoint_metrics[return_index - 1]["by_domain"][returned]
+        post_return = checkpoint_metrics[return_index]["by_domain"][returned]
+        initial_return = initial_holdout["by_domain"][returned]
+        first_after_first = checkpoint_metrics[first_index]["by_domain"][first]
+        returned_rows = by_episode[returned]
+        historical_routes = sum(
+            row.get("last_routing_memory_index") is not None
+            for row in returned_rows
+        )
+        pair_rows.append(
+            {
+                "first": first,
+                "return": returned,
+                "online_first_auc": float(online_by_domain[first]["auc"]),
+                "online_return_auc": float(online_by_domain[returned]["auc"]),
+                "initial_return_holdout_auc": float(initial_return["auc"]),
+                "pre_return_holdout_auc": float(pre_return["auc"]),
+                "post_return_holdout_auc": float(post_return["auc"]),
+                "return_holdout_gain_from_initial": (
+                    float(post_return["auc"]) - float(initial_return["auc"])
+                ),
+                "return_holdout_gain_from_pre_return": (
+                    float(post_return["auc"]) - float(pre_return["auc"])
+                ),
+                "return_vs_first_visit_holdout_auc_delta": (
+                    float(post_return["auc"]) - float(first_after_first["auc"])
+                ),
+                "return_batches": len(returned_rows),
+                "historical_route_batches": historical_routes,
+                "historical_route_rate": (
+                    historical_routes / len(returned_rows) if returned_rows else 0.0
+                ),
+            }
+        )
+
+    final_batch = batch_stats[-1] if batch_stats else {}
+    return {
+        "boundary_information_available_to_method": False,
+        "pairs": pair_rows,
+        "change_detection_active": adaptive_detection,
+        "transitions": transition_events,
+        "missed_transitions": missed_transitions if adaptive_detection else None,
+        "false_splits": false_splits if adaptive_detection else None,
+        "final_expert_count": final_batch.get("gaussian_replay_expert_count"),
+        "final_memory_size": final_batch.get("memory_size"),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Continual multi-generator online TTA stream")
     parser.add_argument(
@@ -177,6 +296,10 @@ def main() -> None:
     if any(name not in dedicated_models for name in normalized_methods):
         require(config, "model")
     require(config["data"], "format", "root", "stream")
+    experiment_identity = validate_experiment_identity(config)
+    validate_arrow_data_profile(
+        config["data"]["root"], config["data"].get("bias_control_profile")
+    )
 
     seed = int(config.get("seed", 0))
     seed_everything(seed)
@@ -192,6 +315,9 @@ def main() -> None:
         evaluation_config.get("evaluate_future_generators", False)
     )
     manifest_lock = load_manifest_lock(config, domains)
+    check_manifest_batches = bool(
+        config["data"].get("locked_manifest_enforce_batches", True)
+    )
     if manifest_lock is not None and not evaluate_future_domains:
         raise ValueError(
             "Continual manifest locking requires evaluate_future_generators=true"
@@ -232,6 +358,7 @@ def main() -> None:
                     initial_stream,
                     manifest_lock["final_holdout"],
                     name="final holdout",
+                    check_batches=check_manifest_batches,
                 )
             initial_holdout = evaluate_without_adaptation(
                 method,
@@ -265,6 +392,7 @@ def main() -> None:
                     holdout_stream,
                     manifest_lock["final_holdout"],
                     name="final holdout",
+                    check_batches=check_manifest_batches,
                 )
             holdout = evaluate_without_adaptation(
                 current_method,
@@ -290,7 +418,10 @@ def main() -> None:
         )
         if manifest_lock is not None:
             online_stream = lock_stream_to_manifest(
-                online_stream, manifest_lock["online"], name="online"
+                online_stream,
+                manifest_lock["online"],
+                name="online",
+                check_batches=check_manifest_batches,
             )
         result = evaluator.run(
             method,
@@ -350,6 +481,21 @@ def main() -> None:
         result["protocol"] = getattr(method, "protocol_name", "predict_then_adapt")
         result["stream_order"] = domains
         result["method"] = method_name
+        result["experiment_identity"] = experiment_identity
+        recurrence_pairs = evaluation_config.get("recurrence_pairs", [])
+        if recurrence_pairs:
+            if initial_holdout is None:
+                raise ValueError(
+                    "Recurrence diagnostics require initial future-domain holdouts"
+                )
+            result["summary"]["recurrence"] = recurrence_diagnostics(
+                online_summary=result["summary"],
+                batch_stats=result["batch_stats"],
+                checkpoint_metrics=checkpoint_metrics,
+                initial_holdout=initial_holdout,
+                domains=domains,
+                pairs=list(recurrence_pairs),
+            )
         if manifest_lock is not None:
             result["sample_lock"] = manifest_lock["config"]
         save_evaluation(result, output_root / method_name)

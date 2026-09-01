@@ -129,6 +129,7 @@ def lock_stream_to_manifest(
     manifest: Sequence[Mapping[str, int | str]],
     *,
     name: str,
+    check_batches: bool = True,
 ) -> Iterator[StreamBatch]:
     position = 0
     for batch_index, batch in enumerate(stream):
@@ -142,7 +143,12 @@ def lock_stream_to_manifest(
                 "position": position,
                 "sample_id": sample_id,
             }
-            if actual != expected:
+            identity_matches = all(
+                actual[field] == expected[field]
+                for field in ("domain", "position", "sample_id")
+            )
+            batch_matches = actual["batch"] == expected["batch"]
+            if not identity_matches or (check_batches and not batch_matches):
                 raise RuntimeError(
                     f"Locked {name} stream mismatch at position {position}: "
                     f"expected {expected}, got {actual}"
@@ -175,10 +181,17 @@ def build_domain_loader(
     except ImportError as exc:
         raise RuntimeError("PyTorch is required to build data loaders") from exc
 
+    generator_aliases = data_config.get("generator_aliases", {})
+    if not isinstance(generator_aliases, Mapping):
+        raise ValueError("data.generator_aliases must be a mapping")
+    generator = str(generator_aliases.get(domain, domain))
+    if not generator:
+        raise ValueError(f"Empty dataset generator for stream domain: {domain}")
+
     dataset = build_dataset(
         data_format=data_config["format"],
         root=data_config["root"],
-        generator=domain,
+        generator=generator,
         split=data_config.get("split"),
         transform=(
             transform
