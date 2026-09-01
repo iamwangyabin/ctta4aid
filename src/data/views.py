@@ -130,8 +130,8 @@ class DynaPromptViewTransform:
         return torch.stack([global_view, *local_views], dim=0)
 
 
-class ASCALViewTransform:
-    """ASCAL score views: one global view, K crop/flip views, one JPEG view.
+class OursCalibrationViewTransform:
+    """Ours source-calibration views: global, crop/flip and JPEG views.
 
     The same transform class is used for online inference and for offline
     anchor calibration, so deployment and calibration share one view pipeline.
@@ -149,7 +149,7 @@ class ASCALViewTransform:
     ) -> None:
         if views < 3:
             raise ValueError(
-                "ASCAL needs at least 3 views (global + local + JPEG)"
+                "Ours calibration needs at least 3 views (global + local + JPEG)"
             )
         if image_size <= 0 or resize_size < image_size:
             raise ValueError("resize_size must be at least image_size")

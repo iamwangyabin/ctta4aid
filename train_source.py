@@ -22,8 +22,6 @@ from src.models import (
     build_clip_source_detector,
     build_detector,
     build_ost_training_detector,
-    fit_source_analytic_ridge,
-    install_source_analytic_ridge,
     save_checkpoint,
 )
 
@@ -415,7 +413,7 @@ def calibrate_score_anchors(
     seed: int,
     val_generator: str,
 ) -> dict[str, Any]:
-    """Fit ASCAL's frozen score anchors on the source validation split.
+    """Fit Ours' frozen score anchors on the source validation split.
 
     Two passes over the same validation data: a deterministic single-view pass
     for the scalar temperature, then a multi-view pass through the same view
@@ -426,8 +424,8 @@ def calibrate_score_anchors(
     import torch
 
     from src.data.transforms import CLIP_MEAN, CLIP_STD
-    from src.data.views import ASCALViewTransform
-    from src.methods.ascal import (
+    from src.data.views import OursCalibrationViewTransform
+    from src.methods.ours import (
         binary_score,
         fit_gaussian_ml,
         fit_gmm_bic,
@@ -467,14 +465,14 @@ def calibrate_score_anchors(
     labels = np.concatenate(flat_labels).astype(np.int64)
     temperature = fit_temperature(scores, labels)
 
-    # Pass 2: deployment-view aggregation for anchors and admission thresholds.
+    # Pass 2: deployment-view aggregation for the source score distributions.
     seed_everything(calibration_seed)
     view_dataset = build_dataset(
         data_format=data_config["format"],
         root=data_config.get("val_root", data_config.get("root")),
         generator=val_generator,
         split=data_config["val_split"],
-        transform=ASCALViewTransform(
+        transform=OursCalibrationViewTransform(
             views=views,
             image_size=image_size,
             resize_size=resize_size,
@@ -488,12 +486,11 @@ def calibrate_score_anchors(
     )
     view_loader = build_loader(view_dataset, data_config, shuffle=False, drop_last=False)
     view_scores: list[Any] = []
-    view_consistency: list[Any] = []
     view_labels: list[Any] = []
     with torch.no_grad():
         for images, labels, _ in view_loader:
             if images.dim() != 5:
-                raise RuntimeError("ASCAL calibration expects stacked view tensors")
+                raise RuntimeError("Ours calibration expects stacked view tensors")
             batch, view_count = int(images.shape[0]), int(images.shape[1])
             flat = images.reshape(batch * view_count, *images.shape[2:])
             logits = model(flat.to(device, non_blocking=True))
@@ -501,10 +498,8 @@ def calibrate_score_anchors(
                 binary_score(logits).view(batch, view_count).cpu().numpy().astype(np.float64)
             )
             view_scores.append(margins.mean(axis=1))
-            view_consistency.append(margins.var(axis=1))
             view_labels.append(labels.numpy())
     scores = np.concatenate(view_scores)
-    consistency = np.concatenate(view_consistency)
     labels = np.concatenate(view_labels).astype(np.int64)
 
     real_mu, real_sigma = fit_gaussian_ml(scores[labels == 0])
@@ -513,17 +508,9 @@ def calibrate_score_anchors(
         max_components=int(calibration.get("fake_max_components", 4)),
         seed=seed,
     )
-    probabilities = 1.0 / (1.0 + np.exp(-np.clip(scores / temperature, -60.0, 60.0)))
-    quality = np.abs(probabilities - 0.5)
-    theta_a = float(
-        np.quantile(consistency, float(calibration.get("consistency_quantile", 0.95)))
-    )
-    theta_q = float(
-        np.quantile(quality, 1.0 - float(calibration.get("target_admission_rate", 0.8)))
-    )
     return {
         "version": 1,
-        "profile": "ascal_score_anchor_v1",
+        "profile": "ours_score_anchor_v1",
         "temperature": float(temperature),
         "real": {"mu": real_mu, "sigma": real_sigma},
         "fake": {
@@ -532,14 +519,8 @@ def calibrate_score_anchors(
             "sigmas": fake["sigmas"],
             "components": fake["components"],
         },
-        "theta_a": theta_a,
-        "theta_q": theta_q,
-        "anchor_kappa": float(calibration.get("anchor_kappa", 100.0)),
-        "fuse_sigma_multiplier": float(calibration.get("fuse_sigma_multiplier", 3.0)),
         "views": views,
         "jpeg_qualities": list(jpeg_qualities),
-        "consistency_quantile": float(calibration.get("consistency_quantile", 0.95)),
-        "target_admission_rate": float(calibration.get("target_admission_rate", 0.8)),
         "calibration_seed": int(calibration_seed),
         "source_validation_generator": val_generator,
         "samples": int(scores.size),
@@ -696,61 +677,6 @@ def main() -> None:
     if best_state is None:
         raise RuntimeError("Training finished without a valid checkpoint")
     model.load_state_dict(best_state)
-    feature_training_metrics = dict(best_metrics)
-    source_analytic_ridge = None
-    analytic_ridge_config = dict(training.get("analytic_ridge") or {})
-    if bool(analytic_ridge_config.get("enabled", False)):
-        if not clip_lora_detector:
-            raise ValueError(
-                "Source analytic Ridge requires model family clip_lora_source_detector"
-            )
-        if getattr(model, "classifier_feature_normalization", "none") != "l2":
-            raise ValueError(
-                "Source analytic Ridge requires l2 classifier features"
-            )
-        ridge_dataset = build_dataset(
-            data_format=data_config["format"],
-            root=data_config.get("train_root", data_config.get("root")),
-            generator=train_generator,
-            split=data_config["train_split"],
-            transform=build_clip_eval_transform(
-                image_size,
-                resize_size=int(
-                    data_config.get("resize_size", round(image_size / 0.875))
-                ),
-            ),
-            max_samples_per_class=data_config.get("max_train_samples_per_class"),
-            seed=seed,
-            exclude_image_paths=excluded_image_paths(data_config, "train"),
-        )
-        ridge_loader = build_loader(
-            ridge_dataset,
-            data_config,
-            shuffle=False,
-            batch_size=int(analytic_ridge_config.get("batch_size", 128)),
-            drop_last=False,
-        )
-        source_analytic_ridge = fit_source_analytic_ridge(
-            model,
-            ridge_loader,
-            device,
-            regularization=float(
-                analytic_ridge_config.get("regularization", 1.0)
-            ),
-        )
-        install_source_analytic_ridge(model, source_analytic_ridge)
-        best_metrics = evaluate(
-            model,
-            val_loader,
-            device,
-            amp_enabled=amp_enabled,
-        )
-        print(
-            "analytic_ridge: "
-            f"samples={source_analytic_ridge['samples']} "
-            f"val_auc={best_metrics['auc']:.5f} "
-            f"val_acc={best_metrics['accuracy']:.5f}"
-        )
     fishers = None
     if bool(training.get("compute_fisher", True)):
         # Official EATA uses clean source validation images with evaluation
@@ -793,19 +719,14 @@ def main() -> None:
             f"tau={score_anchors['temperature']:.4f} "
             f"real=({score_anchors['real']['mu']:.4f}, {score_anchors['real']['sigma']:.4f}) "
             f"fake_components={score_anchors['fake']['components']} "
-            f"theta_q={score_anchors['theta_q']:.4f} "
-            f"theta_a={score_anchors['theta_a']:.6f}"
+            f"real_mu={score_anchors['real']['mu']:.4f} "
+            f"fake_components={score_anchors['fake']['components']}"
         )
     extra_metadata: dict[str, Any] = {}
     if score_anchors is not None:
         extra_metadata["score_anchors"] = score_anchors
         extra_metadata["lora_rank"] = int(getattr(model, "lora_rank", 0))
         extra_metadata["lora_alpha"] = float(getattr(model, "lora_alpha", 0.0))
-    if source_analytic_ridge is not None:
-        extra_metadata["source_analytic_ridge"] = source_analytic_ridge
-        extra_metadata["feature_training_validation_metrics"] = (
-            feature_training_metrics
-        )
     save_checkpoint(
         model,
         output_path,

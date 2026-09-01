@@ -1,0 +1,18 @@
+extends: matched_jpeg_genimage_seed1.yaml
+
+methods:
+  - ours_static
+  - ours_no_calibrated_readout
+
+method_configs:
+  ours_no_calibrated_readout:
+    feature_replay_seed: 1
+
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/ours_no_calibrated_readout_ablation/genimage/seed1
+
+reporting:
+  method: ours
+  ablation: base_readout_without_shrinkage_or_intercept_refit
+  internal_version: R37
+  paired_static_baselines:
+    ours_no_calibrated_readout: ours_static

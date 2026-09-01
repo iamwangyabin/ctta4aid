@@ -1,6 +1,6 @@
 """LoRA-adapted binary detector initialized from the fixed OpenAI CLIP backbone.
 
-This is the ASCAL base model: the CLIP ViT-L/14 visual tower stays frozen
+This is the Ours source model: the CLIP ViT-L/14 visual tower stays frozen
 except for small-rank LoRA branches on each transformer block's MLP
 projections, plus a supervised binary head. Attention ``out_proj`` is
 intentionally not wrapped: ``nn.MultiheadAttention`` consumes
@@ -17,7 +17,7 @@ from src.data.transforms import CLIP_MEAN, CLIP_STD, build_clip_eval_transform
 from .clip_vlm import load_openai_clip_model
 
 
-ASCAL_LORA_TARGET_SUFFIXES = ("mlp.c_fc", "mlp.c_proj")
+OURS_LORA_TARGET_SUFFIXES = ("mlp.c_fc", "mlp.c_proj")
 
 
 def _lora_linear_class() -> Any:
@@ -287,7 +287,7 @@ def configure_clip_lora_trainable_parameters(model: Any) -> list[str]:
 def build_clip_lora_detector(
     config: dict[str, Any], *, device: str | Any = "cpu"
 ) -> tuple[Any, dict[str, Any]]:
-    """Construct the ASCAL LoRA source detector before loading its checkpoint."""
+    """Construct the Ours LoRA source detector before loading its checkpoint."""
 
     clip_model, metadata = load_openai_clip_model(config, device=device)
     image_size = int(metadata["image_size"])
@@ -309,7 +309,7 @@ def build_clip_lora_detector(
         "source_setup": "lora_binary_detector_from_fixed_clip_vitl14",
         "lora_rank": lora_rank,
         "lora_alpha": lora_alpha,
-        "lora_target_suffixes": list(ASCAL_LORA_TARGET_SUFFIXES),
+        "lora_target_suffixes": list(OURS_LORA_TARGET_SUFFIXES),
         "lora_injected_layers": len(detector.injected_lora_layers),
         "classifier_feature_normalization": (
             detector.classifier_feature_normalization

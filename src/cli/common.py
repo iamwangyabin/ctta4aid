@@ -20,7 +20,6 @@ from src.models import (
     build_detector,
     build_iapl_detector,
     build_ost_detector,
-    build_poundnet_detector,
     load_checkpoint,
 )
 
@@ -116,206 +115,31 @@ def build_fresh_method(
         }
         method.source_model_metadata = metadata
         return method, metadata
-    if normalized_name in {"ours", "oursstatic", "poundtta", "poundttastatic"}:
-        if normalized_name in {"oursstatic", "poundttastatic"}:
-            effective_method_config.setdefault("adaptation_mode", "static")
-        model, metadata = build_poundnet_detector(
-            effective_method_config, device=device
+    if normalized_name in {"ours", "oursnocalibratedreadout", "oursstatic"}:
+        expected_readout = (
+            "base"
+            if normalized_name == "oursnocalibratedreadout"
+            else "calibrated"
         )
-        method = build_method(name, model, device, effective_method_config)
-        checkpoint_path = str(
-            Path(effective_method_config["checkpoint"]).expanduser().resolve()
-        )
-        clip_checkpoint_path = str(
-            Path(effective_method_config["clip_path"]).expanduser().resolve()
-        )
-        method.source_checkpoint_identity = {
-            "path": checkpoint_path,
-            "sha256": metadata["checkpoint_sha256"],
-        }
-        method.source_model_metadata = {
-            **metadata,
-            "task_checkpoint": method.source_checkpoint_identity,
-            "clip_checkpoint": {
-                "path": clip_checkpoint_path,
-                "sha256": metadata["clip_checkpoint_sha256"],
-            },
-        }
-        return method, metadata
-    if normalized_name in {
-        "ascal",
-        "ascalstatic",
-        "ascalgmm",
-        "ascalgmmstatic",
-        "ascalgmmshift",
-        "ascalgmmshiftstatic",
-        "ascalgmmmedianshift",
-        "ascalgmmmedianshiftstatic",
-        "ascalgmmdensityshift",
-        "ascalgmmdensityshiftstatic",
-        "ascalgmmsegmentedshift",
-        "ascalgmmsegmentedshiftstatic",
-        "ascalgmmsegmentedhandoffshift",
-        "ascalgmmsegmentedhandoffshiftstatic",
-        "ascalgmmsegmentedmemoryshift",
-        "ascalgmmsegmentedmemoryshiftstatic",
-        "ascalgmmsegmentedmemoryposterior",
-        "ascalgmmsegmentedmemoryposteriorstatic",
-        "ascalgmmsegmentedmemoryposteriorprojection",
-        "ascalgmmsegmentedmemoryposteriorprojectionstatic",
-        "ascalgmmsegmentedmemoryposteriorpreroute",
-        "ascalgmmsegmentedmemoryposteriorpreroutestatic",
-        "ascalgmmsegmentedmemoryposteriormdlroute",
-        "ascalgmmsegmentedmemoryposteriormdlroutestatic",
-        "ascalgmmsegmentedmemoryposteriorliveroute",
-        "ascalgmmsegmentedmemoryposteriorliveroutestatic",
-        "ascalgmmsegmentedmemoryposteriorordinalroute",
-        "ascalgmmsegmentedmemoryposteriorordinalroutestatic",
-        "ascalgmmsegmentedmemoryposteriorordinalridge",
-        "ascalgmmsegmentedmemoryposteriorordinalridgestatic",
-        "ascalgmmsegmentedmemoryposteriorjointridge",
-        "ascalgmmsegmentedmemoryposteriorjointridgestatic",
-        "ascalgmmsegmentedmemoryposteriorpairwiseridge",
-        "ascalgmmsegmentedmemoryposteriorpairwiseridgestatic",
-        "ascalgmmsegmentedmemoryposterioranalyticexpert",
-        "ascalgmmsegmentedmemoryposterioranalyticexpertstatic",
-        "ascalgmmsegmentedmemoryposteriorrmsridgeexpert",
-        "ascalgmmsegmentedmemoryposteriorrmsridgeexpertstatic",
-        "ascalgmmsegmentedmemoryposteriorequalpriorridgeexpert",
-        "ascalgmmsegmentedmemoryposteriorequalpriorridgeexpertstatic",
-        "ascalgmmsegmentedmemoryposteriorevidencegatedridgeexpert",
-        "ascalgmmsegmentedmemoryposteriorevidencegatedridgeexpertstatic",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedtrustedridge",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedtrustedridgestatic",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedgaussianreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedgaussianreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedexpandedgaussianreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedexpandedgaussianreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedsharedgaussianreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedsharedgaussianreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedlineargaussianreplay",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedlineargaussianreplaystatic",
-        "ascalgmmsegmentedmemoryposteriorfeaturerouteduniformgaussianreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorfeaturerouteduniformgaussianreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposterioractivegaussianreplaymlp",
-        "ascalgmmsegmentedmemoryposterioractivegaussianreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriornohistoricalrecallgaussianreplaymlp",
-        "ascalgmmsegmentedmemoryposteriornohistoricalrecallgaussianreplaymlpstatic",
-        "ascalgmmcurrentsegmentgaussianreplaymlp",
-        "ascalgmmcurrentsegmentgaussianreplaymlpstatic",
-        "ascalgmmglobalstreamgaussianreplaymlp",
-        "ascalgmmglobalstreamgaussianreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorcliproutedgaussianreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorcliproutedgaussianreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorcliprouteddecoupledrankreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorcliprouteddecoupledrankreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorcliproutedconservativerankreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorcliproutedconservativerankreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorcliproutedcompactrankreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorcliproutedcompactrankreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorcliproutedconfidencegatedreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorcliproutedconfidencegatedreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorcliproutedquadraticconfidencegatedreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorcliproutedquadraticconfidencegatedreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorcliproutedcalibratedshrinkreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorcliproutedcalibratedshrinkreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorcliproutednoninversionguardreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorcliproutednoninversionguardreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorcliproutedorthogonalresidualreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorcliproutedorthogonalresidualreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorcliproutedmultilayerorthogonalresidualreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorcliproutedmultilayerorthogonalresidualreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorcliproutedorderguardreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorcliproutedorderguardreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorsegmentcliproutedgaussianreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorsegmentcliproutedgaussianreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedcurrentbatchreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedcurrentbatchreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedpriorgaussianreplaymlp",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedpriorgaussianreplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedsourcereplaymlp",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedsourcereplaymlpstatic",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridge",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgestatic",
-        "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgegmmreadout",
-        "ascalgmmsegmentedmemoryposteriorroutedresidual",
-        "ascalgmmsegmentedmemoryposteriorroutedresidualstatic",
-        "ascalgmmsegmentedmemoryposteriorroutedridgeresidual",
-        "ascalgmmsegmentedmemoryposteriorroutedridgeresidualstatic",
-        "ascalgmmsegmentedmemoryposteriorcurrentprojection",
-        "ascalgmmsegmentedmemoryposteriorcurrentprojectionstatic",
-        "ascalgmmsegmentedmemoryposteriorguardedprojection",
-        "ascalgmmsegmentedmemoryposteriorguardedprojectionstatic",
-        "ascalgmmsegmentedmemoryposteriorsupportprojection",
-        "ascalgmmsegmentedmemoryposteriorsupportprojectionstatic",
-        "ascalgmmsegmentedmemoryposteriorglobalresidual",
-        "ascalgmmsegmentedmemoryposteriorglobalresidualstatic",
-        "ascalgmmsegmentedmemoryposteriormixtureresidual",
-        "ascalgmmsegmentedmemoryposteriormixtureresidualstatic",
-        "ascalgmmsegmentedmemoryposteriorrealdeviationresidual",
-        "ascalgmmsegmentedmemoryposteriorrealdeviationresidualstatic",
-        "ascalgmmsegmentedmemoryposteriorconditionalresidual",
-        "ascalgmmsegmentedmemoryposteriorconditionalresidualstatic",
-    }:
-        if normalized_name in {
-            "ascalstatic",
-            "ascalgmmstatic",
-            "ascalgmmshiftstatic",
-            "ascalgmmmedianshiftstatic",
-            "ascalgmmdensityshiftstatic",
-            "ascalgmmsegmentedshiftstatic",
-            "ascalgmmsegmentedhandoffshiftstatic",
-            "ascalgmmsegmentedmemoryshiftstatic",
-            "ascalgmmsegmentedmemoryposteriorstatic",
-            "ascalgmmsegmentedmemoryposteriorprojectionstatic",
-            "ascalgmmsegmentedmemoryposteriorpreroutestatic",
-            "ascalgmmsegmentedmemoryposteriormdlroutestatic",
-            "ascalgmmsegmentedmemoryposteriorliveroutestatic",
-            "ascalgmmsegmentedmemoryposteriorordinalroutestatic",
-            "ascalgmmsegmentedmemoryposteriorordinalridgestatic",
-            "ascalgmmsegmentedmemoryposteriorjointridgestatic",
-            "ascalgmmsegmentedmemoryposteriorpairwiseridgestatic",
-            "ascalgmmsegmentedmemoryposterioranalyticexpertstatic",
-            "ascalgmmsegmentedmemoryposteriorrmsridgeexpertstatic",
-            "ascalgmmsegmentedmemoryposteriorequalpriorridgeexpertstatic",
-            "ascalgmmsegmentedmemoryposteriorevidencegatedridgeexpertstatic",
-            "ascalgmmsegmentedmemoryposteriorfeatureroutedtrustedridgestatic",
-            "ascalgmmsegmentedmemoryposteriorfeatureroutedgaussianreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorfeatureroutedexpandedgaussianreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorfeatureroutedsharedgaussianreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorfeatureroutedlineargaussianreplaystatic",
-            "ascalgmmsegmentedmemoryposteriorfeaturerouteduniformgaussianreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposterioractivegaussianreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriornohistoricalrecallgaussianreplaymlpstatic",
-            "ascalgmmcurrentsegmentgaussianreplaymlpstatic",
-            "ascalgmmglobalstreamgaussianreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorcliproutedgaussianreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorcliprouteddecoupledrankreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorcliproutedconservativerankreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorcliproutedcompactrankreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorcliproutedconfidencegatedreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorcliproutedquadraticconfidencegatedreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorcliproutedcalibratedshrinkreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorcliproutednoninversionguardreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorcliproutedorthogonalresidualreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorcliproutedmultilayerorthogonalresidualreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorcliproutedorderguardreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorsegmentcliproutedgaussianreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorfeatureroutedcurrentbatchreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorfeatureroutedpriorgaussianreplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorfeatureroutedsourcereplaymlpstatic",
-            "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgestatic",
-            "ascalgmmsegmentedmemoryposteriorroutedresidualstatic",
-            "ascalgmmsegmentedmemoryposteriorroutedridgeresidualstatic",
-            "ascalgmmsegmentedmemoryposteriorcurrentprojectionstatic",
-            "ascalgmmsegmentedmemoryposteriorguardedprojectionstatic",
-            "ascalgmmsegmentedmemoryposteriorsupportprojectionstatic",
-            "ascalgmmsegmentedmemoryposteriorglobalresidualstatic",
-            "ascalgmmsegmentedmemoryposteriormixtureresidualstatic",
-            "ascalgmmsegmentedmemoryposteriorrealdeviationresidualstatic",
-            "ascalgmmsegmentedmemoryposteriorconditionalresidualstatic",
-        }:
-            effective_method_config.setdefault("adaptation_mode", "static")
+        configured_readout = str(
+            effective_method_config.get("readout_mode", expected_readout)
+        ).lower()
+        if configured_readout != expected_readout:
+            raise ValueError(
+                f"{name} fixes readout_mode={expected_readout}, got "
+                f"{configured_readout}"
+            )
+        effective_method_config["readout_mode"] = expected_readout
+        if normalized_name == "oursstatic":
+            configured_adaptation = str(
+                effective_method_config.get("adaptation_mode", "static")
+            ).lower()
+            if configured_adaptation != "static":
+                raise ValueError(
+                    f"{name} fixes adaptation_mode=static, got "
+                    f"{configured_adaptation}"
+                )
+            effective_method_config["adaptation_mode"] = "static"
         model, metadata = build_clip_lora_detector(
             effective_method_config, device=device
         )
@@ -326,36 +150,15 @@ def build_fresh_method(
         anchors = checkpoint_metadata.get("score_anchors")
         if not isinstance(anchors, dict):
             raise ValueError(
-                "The ASCAL family requires a calibrated LoRA source checkpoint carrying "
+                "Ours requires a calibrated LoRA source checkpoint carrying "
                 "score_anchors; train one with "
-                "configs/train/genimage_sd14_clip_vitl14_lora_ascal.yaml"
+                "configs/train/genimage_sd14_clip_vitl14_lora_ours.yaml"
             )
         checkpoint_rank = checkpoint_metadata.get("lora_rank")
         if checkpoint_rank is not None and int(checkpoint_rank) != int(
             effective_method_config.get("lora_rank", 4)
         ):
-            raise ValueError(
-                "ASCAL lora_rank does not match the LoRA source checkpoint"
-            )
-        if normalized_name in {
-            "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridge",
-            "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgestatic",
-            "ascalgmmsegmentedmemoryposteriorfeatureroutedsourceridgegmmreadout",
-        }:
-            source_analytic_ridge = checkpoint_metadata.get(
-                "source_analytic_ridge"
-            )
-            if not isinstance(source_analytic_ridge, dict):
-                raise ValueError(
-                    "ASCAL source-Ridge inheritance requires a checkpoint carrying "
-                    "source_analytic_ridge; train one with "
-                    "configs/train/genimage_sd14_clip_vitl14_lora_analytic_ridge.yaml"
-                )
-            effective_method_config["source_analytic_ridge"] = (
-                source_analytic_ridge
-            )
-        # Anchors travel inside the effective method config so the evaluator's
-        # reproduction block always records the exact calibration identity.
+            raise ValueError("Ours lora_rank does not match its source checkpoint")
         effective_method_config["score_anchors"] = anchors
         method = build_method(name, model, device, effective_method_config)
         clip_checkpoint_path = str(

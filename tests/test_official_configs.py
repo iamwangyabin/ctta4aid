@@ -237,11 +237,24 @@ class OfficialConfigTests(unittest.TestCase):
                         "static",
                     )
                     self.assertEqual(
-                        config["method_configs"]["ours"]["memory_size"], 256
+                        config["method_configs"]["ours"]["feature_residual_scale"],
+                        0.75,
                     )
                     self.assertEqual(
-                        config["method_configs"]["ours"]["checkpoint_sha256"],
-                        "a3f15593bf3a46d3ce318a5e160b33372a27d0712baf66906592065890edc9d4",
+                        config["method_configs"]["ours"]["source_checkpoint"],
+                        "${OURS_SOURCE_CHECKPOINT}",
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["ours"]["reference"][
+                            "internal_version"
+                        ],
+                        "R47",
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["ours"]["reference"][
+                            "formal_status"
+                        ],
+                        "final_method_fixed_pending_formal_seed_validation",
                     )
                     self.assertEqual(
                         config["reporting"]["paired_static_baselines"]["ours"],
@@ -260,6 +273,109 @@ class OfficialConfigTests(unittest.TestCase):
         sources = self.load("configs/official_sources.yaml")
         self.assertEqual(sources["sar"]["official_core"], "src/official/sar.py")
         self.assertTrue((PROJECT_ROOT / sources["sar"]["official_core"]).is_file())
+
+    def test_ours_formal_single_target_configs_are_complete_and_isolated(self) -> None:
+        expected_targets = {
+            "genimage": 7,
+            "aigc_detection_benchmark": 17,
+            "aigi_holmes_p3": 10,
+            "opensdid_global": 5,
+        }
+        for dataset, target_count in expected_targets.items():
+            for seed in (0, 1, 2):
+                filename = (
+                    "configs/experiments/clip_vlm_bias_controlled/"
+                    f"matched_jpeg_ours_{dataset}_seed{seed}.yaml"
+                )
+                with self.subTest(filename=filename):
+                    config = self.load(filename)
+                    self.assertEqual(config["methods"], ["ours_static", "ours"])
+                    self.assertEqual(config["seed"], seed)
+                    self.assertEqual(
+                        config["data"]["bias_control_profile"], "matched_jpeg"
+                    )
+                    self.assertEqual(len(config["data"]["targets"]), target_count)
+                    self.assertTrue(config["protocol"]["reset_between_targets"])
+                    self.assertFalse(
+                        config["protocol"]["target_labels_available_to_method"]
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["ours"]["feature_replay_seed"],
+                        seed,
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["ours"]["feature_residual_scale"],
+                        0.75,
+                    )
+                    self.assertIn(
+                        f"ours_single_target/{dataset}/seed{seed}",
+                        config["output_dir"],
+                    )
+                    self.assertEqual(
+                        config["reporting"]["formal_method"], "ours"
+                    )
+                    self.assertEqual(config["reporting"]["validation_seeds"], [0, 2])
+
+    def test_ours_readout_ablation_configs_are_complete_and_isolated(self) -> None:
+        expected_targets = {
+            "genimage": 7,
+            "aigc_detection_benchmark": 17,
+            "aigi_holmes_p3": 10,
+            "opensdid_global": 5,
+        }
+        for dataset, target_count in expected_targets.items():
+            for seed in (0, 1, 2):
+                filename = (
+                    "configs/experiments/clip_vlm_bias_controlled/"
+                    f"matched_jpeg_ours_no_calibrated_readout_{dataset}_seed{seed}.yaml"
+                )
+                with self.subTest(filename=filename):
+                    config = self.load(filename)
+                    self.assertEqual(
+                        config["methods"], ["ours_static", "ours_no_calibrated_readout"]
+                    )
+                    self.assertEqual(config["seed"], seed)
+                    self.assertEqual(
+                        config["data"]["bias_control_profile"], "matched_jpeg"
+                    )
+                    self.assertEqual(len(config["data"]["targets"]), target_count)
+                    self.assertEqual(
+                        config["method_configs"]["ours_no_calibrated_readout"]["readout_mode"],
+                        "base",
+                    )
+                    self.assertEqual(
+                        config["method_configs"]["ours_no_calibrated_readout"][
+                            "feature_replay_seed"
+                        ],
+                        seed,
+                    )
+                    self.assertIn(
+                        f"ours_no_calibrated_readout_ablation/{dataset}/seed{seed}",
+                        config["output_dir"],
+                    )
+
+    def test_ours_source_training_config_names_only_retained_interfaces(self) -> None:
+        config = self.load(
+            "configs/train/genimage_sd14_clip_vitl14_lora_ours.yaml"
+        )
+        self.assertEqual(config["model"]["family"], "clip_lora_source_detector")
+        self.assertEqual(config["model"]["lora_rank"], 4)
+        self.assertEqual(
+            config["training"]["intended_methods"],
+            ["ours_static", "ours_no_calibrated_readout", "ours"],
+        )
+        self.assertEqual(
+            config["training"]["calibration"]["profile"],
+            "ours_score_anchor_v1",
+        )
+        self.assertTrue(
+            {
+                "anchor_kappa",
+                "consistency_quantile",
+                "fuse_sigma_multiplier",
+                "target_admission_rate",
+            }.isdisjoint(config["training"]["calibration"])
+        )
 
     def test_clip_vitl14_source_training_config_is_shared_and_fisher_compatible(self) -> None:
         config = self.load("configs/train/genimage_sd14_clip_vitl14.yaml")

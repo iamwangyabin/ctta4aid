@@ -1,9 +1,0 @@
-extends:
-  - ../clip_vlm/genimage_seed1.yaml
-  - matched_jpeg.yaml
-  - ../../methods/ascal_gmm.yaml
-
-output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/ascal_gmm/genimage/seed1
-
-data:
-  root: ${GENIMAGE_MATCHED_JPEG_ARROW_ROOT}

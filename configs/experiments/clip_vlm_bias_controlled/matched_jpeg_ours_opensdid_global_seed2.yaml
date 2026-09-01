@@ -1,0 +1,19 @@
+extends: matched_jpeg_opensdid_global_seed2.yaml
+
+methods:
+  - ours_static
+  - ours
+
+method_configs:
+  ours:
+    feature_replay_seed: 2
+
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/ours_single_target/opensdid_global/seed2
+
+reporting:
+  formal_method: ours
+  internal_version: R47
+  selection_seed: 1
+  validation_seeds: [0, 2]
+  paired_static_baselines:
+    ours: ours_static

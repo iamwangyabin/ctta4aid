@@ -13,7 +13,11 @@ from .transforms import (
     build_eval_transform,
     build_train_transform,
 )
-from .views import ASCALViewTransform, DynaPromptViewTransform, GlobalLocalViewTransform
+from .views import (
+    DynaPromptViewTransform,
+    GlobalLocalViewTransform,
+    OursCalibrationViewTransform,
+)
 
 __all__ = [
     "ARROW_FORMAT",
@@ -29,7 +33,7 @@ __all__ = [
     "build_clip_train_transform",
     "build_eval_transform",
     "build_train_transform",
-    "ASCALViewTransform",
+    "OursCalibrationViewTransform",
     "DynaPromptViewTransform",
     "GlobalLocalViewTransform",
 ]

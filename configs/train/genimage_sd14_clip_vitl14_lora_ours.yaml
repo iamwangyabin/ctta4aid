@@ -1,0 +1,57 @@
+# Train the method-specific Ours source detector once from fixed CLIP ViT-L/14.
+# Rank-4 LoRA branches are attached only to visual MLP projections; source score
+# anchors are calibrated on the source validation split and stored in source.pt.
+seed: 0
+device: auto
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vitl14_lora_ours_source_train
+
+model:
+  family: clip_lora_source_detector
+  architecture: ViT-L/14
+  checkpoint: ${CLIP_VIT_L14_CHECKPOINT}
+  image_size: 224
+  resize_size: 256
+  lora_rank: 4
+  lora_alpha: 8
+
+data:
+  format: arrow
+  train_root: ${GENIMAGE_SD14_TRAIN_ARROW_ROOT}
+  val_root: ${GENIMAGE_ARROW_ROOT}
+  generator: stable_diffusion_v_1_4
+  train_generator: SDv14
+  val_generator: stable_diffusion_v_1_4
+  train_split: train
+  val_split: test
+  image_size: 224
+  resize_size: 256
+  batch_size: 16
+  num_workers: 8
+  train_exclude_image_paths:
+    - SDv14/train/ai/033_sdv4_00134.png
+    - SDv14/train/ai/033_sdv4_00137.png
+    - SDv14/train/ai/033_sdv4_00152.png
+
+training:
+  profile: ours_lora_r4_source_detector
+  checkpoint_role: method_specific_source_detector_for_ours
+  intended_methods:
+    - ours_static
+    - ours_no_calibrated_readout
+    - ours
+  epochs: 3
+  max_steps_per_epoch: null
+  optimizer: adamw
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  amp: true
+  compute_fisher: false
+  jpeg_prob: 0.1
+  blur_prob: 0.1
+  jpeg_quality_range: [70, 95]
+  calibration:
+    profile: ours_score_anchor_v1
+    views: 5
+    jpeg_qualities: [75, 85, 95]
+    max_samples_per_class: 2000
+    fake_max_components: 4

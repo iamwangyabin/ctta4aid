@@ -88,7 +88,7 @@ def build_clip_lora_train_transform(
     blur_prob: float = 0.1,
     jpeg_quality_range: tuple[int, int] = (70, 95),
 ) -> Any:
-    """CLIP train augmentation with light JPEG/blur degradation for ASCAL's base.
+    """CLIP train augmentation with light JPEG/blur degradation for Ours.
 
     The degradation branch compresses deployment-time perturbation jitter into
     the training phase so the calibrated score anchors stay compact.
