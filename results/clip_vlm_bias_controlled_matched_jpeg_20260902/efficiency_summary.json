@@ -1,0 +1,124 @@
+{
+  "seeds": [
+    0,
+    2,
+    3
+  ],
+  "aggregation": "Target-macro within each seed/hardware; latency is never averaged across GPU models.",
+  "per_seed": {
+    "seed0": {
+      "hardware": "NVIDIA GeForce RTX 4090 (4090-2)",
+      "methods": {
+        "ours_static": {
+          "targets": 39,
+          "samples": 58500,
+          "mean_predict_ms_per_sample": 7.914296284133646,
+          "mean_adapt_ms_per_sample": 0.003279603371480241,
+          "mean_total_ms_per_sample": 7.9175758875051265,
+          "peak_memory_mb_max": 1439.87353515625,
+          "trainable_parameters_min": 0,
+          "trainable_parameters_median": 0,
+          "trainable_parameters_max": 0
+        },
+        "ours_no_calibrated_readout": {
+          "targets": 39,
+          "samples": 58500,
+          "mean_predict_ms_per_sample": 8.824823211525311,
+          "mean_adapt_ms_per_sample": 14.431343859216321,
+          "mean_total_ms_per_sample": 23.256167070741633,
+          "peak_memory_mb_max": 1448.75439453125,
+          "trainable_parameters_min": 49281,
+          "trainable_parameters_median": 49281,
+          "trainable_parameters_max": 98562
+        },
+        "ours": {
+          "targets": 39,
+          "samples": 58500,
+          "mean_predict_ms_per_sample": 8.332124447131642,
+          "mean_adapt_ms_per_sample": 13.903258718358419,
+          "mean_total_ms_per_sample": 22.23538316549006,
+          "peak_memory_mb_max": 1448.75439453125,
+          "trainable_parameters_min": 49281,
+          "trainable_parameters_median": 49281,
+          "trainable_parameters_max": 98562
+        }
+      }
+    },
+    "seed2": {
+      "hardware": "NVIDIA GeForce RTX 4090 (4090-1)",
+      "methods": {
+        "ours_static": {
+          "targets": 39,
+          "samples": 58500,
+          "mean_predict_ms_per_sample": 6.586488110119025,
+          "mean_adapt_ms_per_sample": 0.002448363198538542,
+          "mean_total_ms_per_sample": 6.588936473317564,
+          "peak_memory_mb_max": 1439.87353515625,
+          "trainable_parameters_min": 0,
+          "trainable_parameters_median": 0,
+          "trainable_parameters_max": 0
+        },
+        "ours_no_calibrated_readout": {
+          "targets": 39,
+          "samples": 58500,
+          "mean_predict_ms_per_sample": 6.6724111123909005,
+          "mean_adapt_ms_per_sample": 7.3010132361684015,
+          "mean_total_ms_per_sample": 13.973424348559302,
+          "peak_memory_mb_max": 1448.75439453125,
+          "trainable_parameters_min": 49281,
+          "trainable_parameters_median": 49281,
+          "trainable_parameters_max": 49281
+        },
+        "ours": {
+          "targets": 39,
+          "samples": 58500,
+          "mean_predict_ms_per_sample": 6.675142045468879,
+          "mean_adapt_ms_per_sample": 7.45748174676207,
+          "mean_total_ms_per_sample": 14.132623792230948,
+          "peak_memory_mb_max": 1448.75439453125,
+          "trainable_parameters_min": 49281,
+          "trainable_parameters_median": 49281,
+          "trainable_parameters_max": 49281
+        }
+      }
+    },
+    "seed3": {
+      "hardware": "NVIDIA GeForce RTX 3090",
+      "methods": {
+        "ours_static": {
+          "targets": 39,
+          "samples": 58500,
+          "mean_predict_ms_per_sample": 12.297405340503076,
+          "mean_adapt_ms_per_sample": 0.00456459870791803,
+          "mean_total_ms_per_sample": 12.301969939210993,
+          "peak_memory_mb_max": 1439.87353515625,
+          "trainable_parameters_min": 0,
+          "trainable_parameters_median": 0,
+          "trainable_parameters_max": 0
+        },
+        "ours_no_calibrated_readout": {
+          "targets": 39,
+          "samples": 58500,
+          "mean_predict_ms_per_sample": 12.518149776645672,
+          "mean_adapt_ms_per_sample": 6.496432710813585,
+          "mean_total_ms_per_sample": 19.014582487459254,
+          "peak_memory_mb_max": 1448.75439453125,
+          "trainable_parameters_min": 49281,
+          "trainable_parameters_median": 49281,
+          "trainable_parameters_max": 49281
+        },
+        "ours": {
+          "targets": 39,
+          "samples": 58500,
+          "mean_predict_ms_per_sample": 12.506038030345316,
+          "mean_adapt_ms_per_sample": 6.602289906237524,
+          "mean_total_ms_per_sample": 19.10832793658284,
+          "peak_memory_mb_max": 1448.75439453125,
+          "trainable_parameters_min": 49281,
+          "trainable_parameters_median": 49281,
+          "trainable_parameters_max": 49281
+        }
+      }
+    }
+  }
+}

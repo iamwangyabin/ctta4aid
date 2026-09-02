@@ -1,0 +1,42 @@
+\begin{table*}[t]
+\centering
+\caption{Target-wise Accuracy (\%) on GenImage with OpenAI CLIP ViT-L/14, using a fixed 0.5 decision threshold. Target columns report means over three locked seeds; Mean reports the target-macro mean $\pm$ standard deviation across seeds.}
+\label{tab:clip-vitl14-genimage-accuracy}
+\scriptsize
+\setlength{\tabcolsep}{1.5pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
+\toprule
+& \multicolumn{7}{c}{Accuracy (\%) by target} & \multicolumn{1}{c}{Summary} \\
+\cmidrule(lr){2-8}
+\cmidrule(lr){9-9}
+Method & BigGAN & ADM & GLIDE & SD v1.5 & VQDM & Wukong & Midjourney & Mean \\
+\midrule
+\multicolumn{9}{l}{\textit{Source-trained CLIP detector (shared source checkpoint)}} \\
+Source & 49.98 & 49.96 & 50.04 & 55.04 & \textbf{50.04} & 55.33 & 50.49 & 51.56 $\pm$ 0.18 \\
+Tent$^{\dagger}$ & 50.00 & 49.98 & 50.04 & 51.78 & 50.02 & 52.27 & 50.20 & 50.61 $\pm$ 0.15 \\
+EATA$^{\dagger}$ & 49.98 & 49.96 & 50.04 & 55.04 & \textbf{50.04} & 55.33 & 50.49 & 51.56 $\pm$ 0.18 \\
+SAR & 49.98 & 49.96 & 50.04 & 55.04 & \textbf{50.04} & 55.33 & 50.49 & 51.56 $\pm$ 0.18 \\
+CoTTA & \textbf{50.56} & 50.02 & 50.36 & 51.18 & 50.02 & 52.98 & 50.47 & 50.80 $\pm$ 0.24 \\
+RoTTA-LN$^{\ddagger}$ & 49.98 & 49.96 & 50.04 & 55.04 & \textbf{50.04} & 55.31 & 50.49 & 51.55 $\pm$ 0.17 \\
+LAME & 49.98 & 49.96 & 50.04 & 55.04 & \textbf{50.04} & 55.36 & 50.49 & 51.56 $\pm$ 0.18 \\
+T$^2$A$^{\dagger}$ & 50.09 & \textbf{50.51} & \textbf{50.91} & \textbf{65.24} & \textbf{50.04} & \textbf{60.60} & \textbf{53.80} & \textbf{54.46 $\pm$ 1.01} \\
+\midrule
+\multicolumn{9}{l}{\textit{CLIP-native (method-native text classifier)}} \\
+Frozen CLIP & 53.87 & 52.87 & 53.73 & 52.33 & 53.16 & 53.98 & 51.56 & 53.07 $\pm$ 0.12 \\
+TDA & 52.13 & 51.89 & 52.22 & 51.27 & 51.96 & 52.47 & 50.89 & 51.83 $\pm$ 0.17 \\
+DynaPrompt & 50.09 & 50.02 & 50.07 & 50.04 & 50.02 & 50.11 & 50.09 & 50.06 $\pm$ 0.03 \\
+CLIPTTA & \textbf{79.67} & \textbf{56.53} & \textbf{73.40} & \textbf{55.49} & \textbf{56.78} & \textbf{58.71} & \textbf{59.51} & \textbf{62.87 $\pm$ 0.42} \\
+BATCLIP & 50.47 & 50.38 & 50.22 & 50.44 & 50.09 & 50.09 & 50.31 & 50.29 $\pm$ 0.11 \\
+\midrule
+\multicolumn{9}{l}{\textit{Method-specific source training}} \\
+IAPL & 55.44 & 51.07 & 55.36 & 51.16 & 52.53 & 52.38 & 50.09 & 52.57 $\pm$ 0.34 \\
+Ours-Static & 51.71 & 51.13 & 59.89 & 99.42 & 52.36 & 97.64 & 63.60 & 67.97 $\pm$ 0.14 \\
+Ours & 67.98 & 60.60 & 80.13 & 99.38 & 66.29 & 98.42 & 77.80 & 78.66 $\pm$ 0.21 \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}
+\parbox{\textwidth}{\footnotesize Blocks distinguish source setup; bold is restricted to the two blocks with shared starting states. $^{\dagger}$BatchNorm parameter selection is minimally mapped to LayerNorm affine parameters. $^{\ddagger}$RoTTA-LN explicitly replaces RobustBN with CLIP visual LayerNorm affine adaptation while retaining CSTU, teacher/student EMA, entropy loss, and the 64-instance online update schedule. It uses stream/update microbatch 2 on 24 GB GPUs, accumulating the full weighted-mean loss before one optimizer/EMA update, and is a disclosed ViT transfer, not the original RobustBN method. Target labels are used only by the evaluator.}
+\end{table*}

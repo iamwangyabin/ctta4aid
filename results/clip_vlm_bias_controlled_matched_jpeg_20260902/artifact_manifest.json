@@ -1,0 +1,77 @@
+{
+  "format": "clip_vlm_bias_controlled_artifact_manifest_v1",
+  "files": {
+    "README.md": {
+      "bytes": 3807,
+      "sha256": "61c90a4e61edf2ef3273797358231631e55033780bd2e6f786a938f5ebf7d8d8"
+    },
+    "calibration_summary.json": {
+      "bytes": 309278,
+      "sha256": "1e1336290b698b67e0381ac2d1919fda70cf9d8eb74fb8c20bb2bb183c5ee259"
+    },
+    "clip_vitl14_aigc_detection_benchmark_accuracy_table.tex": {
+      "bytes": 4921,
+      "sha256": "737ff29ab15c26982ff647a56c2a9b71256a0998dcd0a56beed40b5c858a4e84"
+    },
+    "clip_vitl14_aigc_detection_benchmark_auc_table.tex": {
+      "bytes": 4778,
+      "sha256": "1f9eb8b477eb3ca2da466db5e07f3d7a300404f36633c7046dfd35c000325daa"
+    },
+    "clip_vitl14_aigi_holmes_p3_accuracy_table.tex": {
+      "bytes": 3712,
+      "sha256": "72157c1c1946e2e60d586fc7c6f3b7bc01c16155fbcd1ac1125c1564737560a7"
+    },
+    "clip_vitl14_aigi_holmes_p3_auc_table.tex": {
+      "bytes": 3659,
+      "sha256": "5200f36ecd58ac62ad7ff83bac8d5fb6e0d027550696bf52b71f86ce5090de91"
+    },
+    "clip_vitl14_auc_table.csv": {
+      "bytes": 1419,
+      "sha256": "9b1b84480233a80d29f37fb858c445a5702ad3174cbdf17c3a8edce810ef2e44"
+    },
+    "clip_vitl14_genimage_accuracy_table.tex": {
+      "bytes": 3219,
+      "sha256": "ab08f1564fcda5fd1284232cf193de6ed03162777c22338c0bb5b39d549fb751"
+    },
+    "clip_vitl14_genimage_auc_table.tex": {
+      "bytes": 3130,
+      "sha256": "092b029e9d7afb643e72b44b47c6535add7558ab5f9242fa06dc16085e5ee450"
+    },
+    "clip_vitl14_opensdid_global_accuracy_table.tex": {
+      "bytes": 2867,
+      "sha256": "046c19633efdbe8803543858610ec569a32d573c083b24dae674feccd8ab52e6"
+    },
+    "clip_vitl14_opensdid_global_auc_table.tex": {
+      "bytes": 2823,
+      "sha256": "afacc47a658ebd40133bd1e23d0bd7bdca94c770a6387a92efd2598ccc390388"
+    },
+    "clip_vitl14_summary.json": {
+      "bytes": 801156,
+      "sha256": "9716ea40aab37cfac55705daecc13c2b6fe96383ba17013eb52542b8447acb0f"
+    },
+    "efficiency_summary.json": {
+      "bytes": 4512,
+      "sha256": "6ee183900ea3c870d6ca438d404bc1e3a9e96afbad5f3dc31810c6c44a62bf4d"
+    },
+    "matched_jpeg_protocol_audit.json": {
+      "bytes": 25645,
+      "sha256": "de889422dd36b1ed209b21c30e23e4d23360c3168f48287b3992dea163200daf"
+    },
+    "per_seed_summary.json": {
+      "bytes": 59652,
+      "sha256": "4819e71acdfc8d7e9851f5977b0adc04782aeeebca9f3e9de0e158becb0e03f5"
+    },
+    "readout_ablation_summary.json": {
+      "bytes": 17082,
+      "sha256": "3199bbc558cccebe81aa7c44daacd6a15c038a768d1fad7b1276a72a15863314"
+    },
+    "recurrence_summary.json": {
+      "bytes": 47706,
+      "sha256": "f8d56b0f03bdd87e4dbf412668c1f56f77f533789f64d55c3edc5cd97d5e6114"
+    },
+    "source_models.json": {
+      "bytes": 2813,
+      "sha256": "1bad9c4ac90a3cada69536c6e871878c89b1b2eb1ced4143bb5d69e33a19f1b4"
+    }
+  }
+}

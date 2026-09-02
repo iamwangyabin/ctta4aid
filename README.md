@@ -67,7 +67,8 @@ batch/views、状态转移、预测/适应顺序和 prompt 构造，只做接入
 256x256 center-crop/resize，再从 75/80/85/90/95 中按不含类别目录的逻辑路径
 确定性选择 JPEG 质量。原始编码与 `all_jpeg_q90` 只作为独立补充审计，不能与
 `matched_jpeg` 主结果混表。四个数据集的逐 target AUC 与 Accuracy 详细表均保留在正文；
-版面压缩在结果完整后再处理。
+三正式 seed 的完整结果已经验收并冻结在
+`results/clip_vlm_bias_controlled_matched_jpeg_20260902/`。
 
 主表按 source setup 分为三个区块：
 
@@ -112,8 +113,8 @@ seed `0/2/3` 的均值，Mean 列报告 target-macro 均值及跨 seed 标准差
 | AIGI-Holmes P3 | Janus、Janus-Pro-1B、Janus-Pro-7B、Show-o、LlamaGen、Infinity、VAR、PixArt-XL、SD3.5-L、FLUX |
 | OpenSDID Global | SD1.5、SD2.1、SDXL、SD3、Flux.1 |
 
-可先生成八张数值为空的 LaTeX 详细表；全量运行完成后对同一命令去掉
-`--template-only`，汇总器会自动填入逐 target 数值，并导出 CSV、JSON 和 LaTeX：
+汇总器仍可用 `--template-only` 生成八张空白 LaTeX 模板；正式目录中的八张详细表则由
+三个已验收 seed 的结果生成，同时保留 CSV、JSON 和 LaTeX：
 
 ```bash
 python scripts/summarize_clip_vlm_results.py \
@@ -134,11 +135,14 @@ detector 方法之间共享。每种方法的分类器或 prompt 构造、可训
 采样与 DataLoader 顺序完全一致后再冻结 seed-3 manifest。
 训练配置还固定排除了 preflight 检出的三条零字节 SD v1.4 源图逻辑路径；不会用空白或
 合成像素替代损坏样本。
-八张新表在完整三 seed campaign 验收前仍全部保持空白；此前完成的 ResNet-50 数值表原样
-保留在论文补充材料中。RoTTA-LN 只有在独立运行并通过结果身份核验后才可填值；TTC
-因没有可固定的作者公开实现而从定量表删除，只在 related work 中讨论。
+三个正式 seed 的 1,872 个 `method x target x seed` 单元均已通过样本身份、输入 profile、
+checkpoint、方法协议和有限指标检查，八张新表已经填入 `matched_jpeg` 汇总；此前完成的
+ResNet-50 数值表仍原样保留在论文补充材料中。RoTTA-LN 数值来自独立运行并保留必要迁移
+说明；TTC 因没有可固定的作者公开实现而从定量表删除，只在 related work 中讨论。
 
-四个数据集的三 seed 全部完成后，写入最终结果目录并生成论文主表：
+最终结果、校准指标、读出消融、动态复现流、效率统计、协议审计和 source/checkpoint 身份均
+保存在 `results/clip_vlm_bias_controlled_matched_jpeg_20260902/`。以下命令仍可用于从完整运行
+目录重新生成主表：
 
 ```bash
 python scripts/summarize_clip_vlm_results.py \
@@ -208,9 +212,9 @@ python run_single_target.py \
 
 运行前会同时校验配置 profile、bundle 规范哈希和输出路径。输出固定写到
 `${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/<profile>/<dataset>/seed<seed>`；
-任何缺失、错配或试图写回原始 `clip_vlm/` 目录的运行都会直接失败。四数据集三 seed
-完整验收前，正文八张详细表仍保持空白；验收后只填入 `matched_jpeg` 汇总。原始编码与
-`all_jpeg_q90` 必须按 profile 分别汇总并仅作为补充结果。
+任何缺失、错配或试图写回原始 `clip_vlm/` 目录的运行都会直接失败。四数据集三正式 seed
+已经完整验收，正文八张详细表只填入 `matched_jpeg` 汇总。原始编码与 `all_jpeg_q90`
+仍须按 profile 分别汇总并仅作为补充结果。
 
 ## Controlled CTTA 补充实验
 
@@ -426,8 +430,9 @@ python run_single_target.py \
 ```
 
 四个数据集、三个正式 seed `0/2/3` 均有最终设置和 readout 消融的独立入口，输出分别写入
-`matched_jpeg/ours_single_target/` 与 `matched_jpeg/ours_no_calibrated_readout_ablation/`。完整三 seed
-验收之前不得将数值回填论文主表。
+`matched_jpeg/ours_single_target/` 与 `matched_jpeg/ours_no_calibrated_readout_ablation/`。
+三 seed 已完成独立审计；正文主表仅报告 Ours-Static 与最终 Ours，读出消融保存在最终结果
+目录的 `readout_ablation_summary.json`。
 
 为验证 Detect、Route 和历史专家复用确实发生在未知边界的数据流中，补充实验固定使用
 GenImage `SD1.5_first -> BigGAN -> ADM -> SD1.5_return`。四个 episode 的名字只属于
