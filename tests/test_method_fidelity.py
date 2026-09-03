@@ -596,6 +596,36 @@ class MethodFidelityTests(unittest.TestCase):
         self.assertEqual(tuple(singleton.logits.shape), (1, 2))
         self.assertTrue(method.last_batch_guarded)
 
+    def test_tda_enforces_author_batch_one_custom_dataset_contract(self) -> None:
+        from src.methods.tda import TDA
+
+        nn = self.nn
+        torch = self.torch
+
+        class TinyTDAClassifier(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.projection = nn.Linear(3, 4)
+                self.head = nn.Linear(4, 2)
+
+            def forward_features(self, images):
+                features = self.projection(images.mean(dim=(2, 3)))
+                return torch.nn.functional.normalize(features, dim=1)
+
+            @property
+            def classifier(self):
+                return self.head
+
+        method = TDA(TinyTDAClassifier(), "cpu")
+        with self.assertRaisesRegex(ValueError, "exactly one target image"):
+            method.predict(torch.randn(2, 3, 8, 8))
+
+        prediction = method.predict(torch.randn(1, 3, 8, 8))
+        self.assertEqual(tuple(prediction.logits.shape), (1, 2))
+        stats = method.adapt(torch.randn(1, 3, 8, 8))
+        self.assertEqual(stats.selected, 1)
+        self.assertEqual(stats.extra["positive_cache_entries"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

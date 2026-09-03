@@ -107,7 +107,7 @@ CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fish
 | LAME | 公共源域 detector 的特征与 logits | 参数无关的 Laplacian 输出适配 | 仅接入 CLIP 特征；保留其 batch contract |
 | T2A | 公共源域二分类 detector | 不确定性选择、negative learning、gradient masking | 归一化梯度参照由 BN 最小映射为 LayerNorm，其他逻辑不动 |
 | IAPL | IAPL 原生源训练得到的 CLIP detector | 32 views、2 steps、OIS、逐图 prompt/optimizer reset | 只替换统一数据接口，不改为公共 binary head |
-| TDA | CLIP 原生文本分类器 | 正负 cache、无反向传播 | 使用二分类类别语义与作者的 template 构造 |
+| TDA | CLIP 原生文本分类器 | 正负 cache、无反向传播 | 严格 `batch_size=1`；custom 数据集每步只输入一个样本的一张确定性 global view，先更新 cache 再预测；仅将作者文本构造桥接到二分类语义 |
 | DynaPrompt | CLIP 类别名与在线 context | 多视图 prompt tuning、动态 prompt buffer | 换成 ViT-L/14；不固定最终 prompt |
 | CLIPTTA | CLIP 文本原型 | 官方 closed-set 对比适配及 batch 机制 | 使用二分类类别语义与作者原生文本构造 |
 | BATCLIP | CLIP 图像与文本两端 | 双模态目标及原生在线更新 | 换成固定 ViT-L/14；不得退化成只更新视觉端 |
@@ -145,6 +145,11 @@ detector 方法之间共享。每种方法的分类器或 prompt 构造、可训
 状态重置和预测/适应顺序均由其方法配置锁定。`configs/experiments/clip_vlm/` 提供这些
 方法原生基础配置，正文正式运行入口是
 `configs/experiments/clip_vlm_bias_controlled/matched_jpeg_<dataset>_seed<seed>.yaml`。
+TDA 另使用
+`configs/experiments/clip_vlm_bias_controlled/matched_jpeg_tda_<dataset>_seed<seed>.yaml`
+做严格 batch-one 复跑，并独立写入 `matched_jpeg/tda_batch1/`。早期完整 campaign 中将
+16 个不同 target 样本当作 TDA 多视图 batch 的数值只保留作审计，不再进入正文；只有这组
+`batch_size=1`、单样本单 global view 的 seed `0/2/3` 结果可替换正文 TDA 行。
 新增验证 seed 3 的锁定样本身份与顺序保存在
 `configs/datasets/manifests/clip_vlm/`；生成时先逐数据集复现既有 seed-0 manifest，确认
 采样与 DataLoader 顺序完全一致后再冻结 seed-3 manifest。

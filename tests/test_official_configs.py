@@ -207,6 +207,10 @@ class OfficialConfigTests(unittest.TestCase):
                         2,
                     )
                     self.assertEqual(
+                        config["method_configs"]["tda"]["data"]["batch_size"],
+                        1,
+                    )
+                    self.assertEqual(
                         config["method_configs"]["rotta"][
                             "update_micro_batch_size"
                         ],
@@ -315,6 +319,43 @@ class OfficialConfigTests(unittest.TestCase):
                     )
                     self.assertEqual(
                         config["reporting"]["formal_method"], "ours"
+                    )
+                    self.assertEqual(
+                        config["reporting"]["validation_seeds"], [0, 2, 3]
+                    )
+
+    def test_tda_batch_one_rerun_configs_are_complete_and_isolated(self) -> None:
+        expected_targets = {
+            "genimage": 7,
+            "aigc_detection_benchmark": 17,
+            "aigi_holmes_p3": 10,
+            "opensdid_global": 5,
+        }
+        for dataset, target_count in expected_targets.items():
+            for seed in (0, 2, 3):
+                filename = (
+                    "configs/experiments/clip_vlm_bias_controlled/"
+                    f"matched_jpeg_tda_{dataset}_seed{seed}.yaml"
+                )
+                with self.subTest(filename=filename):
+                    config = self.load(filename)
+                    self.assertEqual(config["methods"], ["tda"])
+                    self.assertEqual(config["seed"], seed)
+                    self.assertEqual(
+                        config["data"]["bias_control_profile"], "matched_jpeg"
+                    )
+                    self.assertEqual(len(config["data"]["targets"]), target_count)
+                    self.assertEqual(
+                        config["method_configs"]["tda"]["data"]["batch_size"],
+                        1,
+                    )
+                    self.assertIn(
+                        f"tda_batch1/{dataset}/seed{seed}", config["output_dir"]
+                    )
+                    self.assertEqual(config["reporting"]["formal_method"], "tda")
+                    self.assertEqual(
+                        config["reporting"]["protocol_revision"],
+                        "official_batch1_clean_custom_v1",
                     )
                     self.assertEqual(
                         config["reporting"]["validation_seeds"], [0, 2, 3]

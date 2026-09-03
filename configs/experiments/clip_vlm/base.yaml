@@ -118,7 +118,7 @@ method_configs:
   tda:
     capture_initial_state: false
     data:
-      batch_size: 16
+      batch_size: 1
       num_workers: 0
   dynaprompt:
     capture_initial_state: false

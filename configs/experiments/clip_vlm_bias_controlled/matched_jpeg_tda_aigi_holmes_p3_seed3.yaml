@@ -1,0 +1,9 @@
+extends: matched_jpeg_aigi_holmes_p3_seed3.yaml
+
+methods: [tda]
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/tda_batch1/aigi_holmes_p3/seed3
+
+reporting:
+  formal_method: tda
+  protocol_revision: official_batch1_clean_custom_v1
+  validation_seeds: [0, 2, 3]

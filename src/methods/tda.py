@@ -11,7 +11,7 @@ from .base import TTAMethod
 
 
 class TDA(TTAMethod):
-    """Run the authors' cache update before returning each online prediction."""
+    """Run the authors' batch-one cache update before each online prediction."""
 
     protocol_name = "online_adapt_then_predict"
 
@@ -58,6 +58,8 @@ class TDA(TTAMethod):
             "protocol_wrapper": self.protocol_name,
             "intentional_changes": [
                 "official CLIP loader is replaced by the shared local OpenAI CLIP ViT-L/14 loader",
+                "the official clean/custom-dataset contract is enforced as exactly "
+                "one deterministic global view of one target sample per online step",
                 "hard-coded CUDA and half casts are replaced by input-device and "
                 "input-dtype handling",
                 "the framework records Arrow sample identity and evaluator-only metrics",
@@ -68,6 +70,12 @@ class TDA(TTAMethod):
         import torch
 
         from src.official import tda as official_tda
+
+        if getattr(images, "ndim", None) != 4 or int(images.shape[0]) != 1:
+            raise ValueError(
+                "TDA requires exactly one target image per online step; distinct "
+                "target images must never be interpreted as augmentation views"
+            )
 
         device_images = images.to(self.device, non_blocking=True)
         with torch.no_grad():

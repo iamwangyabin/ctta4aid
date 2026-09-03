@@ -1,0 +1,9 @@
+extends: matched_jpeg_aigc_detection_benchmark_seed2.yaml
+
+methods: [tda]
+output_dir: ${CTTA4AID_EXPERIMENT_ROOT}/clip_vlm_bias_controlled/matched_jpeg/tda_batch1/aigc_detection_benchmark/seed2
+
+reporting:
+  formal_method: tda
+  protocol_revision: official_batch1_clean_custom_v1
+  validation_seeds: [0, 2, 3]

@@ -4,7 +4,7 @@ method_configs:
   tda:
     capture_initial_state: false
     data:
-      batch_size: 16
+      batch_size: 1
       num_workers: 4
     positive_shot_capacity: 3
     positive_alpha: 2.0
@@ -24,4 +24,6 @@ method_configs:
       repository: https://github.com/kdiAAA/TDA
       commit: e697fb0c8078cdeff93daa56bcf8860702542069
       protocol: online_adapt_then_predict
-      transfer_note: The cache core is retained; the official text-classifier construction is bridged to binary real/fake class semantics.
+      original_batch_size: 1
+      view_contract: one_deterministic_global_view_per_sample_for_clean_custom_datasets
+      transfer_note: The cache core and author batch-one online contract are retained; the official text-classifier construction is bridged only to binary real/fake class semantics.

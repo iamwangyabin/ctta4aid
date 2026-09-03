@@ -186,12 +186,13 @@ openai_clip:
 tda:
   repository: https://github.com/kdiAAA/TDA.git
   commit: e697fb0c8078cdeff93daa56bcf8860702542069
-  upstream_files: [tda_runner.py]
+  upstream_files: [tda_runner.py, utils.py]
   upstream_config: config.yaml
   project_profile: configs/methods/tda.yaml
   official_core: src/official/tda.py
   wrapper: src/methods/tda.py
   status: vendored_official_cache_core_with_binary_prompt_adapter
+  protocol: batch_size_1_one_deterministic_global_view_per_custom_dataset_sample
   license: MIT
   numerical_validation: requires_framework_native_benchmark_run
 
