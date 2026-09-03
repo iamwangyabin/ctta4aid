@@ -1,0 +1,67 @@
+{
+  "format": "clip_vlm_bias_controlled_artifact_manifest_v2",
+  "base_release": "results/clip_vlm_bias_controlled_matched_jpeg_20260902",
+  "extension": "AIGI-Det-Calib strict-causal Source baseline",
+  "files": {
+    "README.md": {
+      "bytes": 4756,
+      "sha256": "a59ebf9228e086219f2796cf98bb1b22434d15d6ecd6bc74bf6ecf7b42bcca1e"
+    },
+    "aigi_det_calib_summary.json": {
+      "bytes": 79939,
+      "sha256": "76933b211a8c6b34283ec550fd30f865770305e676ff7553d87e834c232781c2"
+    },
+    "calibration_summary.json": {
+      "bytes": 328658,
+      "sha256": "c159d908625ee273063a57f3a68259953e1a749566805fef48b18cbb930ceae4"
+    },
+    "clip_vitl14_aigc_detection_benchmark_accuracy_table.tex": {
+      "bytes": 5299,
+      "sha256": "a6e677c6985d452777d406fc23eb37c6181ee8c9ec7afa76be22c3f8f15653e3"
+    },
+    "clip_vitl14_aigc_detection_benchmark_auc_table.tex": {
+      "bytes": 5210,
+      "sha256": "b6cca05092d5ad3609337530daa2b7b8ef0f2810b99b429d5677eba47a701bb6"
+    },
+    "clip_vitl14_aigi_holmes_p3_accuracy_table.tex": {
+      "bytes": 4052,
+      "sha256": "b39706ea78d16d117790d17e781ab59a26a9e924b651ed2f833f4a702431144c"
+    },
+    "clip_vitl14_aigi_holmes_p3_auc_table.tex": {
+      "bytes": 4035,
+      "sha256": "7cf3efb5ba212443d16079dee0204f74d440f9526073128da9be73890b7ce18a"
+    },
+    "clip_vitl14_auc_table.csv": {
+      "bytes": 1511,
+      "sha256": "378551bc5b43cd158554c71acbfac864c889e499c255305fb8b384e9f83bb84c"
+    },
+    "clip_vitl14_genimage_accuracy_table.tex": {
+      "bytes": 3526,
+      "sha256": "cc541d2c6a71736733d4b4f22c0ca0ffafe30559d09c5f7c11f97c3959415b8d"
+    },
+    "clip_vitl14_genimage_auc_table.tex": {
+      "bytes": 3482,
+      "sha256": "1497bcc331cf57248536b132d2ed53293bb41eee133b4ceb1505192e978d5e72"
+    },
+    "clip_vitl14_opensdid_global_accuracy_table.tex": {
+      "bytes": 3203,
+      "sha256": "ea6b70badf70d96f4613fd53e305ad468fb48916fd14e4aa8d1dfbac9e9f8e70"
+    },
+    "clip_vitl14_opensdid_global_auc_table.tex": {
+      "bytes": 3159,
+      "sha256": "b78e1b1dbefea6d584b8f84349621c7222d456aa8ab1d0868950d0b2c04446db"
+    },
+    "clip_vitl14_summary.json": {
+      "bytes": 853144,
+      "sha256": "446e3a1b3b8d3d86b0971fa1193a6f7b484a1d9c27e1d61f65dee832702cdea8"
+    },
+    "per_seed_summary.json": {
+      "bytes": 63392,
+      "sha256": "6817818c30eea2eb4a5fcc59701589549a55fd0587c371bf1bea913e139ff0b8"
+    },
+    "source_models.json": {
+      "bytes": 4168,
+      "sha256": "dd9d763530dcd423db416c6527a0f03d9ae4e3651f32f6772b9b0effd481a52a"
+    }
+  }
+}

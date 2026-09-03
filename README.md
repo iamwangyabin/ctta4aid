@@ -67,14 +67,17 @@ batch/views、状态转移、预测/适应顺序和 prompt 构造，只做接入
 256x256 center-crop/resize，再从 75/80/85/90/95 中按不含类别目录的逻辑路径
 确定性选择 JPEG 质量。原始编码与 `all_jpeg_q90` 只作为独立补充审计，不能与
 `matched_jpeg` 主结果混表。四个数据集的逐 target AUC 与 Accuracy 详细表均保留在正文；
-三正式 seed 的完整结果已经验收并冻结在
-`results/clip_vlm_bias_controlled_matched_jpeg_20260902/`。
+原始 16-method campaign 已验收并冻结在
+`results/clip_vlm_bias_controlled_matched_jpeg_20260902/`；加入独立
+AIGI-Det-Calib baseline 后的 17-method 正文版本保存在
+`results/clip_vlm_bias_controlled_matched_jpeg_aigi_det_calib_20260903/`，
+不会回写或覆盖前一目录。
 
 主表按 source setup 分为三个区块：
 
 | 区块 | 起点 | 方法 | 比较规则 |
 |---|---|---|---|
-| 公共源域 CLIP detector | 固定 ViT-L/14 初始化后，在同一源数据上训练的公共二分类 checkpoint | Source、TENT、EATA、SAR、CoTTA、RoTTA-LN、LAME、T2A | 共享源 checkpoint，可在块内比较最佳结果 |
+| 公共源域 CLIP detector | 固定 ViT-L/14 初始化后，在同一源数据上训练的公共二分类 checkpoint | Source、AIGI-Det-Calib、TENT、EATA、SAR、CoTTA、RoTTA-LN、LAME、T2A | 共享源 checkpoint，可在块内比较最佳结果 |
 | CLIP-native | 未做任务微调的固定 ViT-L/14 checkpoint | Frozen CLIP、TDA、DynaPrompt、CLIPTTA、BATCLIP | 共享二分类类别语义，各自保留原生 template、文本分类器或 prompt learner |
 | Method-specific source training | 固定 ViT-L/14 初始化后，按方法自己的源训练流程得到的 checkpoint | IAPL、Ours | source state 不同，只披露数值，不做跨块最佳排名 |
 
@@ -84,6 +87,7 @@ CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fish
 
 | Method | 判别能力来源 | 保留的原生机制 | ViT-L/14 必要改动与状态 |
 |---|---|---|---|
+| AIGI-Det-Calib | 公共 Source detector 的 logits | 作者的无标签 scalar offset | 固定作者 commit；每个 target 前 100 个锁定样本只估计 offset 且保留 Source prediction，后 1,400 个样本使用固定 offset；主表报告完整因果 prequential 结果 |
 | TENT | 公共源域二分类 detector | 熵最小化及原生在线顺序 | `BN -> LN`，表格加脚注 |
 | EATA | 公共源域二分类 detector | 可靠/非冗余筛选、熵最小化、Fisher 防遗忘 | `BN -> LN`；Fisher 必须由同一源 checkpoint 与源数据计算 |
 | SAR | 公共源域二分类 detector | 可靠样本筛选、SAM 与恢复机制 | 使用作者公开的 ViT/LayerNorm 路径 |
@@ -135,14 +139,17 @@ detector 方法之间共享。每种方法的分类器或 prompt 构造、可训
 采样与 DataLoader 顺序完全一致后再冻结 seed-3 manifest。
 训练配置还固定排除了 preflight 检出的三条零字节 SD v1.4 源图逻辑路径；不会用空白或
 合成像素替代损坏样本。
-三个正式 seed 的 1,872 个 `method x target x seed` 单元均已通过样本身份、输入 profile、
+三个正式 seed 的 1,989 个正文 `method x target x seed` 单元均已通过样本身份、输入 profile、
 checkpoint、方法协议和有限指标检查，八张新表已经填入 `matched_jpeg` 汇总；此前完成的
 ResNet-50 数值表仍原样保留在论文补充材料中。RoTTA-LN 数值来自独立运行并保留必要迁移
-说明；TTC 因没有可固定的作者公开实现而从定量表删除，只在 related work 中讨论。
+说明。AIGI-Det-Calib 的表格行只使用公共 `source_ft` checkpoint 上的严格无标签因果结果；
+`ours_static + AIGI-Det-Calib` 仅保存在校验汇总中作诊断。TTC 因没有可固定的作者公开实现而
+从定量表删除，只在 related work 中讨论。
 
 最终结果、校准指标、读出消融、动态复现流、效率统计、协议审计和 source/checkpoint 身份均
-保存在 `results/clip_vlm_bias_controlled_matched_jpeg_20260902/`。以下命令仍可用于从完整运行
-目录重新生成主表：
+保存在 `results/clip_vlm_bias_controlled_matched_jpeg_aigi_det_calib_20260903/`。以下第一条命令
+可从完整运行目录重新生成原始 16-method 汇总；第二条命令把已验收的 AIGI-Det-Calib 正式
+campaign 作为独立 baseline 加入新目录：
 
 ```bash
 python scripts/summarize_clip_vlm_results.py \
@@ -151,6 +158,11 @@ python scripts/summarize_clip_vlm_results.py \
   --dataset aigi_holmes_p3=/data/experiments/clip_vlm_bias_controlled/matched_jpeg/aigi_holmes_p3 \
   --dataset opensdid_global=/data/experiments/clip_vlm_bias_controlled/matched_jpeg/opensdid_global \
   --output-dir /data/results/clip_vlm_bias_controlled_matched_jpeg_vitl14
+
+python scripts/summarize_clip_vlm_results.py \
+  --base-summary /data/results/clip_vlm_bias_controlled_matched_jpeg_vitl14/clip_vitl14_summary.json \
+  --aigi-det-calib-results /data/experiments/aigi_det_calib/runs \
+  --output-dir /data/results/clip_vlm_bias_controlled_matched_jpeg_with_aigi
 ```
 
 ## Matched-JPEG 正文协议与编码审计

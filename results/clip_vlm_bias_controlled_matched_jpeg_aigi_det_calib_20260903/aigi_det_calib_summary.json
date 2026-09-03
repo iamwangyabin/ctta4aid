@@ -1,0 +1,2228 @@
+{
+  "format": "aigi_det_calib_strict_causal_summary_v1",
+  "display_name": "AIGI-Det-Calib",
+  "paper": {
+    "title": "Your AI-Generated Image Detector Can Secretly Achieve SOTA Accuracy, If Calibrated",
+    "arxiv": "2602.01973",
+    "venue": "AAAI 2026"
+  },
+  "reported_table_method": {
+    "name": "aigi_det_calib",
+    "input": "source_ft",
+    "slice": "causal_prequential_full"
+  },
+  "protocol": {
+    "data_profile": "matched_jpeg",
+    "samples_per_target": 1500,
+    "warmup_samples": 100,
+    "heldout_samples": 1400,
+    "warmup_prediction": "unchanged source prediction",
+    "heldout_prediction": "fixed official unsupervised scalar offset",
+    "target_labels": "evaluator_only",
+    "real_ratio": 0.5
+  },
+  "audit": {
+    "format": "aigi_det_calib_table_import_audit_v1",
+    "reported_method": "aigi_det_calib",
+    "reported_source": "source_ft",
+    "reported_slice": "causal_prequential_full",
+    "diagnostic_only": "ours_static",
+    "json_files": 24,
+    "target_units": 234,
+    "paired_sample_identity_units": 117,
+    "max_heldout_logit_auc_invariance_error": 0.0,
+    "formal_seeds": [
+      0,
+      2,
+      3
+    ],
+    "datasets": [
+      "genimage",
+      "aigc_detection_benchmark",
+      "aigi_holmes_p3",
+      "opensdid_global"
+    ],
+    "official_commit": "66d4bc606f7cf325d9bd4e67ca34b0c59d6a9d53",
+    "project_commit": "ab059b650d46b3c1df92d479f1bb936ef46b6924",
+    "clip_checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+    "source_checkpoint_sha256": "ef4b3cb3b2f83b6ffa227bb4a53af8f64151681e4d7fe3010d1c5ad9d926ae59",
+    "max_base_full_auc_difference_from_main_source": 5.333333333412682e-06,
+    "max_base_full_average_precision_difference_from_main_source": 4.958591773185361e-06
+  },
+  "methods": {
+    "source_ft": {
+      "role": "independent_table_baseline",
+      "datasets": {
+        "genimage": {
+          "per_seed": {
+            "seed0": {
+              "base_full": {
+                "auc": 0.6561596190476191,
+                "average_precision": 0.6447337634625183,
+                "accuracy": 0.5135238095238096,
+                "balanced_accuracy": 0.5135238095238096,
+                "brier_score": 0.48298844968275795,
+                "nll": 5.375748545553658,
+                "ece": 0.485381967710368
+              },
+              "base_heldout": {
+                "auc": 0.657472526809018,
+                "average_precision": 0.645651205469651,
+                "accuracy": 0.5129591836734694,
+                "balanced_accuracy": 0.5135397602126931,
+                "brier_score": 0.4834718118347384,
+                "nll": 5.377712388709865,
+                "ece": 0.48585724932251617
+              },
+              "calibrated_heldout": {
+                "auc": 0.657472526809018,
+                "average_precision": 0.645651205469651,
+                "accuracy": 0.5694897959183673,
+                "balanced_accuracy": 0.5701401164546984,
+                "brier_score": 0.2695327905333905,
+                "nll": 0.7874610782256284,
+                "ece": 0.16068729730764503
+              },
+              "causal_prequential_full": {
+                "auc": 0.6413721904761905,
+                "average_precision": 0.638491698542139,
+                "accuracy": 0.5662857142857143,
+                "balanced_accuracy": 0.5662857142857143,
+                "brier_score": 0.2833120298014999,
+                "nll": 1.0915139891017045,
+                "ece": 0.18181457028451967
+              }
+            },
+            "seed2": {
+              "base_full": {
+                "auc": 0.6709417142857143,
+                "average_precision": 0.6605497171937361,
+                "accuracy": 0.5167619047619048,
+                "balanced_accuracy": 0.5167619047619048,
+                "brier_score": 0.47994281211412887,
+                "nll": 5.330104040418566,
+                "ece": 0.48236874762475496
+              },
+              "base_heldout": {
+                "auc": 0.6695569518906025,
+                "average_precision": 0.6605111127784691,
+                "accuracy": 0.5151020408163266,
+                "balanced_accuracy": 0.5164810404575503,
+                "brier_score": 0.48163588606593327,
+                "nll": 5.351102378736008,
+                "ece": 0.48408112776162265
+              },
+              "calibrated_heldout": {
+                "auc": 0.6695569518906025,
+                "average_precision": 0.6605111127784691,
+                "accuracy": 0.5614285714285715,
+                "balanced_accuracy": 0.5626483816661276,
+                "brier_score": 0.2808892785725568,
+                "nll": 0.8652510493456438,
+                "ece": 0.19055574748491377
+              },
+              "causal_prequential_full": {
+                "auc": 0.6550440634920635,
+                "average_precision": 0.6534919821425932,
+                "accuracy": 0.5599999999999999,
+                "balanced_accuracy": 0.5599999999999999,
+                "brier_score": 0.2925793117869775,
+                "nll": 1.1433094663208923,
+                "ece": 0.2083459433827093
+              }
+            },
+            "seed3": {
+              "base_full": {
+                "auc": 0.6624351746031747,
+                "average_precision": 0.65491520805886,
+                "accuracy": 0.5163809523809524,
+                "balanced_accuracy": 0.5163809523809524,
+                "brier_score": 0.4800008954250881,
+                "nll": 5.338196226254981,
+                "ece": 0.4828401667888516
+              },
+              "base_heldout": {
+                "auc": 0.662657731167637,
+                "average_precision": 0.6566415407607936,
+                "accuracy": 0.5145918367346939,
+                "balanced_accuracy": 0.5165380911531348,
+                "brier_score": 0.4817699466725549,
+                "nll": 5.359963434808576,
+                "ece": 0.48470750075877905
+              },
+              "calibrated_heldout": {
+                "auc": 0.662657731167637,
+                "average_precision": 0.6566415407607936,
+                "accuracy": 0.558265306122449,
+                "balanced_accuracy": 0.5596294594008044,
+                "brier_score": 0.2748866992822626,
+                "nll": 0.8290181827060037,
+                "ece": 0.17017294156404897
+              },
+              "causal_prequential_full": {
+                "auc": 0.6490445714285714,
+                "average_precision": 0.6487470824824063,
+                "accuracy": 0.5571428571428572,
+                "balanced_accuracy": 0.5571428571428572,
+                "brier_score": 0.286909864527482,
+                "nll": 1.109313990959247,
+                "ece": 0.18918290466830515
+              }
+            }
+          },
+          "aggregate": {
+            "base_full": {
+              "auc": {
+                "mean": 0.6631788359788361,
+                "std": 0.007419053786586716
+              },
+              "average_precision": {
+                "mean": 0.6533995629050381,
+                "std": 0.008016170113042351
+              },
+              "accuracy": {
+                "mean": 0.5155555555555557,
+                "std": 0.001769823474890918
+              },
+              "balanced_accuracy": {
+                "mean": 0.5155555555555557,
+                "std": 0.001769823474890918
+              },
+              "brier_score": {
+                "mean": 0.4809773857406583,
+                "std": 0.0017418745799175658
+              },
+              "nll": {
+                "mean": 5.348016270742401,
+                "std": 0.024355290340253705
+              },
+              "ece": {
+                "mean": 0.48353029404132486,
+                "std": 0.0016208271158702258
+              }
+            },
+            "base_heldout": {
+              "auc": {
+                "mean": 0.6632290699557525,
+                "std": 0.006062437908647882
+              },
+              "average_precision": {
+                "mean": 0.6542679530029712,
+                "std": 0.007709062876882576
+              },
+              "accuracy": {
+                "mean": 0.51421768707483,
+                "std": 0.001119352562714616
+              },
+              "balanced_accuracy": {
+                "mean": 0.5155196306077927,
+                "std": 0.0017148553237840783
+              },
+              "brier_score": {
+                "mean": 0.48229254819107553,
+                "std": 0.0010234696465996152
+              },
+              "nll": {
+                "mean": 5.36292606741815,
+                "std": 0.013550131057915069
+              },
+              "ece": {
+                "mean": 0.4848819592809726,
+                "std": 0.0009008211707892863
+              }
+            },
+            "calibrated_heldout": {
+              "auc": {
+                "mean": 0.6632290699557525,
+                "std": 0.006062437908647882
+              },
+              "average_precision": {
+                "mean": 0.6542679530029712,
+                "std": 0.007709062876882576
+              },
+              "accuracy": {
+                "mean": 0.5630612244897959,
+                "std": 0.005787612617341727
+              },
+              "balanced_accuracy": {
+                "mean": 0.5641393191738768,
+                "std": 0.00541162165299394
+              },
+              "brier_score": {
+                "mean": 0.27510292279606996,
+                "std": 0.005681330794969968
+              },
+              "nll": {
+                "mean": 0.8272434367590918,
+                "std": 0.0389253412842491
+              },
+              "ece": {
+                "mean": 0.17380532878553592,
+                "std": 0.015261938169613735
+              }
+            },
+            "causal_prequential_full": {
+              "auc": {
+                "mean": 0.6484869417989417,
+                "std": 0.006852973153560368
+              },
+              "average_precision": {
+                "mean": 0.6469102543890463,
+                "std": 0.0076669798556492285
+              },
+              "accuracy": {
+                "mean": 0.561142857142857,
+                "std": 0.004677344441069968
+              },
+              "balanced_accuracy": {
+                "mean": 0.561142857142857,
+                "std": 0.004677344441069968
+              },
+              "brier_score": {
+                "mean": 0.2876004020386531,
+                "std": 0.00467207238710406
+              },
+              "nll": {
+                "mean": 1.1147124821272814,
+                "std": 0.02631635699065045
+              },
+              "ece": {
+                "mean": 0.19311447277851138,
+                "std": 0.0136956694057913
+              }
+            }
+          }
+        },
+        "aigc_detection_benchmark": {
+          "per_seed": {
+            "seed0": {
+              "base_full": {
+                "auc": 0.6016673986928104,
+                "average_precision": 0.5956522754815445,
+                "accuracy": 0.509764705882353,
+                "balanced_accuracy": 0.509764705882353,
+                "brier_score": 0.48772239541446516,
+                "nll": 5.505083834659207,
+                "ece": 0.4896078331423592
+              },
+              "base_heldout": {
+                "auc": 0.6011254208876138,
+                "average_precision": 0.59549918525345,
+                "accuracy": 0.5091176470588235,
+                "balanced_accuracy": 0.5095188476403405,
+                "brier_score": 0.48834766775786964,
+                "nll": 5.5110946622944725,
+                "ece": 0.49025118441707166
+              },
+              "calibrated_heldout": {
+                "auc": 0.6011254208876138,
+                "average_precision": 0.59549918525345,
+                "accuracy": 0.5365546218487395,
+                "balanced_accuracy": 0.5370128083325421,
+                "brier_score": 0.26897520469906605,
+                "nll": 0.8112667846494673,
+                "ece": 0.12387288060676559
+              },
+              "causal_prequential_full": {
+                "auc": 0.5915606274509804,
+                "average_precision": 0.5908631475213011,
+                "accuracy": 0.5353725490196078,
+                "balanced_accuracy": 0.5353725490196078,
+                "brier_score": 0.2829747632262485,
+                "nll": 1.1185778155238684,
+                "ece": 0.14763947048140874
+              }
+            },
+            "seed2": {
+              "base_full": {
+                "auc": 0.6033195816993464,
+                "average_precision": 0.5951475478587562,
+                "accuracy": 0.5100392156862745,
+                "balanced_accuracy": 0.5100392156862745,
+                "brier_score": 0.4877568379400978,
+                "nll": 5.508453504545349,
+                "ece": 0.4896328066705935
+              },
+              "base_heldout": {
+                "auc": 0.6049765679455267,
+                "average_precision": 0.5956064373698615,
+                "accuracy": 0.511218487394958,
+                "balanced_accuracy": 0.5102837523592948,
+                "brier_score": 0.48657789558978637,
+                "nll": 5.492795716767856,
+                "ece": 0.48855185202972845
+              },
+              "calibrated_heldout": {
+                "auc": 0.6049765679455267,
+                "average_precision": 0.5956064373698615,
+                "accuracy": 0.5411764705882353,
+                "balanced_accuracy": 0.5407425574482977,
+                "brier_score": 0.262312059833309,
+                "nll": 0.7639888053513649,
+                "ece": 0.11223727036930031
+              },
+              "causal_prequential_full": {
+                "auc": 0.5914550588235294,
+                "average_precision": 0.5902549961547054,
+                "accuracy": 0.538,
+                "balanced_accuracy": 0.538,
+                "brier_score": 0.27844205790071896,
+                "nll": 1.0949003872232899,
+                "ece": 0.138355138232864
+              }
+            },
+            "seed3": {
+              "base_full": {
+                "auc": 0.6024286013071896,
+                "average_precision": 0.596094346998635,
+                "accuracy": 0.5096470588235293,
+                "balanced_accuracy": 0.5096470588235293,
+                "brier_score": 0.4877865695619766,
+                "nll": 5.502114593067631,
+                "ece": 0.48977885662828496
+              },
+              "base_heldout": {
+                "auc": 0.6021474158126897,
+                "average_precision": 0.5958886618852837,
+                "accuracy": 0.5103781512605042,
+                "balanced_accuracy": 0.5096429971616201,
+                "brier_score": 0.4870221188443973,
+                "nll": 5.494371252572665,
+                "ece": 0.4890127626639367
+              },
+              "calibrated_heldout": {
+                "auc": 0.6021474158126897,
+                "average_precision": 0.5958886618852837,
+                "accuracy": 0.5361344537815126,
+                "balanced_accuracy": 0.5358892027353285,
+                "brier_score": 0.2680865288083428,
+                "nll": 0.8000117233974078,
+                "ece": 0.1214867028092421
+              },
+              "causal_prequential_full": {
+                "auc": 0.5901835816993465,
+                "average_precision": 0.5908551846780499,
+                "accuracy": 0.5336862745098039,
+                "balanced_accuracy": 0.5336862745098039,
+                "brier_score": 0.28344668552832575,
+                "nll": 1.1207123658373919,
+                "ece": 0.14674412470934906
+              }
+            }
+          },
+          "aggregate": {
+            "base_full": {
+              "auc": {
+                "mean": 0.6024718605664487,
+                "std": 0.0008269405628008254
+              },
+              "average_precision": {
+                "mean": 0.5956313901129785,
+                "std": 0.0004737449754708456
+              },
+              "accuracy": {
+                "mean": 0.5098169934640523,
+                "std": 0.00020123927213520237
+              },
+              "balanced_accuracy": {
+                "mean": 0.5098169934640523,
+                "std": 0.00020123927213520237
+              },
+              "brier_score": {
+                "mean": 0.4877552676388465,
+                "std": 3.211587904322686e-05
+              },
+              "nll": {
+                "mean": 5.505217310757395,
+                "std": 0.0031715629557327275
+              },
+              "ece": {
+                "mean": 0.48967316548041256,
+                "std": 9.237901997780534e-05
+              }
+            },
+            "base_heldout": {
+              "auc": {
+                "mean": 0.60274980154861,
+                "std": 0.001994989936452816
+              },
+              "average_precision": {
+                "mean": 0.5956647615028651,
+                "std": 0.00020118223096009564
+              },
+              "accuracy": {
+                "mean": 0.5102380952380953,
+                "std": 0.0010573997808503
+              },
+              "balanced_accuracy": {
+                "mean": 0.5098151990537518,
+                "std": 0.00041049960537123734
+              },
+              "brier_score": {
+                "mean": 0.4873158940640178,
+                "std": 0.0009207341046566264
+              },
+              "nll": {
+                "mean": 5.499420543878331,
+                "std": 0.01014072772850289
+              },
+              "ece": {
+                "mean": 0.48927193303691224,
+                "std": 0.0008788114714428934
+              }
+            },
+            "calibrated_heldout": {
+              "auc": {
+                "mean": 0.60274980154861,
+                "std": 0.001994989936452816
+              },
+              "average_precision": {
+                "mean": 0.5956647615028651,
+                "std": 0.00020118223096009564
+              },
+              "accuracy": {
+                "mean": 0.5379551820728291,
+                "std": 0.0027976168565039365
+              },
+              "balanced_accuracy": {
+                "mean": 0.5378815228387227,
+                "std": 0.002540622298259166
+              },
+              "brier_score": {
+                "mean": 0.26645793111357263,
+                "std": 0.0036178201605489135
+              },
+              "nll": {
+                "mean": 0.7917557711327466,
+                "std": 0.02469660690206697
+              },
+              "ece": {
+                "mean": 0.11919895126176934,
+                "std": 0.006145910165042662
+              }
+            },
+            "causal_prequential_full": {
+              "auc": {
+                "mean": 0.5910664226579522,
+                "std": 0.0007663826083747146
+              },
+              "average_precision": {
+                "mean": 0.5906577761180188,
+                "std": 0.0003488404016927975
+              },
+              "accuracy": {
+                "mean": 0.5356862745098039,
+                "std": 0.0021739076943584987
+              },
+              "balanced_accuracy": {
+                "mean": 0.5356862745098039,
+                "std": 0.0021739076943584987
+              },
+              "brier_score": {
+                "mean": 0.28162116888509775,
+                "std": 0.002763283853144258
+              },
+              "nll": {
+                "mean": 1.11139685619485,
+                "std": 0.014326171598074498
+              },
+              "ece": {
+                "mean": 0.1442462444745406,
+                "std": 0.005121451022505932
+              }
+            }
+          }
+        },
+        "aigi_holmes_p3": {
+          "per_seed": {
+            "seed0": {
+              "base_full": {
+                "auc": 0.6224430222222221,
+                "average_precision": 0.6147921255258793,
+                "accuracy": 0.5030666666666667,
+                "balanced_accuracy": 0.5030666666666667,
+                "brier_score": 0.495378808277689,
+                "nll": 5.610300787214041,
+                "ece": 0.49637886385980395
+              },
+              "base_heldout": {
+                "auc": 0.6243825343455977,
+                "average_precision": 0.6155059782968703,
+                "accuracy": 0.504,
+                "balanced_accuracy": 0.5031572314766066,
+                "brier_score": 0.49449782957943855,
+                "nll": 5.5998572562159,
+                "ece": 0.4954719901946246
+              },
+              "calibrated_heldout": {
+                "auc": 0.6243825343455977,
+                "average_precision": 0.6155059782968703,
+                "accuracy": 0.5447857142857143,
+                "balanced_accuracy": 0.5439364840857247,
+                "brier_score": 0.25602525547130084,
+                "nll": 0.7270280531217066,
+                "ece": 0.12589411406653145
+              },
+              "causal_prequential_full": {
+                "auc": 0.6075514666666667,
+                "average_precision": 0.6080672462359307,
+                "accuracy": 0.5411333333333334,
+                "balanced_accuracy": 0.5411333333333334,
+                "brier_score": 0.2728044057767604,
+                "nll": 1.062326864326127,
+                "ece": 0.15143951280691695
+              }
+            },
+            "seed2": {
+              "base_full": {
+                "auc": 0.6167468444444444,
+                "average_precision": 0.6110556413435658,
+                "accuracy": 0.5035333333333333,
+                "balanced_accuracy": 0.5035333333333333,
+                "brier_score": 0.4950197336344238,
+                "nll": 5.607271932483899,
+                "ece": 0.49612237694092015
+              },
+              "base_heldout": {
+                "auc": 0.6179937085286019,
+                "average_precision": 0.6105107811068156,
+                "accuracy": 0.505,
+                "balanced_accuracy": 0.5037290084288061,
+                "brier_score": 0.4936176958591929,
+                "nll": 5.591083801167628,
+                "ece": 0.4947397925753242
+              },
+              "calibrated_heldout": {
+                "auc": 0.6179937085286019,
+                "average_precision": 0.6105107811068156,
+                "accuracy": 0.5436428571428571,
+                "balanced_accuracy": 0.5426322130067527,
+                "brier_score": 0.2601228684285023,
+                "nll": 0.7446853882595788,
+                "ece": 0.12701640810048162
+              },
+              "causal_prequential_full": {
+                "auc": 0.601132,
+                "average_precision": 0.6030007274269293,
+                "accuracy": 0.5396,
+                "balanced_accuracy": 0.5396,
+                "brier_score": 0.2770912280324459,
+                "nll": 1.0839667471030532,
+                "ece": 0.15292285613764056
+              }
+            },
+            "seed3": {
+              "base_full": {
+                "auc": 0.6169445333333334,
+                "average_precision": 0.6107256832858743,
+                "accuracy": 0.5031333333333333,
+                "balanced_accuracy": 0.5031333333333333,
+                "brier_score": 0.49544737905612213,
+                "nll": 5.613302522644788,
+                "ece": 0.4963935014968799
+              },
+              "base_heldout": {
+                "auc": 0.6145299743814266,
+                "average_precision": 0.6074883344647105,
+                "accuracy": 0.5044285714285714,
+                "balanced_accuracy": 0.5032296064073963,
+                "brier_score": 0.4941351427104389,
+                "nll": 5.59876458051359,
+                "ece": 0.49508799702786843
+              },
+              "calibrated_heldout": {
+                "auc": 0.6145299743814266,
+                "average_precision": 0.6074883344647105,
+                "accuracy": 0.5462857142857143,
+                "balanced_accuracy": 0.5456331455281093,
+                "brier_score": 0.25242172509931754,
+                "nll": 0.7184378466846173,
+                "ece": 0.11344156190018442
+              },
+              "causal_prequential_full": {
+                "auc": 0.5984269333333334,
+                "average_precision": 0.6004309310183001,
+                "accuracy": 0.5422,
+                "balanced_accuracy": 0.5422,
+                "brier_score": 0.26984818928574217,
+                "nll": 1.0583309044044127,
+                "ece": 0.14018789806228976
+              }
+            }
+          },
+          "aggregate": {
+            "base_full": {
+              "auc": {
+                "mean": 0.6187114666666667,
+                "std": 0.0032331332128981813
+              },
+              "average_precision": {
+                "mean": 0.612191150051773,
+                "std": 0.002258544474354025
+              },
+              "accuracy": {
+                "mean": 0.5032444444444444,
+                "std": 0.00025239592647998435
+              },
+              "balanced_accuracy": {
+                "mean": 0.5032444444444444,
+                "std": 0.00025239592647998435
+              },
+              "brier_score": {
+                "mean": 0.4952819736560783,
+                "std": 0.00022967990689597967
+              },
+              "nll": {
+                "mean": 5.610291747447576,
+                "std": 0.003015305243285693
+              },
+              "ece": {
+                "mean": 0.49629824743253464,
+                "std": 0.00015248405644636864
+              }
+            },
+            "base_heldout": {
+              "auc": {
+                "mean": 0.6189687390852088,
+                "std": 0.004998124438390274
+              },
+              "average_precision": {
+                "mean": 0.6111683646227988,
+                "std": 0.004049069672802871
+              },
+              "accuracy": {
+                "mean": 0.5044761904761904,
+                "std": 0.000501697797754892
+              },
+              "balanced_accuracy": {
+                "mean": 0.5033719487709364,
+                "std": 0.00031133299232532667
+              },
+              "brier_score": {
+                "mean": 0.4940835560496901,
+                "std": 0.0004423287567565189
+              },
+              "nll": {
+                "mean": 5.596568545965706,
+                "std": 0.004781245044195123
+              },
+              "ece": {
+                "mean": 0.49509992659927243,
+                "std": 0.00036624455549907897
+              }
+            },
+            "calibrated_heldout": {
+              "auc": {
+                "mean": 0.6189687390852088,
+                "std": 0.004998124438390274
+              },
+              "average_precision": {
+                "mean": 0.6111683646227988,
+                "std": 0.004049069672802871
+              },
+              "accuracy": {
+                "mean": 0.5449047619047619,
+                "std": 0.0013254443485444653
+              },
+              "balanced_accuracy": {
+                "mean": 0.5440672808735288,
+                "std": 0.0015047358071132654
+              },
+              "brier_score": {
+                "mean": 0.25618994966637354,
+                "std": 0.0038532123322728667
+              },
+              "nll": {
+                "mean": 0.730050429355301,
+                "std": 0.013382243020337777
+              },
+              "ece": {
+                "mean": 0.12211736135573249,
+                "std": 0.007534388370619491
+              }
+            },
+            "causal_prequential_full": {
+              "auc": {
+                "mean": 0.6023701333333333,
+                "std": 0.004686577402658683
+              },
+              "average_precision": {
+                "mean": 0.6038329682270533,
+                "std": 0.003885588255051895
+              },
+              "accuracy": {
+                "mean": 0.5409777777777778,
+                "std": 0.0013069614180029239
+              },
+              "balanced_accuracy": {
+                "mean": 0.5409777777777778,
+                "std": 0.0013069614180029239
+              },
+              "brier_score": {
+                "mean": 0.2732479410316495,
+                "std": 0.0036418326723382066
+              },
+              "nll": {
+                "mean": 1.0682081719445309,
+                "std": 0.013792804000422909
+              },
+              "ece": {
+                "mean": 0.14818342233561577,
+                "std": 0.006963934460002438
+              }
+            }
+          }
+        },
+        "opensdid_global": {
+          "per_seed": {
+            "seed0": {
+              "base_full": {
+                "auc": 0.6569463111111111,
+                "average_precision": 0.660490535191309,
+                "accuracy": 0.5082666666666666,
+                "balanced_accuracy": 0.5082666666666666,
+                "brier_score": 0.4891879650784901,
+                "nll": 5.459029550562223,
+                "ece": 0.491029901988641
+              },
+              "base_heldout": {
+                "auc": 0.6566448208834741,
+                "average_precision": 0.6599663380883195,
+                "accuracy": 0.5084285714285715,
+                "balanced_accuracy": 0.508699704999621,
+                "brier_score": 0.48899738650076474,
+                "nll": 5.456019580077506,
+                "ece": 0.4909047440229156
+              },
+              "calibrated_heldout": {
+                "auc": 0.6566448208834741,
+                "average_precision": 0.6599663380883195,
+                "accuracy": 0.5652857142857143,
+                "balanced_accuracy": 0.5651232834913658,
+                "brier_score": 0.25066096109043595,
+                "nll": 0.7164254722013751,
+                "ece": 0.11327108454538508
+              },
+              "causal_prequential_full": {
+                "auc": 0.6381724444444444,
+                "average_precision": 0.6500637831985872,
+                "accuracy": 0.5613333333333334,
+                "balanced_accuracy": 0.5613333333333334,
+                "brier_score": 0.2667406346955165,
+                "nll": 1.035408383211167,
+                "ece": 0.13857181542271066
+              }
+            },
+            "seed2": {
+              "base_full": {
+                "auc": 0.6562231111111111,
+                "average_precision": 0.6593495656148122,
+                "accuracy": 0.5076,
+                "balanced_accuracy": 0.5076,
+                "brier_score": 0.489258517937197,
+                "nll": 5.448412537275366,
+                "ece": 0.4912824482919914
+              },
+              "base_heldout": {
+                "auc": 0.6530742609925656,
+                "average_precision": 0.6552445863410485,
+                "accuracy": 0.5092857142857142,
+                "balanced_accuracy": 0.5077215188254105,
+                "brier_score": 0.48752562379040737,
+                "nll": 5.4302263005405305,
+                "ece": 0.4895673824653503
+              },
+              "calibrated_heldout": {
+                "auc": 0.6530742609925656,
+                "average_precision": 0.6552445863410485,
+                "accuracy": 0.5574285714285715,
+                "balanced_accuracy": 0.5559898341332515,
+                "brier_score": 0.2571717846763012,
+                "nll": 0.7273077184822427,
+                "ece": 0.13638974395343892
+              },
+              "causal_prequential_full": {
+                "auc": 0.6322632888888889,
+                "average_precision": 0.6455291634297758,
+                "accuracy": 0.5525333333333333,
+                "balanced_accuracy": 0.5525333333333333,
+                "brier_score": 0.27426160143069794,
+                "nll": 1.0590218606876312,
+                "ece": 0.16168503039866278
+              }
+            },
+            "seed3": {
+              "base_full": {
+                "auc": 0.6597395555555555,
+                "average_precision": 0.6632858504748309,
+                "accuracy": 0.5089333333333333,
+                "balanced_accuracy": 0.5089333333333333,
+                "brier_score": 0.48801447752788774,
+                "nll": 5.4314751848860965,
+                "ece": 0.4901393633992387
+              },
+              "base_heldout": {
+                "auc": 0.6600505848724081,
+                "average_precision": 0.6608438979917273,
+                "accuracy": 0.5108571428571429,
+                "balanced_accuracy": 0.5081763831853682,
+                "brier_score": 0.48599430894945544,
+                "nll": 5.410765462989083,
+                "ece": 0.48808994387026655
+              },
+              "calibrated_heldout": {
+                "auc": 0.6600505848724081,
+                "average_precision": 0.6608438979917273,
+                "accuracy": 0.5497142857142856,
+                "balanced_accuracy": 0.5476301576792089,
+                "brier_score": 0.29508657446833153,
+                "nll": 0.8629050950821691,
+                "ece": 0.20576122960120635
+              },
+              "causal_prequential_full": {
+                "auc": 0.6384273777777778,
+                "average_precision": 0.6522889263420105,
+                "accuracy": 0.5452,
+                "balanced_accuracy": 0.5452,
+                "brier_score": 0.30983392534550547,
+                "nll": 1.1868055081729767,
+                "ece": 0.22661111322900673
+              }
+            }
+          },
+          "aggregate": {
+            "base_full": {
+              "auc": {
+                "mean": 0.6576363259259259,
+                "std": 0.0018569964233174881
+              },
+              "average_precision": {
+                "mean": 0.6610419837603173,
+                "std": 0.002025254618066387
+              },
+              "accuracy": {
+                "mean": 0.5082666666666666,
+                "std": 0.0006666666666666488
+              },
+              "balanced_accuracy": {
+                "mean": 0.5082666666666666,
+                "std": 0.0006666666666666488
+              },
+              "brier_score": {
+                "mean": 0.4888203201811916,
+                "std": 0.0006987712164083466
+              },
+              "nll": {
+                "mean": 5.446305757574561,
+                "std": 0.013897469463330715
+              },
+              "ece": {
+                "mean": 0.4908172378932904,
+                "std": 0.0006004833728741792
+              }
+            },
+            "base_heldout": {
+              "auc": {
+                "mean": 0.6565898889161493,
+                "std": 0.0034884863278921924
+              },
+              "average_precision": {
+                "mean": 0.6586849408070318,
+                "std": 0.003011570517973194
+              },
+              "accuracy": {
+                "mean": 0.5095238095238095,
+                "std": 0.0012316683006074042
+              },
+              "balanced_accuracy": {
+                "mean": 0.5081992023367999,
+                "std": 0.0004894921685872052
+              },
+              "brier_score": {
+                "mean": 0.4875057730802092,
+                "std": 0.0015016371841480183
+              },
+              "nll": {
+                "mean": 5.432337114535707,
+                "std": 0.022700780386472517
+              },
+              "ece": {
+                "mean": 0.4895206901195108,
+                "std": 0.0014079808614495784
+              }
+            },
+            "calibrated_heldout": {
+              "auc": {
+                "mean": 0.6565898889161493,
+                "std": 0.0034884863278921924
+              },
+              "average_precision": {
+                "mean": 0.6586849408070318,
+                "std": 0.003011570517973194
+              },
+              "accuracy": {
+                "mean": 0.5574761904761905,
+                "std": 0.007785823502947421
+              },
+              "balanced_accuracy": {
+                "mean": 0.5562477584346087,
+                "std": 0.008749414630643035
+              },
+              "brier_score": {
+                "mean": 0.26763977341168954,
+                "std": 0.023991516669934123
+              },
+              "nll": {
+                "mean": 0.7688794285885957,
+                "std": 0.08161020334921294
+              },
+              "ece": {
+                "mean": 0.1518073527000101,
+                "std": 0.048134018403915506
+              }
+            },
+            "causal_prequential_full": {
+              "auc": {
+                "mean": 0.6362877037037037,
+                "std": 0.003487575619594026
+              },
+              "average_precision": {
+                "mean": 0.6492939576567912,
+                "std": 0.0034450068477445694
+              },
+              "accuracy": {
+                "mean": 0.5530222222222222,
+                "std": 0.008077770136019617
+              },
+              "balanced_accuracy": {
+                "mean": 0.5530222222222222,
+                "std": 0.008077770136019617
+              },
+              "brier_score": {
+                "mean": 0.28361205382390664,
+                "std": 0.02301806127216958
+              },
+              "nll": {
+                "mean": 1.0937452506905916,
+                "std": 0.0814527944373226
+              },
+              "ece": {
+                "mean": 0.1756226530167934,
+                "std": 0.04564452303114243
+              }
+            }
+          }
+        }
+      },
+      "overall_39_target_macro": {
+        "base_full": {
+          "auc": {
+            "mean": 0.6246043532763533,
+            "std": 0.0009553737614835298
+          },
+          "average_precision": {
+            "mean": 0.6186321023480826,
+            "std": 0.0008276215419678386
+          },
+          "accuracy": {
+            "mean": 0.508962962962963,
+            "std": 0.0003846470388999714
+          },
+          "balanced_accuracy": {
+            "mean": 0.508962962962963,
+            "std": 0.0003846470388999714
+          },
+          "brier_score": {
+            "mean": 0.488605194551583,
+            "std": 0.0003627548172990925
+          },
+          "nll": {
+            "mean": 5.496391139497977,
+            "std": 0.005756996167903789
+          },
+          "ece": {
+            "mean": 0.4904160137243099,
+            "std": 0.0003067510111682698
+          }
+        },
+        "base_heldout": {
+          "auc": {
+            "mean": 0.6246663320884479,
+            "std": 0.001268556261300598
+          },
+          "average_precision": {
+            "mean": 0.618238076072632,
+            "std": 0.00043204706561394214
+          },
+          "accuracy": {
+            "mean": 0.5093833943833944,
+            "std": 0.0008695937779279274
+          },
+          "balanced_accuracy": {
+            "mean": 0.5089797768605562,
+            "std": 0.00044521988751689874
+          },
+          "brier_score": {
+            "mean": 0.48817390929035326,
+            "std": 0.0008339677232946748
+          },
+          "nll": {
+            "mean": 5.491230839748571,
+            "std": 0.01010310813139146
+          },
+          "ece": {
+            "mean": 0.4900102382867845,
+            "std": 0.0007650184649553258
+          }
+        },
+        "calibrated_heldout": {
+          "auc": {
+            "mean": 0.6246663320884479,
+            "std": 0.001268556261300598
+          },
+          "average_precision": {
+            "mean": 0.618238076072632,
+            "std": 0.00043204706561394214
+          },
+          "accuracy": {
+            "mean": 0.5467460317460316,
+            "std": 0.0020214116812283206
+          },
+          "balanced_accuracy": {
+            "mean": 0.5465351980354809,
+            "std": 0.0021511357337316616
+          },
+          "brier_score": {
+            "mean": 0.2655282987750105,
+            "std": 0.0028379437612124185
+          },
+          "nll": {
+            "mean": 0.7793706052068288,
+            "std": 0.01125918722713701
+          },
+          "ece": {
+            "mean": 0.1339289705129796,
+            "std": 0.004708425538351919
+          }
+        },
+        "causal_prequential_full": {
+          "auc": {
+            "mean": 0.6100686571699905,
+            "std": 0.0008846479831647573
+          },
+          "average_precision": {
+            "mean": 0.6116500883406188,
+            "std": 0.00028053731259197024
+          },
+          "accuracy": {
+            "mean": 0.5438347578347579,
+            "std": 0.0021122930587529347
+          },
+          "balanced_accuracy": {
+            "mean": 0.5438347578347579,
+            "std": 0.0021122930587529347
+          },
+          "brier_score": {
+            "mean": 0.2808026247372631,
+            "std": 0.0028747895665511953
+          },
+          "nll": {
+            "mean": 1.0986549205923508,
+            "std": 0.0114566080839533
+          },
+          "ece": {
+            "mean": 0.15804961420402294,
+            "std": 0.004680357438236119
+          }
+        }
+      }
+    },
+    "ours_static": {
+      "role": "diagnostic_only_not_a_table_method",
+      "datasets": {
+        "genimage": {
+          "per_seed": {
+            "seed0": {
+              "base_full": {
+                "auc": 0.8260942222222223,
+                "average_precision": 0.8289209014281826,
+                "accuracy": 0.6805714285714286,
+                "balanced_accuracy": 0.6805714285714286,
+                "brier_score": 0.3034499294908189,
+                "nll": 2.693306549197767,
+                "ece": 0.3127313296253958
+              },
+              "base_heldout": {
+                "auc": 0.826219245558771,
+                "average_precision": 0.829572814902973,
+                "accuracy": 0.6821428571428572,
+                "balanced_accuracy": 0.681542999376645,
+                "brier_score": 0.3020938982992281,
+                "nll": 2.6858333981114213,
+                "ece": 0.31152506218488785
+              },
+              "calibrated_heldout": {
+                "auc": 0.826219245558771,
+                "average_precision": 0.829572814902973,
+                "accuracy": 0.7765306122448979,
+                "balanced_accuracy": 0.7762956679303067,
+                "brier_score": 0.19192943814296332,
+                "nll": 0.8158806531131615,
+                "ece": 0.17676515892260194
+              },
+              "causal_prequential_full": {
+                "auc": 0.8146855873015874,
+                "average_precision": 0.8228871968982928,
+                "accuracy": 0.7686666666666666,
+                "balanced_accuracy": 0.7686666666666666,
+                "brier_score": 0.20062976667830507,
+                "nll": 0.9480173205327248,
+                "ece": 0.18667058391739913
+              }
+            },
+            "seed2": {
+              "base_full": {
+                "auc": 0.8198736507936507,
+                "average_precision": 0.8259869814154666,
+                "accuracy": 0.678,
+                "balanced_accuracy": 0.6779999999999999,
+                "brier_score": 0.30542756009283323,
+                "nll": 2.76639725840774,
+                "ece": 0.31469555457409387
+              },
+              "base_heldout": {
+                "auc": 0.8217584590910768,
+                "average_precision": 0.8268434315762762,
+                "accuracy": 0.6779591836734694,
+                "balanced_accuracy": 0.6781079502902335,
+                "brier_score": 0.30563215945949507,
+                "nll": 2.76756690410089,
+                "ece": 0.31494397013413333
+              },
+              "calibrated_heldout": {
+                "auc": 0.8217584590910768,
+                "average_precision": 0.8268434315762762,
+                "accuracy": 0.7671428571428571,
+                "balanced_accuracy": 0.7672804775197004,
+                "brier_score": 0.19783440034858454,
+                "nll": 0.8420304457003995,
+                "ece": 0.18479235099816976
+              },
+              "causal_prequential_full": {
+                "auc": 0.812952888888889,
+                "average_precision": 0.8215705620323996,
+                "accuracy": 0.7612380952380953,
+                "balanced_accuracy": 0.7612380952380953,
+                "brier_score": 0.2048163182559834,
+                "nll": 0.9692298972339488,
+                "ece": 0.1931661156287954
+              }
+            },
+            "seed3": {
+              "base_full": {
+                "auc": 0.8163752380952382,
+                "average_precision": 0.8257450505760883,
+                "accuracy": 0.6803809523809524,
+                "balanced_accuracy": 0.6803809523809523,
+                "brier_score": 0.3039230319776995,
+                "nll": 2.758477256299152,
+                "ece": 0.3131376025440503
+              },
+              "base_heldout": {
+                "auc": 0.816058064153679,
+                "average_precision": 0.8262430458847199,
+                "accuracy": 0.6785714285714286,
+                "balanced_accuracy": 0.6803314679325031,
+                "brier_score": 0.30573922354583366,
+                "nll": 2.7754613664518115,
+                "ece": 0.3149499880335093
+              },
+              "calibrated_heldout": {
+                "auc": 0.816058064153679,
+                "average_precision": 0.8262430458847199,
+                "accuracy": 0.7698979591836734,
+                "balanced_accuracy": 0.7704811788573679,
+                "brier_score": 0.19603087203444208,
+                "nll": 0.8106697091536429,
+                "ece": 0.18015909967082533
+              },
+              "causal_prequential_full": {
+                "auc": 0.809863619047619,
+                "average_precision": 0.8211187699928099,
+                "accuracy": 0.7656190476190476,
+                "balanced_accuracy": 0.7656190476190476,
+                "brier_score": 0.20152857056706733,
+                "nll": 0.9246717094875281,
+                "ece": 0.1871259967411746
+              }
+            }
+          },
+          "aggregate": {
+            "base_full": {
+              "auc": {
+                "mean": 0.8207810370370371,
+                "std": 0.004922618760492981
+              },
+              "average_precision": {
+                "mean": 0.8268843111399126,
+                "std": 0.0017678822456452807
+              },
+              "accuracy": {
+                "mean": 0.6796507936507936,
+                "std": 0.0014327979804948199
+              },
+              "balanced_accuracy": {
+                "mean": 0.6796507936507936,
+                "std": 0.0014327979804948556
+              },
+              "brier_score": {
+                "mean": 0.30426684052045055,
+                "std": 0.0010326707776718315
+              },
+              "nll": {
+                "mean": 2.7393936879682195,
+                "std": 0.04010860105245801
+              },
+              "ece": {
+                "mean": 0.31352149558118,
+                "std": 0.0010368583848527615
+              }
+            },
+            "base_heldout": {
+              "auc": {
+                "mean": 0.8213452562678422,
+                "std": 0.005093177232007912
+              },
+              "average_precision": {
+                "mean": 0.8275530974546563,
+                "std": 0.0017746998824963013
+              },
+              "accuracy": {
+                "mean": 0.6795578231292517,
+                "std": 0.0022595379156792298
+              },
+              "balanced_accuracy": {
+                "mean": 0.6799941391997938,
+                "std": 0.0017421921713598244
+              },
+              "brier_score": {
+                "mean": 0.30448842710151897,
+                "std": 0.002074413608323123
+              },
+              "nll": {
+                "mean": 2.7429538895547076,
+                "std": 0.049625029380287934
+              },
+              "ece": {
+                "mean": 0.3138063401175102,
+                "std": 0.0019756469340902996
+              }
+            },
+            "calibrated_heldout": {
+              "auc": {
+                "mean": 0.8213452562678422,
+                "std": 0.005093177232007912
+              },
+              "average_precision": {
+                "mean": 0.8275530974546563,
+                "std": 0.0017746998824963013
+              },
+              "accuracy": {
+                "mean": 0.7711904761904762,
+                "std": 0.004825498588086943
+              },
+              "balanced_accuracy": {
+                "mean": 0.7713524414357916,
+                "std": 0.004570310535980359
+              },
+              "brier_score": {
+                "mean": 0.19526490350866332,
+                "std": 0.0030260825334608036
+              },
+              "nll": {
+                "mean": 0.8228602693224013,
+                "std": 0.016805065635396424
+              },
+              "ece": {
+                "mean": 0.18057220319719902,
+                "std": 0.0040295091570986
+              }
+            },
+            "causal_prequential_full": {
+              "auc": {
+                "mean": 0.8125006984126985,
+                "std": 0.002442580936353505
+              },
+              "average_precision": {
+                "mean": 0.8218588429745007,
+                "std": 0.0009187833565063324
+              },
+              "accuracy": {
+                "mean": 0.7651746031746032,
+                "std": 0.003734175480008241
+              },
+              "balanced_accuracy": {
+                "mean": 0.7651746031746032,
+                "std": 0.003734175480008241
+              },
+              "brier_score": {
+                "mean": 0.20232488516711858,
+                "std": 0.002203949009126877
+              },
+              "nll": {
+                "mean": 0.9473063090847339,
+                "std": 0.02228760141358195
+              },
+              "ece": {
+                "mean": 0.18898756542912307,
+                "std": 0.0036258876897114728
+              }
+            }
+          }
+        },
+        "aigc_detection_benchmark": {
+          "per_seed": {
+            "seed0": {
+              "base_full": {
+                "auc": 0.8207068235294118,
+                "average_precision": 0.820806254796456,
+                "accuracy": 0.6465098039215685,
+                "balanced_accuracy": 0.6465098039215685,
+                "brier_score": 0.3311471122485292,
+                "nll": 2.695406727827853,
+                "ece": 0.34000534207008093
+              },
+              "base_heldout": {
+                "auc": 0.8212566007928189,
+                "average_precision": 0.8209925534252521,
+                "accuracy": 0.646218487394958,
+                "balanced_accuracy": 0.6464334986865415,
+                "brier_score": 0.33129501532038025,
+                "nll": 2.6903231244163144,
+                "ece": 0.3399678809035792
+              },
+              "calibrated_heldout": {
+                "auc": 0.8212566608246693,
+                "average_precision": 0.8209925696330281,
+                "accuracy": 0.7639915966386555,
+                "balanced_accuracy": 0.7639191637018499,
+                "brier_score": 0.197463208849627,
+                "nll": 0.8232355697516424,
+                "ece": 0.17734803586986284
+              },
+              "causal_prequential_full": {
+                "auc": 0.8088790588235294,
+                "average_precision": 0.8137342179388206,
+                "accuracy": 0.7564313725490196,
+                "balanced_accuracy": 0.7564313725490196,
+                "brier_score": 0.20623742620915952,
+                "nll": 0.9527916768074922,
+                "ece": 0.18762827174646737
+              }
+            },
+            "seed2": {
+              "base_full": {
+                "auc": 0.8195027973856209,
+                "average_precision": 0.820135030274686,
+                "accuracy": 0.645921568627451,
+                "balanced_accuracy": 0.645921568627451,
+                "brier_score": 0.3316063571323412,
+                "nll": 2.6992357617755043,
+                "ece": 0.3400196276924312
+              },
+              "base_heldout": {
+                "auc": 0.8195499328646383,
+                "average_precision": 0.8203794027270238,
+                "accuracy": 0.6470588235294118,
+                "balanced_accuracy": 0.6461473549196727,
+                "brier_score": 0.33032937519664185,
+                "nll": 2.6904514520811103,
+                "ece": 0.33869149683179034
+              },
+              "calibrated_heldout": {
+                "auc": 0.8195499328646383,
+                "average_precision": 0.8203794027270238,
+                "accuracy": 0.7617226890756302,
+                "balanced_accuracy": 0.7613802035196436,
+                "brier_score": 0.200057778768619,
+                "nll": 0.8397081588331534,
+                "ece": 0.18121980175214772
+              },
+              "causal_prequential_full": {
+                "auc": 0.8059385098039216,
+                "average_precision": 0.8125783073400127,
+                "accuracy": 0.7529411764705882,
+                "balanced_accuracy": 0.7529411764705882,
+                "brier_score": 0.2100195337995199,
+                "nll": 0.9718753547440775,
+                "ece": 0.19248219183766951
+              }
+            },
+            "seed3": {
+              "base_full": {
+                "auc": 0.8184633725490196,
+                "average_precision": 0.8194133809694295,
+                "accuracy": 0.6459999999999999,
+                "balanced_accuracy": 0.646,
+                "brier_score": 0.33162075847514105,
+                "nll": 2.698457841690202,
+                "ece": 0.34061886055609353
+              },
+              "base_heldout": {
+                "auc": 0.8170788183625448,
+                "average_precision": 0.8179996448205369,
+                "accuracy": 0.6460924369747899,
+                "balanced_accuracy": 0.6455435083158347,
+                "brier_score": 0.33158955121506295,
+                "nll": 2.7069631304325754,
+                "ece": 0.34048862890872367
+              },
+              "calibrated_heldout": {
+                "auc": 0.8170788783866768,
+                "average_precision": 0.8179996448205369,
+                "accuracy": 0.7535714285714286,
+                "balanced_accuracy": 0.7533848025494,
+                "brier_score": 0.20658661159842462,
+                "nll": 0.8926076485835941,
+                "ece": 0.19118597142792804
+              },
+              "causal_prequential_full": {
+                "auc": 0.8064456470588235,
+                "average_precision": 0.8121187911774292,
+                "accuracy": 0.746313725490196,
+                "balanced_accuracy": 0.746313725490196,
+                "brier_score": 0.2149513481662786,
+                "nll": 1.0050593919644857,
+                "ece": 0.20080745455502694
+              }
+            }
+          },
+          "aggregate": {
+            "base_full": {
+              "auc": {
+                "mean": 0.8195576644880175,
+                "std": 0.0011227314347384133
+              },
+              "average_precision": {
+                "mean": 0.8201182220135239,
+                "std": 0.0006965890199653663
+              },
+              "accuracy": {
+                "mean": 0.6461437908496731,
+                "std": 0.0003193932476567171
+              },
+              "balanced_accuracy": {
+                "mean": 0.6461437908496732,
+                "std": 0.0003193932476566921
+              },
+              "brier_score": {
+                "mean": 0.33145807595200383,
+                "std": 0.0002693987162693861
+              },
+              "nll": {
+                "mean": 2.6977001104311866,
+                "std": 0.002023855908589774
+              },
+              "ece": {
+                "mean": 0.34021461010620185,
+                "std": 0.00035016401789686664
+              }
+            },
+            "base_heldout": {
+              "auc": {
+                "mean": 0.8192951173400007,
+                "std": 0.002100515346855153
+              },
+              "average_precision": {
+                "mean": 0.8197905336576042,
+                "std": 0.0015809650738501158
+              },
+              "accuracy": {
+                "mean": 0.6464565826330532,
+                "std": 0.0005253501213868777
+              },
+              "balanced_accuracy": {
+                "mean": 0.6460414539740164,
+                "std": 0.0004543478542987662
+              },
+              "brier_score": {
+                "mean": 0.33107131391069505,
+                "std": 0.000659198482911091
+              },
+              "nll": {
+                "mean": 2.6959125689766665,
+                "std": 0.009570282042108257
+              },
+              "ece": {
+                "mean": 0.3397160022146977,
+                "std": 0.0009246637664146688
+              }
+            },
+            "calibrated_heldout": {
+              "auc": {
+                "mean": 0.8192951573586615,
+                "std": 0.0021005117099492533
+              },
+              "average_precision": {
+                "mean": 0.8197905390601963,
+                "std": 0.0015809712353134764
+              },
+              "accuracy": {
+                "mean": 0.7597619047619047,
+                "std": 0.005479824995474556
+              },
+              "balanced_accuracy": {
+                "mean": 0.7595613899236312,
+                "std": 0.005497658901327105
+              },
+              "brier_score": {
+                "mean": 0.20136919973889023,
+                "std": 0.004700956088940021
+              },
+              "nll": {
+                "mean": 0.8518504590561299,
+                "std": 0.03624497098074854
+              },
+              "ece": {
+                "mean": 0.18325126968331285,
+                "std": 0.007139135913666696
+              }
+            },
+            "causal_prequential_full": {
+              "auc": {
+                "mean": 0.8070877385620915,
+                "std": 0.0015719154742243162
+              },
+              "average_precision": {
+                "mean": 0.8128104388187541,
+                "std": 0.000832354896016049
+              },
+              "accuracy": {
+                "mean": 0.7518954248366013,
+                "std": 0.005139250223692173
+              },
+              "balanced_accuracy": {
+                "mean": 0.7518954248366013,
+                "std": 0.005139250223692173
+              },
+              "brier_score": {
+                "mean": 0.21040276939165267,
+                "std": 0.004369583630965135
+              },
+              "nll": {
+                "mean": 0.9765754745053519,
+                "std": 0.026448948112560017
+              },
+              "ece": {
+                "mean": 0.19363930604638793,
+                "std": 0.006665350691776956
+              }
+            }
+          }
+        },
+        "aigi_holmes_p3": {
+          "per_seed": {
+            "seed0": {
+              "base_full": {
+                "auc": 0.9068236444444444,
+                "average_precision": 0.9130614408727598,
+                "accuracy": 0.6722,
+                "balanced_accuracy": 0.6721999999999999,
+                "brier_score": 0.2983498761634096,
+                "nll": 2.057751599143337,
+                "ece": 0.3225960146157363
+              },
+              "base_heldout": {
+                "auc": 0.9074335284517501,
+                "average_precision": 0.9138613492621677,
+                "accuracy": 0.6724285714285714,
+                "balanced_accuracy": 0.6721959535172584,
+                "brier_score": 0.2979290444996653,
+                "nll": 2.052893578401309,
+                "ece": 0.3223429983087792
+              },
+              "calibrated_heldout": {
+                "auc": 0.9074335284517501,
+                "average_precision": 0.9138613492621677,
+                "accuracy": 0.8196428571428571,
+                "balanced_accuracy": 0.819477572460501,
+                "brier_score": 0.14974401975997748,
+                "nll": 0.6418350111272553,
+                "ece": 0.14019126399624007
+              },
+              "causal_prequential_full": {
+                "auc": 0.8959580444444445,
+                "average_precision": 0.9066849001617759,
+                "accuracy": 0.8096,
+                "balanced_accuracy": 0.8096,
+                "brier_score": 0.16004385307303431,
+                "nll": 0.7407636030208862,
+                "ece": 0.1518805224923718
+              }
+            },
+            "seed2": {
+              "base_full": {
+                "auc": 0.9069167111111112,
+                "average_precision": 0.9106834641442948,
+                "accuracy": 0.6704,
+                "balanced_accuracy": 0.6704,
+                "brier_score": 0.2985182665171763,
+                "nll": 2.0598602093448353,
+                "ece": 0.32259719858075375
+              },
+              "base_heldout": {
+                "auc": 0.9070652315188923,
+                "average_precision": 0.9107244079200705,
+                "accuracy": 0.6712142857142858,
+                "balanced_accuracy": 0.6705804667458848,
+                "brier_score": 0.2977576252199003,
+                "nll": 2.056908472109328,
+                "ece": 0.3214288593525833
+              },
+              "calibrated_heldout": {
+                "auc": 0.9070652315188923,
+                "average_precision": 0.9107244079200705,
+                "accuracy": 0.8181428571428571,
+                "balanced_accuracy": 0.8178246919549339,
+                "brier_score": 0.15099377070181985,
+                "nll": 0.6649852531504321,
+                "ece": 0.14287777147562428
+              },
+              "causal_prequential_full": {
+                "auc": 0.8968483555555556,
+                "average_precision": 0.9044393647988453,
+                "accuracy": 0.8075333333333333,
+                "balanced_accuracy": 0.8075333333333333,
+                "brier_score": 0.1615386689669679,
+                "nll": 0.7607318716498657,
+                "ece": 0.15518067264123306
+              }
+            },
+            "seed3": {
+              "base_full": {
+                "auc": 0.9064902222222223,
+                "average_precision": 0.9100151112944774,
+                "accuracy": 0.6705333333333333,
+                "balanced_accuracy": 0.6705333333333333,
+                "brier_score": 0.2989358828224083,
+                "nll": 2.0560999165411076,
+                "ece": 0.32283262390342843
+              },
+              "base_heldout": {
+                "auc": 0.9059625338931105,
+                "average_precision": 0.9088333777490915,
+                "accuracy": 0.6707142857142857,
+                "balanced_accuracy": 0.6699515281550764,
+                "brier_score": 0.2987457283664033,
+                "nll": 2.0557273643303873,
+                "ece": 0.32259162563888144
+              },
+              "calibrated_heldout": {
+                "auc": 0.9059625338931105,
+                "average_precision": 0.9088333777490915,
+                "accuracy": 0.8166428571428572,
+                "balanced_accuracy": 0.8163205044103373,
+                "brier_score": 0.15320836194252668,
+                "nll": 0.6765377995320099,
+                "ece": 0.14591784695673093
+              },
+              "causal_prequential_full": {
+                "auc": 0.896113688888889,
+                "average_precision": 0.9031057275305662,
+                "accuracy": 0.8067333333333334,
+                "balanced_accuracy": 0.8067333333333332,
+                "brier_score": 0.16310100749345685,
+                "nll": 0.7688563227292888,
+                "ece": 0.1572990346767182
+              }
+            }
+          },
+          "aggregate": {
+            "base_full": {
+              "auc": {
+                "mean": 0.906743525925926,
+                "std": 0.00022424858047177403
+              },
+              "average_precision": {
+                "mean": 0.9112533387705106,
+                "std": 0.0016011242275610427
+              },
+              "accuracy": {
+                "mean": 0.6710444444444444,
+                "std": 0.0010029585863463959
+              },
+              "balanced_accuracy": {
+                "mean": 0.6710444444444444,
+                "std": 0.001002958586346332
+              },
+              "brier_score": {
+                "mean": 0.2986013418343314,
+                "std": 0.00030170694777884304
+              },
+              "nll": {
+                "mean": 2.0579039083430932,
+                "std": 0.0018847676412994242
+              },
+              "ece": {
+                "mean": 0.3226752790333061,
+                "std": 0.0001362659405671027
+              }
+            },
+            "base_heldout": {
+              "auc": {
+                "mean": 0.9068204312879177,
+                "std": 0.0007654421027750612
+              },
+              "average_precision": {
+                "mean": 0.9111397116437766,
+                "std": 0.002539583090050326
+              },
+              "accuracy": {
+                "mean": 0.671452380952381,
+                "std": 0.0008815956467415678
+              },
+              "balanced_accuracy": {
+                "mean": 0.6709093161394065,
+                "std": 0.0011577857074243484
+              },
+              "brier_score": {
+                "mean": 0.29814413269532297,
+                "std": 0.0005280001476948023
+              },
+              "nll": {
+                "mean": 2.055176471613675,
+                "std": 0.0020633601141505885
+              },
+              "ece": {
+                "mean": 0.3221211611000813,
+                "std": 0.0006123031679732216
+              }
+            },
+            "calibrated_heldout": {
+              "auc": {
+                "mean": 0.9068204312879177,
+                "std": 0.0007654421027750612
+              },
+              "average_precision": {
+                "mean": 0.9111397116437766,
+                "std": 0.002539583090050326
+              },
+              "accuracy": {
+                "mean": 0.8181428571428571,
+                "std": 0.0014999999999999458
+              },
+              "balanced_accuracy": {
+                "mean": 0.8178742562752573,
+                "std": 0.001579117517706628
+              },
+              "brier_score": {
+                "mean": 0.15131538413477466,
+                "std": 0.001754421012653516
+              },
+              "nll": {
+                "mean": 0.6611193546032325,
+                "std": 0.01767143908823566
+              },
+              "ece": {
+                "mean": 0.14299562747619843,
+                "std": 0.0028651100552159548
+              }
+            },
+            "causal_prequential_full": {
+              "auc": {
+                "mean": 0.8963066962962963,
+                "std": 0.0004755022220006816
+              },
+              "average_precision": {
+                "mean": 0.9047433308303958,
+                "std": 0.0018088437445652058
+              },
+              "accuracy": {
+                "mean": 0.8079555555555555,
+                "std": 0.0014792390436126378
+              },
+              "balanced_accuracy": {
+                "mean": 0.8079555555555555,
+                "std": 0.0014792390436127296
+              },
+              "brier_score": {
+                "mean": 0.161561176511153,
+                "std": 0.0015287014848348248
+              },
+              "nll": {
+                "mean": 0.7567839324666803,
+                "std": 0.014456482732646865
+              },
+              "ece": {
+                "mean": 0.1547867432701077,
+                "std": 0.0027306508079675907
+              }
+            }
+          }
+        },
+        "opensdid_global": {
+          "per_seed": {
+            "seed0": {
+              "base_full": {
+                "auc": 0.9676613333333334,
+                "average_precision": 0.9694782731327178,
+                "accuracy": 0.8030666666666667,
+                "balanced_accuracy": 0.8030666666666667,
+                "brier_score": 0.17105800794145623,
+                "nll": 0.9888900007813376,
+                "ece": 0.19363999919991715
+              },
+              "base_heldout": {
+                "auc": 0.967604659782452,
+                "average_precision": 0.9693509157403994,
+                "accuracy": 0.8037142857142857,
+                "balanced_accuracy": 0.8036250818893393,
+                "brier_score": 0.17003723641107885,
+                "nll": 0.9841012325346886,
+                "ece": 0.19279508531081976
+              },
+              "calibrated_heldout": {
+                "auc": 0.967604659782452,
+                "average_precision": 0.9693509157403994,
+                "accuracy": 0.9012857142857144,
+                "balanced_accuracy": 0.901234293833055,
+                "brier_score": 0.08059174845315718,
+                "nll": 0.33457649995451766,
+                "ece": 0.07875581192626764
+              },
+              "causal_prequential_full": {
+                "auc": 0.9635352888888888,
+                "average_precision": 0.966482004202606,
+                "accuracy": 0.8941333333333332,
+                "balanced_accuracy": 0.8941333333333332,
+                "brier_score": 0.08757555251406268,
+                "nll": 0.3826669170398448,
+                "ece": 0.08664014891945707
+              }
+            },
+            "seed2": {
+              "base_full": {
+                "auc": 0.9681420444444445,
+                "average_precision": 0.9694143035303192,
+                "accuracy": 0.8041333333333334,
+                "balanced_accuracy": 0.8041333333333334,
+                "brier_score": 0.17015569410883996,
+                "nll": 0.9895635541226022,
+                "ece": 0.19185282142891524
+              },
+              "base_heldout": {
+                "auc": 0.9683182187259638,
+                "average_precision": 0.9695982940621901,
+                "accuracy": 0.8054285714285715,
+                "balanced_accuracy": 0.8046871393777366,
+                "brier_score": 0.16901341899912828,
+                "nll": 0.982206148790292,
+                "ece": 0.19107024699946373
+              },
+              "calibrated_heldout": {
+                "auc": 0.9683182187259638,
+                "average_precision": 0.9695982940621901,
+                "accuracy": 0.8914285714285715,
+                "balanced_accuracy": 0.8910362039453215,
+                "brier_score": 0.08704759586064924,
+                "nll": 0.3636513522564389,
+                "ece": 0.08956750799838624
+              },
+              "causal_prequential_full": {
+                "auc": 0.9634624,
+                "average_precision": 0.9663413880379015,
+                "accuracy": 0.8844,
+                "balanced_accuracy": 0.8844,
+                "brier_score": 0.09365425917959289,
+                "nll": 0.41224574402433933,
+                "ece": 0.09681348204897051
+              }
+            },
+            "seed3": {
+              "base_full": {
+                "auc": 0.9679272888888889,
+                "average_precision": 0.9699257613221393,
+                "accuracy": 0.8025333333333334,
+                "balanced_accuracy": 0.8025333333333334,
+                "brier_score": 0.17182429616072228,
+                "nll": 0.9936289655350123,
+                "ece": 0.19430975277681015
+              },
+              "base_heldout": {
+                "auc": 0.9678323265393909,
+                "average_precision": 0.9696400089311388,
+                "accuracy": 0.8025714285714287,
+                "balanced_accuracy": 0.8013636014814051,
+                "brier_score": 0.1713337059605316,
+                "nll": 0.9889791554685642,
+                "ece": 0.1941005117533245
+              },
+              "calibrated_heldout": {
+                "auc": 0.9678323265393909,
+                "average_precision": 0.9696400089311388,
+                "accuracy": 0.8901428571428571,
+                "balanced_accuracy": 0.8896120037090995,
+                "brier_score": 0.08923112251080036,
+                "nll": 0.3800313929483567,
+                "ece": 0.09250421981607182
+              },
+              "causal_prequential_full": {
+                "auc": 0.9633103999999999,
+                "average_precision": 0.9669318531032433,
+                "accuracy": 0.8842666666666666,
+                "balanced_accuracy": 0.8842666666666666,
+                "brier_score": 0.09519521827430644,
+                "nll": 0.425277720516152,
+                "ece": 0.09951932873803247
+              }
+            }
+          },
+          "aggregate": {
+            "base_full": {
+              "auc": {
+                "mean": 0.9679102222222222,
+                "std": 0.00024080956463512826
+              },
+              "average_precision": {
+                "mean": 0.9696061126617255,
+                "std": 0.00027866552905952106
+              },
+              "accuracy": {
+                "mean": 0.8032444444444445,
+                "std": 0.0008146801235476757
+              },
+              "balanced_accuracy": {
+                "mean": 0.8032444444444445,
+                "std": 0.0008146801235476757
+              },
+              "brier_score": {
+                "mean": 0.1710126660703395,
+                "std": 0.000835224590061709
+              },
+              "nll": {
+                "mean": 0.9906941734796507,
+                "std": 0.002563819773705332
+              },
+              "ece": {
+                "mean": 0.19326752446854753,
+                "std": 0.0012701106177017917
+              }
+            },
+            "base_heldout": {
+              "auc": {
+                "mean": 0.9679184016826022,
+                "std": 0.0003644835924641188
+              },
+              "average_precision": {
+                "mean": 0.9695297395779093,
+                "std": 0.00015626421925445143
+              },
+              "accuracy": {
+                "mean": 0.803904761904762,
+                "std": 0.001438063701956302
+              },
+              "balanced_accuracy": {
+                "mean": 0.8032252742494936,
+                "std": 0.0016974571124912738
+              },
+              "brier_score": {
+                "mean": 0.17012812045691292,
+                "std": 0.0011628103147783573
+              },
+              "nll": {
+                "mean": 0.985095512264515,
+                "std": 0.003494259435393647
+              },
+              "ece": {
+                "mean": 0.192655281354536,
+                "std": 0.001519962163761698
+              }
+            },
+            "calibrated_heldout": {
+              "auc": {
+                "mean": 0.9679184016826022,
+                "std": 0.0003644835924641188
+              },
+              "average_precision": {
+                "mean": 0.9695297395779093,
+                "std": 0.00015626421925445143
+              },
+              "accuracy": {
+                "mean": 0.8942857142857142,
+                "std": 0.0060961680838148595
+              },
+              "balanced_accuracy": {
+                "mean": 0.8939608338291586,
+                "std": 0.006339124695052403
+              },
+              "brier_score": {
+                "mean": 0.0856234889415356,
+                "std": 0.004492299679982401
+              },
+              "nll": {
+                "mean": 0.3594197483864378,
+                "std": 0.023021005142147808
+              },
+              "ece": {
+                "mean": 0.08694251324690856,
+                "std": 0.007240347226485167
+              }
+            },
+            "causal_prequential_full": {
+              "auc": {
+                "mean": 0.9634360296296296,
+                "std": 0.0001147401429820088
+              },
+              "average_precision": {
+                "mean": 0.9665850817812501,
+                "std": 0.00030843311878207407
+              },
+              "accuracy": {
+                "mean": 0.8876,
+                "std": 0.005658425379712739
+              },
+              "balanced_accuracy": {
+                "mean": 0.8876,
+                "std": 0.005658425379712739
+              },
+              "brier_score": {
+                "mean": 0.09214167665598734,
+                "std": 0.004028741241690196
+              },
+              "nll": {
+                "mean": 0.40673012719344537,
+                "std": 0.021834300194717687
+              },
+              "ece": {
+                "mean": 0.09432431990215336,
+                "std": 0.0067908220669268445
+              }
+            }
+          }
+        }
+      },
+      "overall_39_target_macro": {
+        "base_full": {
+          "auc": {
+            "mean": 0.8611521519468187,
+            "std": 0.0013902990548667002
+          },
+          "average_precision": {
+            "mean": 0.8638657411082827,
+            "std": 0.0009911193006648183
+          },
+          "accuracy": {
+            "mean": 0.6786837606837607,
+            "std": 0.0005381222645708805
+          },
+          "balanced_accuracy": {
+            "mean": 0.6786837606837607,
+            "std": 0.0005381222645708805
+          },
+          "brier_score": {
+            "mean": 0.29758286983390336,
+            "std": 0.00029655910222282656
+          },
+          "nll": {
+            "mean": 2.3222863498445356,
+            "std": 0.008336818881741573
+          },
+          "ece": {
+            "mean": 0.3120869039371664,
+            "std": 0.00025210639146661844
+          }
+        },
+        "base_heldout": {
+          "auc": {
+            "mean": 0.8611597464088998,
+            "std": 0.002013190435587597
+          },
+          "average_precision": {
+            "mean": 0.8638040145817739,
+            "std": 0.0015774437103617022
+          },
+          "accuracy": {
+            "mean": 0.678992673992674,
+            "std": 0.0006480515023059559
+          },
+          "balanced_accuracy": {
+            "mean": 0.6786636724255991,
+            "std": 0.0007534615361327983
+          },
+          "brier_score": {
+            "mean": 0.29722341680590364,
+            "std": 0.0006577900993499446
+          },
+          "nll": {
+            "mean": 2.3207290558191183,
+            "std": 0.012480805954848628
+          },
+          "ece": {
+            "mean": 0.31170011374989554,
+            "std": 0.000760884838474752
+          }
+        },
+        "calibrated_heldout": {
+          "auc": {
+            "mean": 0.8611597638529315,
+            "std": 0.002013188492486528
+          },
+          "average_precision": {
+            "mean": 0.8638040169367498,
+            "std": 0.0015774472069002659
+          },
+          "accuracy": {
+            "mean": 0.794029304029304,
+            "std": 0.00397055911257326
+          },
+          "balanced_accuracy": {
+            "mean": 0.7938604474525804,
+            "std": 0.003977548972233192
+          },
+          "brier_score": {
+            "mean": 0.17260005144044108,
+            "std": 0.00335447574924836
+          },
+          "nll": {
+            "mean": 0.7346095378762957,
+            "std": 0.022016482399155914
+          },
+          "ece": {
+            "mean": 0.16010117558957024,
+            "std": 0.004938444029471209
+          }
+        },
+        "causal_prequential_full": {
+          "auc": {
+            "mean": 0.850980603988604,
+            "std": 0.0009872612442721595
+          },
+          "average_precision": {
+            "mean": 0.8577217455884752,
+            "std": 0.0009678136471444513
+          },
+          "accuracy": {
+            "mean": 0.786051282051282,
+            "std": 0.003541845691676221
+          },
+          "balanced_accuracy": {
+            "mean": 0.786051282051282,
+            "std": 0.0035418456916762333
+          },
+          "brier_score": {
+            "mean": 0.18126772882613826,
+            "std": 0.0028888399718276976
+          },
+          "nll": {
+            "mean": 0.8419081330979012,
+            "std": 0.01593852816324965
+          },
+          "ece": {
+            "mean": 0.1701094921283154,
+            "std": 0.00447085707312654
+          }
+        }
+      }
+    }
+  }
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import csv
 import json
 import math
@@ -82,6 +83,35 @@ METRICS = ("auc", "average_precision", "accuracy", "balanced_accuracy")
 TABLE_METRICS = ("auc", "accuracy")
 METRIC_LABELS = {"auc": "AUC", "accuracy": "Accuracy"}
 LOCKED_SEED_DIRS = ("seed0", "seed2", "seed3")
+AIGI_DET_CALIB_METHOD = "aigi_det_calib"
+AIGI_DET_CALIB_OFFICIAL_COMMIT = (
+    "66d4bc606f7cf325d9bd4e67ca34b0c59d6a9d53"
+)
+AIGI_DET_CALIB_PROJECT_COMMIT = "ab059b650d46b3c1df92d479f1bb936ef46b6924"
+AIGI_DET_CALIB_CLIP_SHA256 = (
+    "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836"
+)
+AIGI_DET_CALIB_SOURCE_SHA256 = (
+    "ef4b3cb3b2f83b6ffa227bb4a53af8f64151681e4d7fe3010d1c5ad9d926ae59"
+)
+AIGI_DET_CALIB_OURS_SHA256 = (
+    "f7a351a0649b48ecb91d1121d724bf4640bde27dc4586d9c2c0d138cbf72d03f"
+)
+AIGI_DET_CALIB_FILE_SHA256 = {
+    "run.py": "72bacc0c4a77c81c040b60b105a205fdc18cca655f83e4f4b324b495b167bb7d",
+    "src/calibration.py": (
+        "c179d5aee8dd577606f5382d9fdb403ed5dc1cb28c79dff39cc82d9c3613d927"
+    ),
+    "src/metric.py": (
+        "d60a6ee7797a50491cf9157f0f000628c87c22b1136f3edd06421542c6bcdd1f"
+    ),
+}
+AIGI_DET_CALIB_ALL_METRICS = (
+    *METRICS,
+    "brier_score",
+    "nll",
+    "ece",
+)
 
 
 class TableRow(NamedTuple):
@@ -97,6 +127,11 @@ TABLE_GROUPS = (
         "Source-trained CLIP detector (shared source checkpoint)",
         (
             TableRow("source_ft", "Source", "source_trained"),
+            TableRow(
+                AIGI_DET_CALIB_METHOD,
+                "AIGI-Det-Calib$^{\\S}$",
+                "source_trained",
+            ),
             TableRow("tent", "Tent$^{\\dagger}$", "source_trained"),
             TableRow("eata", "EATA$^{\\dagger}$", "source_trained"),
             TableRow("sar", "SAR", "source_trained"),
@@ -328,6 +363,522 @@ def aggregate_results(dataset_roots: Mapping[str, Path]) -> dict[str, Any]:
     }
 
 
+def _expect_equal(actual: Any, expected: Any, *, context: str) -> None:
+    if actual != expected:
+        raise ValueError(f"{context}: expected {expected!r}, found {actual!r}")
+
+
+def load_aigi_det_calib_campaign(results_root: Path) -> dict[str, Any]:
+    """Load and strictly validate the completed external calibration campaign.
+
+    The independent table row is the official AIGI-Det-Calib scalar correction
+    applied to ``source_ft``.  The companion ``ours_static`` branch is loaded
+    only to verify paired sample identities; it is never imported as a method.
+    """
+
+    results_root = Path(results_root).expanduser().resolve()
+    seed_values = {"seed0": 0, "seed2": 2, "seed3": 3}
+    expected_paths = {
+        results_root / method / dataset / f"{seed_dir}.json"
+        for method in ("source_ft", "ours_static")
+        for dataset in DATASET_ORDER
+        for seed_dir in LOCKED_SEED_DIRS
+    }
+    observed_paths = set(results_root.rglob("*.json"))
+    missing = sorted(str(path) for path in expected_paths - observed_paths)
+    unexpected = sorted(str(path) for path in observed_paths - expected_paths)
+    if missing or unexpected:
+        messages = []
+        if missing:
+            messages.append("missing=" + ", ".join(missing))
+        if unexpected:
+            messages.append("unexpected=" + ", ".join(unexpected))
+        raise ValueError(
+            "AIGI-Det-Calib campaign must contain exactly 24 final JSON files: "
+            + "; ".join(messages)
+        )
+
+    documents: dict[str, dict[str, dict[str, Any]]] = {
+        "source_ft": {},
+        "ours_static": {},
+    }
+    target_units = 0
+    max_auc_invariance_error = 0.0
+    for method in documents:
+        expected_checkpoint = (
+            AIGI_DET_CALIB_SOURCE_SHA256
+            if method == "source_ft"
+            else AIGI_DET_CALIB_OURS_SHA256
+        )
+        for dataset in DATASET_ORDER:
+            documents[method][dataset] = {}
+            expected_targets = [
+                target for target, _label in DATASET_TARGETS[dataset]
+            ]
+            for seed_dir, seed in seed_values.items():
+                path = results_root / method / dataset / f"{seed_dir}.json"
+                with path.open(encoding="utf-8") as handle:
+                    document = json.load(handle)
+                context = str(path)
+                _expect_equal(
+                    document.get("format"),
+                    "aigi_det_calib_strict_causal_v1",
+                    context=f"{context}:format",
+                )
+                _expect_equal(
+                    document.get("status"), "complete", context=f"{context}:status"
+                )
+                _expect_equal(document.get("method"), method, context=f"{context}:method")
+                _expect_equal(
+                    document.get("dataset"), dataset, context=f"{context}:dataset"
+                )
+                _expect_equal(document.get("seed"), seed, context=f"{context}:seed")
+
+                protocol = document.get("protocol", {})
+                protocol_contract = {
+                    "data_profile": "matched_jpeg",
+                    "locked_sample_order": True,
+                    "warmup_samples": 100,
+                    "calibration_subset": "first_n_samples_in_locked_target_stream",
+                    "calibration_labels": (
+                        "constant_dummy_only; hidden labels never passed"
+                    ),
+                    "real_ratio": 0.5,
+                    "causal_rule": (
+                        "source predictions for warmup, fixed offset thereafter"
+                    ),
+                    "secondary_metric": "full_causal_prequential",
+                    "retroactive_full": "diagnostic_only",
+                }
+                for key, expected in protocol_contract.items():
+                    _expect_equal(
+                        protocol.get(key), expected, context=f"{context}:protocol:{key}"
+                    )
+
+                identity = document.get("identity", {})
+                identity_contract = {
+                    "project_commit": AIGI_DET_CALIB_PROJECT_COMMIT,
+                    "official_commit": AIGI_DET_CALIB_OFFICIAL_COMMIT,
+                    "official_file_sha256": AIGI_DET_CALIB_FILE_SHA256,
+                    "clip_checkpoint_sha256": AIGI_DET_CALIB_CLIP_SHA256,
+                    "source_checkpoint_sha256": expected_checkpoint,
+                }
+                for key, expected in identity_contract.items():
+                    _expect_equal(
+                        identity.get(key), expected, context=f"{context}:identity:{key}"
+                    )
+
+                targets = document.get("targets")
+                if not isinstance(targets, dict):
+                    raise ValueError(f"{context}: targets must be an object")
+                _expect_equal(
+                    list(targets), expected_targets, context=f"{context}:target order"
+                )
+                for target, result in targets.items():
+                    target_context = f"{context}:{target}"
+                    _expect_equal(
+                        result.get("samples"), 1500, context=f"{target_context}:samples"
+                    )
+                    _expect_equal(
+                        result.get("warmup_samples"),
+                        100,
+                        context=f"{target_context}:warmup_samples",
+                    )
+                    _expect_equal(
+                        result.get("heldout_samples"),
+                        1400,
+                        context=f"{target_context}:heldout_samples",
+                    )
+                    sample_digest = result.get("sample_ids_sha256")
+                    if not isinstance(sample_digest, str) or len(sample_digest) != 64:
+                        raise ValueError(f"{target_context}: invalid sample identity digest")
+                    for slice_name, expected_samples in (
+                        ("base_full", 1500),
+                        ("base_heldout", 1400),
+                        ("calibrated_heldout", 1400),
+                        ("causal_prequential_full", 1500),
+                    ):
+                        slice_metrics = result.get(slice_name)
+                        if not isinstance(slice_metrics, dict):
+                            raise ValueError(
+                                f"{target_context}: missing {slice_name}"
+                            )
+                        _expect_equal(
+                            slice_metrics.get("samples"),
+                            expected_samples,
+                            context=f"{target_context}:{slice_name}:samples",
+                        )
+                        for metric in AIGI_DET_CALIB_ALL_METRICS:
+                            _finite_metric(
+                                slice_metrics.get(metric),
+                                context=f"{target_context}:{slice_name}:{metric}",
+                            )
+                    invariance_error = _finite_metric(
+                        result.get("heldout_logit_auc_invariance_error"),
+                        context=f"{target_context}:heldout AUC invariance",
+                    )
+                    if invariance_error > 1e-12:
+                        raise ValueError(
+                            f"{target_context}: heldout AUC invariance error "
+                            f"{invariance_error} exceeds 1e-12"
+                        )
+                    max_auc_invariance_error = max(
+                        max_auc_invariance_error, invariance_error
+                    )
+                    target_units += 1
+                documents[method][dataset][seed_dir] = document
+
+    paired_units = 0
+    for dataset in DATASET_ORDER:
+        for seed_dir in LOCKED_SEED_DIRS:
+            source_targets = documents["source_ft"][dataset][seed_dir]["targets"]
+            ours_targets = documents["ours_static"][dataset][seed_dir]["targets"]
+            for target, _label in DATASET_TARGETS[dataset]:
+                _expect_equal(
+                    source_targets[target]["sample_ids_sha256"],
+                    ours_targets[target]["sample_ids_sha256"],
+                    context=f"paired sample identity:{dataset}:{seed_dir}:{target}",
+                )
+                paired_units += 1
+
+    return {
+        "documents": documents,
+        "audit": {
+            "format": "aigi_det_calib_table_import_audit_v1",
+            "reported_method": AIGI_DET_CALIB_METHOD,
+            "reported_source": "source_ft",
+            "reported_slice": "causal_prequential_full",
+            "diagnostic_only": "ours_static",
+            "json_files": len(observed_paths),
+            "target_units": target_units,
+            "paired_sample_identity_units": paired_units,
+            "max_heldout_logit_auc_invariance_error": max_auc_invariance_error,
+            "formal_seeds": [0, 2, 3],
+            "datasets": list(DATASET_ORDER),
+            "official_commit": AIGI_DET_CALIB_OFFICIAL_COMMIT,
+            "project_commit": AIGI_DET_CALIB_PROJECT_COMMIT,
+            "clip_checkpoint_sha256": AIGI_DET_CALIB_CLIP_SHA256,
+            "source_checkpoint_sha256": AIGI_DET_CALIB_SOURCE_SHA256,
+        },
+    }
+
+
+def add_aigi_det_calib_results(
+    summary: Mapping[str, Any], campaign: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Add the strict causal Source + AIGI-Det-Calib row to a main summary."""
+
+    augmented = copy.deepcopy(summary)
+    documents = campaign["documents"]["source_ft"]
+    max_base_auc_difference = 0.0
+    max_base_ap_difference = 0.0
+    for dataset in DATASET_ORDER:
+        dataset_summary = augmented["datasets"][dataset]
+        method_per_seed: dict[str, dict[str, dict[str, float]]] = {}
+        for seed_dir in LOCKED_SEED_DIRS:
+            if AIGI_DET_CALIB_METHOD in dataset_summary["per_seed"][seed_dir]:
+                raise ValueError(
+                    f"{AIGI_DET_CALIB_METHOD} already exists in {dataset}/{seed_dir}"
+                )
+            document = documents[dataset][seed_dir]
+            target_metrics: dict[str, dict[str, float]] = {}
+            for target in dataset_summary["targets"]:
+                result = document["targets"][target]
+                base = result["base_full"]
+                expected_base = dataset_summary["per_seed"][seed_dir]["source_ft"][
+                    target
+                ]
+                auc_difference = abs(float(base["auc"]) - expected_base["auc"])
+                ap_difference = abs(
+                    float(base["average_precision"])
+                    - expected_base["average_precision"]
+                )
+                max_base_auc_difference = max(
+                    max_base_auc_difference, auc_difference
+                )
+                max_base_ap_difference = max(max_base_ap_difference, ap_difference)
+                if auc_difference > 1e-5 or ap_difference > 1e-5:
+                    raise ValueError(
+                        f"AIGI-Det-Calib base scores do not match Source for "
+                        f"{dataset}/{seed_dir}/{target}"
+                    )
+                for metric in ("accuracy", "balanced_accuracy"):
+                    if not math.isclose(
+                        float(base[metric]), expected_base[metric], abs_tol=1e-12
+                    ):
+                        raise ValueError(
+                            f"AIGI-Det-Calib base {metric} does not match Source for "
+                            f"{dataset}/{seed_dir}/{target}"
+                        )
+                causal = result["causal_prequential_full"]
+                target_metrics[target] = {
+                    metric: _finite_metric(
+                        causal[metric],
+                        context=f"AIGI-Det-Calib:{dataset}:{seed_dir}:{target}:{metric}",
+                    )
+                    for metric in METRICS
+                }
+            method_per_seed[seed_dir] = target_metrics
+            dataset_summary["per_seed"][seed_dir][AIGI_DET_CALIB_METHOD] = (
+                target_metrics
+            )
+
+        dataset_summary["per_target_aggregate"][AIGI_DET_CALIB_METHOD] = {
+            target: {
+                metric: _mean_std(
+                    [method_per_seed[seed][target][metric] for seed in LOCKED_SEED_DIRS]
+                )
+                for metric in METRICS
+            }
+            for target in dataset_summary["targets"]
+        }
+        dataset_summary["aggregate"][AIGI_DET_CALIB_METHOD] = {
+            metric: _mean_std(
+                [
+                    fmean(
+                        method_per_seed[seed][target][metric]
+                        for target in dataset_summary["targets"]
+                    )
+                    for seed in LOCKED_SEED_DIRS
+                ]
+            )
+            for metric in METRICS
+        }
+
+    audit = copy.deepcopy(campaign["audit"])
+    audit["max_base_full_auc_difference_from_main_source"] = (
+        max_base_auc_difference
+    )
+    audit["max_base_full_average_precision_difference_from_main_source"] = (
+        max_base_ap_difference
+    )
+    auxiliary_methods = augmented.setdefault("auxiliary_methods", {})
+    if AIGI_DET_CALIB_METHOD in auxiliary_methods:
+        raise ValueError(
+            f"{AIGI_DET_CALIB_METHOD} already exists in auxiliary method metadata"
+        )
+    auxiliary_methods[AIGI_DET_CALIB_METHOD] = {
+        "display_name": "AIGI-Det-Calib",
+        "paper": "arXiv:2602.01973; AAAI 2026",
+        "role": "independent threshold-calibration baseline",
+        "source_method": "source_ft",
+        "reported_slice": "causal_prequential_full",
+        "protocol": {
+            "warmup_samples": 100,
+            "warmup_prediction": "unchanged source prediction",
+            "heldout_samples": 1400,
+            "heldout_prediction": "fixed official unsupervised scalar offset",
+            "target_labels": "evaluator_only",
+            "real_ratio": 0.5,
+        },
+        "audit": audit,
+    }
+    return augmented
+
+
+def _aigi_target_macro(
+    document: Mapping[str, Any], slice_name: str, metrics: tuple[str, ...]
+) -> dict[str, float]:
+    targets = document["targets"]
+    return {
+        metric: fmean(
+            _finite_metric(
+                result[slice_name][metric],
+                context=(
+                    f"AIGI-Det-Calib:{document['method']}:{document['dataset']}:"
+                    f"seed{document['seed']}:{target}:{slice_name}:{metric}"
+                ),
+            )
+            for target, result in targets.items()
+        )
+        for metric in metrics
+    }
+
+
+def add_aigi_det_calib_per_seed_summary(
+    per_seed_summary: Mapping[str, Any], campaign: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Add dataset-level causal metrics to the release per-seed summary."""
+
+    augmented = copy.deepcopy(per_seed_summary)
+    documents = campaign["documents"]["source_ft"]
+    for dataset in DATASET_ORDER:
+        for seed_dir in LOCKED_SEED_DIRS:
+            methods = augmented[dataset][seed_dir]
+            if AIGI_DET_CALIB_METHOD in methods:
+                raise ValueError(
+                    f"{AIGI_DET_CALIB_METHOD} already exists in per-seed summary "
+                    f"for {dataset}/{seed_dir}"
+                )
+            methods[AIGI_DET_CALIB_METHOD] = _aigi_target_macro(
+                documents[dataset][seed_dir],
+                "causal_prequential_full",
+                AIGI_DET_CALIB_ALL_METRICS,
+            )
+    return augmented
+
+
+def add_aigi_det_calib_calibration_summary(
+    calibration_summary: Mapping[str, Any], campaign: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Add causal Brier/NLL/ECE aggregates to the release calibration file."""
+
+    augmented = copy.deepcopy(calibration_summary)
+    documents = campaign["documents"]["source_ft"]
+    metrics = ("brier_score", "nll", "ece")
+    for dataset in DATASET_ORDER:
+        dataset_summary = augmented["datasets"][dataset]
+        per_seed_values = {}
+        for seed_dir in LOCKED_SEED_DIRS:
+            methods = dataset_summary["per_seed"][seed_dir]
+            if AIGI_DET_CALIB_METHOD in methods:
+                raise ValueError(
+                    f"{AIGI_DET_CALIB_METHOD} already exists in calibration "
+                    f"summary for {dataset}/{seed_dir}"
+                )
+            values = _aigi_target_macro(
+                documents[dataset][seed_dir],
+                "causal_prequential_full",
+                metrics,
+            )
+            methods[AIGI_DET_CALIB_METHOD] = values
+            per_seed_values[seed_dir] = values
+
+        dataset_summary["aggregate"][AIGI_DET_CALIB_METHOD] = {
+            metric: _mean_std(
+                [per_seed_values[seed][metric] for seed in LOCKED_SEED_DIRS]
+            )
+            for metric in metrics
+        }
+        dataset_summary["per_target_aggregate"][AIGI_DET_CALIB_METHOD] = {
+            target: {
+                metric: _mean_std(
+                    [
+                        _finite_metric(
+                            documents[dataset][seed]["targets"][target]
+                            ["causal_prequential_full"][metric],
+                            context=(
+                                f"AIGI-Det-Calib:{dataset}:{seed}:{target}:{metric}"
+                            ),
+                        )
+                        for seed in LOCKED_SEED_DIRS
+                    ]
+                )
+                for metric in metrics
+            }
+            for target, _label in DATASET_TARGETS[dataset]
+        }
+    return augmented
+
+
+def summarize_aigi_det_calib_campaign(
+    campaign: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Build a compact final report for both the table row and diagnostic branch."""
+
+    slices = (
+        "base_full",
+        "base_heldout",
+        "calibrated_heldout",
+        "causal_prequential_full",
+    )
+    metrics = AIGI_DET_CALIB_ALL_METRICS
+    methods = {}
+    for raw_method, role in (
+        ("source_ft", "independent_table_baseline"),
+        ("ours_static", "diagnostic_only_not_a_table_method"),
+    ):
+        documents = campaign["documents"][raw_method]
+        datasets = {}
+        for dataset in DATASET_ORDER:
+            per_seed = {
+                seed: {
+                    slice_name: _aigi_target_macro(
+                        documents[dataset][seed], slice_name, metrics
+                    )
+                    for slice_name in slices
+                }
+                for seed in LOCKED_SEED_DIRS
+            }
+            aggregate = {
+                slice_name: {
+                    metric: _mean_std(
+                        [
+                            per_seed[seed][slice_name][metric]
+                            for seed in LOCKED_SEED_DIRS
+                        ]
+                    )
+                    for metric in metrics
+                }
+                for slice_name in slices
+            }
+            datasets[dataset] = {"per_seed": per_seed, "aggregate": aggregate}
+
+        overall = {}
+        for slice_name in slices:
+            per_seed_overall = {}
+            for seed in LOCKED_SEED_DIRS:
+                seed_documents = [documents[dataset][seed] for dataset in DATASET_ORDER]
+                per_seed_overall[seed] = {
+                    metric: fmean(
+                        _finite_metric(
+                            result[slice_name][metric],
+                            context=(
+                                f"AIGI-Det-Calib:{raw_method}:{document['dataset']}:"
+                                f"{seed}:{target}:{slice_name}:{metric}"
+                            ),
+                        )
+                        for document in seed_documents
+                        for target, result in document["targets"].items()
+                    )
+                    for metric in metrics
+                }
+            overall[slice_name] = {
+                metric: _mean_std(
+                    [
+                        per_seed_overall[seed][metric]
+                        for seed in LOCKED_SEED_DIRS
+                    ]
+                )
+                for metric in metrics
+            }
+        methods[raw_method] = {
+            "role": role,
+            "datasets": datasets,
+            "overall_39_target_macro": overall,
+        }
+
+    return {
+        "format": "aigi_det_calib_strict_causal_summary_v1",
+        "display_name": "AIGI-Det-Calib",
+        "paper": {
+            "title": (
+                "Your AI-Generated Image Detector Can Secretly Achieve SOTA "
+                "Accuracy, If Calibrated"
+            ),
+            "arxiv": "2602.01973",
+            "venue": "AAAI 2026",
+        },
+        "reported_table_method": {
+            "name": AIGI_DET_CALIB_METHOD,
+            "input": "source_ft",
+            "slice": "causal_prequential_full",
+        },
+        "protocol": {
+            "data_profile": "matched_jpeg",
+            "samples_per_target": 1500,
+            "warmup_samples": 100,
+            "heldout_samples": 1400,
+            "warmup_prediction": "unchanged source prediction",
+            "heldout_prediction": "fixed official unsupervised scalar offset",
+            "target_labels": "evaluator_only",
+            "real_ratio": 0.5,
+        },
+        "audit": copy.deepcopy(campaign["audit"]),
+        "methods": methods,
+    }
+
+
 def _method_value(
     summary: Mapping[str, Any] | None,
     method: str,
@@ -546,6 +1097,10 @@ def render_dataset_table(
             "microbatch 2 on 24 GB GPUs, accumulating the full weighted-mean loss "
             "before one optimizer/EMA update, and is a "
             "disclosed ViT transfer, not the original RobustBN method. "
+            "$^{\\S}$AIGI-Det-Calib is applied to Source: its official "
+            "label-free scalar offset is estimated from the first 100 locked "
+            "samples of each target; those 100 predictions remain unchanged, "
+            "and the fixed offset is used only for the following 1,400 samples. "
             "Target labels are used only by the evaluator.}",
             "\\end{table*}",
             "",
@@ -639,7 +1194,11 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
             "its stream/update microbatch is 2 on 24 GB GPUs, while the full "
             "64-sample weighted-mean loss still receives one optimizer/EMA update. "
             "It is a disclosed ViT transfer rather "
-            "than the original RobustBN method. Target labels are never used for "
+            "than the original RobustBN method. $^{\\S}$AIGI-Det-Calib uses "
+            "Source logits and a strict causal protocol: the official label-free "
+            "scalar offset is estimated from the first 100 locked target samples, "
+            "whose source predictions remain unchanged, and is then fixed for the "
+            "remaining 1,400 samples. Target labels are never used for "
             "prompt or hyperparameter "
             "selection.}",
             "\\end{table*}",
@@ -671,6 +1230,7 @@ def write_summary(summary: Mapping[str, Any], output_dir: Path) -> None:
         writer = csv.DictWriter(
             handle,
             fieldnames=["method", *DATASET_ORDER, "mean"],
+            lineterminator="\n",
         )
         writer.writeheader()
         for table_row in TABLE_ROWS:
@@ -718,6 +1278,22 @@ def main() -> None:
         help="One root containing seed*/single_target_summary.json; repeat four times",
     )
     parser.add_argument(
+        "--base-summary",
+        type=Path,
+        help=(
+            "Existing validated clip_vitl14_summary.json to augment instead of "
+            "re-aggregating dataset run directories"
+        ),
+    )
+    parser.add_argument(
+        "--aigi-det-calib-results",
+        type=Path,
+        help=(
+            "Root containing the validated source_ft and ours_static strict-causal "
+            "AIGI-Det-Calib JSON files"
+        ),
+    )
+    parser.add_argument(
         "--template-only",
         action="store_true",
         help="Write the blank LaTeX table without requiring completed runs",
@@ -725,15 +1301,38 @@ def main() -> None:
     args = parser.parse_args()
     output_dir = args.output_dir.expanduser().resolve()
     if args.template_only:
-        if args.dataset:
-            parser.error("--template-only cannot be combined with --dataset")
+        if args.dataset or args.base_summary or args.aigi_det_calib_results:
+            parser.error(
+                "--template-only cannot be combined with result input arguments"
+            )
         write_latex_tables(output_dir)
         return
     try:
-        summary = aggregate_results(_parse_dataset_arguments(args.dataset))
+        if args.base_summary:
+            if args.dataset:
+                raise ValueError("--base-summary cannot be combined with --dataset")
+            base_summary = args.base_summary.expanduser().resolve()
+            if base_summary.parent == output_dir:
+                raise ValueError(
+                    "Refusing to overwrite the validated release containing "
+                    "--base-summary; choose a new --output-dir"
+                )
+            with base_summary.open(encoding="utf-8") as handle:
+                summary = json.load(handle)
+        else:
+            summary = aggregate_results(_parse_dataset_arguments(args.dataset))
+        audit = None
+        if args.aigi_det_calib_results:
+            campaign = load_aigi_det_calib_campaign(args.aigi_det_calib_results)
+            summary = add_aigi_det_calib_results(summary, campaign)
+            audit = summary["auxiliary_methods"][AIGI_DET_CALIB_METHOD]["audit"]
     except (FileNotFoundError, ValueError) as error:
         parser.error(str(error))
     write_summary(summary, output_dir)
+    if audit is not None:
+        (output_dir / "aigi_det_calib_audit.json").write_text(
+            json.dumps(audit, indent=2), encoding="utf-8"
+        )
 
 
 if __name__ == "__main__":

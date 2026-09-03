@@ -1,0 +1,108 @@
+{
+  "format": "clip_vlm_bias_controlled_source_models_v2",
+  "formal_seeds": [
+    0,
+    2,
+    3
+  ],
+  "matched_jpeg_profile_spec_sha256": "2e8d51e705134ba6dd1245af72f36b30c1635d1d00c39f925357698352f796bf",
+  "code_revisions": {
+    "heldout_seed3_and_ours_validation_runner": "f8b6a66fd3c85331fd10c4da9760b29c10518d04",
+    "recurrence_and_component_ablation": "258fbc869bb1b9f694f9cef0d9e7bdf8bea7ee71",
+    "final_aggregation": "258fbc869bb1b9f694f9cef0d9e7bdf8bea7ee71"
+  },
+  "pretrained_model": {
+    "name": "OpenAI CLIP ViT-L/14",
+    "sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+    "role": "sole pretrained initialization for every main-table method"
+  },
+  "source_setups": {
+    "shared_source_trained_detector": {
+      "methods": [
+        "source_ft",
+        "aigi_det_calib",
+        "tent",
+        "eata",
+        "sar",
+        "cotta",
+        "rotta",
+        "lame",
+        "t2a"
+      ],
+      "checkpoint_sha256": "ef4b3cb3b2f83b6ffa227bb4a53af8f64151681e4d7fe3010d1c5ad9d926ae59",
+      "training_config": "configs/train/genimage_sd14_clip_vitl14.yaml",
+      "source_domain": "GenImage Stable Diffusion v1.4",
+      "notes": "EATA includes the matching source Fisher; RoTTA is the disclosed RoTTA-LN transfer."
+    },
+    "clip_native": {
+      "methods": [
+        "frozen_clip",
+        "tda",
+        "dynaprompt",
+        "cliptta",
+        "batclip"
+      ],
+      "checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+      "notes": "Each method retains its declared text classifier, templates, or prompt learner."
+    },
+    "iapl": {
+      "methods": [
+        "iapl"
+      ],
+      "checkpoint_sha256": "4f86a1e3e93bfa8c0cf1099413f872dccd34b6ec3f26dec2162bcf2430552018",
+      "initialization_checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+      "upstream_commit": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
+      "notes": "Authors' released Stable Diffusion v1.4 task checkpoint; episodic Adapt-Then-Predict."
+    },
+    "ours": {
+      "methods": [
+        "ours_static",
+        "ours_no_calibrated_readout",
+        "ours"
+      ],
+      "checkpoint_sha256": "f7a351a0649b48ecb91d1121d724bf4640bde27dc4586d9c2c0d138cbf72d03f",
+      "initialization_checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+      "training_config": "configs/train/genimage_sd14_clip_vitl14_lora_ours.yaml",
+      "source_domain": "GenImage Stable Diffusion v1.4",
+      "lora_rank": 4,
+      "selection_seed": 1,
+      "formal_validation_seeds": [
+        0,
+        2,
+        3
+      ],
+      "final_readout": {
+        "feature_residual_scale": 0.75,
+        "intercept_refit": "optimizer-free one-dimensional bisection on the same balanced replay"
+      }
+    }
+  },
+  "posthoc_methods": {
+    "aigi_det_calib": {
+      "display_name": "AIGI-Det-Calib",
+      "source_method": "source_ft",
+      "source_checkpoint_sha256": "ef4b3cb3b2f83b6ffa227bb4a53af8f64151681e4d7fe3010d1c5ad9d926ae59",
+      "official_commit": "66d4bc606f7cf325d9bd4e67ca34b0c59d6a9d53",
+      "official_file_sha256": {
+        "run.py": "72bacc0c4a77c81c040b60b105a205fdc18cca655f83e4f4b324b495b167bb7d",
+        "src/calibration.py": "c179d5aee8dd577606f5382d9fdb403ed5dc1cb28c79dff39cc82d9c3613d927",
+        "src/metric.py": "d60a6ee7797a50491cf9157f0f000628c87c22b1136f3edd06421542c6bcdd1f"
+      },
+      "campaign_project_commit": "ab059b650d46b3c1df92d479f1bb936ef46b6924",
+      "protocol": {
+        "data_profile": "matched_jpeg",
+        "samples_per_target": 1500,
+        "warmup_samples": 100,
+        "warmup_prediction": "unchanged source prediction",
+        "heldout_samples": 1400,
+        "heldout_prediction": "fixed official unsupervised scalar offset",
+        "target_labels": "evaluator_only",
+        "real_ratio": 0.5,
+        "reported_slice": "causal_prequential_full"
+      },
+      "role": "independent threshold-calibration baseline",
+      "diagnostic_only_branch": "ours_static",
+      "result_adapter_sha256": "1174affe77edb8f8abfdb427602bdb8cb1a82f7b1b54c4757db68b2bdea22dd1"
+    }
+  }
+}

@@ -34,7 +34,7 @@ data:
 training:
   profile: shared_clip_vitl14_full_source_detector
   checkpoint_role: shared_source_detector_for_clip_vitl14_ctta
-  intended_methods: [source_ft, tent, eata, sar, cotta, lame, t2a]
+  intended_methods: [source_ft, aigi_det_calib, tent, eata, sar, cotta, lame, t2a]
   epochs: 3
   max_steps_per_epoch: null
   optimizer: adamw

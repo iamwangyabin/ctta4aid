@@ -62,6 +62,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
                 "RoTTA-LN$^{\\ddagger}$ & 69.30 $\\pm$ 1.00", table
             )
             self.assertNotIn("TTC", table)
+            self.assertIn("AIGI-Det-Calib$^{\\S}$ & -- & -- & -- & -- & --", table)
             self.assertIn("Ours-Static & -- & -- & -- & -- & --", table)
             self.assertIn("Ours & -- & -- & -- & -- & --", table)
 
@@ -100,6 +101,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
                 rows = {row["method"]: row for row in csv.DictReader(handle)}
             self.assertEqual(rows["ours"]["genimage"], "")
             self.assertEqual(rows["ours_static"]["genimage"], "")
+            self.assertEqual(rows["aigi_det_calib"]["genimage"], "")
             self.assertIn("61.30", rows["source_ft"]["genimage"])
             self.assertIn("69.30", rows["rotta"]["genimage"])
             self.assertNotIn("ttc", rows)
@@ -117,6 +119,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
             "Source & -- & -- & -- & -- & -- & -- & -- & --", genimage_auc
         )
         self.assertIn("Frozen CLIP & -- & --", genimage_auc)
+        self.assertIn("AIGI-Det-Calib$^{\\S}$ & -- & --", genimage_auc)
         self.assertIn("Tent$^{\\dagger}$", genimage_auc)
         self.assertIn("RoTTA-LN$^{\\ddagger}$", genimage_auc)
         self.assertIn("IAPL & -- & --", genimage_auc)
@@ -202,6 +205,101 @@ class ClipVlmSummaryTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "different bias-control profiles"):
                 SUMMARY_SCRIPT.aggregate_results(dataset_roots)
 
+    def test_imports_strict_causal_aigi_det_calib_as_source_baseline(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            summary = _write_complete_main_summary(root / "main")
+            campaign_root = root / "aigi"
+            _write_aigi_campaign(campaign_root, summary)
+
+            campaign = SUMMARY_SCRIPT.load_aigi_det_calib_campaign(campaign_root)
+            augmented = SUMMARY_SCRIPT.add_aigi_det_calib_results(
+                summary, campaign
+            )
+
+            audit = augmented["auxiliary_methods"]["aigi_det_calib"]["audit"]
+            self.assertEqual(audit["json_files"], 24)
+            self.assertEqual(audit["target_units"], 234)
+            self.assertEqual(audit["paired_sample_identity_units"], 117)
+            self.assertEqual(audit["max_heldout_logit_auc_invariance_error"], 0.0)
+            self.assertIn(
+                "aigi_det_calib",
+                augmented["datasets"]["genimage"]["aggregate"],
+            )
+            self.assertNotIn(
+                "ours_static_aigi_det_calib",
+                augmented["datasets"]["genimage"]["aggregate"],
+            )
+            self.assertAlmostEqual(
+                augmented["datasets"]["genimage"]["aggregate"]
+                ["aigi_det_calib"]["accuracy"]["mean"],
+                0.563,
+            )
+            table = SUMMARY_SCRIPT.render_dataset_table(
+                "genimage", "accuracy", augmented
+            )
+            self.assertIn("AIGI-Det-Calib$^{\\S}$ & 56.00 & 56.10", table)
+            self.assertIn("official label-free scalar offset", table)
+
+            per_seed_base = {
+                dataset: {
+                    seed: {"source_ft": {}}
+                    for seed in SUMMARY_SCRIPT.LOCKED_SEED_DIRS
+                }
+                for dataset in SUMMARY_SCRIPT.DATASET_ORDER
+            }
+            per_seed = SUMMARY_SCRIPT.add_aigi_det_calib_per_seed_summary(
+                per_seed_base, campaign
+            )
+            self.assertAlmostEqual(
+                per_seed["genimage"]["seed0"]["aigi_det_calib"]["accuracy"],
+                0.553,
+            )
+
+            calibration_base = {
+                "seeds": [0, 2, 3],
+                "datasets": {
+                    dataset: {
+                        "per_seed": {
+                            seed: {"source_ft": {}}
+                            for seed in SUMMARY_SCRIPT.LOCKED_SEED_DIRS
+                        },
+                        "aggregate": {"source_ft": {}},
+                        "per_target_aggregate": {"source_ft": {}},
+                    }
+                    for dataset in SUMMARY_SCRIPT.DATASET_ORDER
+                },
+            }
+            calibration = (
+                SUMMARY_SCRIPT.add_aigi_det_calib_calibration_summary(
+                    calibration_base, campaign
+                )
+            )
+            self.assertAlmostEqual(
+                calibration["datasets"]["genimage"]["aggregate"]
+                ["aigi_det_calib"]["ece"]["mean"],
+                0.05,
+            )
+            report = SUMMARY_SCRIPT.summarize_aigi_det_calib_campaign(campaign)
+            self.assertEqual(
+                report["methods"]["ours_static"]["role"],
+                "diagnostic_only_not_a_table_method",
+            )
+
+    def test_rejects_aigi_det_calib_campaign_that_uses_target_labels(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            summary = _write_complete_main_summary(root / "main")
+            campaign_root = root / "aigi"
+            _write_aigi_campaign(campaign_root, summary)
+            path = campaign_root / "source_ft" / "genimage" / "seed0.json"
+            document = json.loads(path.read_text(encoding="utf-8"))
+            document["protocol"]["calibration_labels"] = "target labels"
+            path.write_text(json.dumps(document), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "calibration_labels"):
+                SUMMARY_SCRIPT.load_aigi_det_calib_campaign(campaign_root)
+
 
 def _write_seed(
     dataset_root: Path,
@@ -254,3 +352,138 @@ def _write_seed(
         (seed_root / "experiment_identity.json").write_text(
             json.dumps(experiment_identity), encoding="utf-8"
         )
+
+
+def _write_complete_main_summary(root: Path) -> dict:
+    dataset_roots = {}
+    for dataset_index, dataset in enumerate(SUMMARY_SCRIPT.DATASET_ORDER):
+        dataset_root = root / dataset
+        dataset_roots[dataset] = dataset_root
+        for seed_dir, offset in zip(
+            SUMMARY_SCRIPT.LOCKED_SEED_DIRS,
+            (0.0, 0.01, 0.02),
+            strict=True,
+        ):
+            _write_seed(
+                dataset_root,
+                seed_dir,
+                dataset=dataset,
+                source_ft_auc=0.60 + dataset_index * 0.01 + offset,
+                sar_auc=0.70 + dataset_index * 0.01 + offset,
+                frozen_clip_auc=0.80 + dataset_index * 0.01 + offset,
+                tda_auc=0.75 + dataset_index * 0.01 + offset,
+                iapl_auc=0.80 + dataset_index * 0.01 + offset,
+            )
+    return SUMMARY_SCRIPT.aggregate_results(dataset_roots)
+
+
+def _write_aigi_campaign(root: Path, summary: dict) -> None:
+    for method in ("source_ft", "ours_static"):
+        checkpoint_sha256 = (
+            SUMMARY_SCRIPT.AIGI_DET_CALIB_SOURCE_SHA256
+            if method == "source_ft"
+            else SUMMARY_SCRIPT.AIGI_DET_CALIB_OURS_SHA256
+        )
+        for dataset_index, dataset in enumerate(SUMMARY_SCRIPT.DATASET_ORDER):
+            targets = [
+                target for target, _label in SUMMARY_SCRIPT.DATASET_TARGETS[dataset]
+            ]
+            for seed_index, (seed_dir, seed) in enumerate(
+                zip(SUMMARY_SCRIPT.LOCKED_SEED_DIRS, (0, 2, 3), strict=True)
+            ):
+                target_results = {}
+                for target_index, target in enumerate(targets):
+                    if method == "source_ft":
+                        base = dict(
+                            summary["datasets"][dataset]["per_seed"][seed_dir]
+                            ["source_ft"][target]
+                        )
+                    else:
+                        value = 0.7 + dataset_index * 0.01 + seed_index * 0.01
+                        base = {
+                            "auc": value,
+                            "average_precision": value - 0.01,
+                            "accuracy": value - 0.10,
+                            "balanced_accuracy": value - 0.02,
+                        }
+                    base.update(
+                        {
+                            "brier_score": 0.40,
+                            "nll": 1.20,
+                            "ece": 0.30,
+                            "samples": 1500,
+                        }
+                    )
+                    base_heldout = dict(base)
+                    base_heldout["samples"] = 1400
+                    calibrated_heldout = dict(base_heldout)
+                    calibrated_heldout.update(
+                        {"brier_score": 0.24, "nll": 0.68, "ece": 0.04}
+                    )
+                    causal = {
+                        "auc": base["auc"] - 0.01,
+                        "average_precision": base["average_precision"] - 0.01,
+                        "accuracy": base["accuracy"] + 0.05,
+                        "balanced_accuracy": base["balanced_accuracy"] + 0.04,
+                        "brier_score": 0.25,
+                        "nll": 0.70,
+                        "ece": 0.05,
+                        "samples": 1500,
+                    }
+                    digest_value = (
+                        dataset_index * 1000 + seed_index * 100 + target_index + 1
+                    )
+                    target_results[target] = {
+                        "samples": 1500,
+                        "warmup_samples": 100,
+                        "heldout_samples": 1400,
+                        "sample_ids_sha256": f"{digest_value:064x}",
+                        "base_full": base,
+                        "base_heldout": base_heldout,
+                        "calibrated_heldout": calibrated_heldout,
+                        "causal_prequential_full": causal,
+                        "heldout_logit_auc_invariance_error": 0.0,
+                    }
+                document = {
+                    "format": "aigi_det_calib_strict_causal_v1",
+                    "status": "complete",
+                    "method": method,
+                    "dataset": dataset,
+                    "seed": seed,
+                    "protocol": {
+                        "data_profile": "matched_jpeg",
+                        "locked_sample_order": True,
+                        "warmup_samples": 100,
+                        "calibration_subset": (
+                            "first_n_samples_in_locked_target_stream"
+                        ),
+                        "calibration_labels": (
+                            "constant_dummy_only; hidden labels never passed"
+                        ),
+                        "real_ratio": 0.5,
+                        "causal_rule": (
+                            "source predictions for warmup, fixed offset thereafter"
+                        ),
+                        "secondary_metric": "full_causal_prequential",
+                        "retroactive_full": "diagnostic_only",
+                    },
+                    "identity": {
+                        "project_commit": (
+                            SUMMARY_SCRIPT.AIGI_DET_CALIB_PROJECT_COMMIT
+                        ),
+                        "official_commit": (
+                            SUMMARY_SCRIPT.AIGI_DET_CALIB_OFFICIAL_COMMIT
+                        ),
+                        "official_file_sha256": (
+                            SUMMARY_SCRIPT.AIGI_DET_CALIB_FILE_SHA256
+                        ),
+                        "clip_checkpoint_sha256": (
+                            SUMMARY_SCRIPT.AIGI_DET_CALIB_CLIP_SHA256
+                        ),
+                        "source_checkpoint_sha256": checkpoint_sha256,
+                    },
+                    "targets": target_results,
+                }
+                path = root / method / dataset / f"{seed_dir}.json"
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(json.dumps(document), encoding="utf-8")

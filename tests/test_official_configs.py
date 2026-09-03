@@ -105,6 +105,7 @@ class OfficialConfigTests(unittest.TestCase):
             "rotta": "67e34c900cdd355fc07e55edd4c577ea7b8ebcc9",
             "lame": "d2e5f63090bc1c8129bf7cbd781029a5955e1a67",
             "t2a": "33c8ccc64afdda260564123d6c790d030a89ff81",
+            "aigi_det_calib": "66d4bc606f7cf325d9bd4e67ca34b0c59d6a9d53",
             "ost": "1e4518b9e560baf9c5693f13a402fa5d7104190f",
             "iapl": "a173e7783bbafaa00d60e6e31774a0bc14411a23",
             "openai_clip": "d05afc436d78f1c48dc0dbf8e5980a9d471f35f6",
@@ -405,7 +406,16 @@ class OfficialConfigTests(unittest.TestCase):
         self.assertEqual(training["fisher_samples"], 2000)
         self.assertEqual(
             training["intended_methods"],
-            ["source_ft", "tent", "eata", "sar", "cotta", "lame", "t2a"],
+            [
+                "source_ft",
+                "aigi_det_calib",
+                "tent",
+                "eata",
+                "sar",
+                "cotta",
+                "lame",
+                "t2a",
+            ],
         )
 
     def test_clip_vlm_bias_controlled_configs_are_isolated_from_raw_runs(self) -> None:
@@ -454,6 +464,17 @@ class OfficialConfigTests(unittest.TestCase):
                             config["data"]["bias_control_profile"], profile
                         )
                         self.assertEqual(config["data"]["root"], expected_root)
+                        if profile == "matched_jpeg":
+                            baseline = config["reporting"][
+                                "external_official_baselines"
+                            ]["aigi_det_calib"]
+                            self.assertEqual(baseline["source_method"], "source_ft")
+                            self.assertEqual(baseline["warmup_samples"], 100)
+                            self.assertEqual(baseline["heldout_samples"], 1400)
+                            self.assertEqual(baseline["target_labels"], "evaluator_only")
+                            self.assertEqual(
+                                baseline["table_slice"], "causal_prequential_full"
+                            )
                         self.assertEqual(
                             config["output_dir"],
                             "${CTTA4AID_EXPERIMENT_ROOT}/"

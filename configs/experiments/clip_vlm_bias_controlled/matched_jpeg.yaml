@@ -5,3 +5,15 @@ campaign:
 
 data:
   bias_control_profile: matched_jpeg
+
+reporting:
+  external_official_baselines:
+    aigi_det_calib:
+      source_method: source_ft
+      official_commit: 66d4bc606f7cf325d9bd4e67ca34b0c59d6a9d53
+      warmup_samples: 100
+      warmup_prediction: unchanged_source
+      heldout_samples: 1400
+      heldout_prediction: fixed_unsupervised_scalar_offset
+      target_labels: evaluator_only
+      table_slice: causal_prequential_full

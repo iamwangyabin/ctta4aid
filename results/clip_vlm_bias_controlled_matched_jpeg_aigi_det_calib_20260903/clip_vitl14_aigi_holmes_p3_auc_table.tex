@@ -1,0 +1,43 @@
+\begin{table*}[t]
+\centering
+\caption{Target-wise AUC (\%) on AIGI-Holmes P3 with OpenAI CLIP ViT-L/14. Target columns report means over three locked seeds; Mean reports the target-macro mean $\pm$ standard deviation across seeds.}
+\label{tab:clip-vitl14-aigi-holmes-p3-auc}
+\scriptsize
+\setlength{\tabcolsep}{1.5pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccccc}
+\toprule
+& \multicolumn{10}{c}{AUC (\%) by target} & \multicolumn{1}{c}{Summary} \\
+\cmidrule(lr){2-11}
+\cmidrule(lr){12-12}
+Method & Janus & Janus-Pro-1B & Janus-Pro-7B & Show-o & LlamaGen & Infinity & VAR & PixArt-XL & SD3.5-L & FLUX & Mean \\
+\midrule
+\multicolumn{12}{l}{\textit{Source-trained CLIP detector (shared source checkpoint)}} \\
+Source & 55.67 & \textbf{70.11} & 61.89 & 59.32 & 64.23 & 53.07 & \textbf{61.82} & 66.09 & \textbf{66.16} & 60.34 & 61.87 $\pm$ 0.32 \\
+AIGI-Det-Calib$^{\S}$ & 54.99 & 67.40 & 60.21 & 57.59 & 62.73 & 51.87 & 60.31 & 63.93 & 64.08 & 59.26 & 60.24 $\pm$ 0.47 \\
+Tent$^{\dagger}$ & 53.30 & 61.01 & 55.68 & 46.28 & 43.64 & 48.72 & 54.21 & 40.49 & 56.35 & 49.31 & 50.90 $\pm$ 0.85 \\
+EATA$^{\dagger}$ & \textbf{55.67} & 70.11 & 61.89 & \textbf{59.33} & \textbf{64.23} & 53.07 & \textbf{61.82} & \textbf{66.09} & 66.16 & \textbf{60.34} & \textbf{61.87 $\pm$ 0.32} \\
+SAR & 55.67 & \textbf{70.11} & 61.89 & 59.32 & 64.23 & 53.07 & \textbf{61.82} & 66.09 & \textbf{66.16} & 60.34 & 61.87 $\pm$ 0.32 \\
+CoTTA & 54.11 & 64.68 & \textbf{63.93} & 58.74 & 59.00 & \textbf{55.16} & 56.49 & 60.18 & 63.77 & 56.25 & 59.23 $\pm$ 0.37 \\
+RoTTA-LN$^{\ddagger}$ & 55.67 & 70.10 & 61.85 & 59.31 & 64.21 & 53.05 & 61.81 & 66.05 & 66.13 & 60.29 & 61.85 $\pm$ 0.32 \\
+LAME & 49.61 & 53.59 & 47.36 & 52.64 & 58.14 & 47.35 & 55.20 & 60.19 & 56.67 & 55.07 & 53.58 $\pm$ 0.26 \\
+T$^2$A$^{\dagger}$ & 49.52 & 55.80 & 51.97 & 55.21 & 57.86 & 52.10 & 52.43 & 63.61 & 54.08 & 53.97 & 54.65 $\pm$ 0.78 \\
+\midrule
+\multicolumn{12}{l}{\textit{CLIP-native (method-native text classifier)}} \\
+Frozen CLIP & 57.33 & 67.01 & 62.21 & 74.59 & 88.59 & 66.57 & 71.44 & 67.07 & 60.40 & 62.28 & 67.75 $\pm$ 0.09 \\
+TDA & 64.05 & 59.02 & 56.41 & 57.17 & 58.16 & 58.70 & 64.99 & 52.43 & 38.76 & 56.55 & 56.63 $\pm$ 0.44 \\
+DynaPrompt & \textbf{65.09} & \textbf{71.36} & \textbf{65.27} & 64.34 & 76.79 & 67.06 & 67.89 & 62.27 & 44.39 & 60.25 & 64.47 $\pm$ 0.28 \\
+CLIPTTA & 51.68 & 67.58 & 56.77 & \textbf{75.93} & \textbf{91.89} & \textbf{69.30} & \textbf{78.26} & \textbf{77.07} & \textbf{71.13} & \textbf{66.35} & \textbf{70.60 $\pm$ 0.54} \\
+BATCLIP & 51.52 & 51.28 & 51.13 & 52.40 & 54.38 & 51.73 & 51.49 & 51.46 & 52.01 & 51.43 & 51.88 $\pm$ 0.25 \\
+\midrule
+\multicolumn{12}{l}{\textit{Method-specific source training}} \\
+IAPL & 54.90 & 43.50 & 35.16 & 47.37 & 50.76 & 44.94 & 55.42 & 45.83 & 46.59 & 47.57 & 47.20 $\pm$ 0.10 \\
+Ours-Static & 81.78 & 83.51 & 86.46 & 97.29 & 98.82 & 95.88 & 82.62 & 98.30 & 89.84 & 92.26 & 90.67 $\pm$ 0.02 \\
+Ours & 83.78 & 85.28 & 87.65 & 97.63 & 99.17 & 96.25 & 84.68 & 98.27 & 91.68 & 91.66 & 91.61 $\pm$ 0.16 \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}
+\parbox{\textwidth}{\footnotesize Blocks distinguish source setup; bold is restricted to the two blocks with shared starting states. $^{\dagger}$BatchNorm parameter selection is minimally mapped to LayerNorm affine parameters. $^{\ddagger}$RoTTA-LN explicitly replaces RobustBN with CLIP visual LayerNorm affine adaptation while retaining CSTU, teacher/student EMA, entropy loss, and the 64-instance online update schedule. It uses stream/update microbatch 2 on 24 GB GPUs, accumulating the full weighted-mean loss before one optimizer/EMA update, and is a disclosed ViT transfer, not the original RobustBN method. $^{\S}$AIGI-Det-Calib is applied to Source: its official label-free scalar offset is estimated from the first 100 locked samples of each target; those 100 predictions remain unchanged, and the fixed offset is used only for the following 1,400 samples. Target labels are used only by the evaluator.}
+\end{table*}
