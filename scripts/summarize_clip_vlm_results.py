@@ -143,9 +143,12 @@ TABLE_GROUPS = (
     ),
     (
         "clip_native",
-        "CLIP-native (method-native text classifier)",
+        "CLIP-native adaptation (method-native text classifier)",
         (
-            TableRow("frozen_clip", "Frozen CLIP", "clip_native"),
+            # The frozen zero-shot prompt probe remains in validated summaries
+            # as a supplementary diagnostic. It has neither task-specific
+            # detector training nor a test-time adaptation mechanism, so it is
+            # intentionally excluded from the main paper tables.
             TableRow("tda", "TDA", "clip_native"),
             TableRow("dynaprompt", "DynaPrompt", "clip_native"),
             TableRow("cliptta", "CLIPTTA", "clip_native"),

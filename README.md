@@ -4,7 +4,7 @@
 
 - **CLIP ViT-L/14 论文主实验**：唯一预训练模型固定为 OpenAI CLIP ViT-L/14，正式 target 输入固定为 `matched_jpeg`，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上按方法原生训练及适配方式比较通用 TTA、CLIP-native 与任务专用方法，只做接入 ViT-L/14 和二分类数据所必需的最小修改。
 - **Controlled CTTA 补充实验**：Source、TENT、EATA、CoTTA、RoTTA、LAME 和 T2A 共用同一个 ResNet-50 源模型，保留为 CNN 对照与补充材料。
-- **IAPL 独立能力**：从同一 CLIP ViT-L/14 预训练底座按 IAPL 原生源训练流程得到任务 checkpoint，再按逐图 Adapt-Then-Predict 协议运行；主表中必须显式标出其 source setup 与 Frozen CLIP 不同。
+- **IAPL 独立能力**：从同一 CLIP ViT-L/14 预训练底座按 IAPL 原生源训练流程得到任务 checkpoint，再按逐图 Adapt-Then-Predict 协议运行；主表中必须显式标出其 source setup 与未做任务训练的 zero-shot CLIP state 不同。
 - **OST 补充实验**：使用作者的 MetaXception、AM-Softmax 和单步 fast weights；每张测试图从源训练集抽取带标签模板，合成伪样本后 Adapt-Then-Predict。
 
 已确认的 ResNet-50 结果仍按独立目录保存在 `results/`，只提交最终汇总、复现身份和结论，不提交运行日志或中间产物。新的 CLIP 正文结果必须写入明确标识 `matched_jpeg` 的 `results/clip_vlm_bias_controlled_*` 目录，绝不覆盖这些补充材料。
@@ -69,17 +69,23 @@ batch/views、状态转移、预测/适应顺序和 prompt 构造，只做接入
 `matched_jpeg` 主结果混表。四个数据集的逐 target AUC 与 Accuracy 详细表均保留在正文；
 原始 16-method campaign 已验收并冻结在
 `results/clip_vlm_bias_controlled_matched_jpeg_20260902/`；加入独立
-AIGI-Det-Calib baseline 后的 17-method 正文版本保存在
+AIGI-Det-Calib baseline 后的 17-method 完整验收版本保存在
 `results/clip_vlm_bias_controlled_matched_jpeg_aigi_det_calib_20260903/`，
-不会回写或覆盖前一目录。
+不会回写或覆盖前一目录。正文从该完整结果中报告 16 行；其中
+`frozen_clip` 的 117 个 `target x seed` 单元只作为补充诊断保留，不进入正文表格。
 
 主表按 source setup 分为三个区块：
 
 | 区块 | 起点 | 方法 | 比较规则 |
 |---|---|---|---|
 | 公共源域 CLIP detector | 固定 ViT-L/14 初始化后，在同一源数据上训练的公共二分类 checkpoint | Source、AIGI-Det-Calib、TENT、EATA、SAR、CoTTA、RoTTA-LN、LAME、T2A | 共享源 checkpoint，可在块内比较最佳结果 |
-| CLIP-native | 未做任务微调的固定 ViT-L/14 checkpoint | Frozen CLIP、TDA、DynaPrompt、CLIPTTA、BATCLIP | 共享二分类类别语义，各自保留原生 template、文本分类器或 prompt learner |
+| CLIP-native adaptation | 未做任务微调的固定 ViT-L/14 checkpoint | TDA、DynaPrompt、CLIPTTA、BATCLIP | 共享二分类类别语义，各自保留原生 template、文本分类器或 prompt learner |
 | Method-specific source training | 固定 ViT-L/14 初始化后，按方法自己的源训练流程得到的 checkpoint | IAPL、Ours | source state 不同，只披露数值，不做跨块最佳排名 |
+
+`frozen_clip` 仍保留配置、实现和完整结果，用固定 real/fake 文本原型衡量预训练
+CLIP 中偶然存在的零样本语义信号。它没有任务检测器训练，也没有测试时适应机制，且其
+prompt ensemble 不是各 CLIP-native 方法的严格配对静态版本。因此它只在补充材料中说明，
+不作为正文方法行，也不参与任何最佳结果排名。
 
 各方法的冻结运行约定如下。`BN -> LN` 只表示把公开实现中的归一化参数枚举映射到
 CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fisher、gradient masking
@@ -139,8 +145,9 @@ detector 方法之间共享。每种方法的分类器或 prompt 构造、可训
 采样与 DataLoader 顺序完全一致后再冻结 seed-3 manifest。
 训练配置还固定排除了 preflight 检出的三条零字节 SD v1.4 源图逻辑路径；不会用空白或
 合成像素替代损坏样本。
-三个正式 seed 的 1,989 个正文 `method x target x seed` 单元均已通过样本身份、输入 profile、
-checkpoint、方法协议和有限指标检查，八张新表已经填入 `matched_jpeg` 汇总；此前完成的
+三个正式 seed 的 1,989 个完整 campaign `method x target x seed` 单元均已通过样本身份、输入
+profile、checkpoint、方法协议和有限指标检查；排除 117 个补充 Frozen CLIP 诊断单元后，
+八张正文表报告其余 1,872 个单元。此前完成的
 ResNet-50 数值表仍原样保留在论文补充材料中。RoTTA-LN 数值来自独立运行并保留必要迁移
 说明。AIGI-Det-Calib 的表格行只使用公共 `source_ft` checkpoint 上的严格无标签因果结果；
 `ours_static + AIGI-Det-Calib` 仅保存在校验汇总中作诊断。TTC 因没有可固定的作者公开实现而
@@ -338,7 +345,7 @@ python scripts/summarize_continual_results.py \
 
 ## IAPL
 
-IAPL 是独立的逐图协议。它对每张图生成 32 个视图，重置 prompt 和优化器，执行 2 步适应后再预测。BatchNorm buffers 只在同一个目标域内部跨图片保留；切换目标域时重新加载模型，因此各目标结果相互独立。CLIP 主表可报告其数值，但必须将作者任务 checkpoint 标为不同于 Frozen CLIP 的 source setup。
+IAPL 是独立的逐图协议。它对每张图生成 32 个视图，重置 prompt 和优化器，执行 2 步适应后再预测。BatchNorm buffers 只在同一个目标域内部跨图片保留；切换目标域时重新加载模型，因此各目标结果相互独立。CLIP 主表可报告其数值，但必须将作者任务 checkpoint 标为不同于未做任务训练的 zero-shot CLIP state。
 
 IAPL 与 CLIP VLM 主轨和 CNN Controlled CTTA 共用 `src.data` 中的 dataset factory、domain loader 和样本三元组接口。IAPL 使用全局/局部多视图变换；CLIP VLM 其余方法分别使用单视图或其作者的原生多视图变换。
 
@@ -577,7 +584,7 @@ UnivFD/Ojha、RINE 和 NPR 已在同一 GenImage SD v1.4 Arrow 源训练集上�
 
 - CLIP 主结果只使用固定 OpenAI CLIP ViT-L/14 预训练权重，并锁定目标样本 identity、目标内顺序和 seed；每种方法保留原生 source training、分类器或 prompt 构造、batch/views、在线状态与预测/适应顺序。每个数据集分别报告逐 target AUC 和阈值 0.5 的 Accuracy；target 单元格为三 seed 均值，Mean 为 target-macro 均值及跨 seed 标准差。
 - TENT、EATA 和 T2A 只允许把公开实现中的 BN 参数参照最小映射到 CLIP visual LayerNorm affine；其余方法逻辑不得重写。CoTTA 保留作者 ImageNet 分支的全参数 student/teacher 更新，只将其像素空间增强桥接到 CLIP 输入归一化。EATA 必须包含匹配公共源域 CLIP detector 的 Fisher。RoTTA-LN 显式以 visual LayerNorm affine 替代 RobustBN，但保留 CSTU、teacher/student EMA、熵目标和在线更新频率；由于没有 RobustBN 统计插值，它只能按迁移版本名称披露。
-- CLIP-native 方法只共享类别语义，不共享人为固定的一句最终 prompt。IAPL 与 Ours 使用各自原生源训练并单独披露 source setup；TTC 在作者公开实现可固定前仅保留在 related work，不进入定量表。
+- CLIP-native 方法只共享类别语义，不共享人为固定的一句最终 prompt。Frozen CLIP 只保留为补充零样本语义诊断，不进入正文表格；IAPL 与 Ours 使用各自原生源训练并单独披露 source setup；TTC 在作者公开实现可固定前仅保留在 related work，不进入定量表。
 - CNN Controlled CTTA 方法共享 backbone、源 checkpoint、输入顺序、batch size 和 Predict-Then-Adapt 协议；既有数值表原样保留为补充材料，不得被新 CLIP 空表覆盖或删除。
 - OST 使用自己的 MetaXception checkpoint、源训练模板和 Adapt-Then-Predict 协议，只能单独披露；当前通用 alpha 合成结果不等价于作者的人脸实验。
 - T2A 使用经过必要运行修复的作者公开核心，不能描述为未经修改的官方实现。

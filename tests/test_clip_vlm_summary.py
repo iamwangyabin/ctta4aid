@@ -46,6 +46,9 @@ class ClipVlmSummaryTests(unittest.TestCase):
             genimage_source = summary["datasets"]["genimage"]["aggregate"]["source_ft"]
             self.assertAlmostEqual(genimage_source["auc"]["mean"], 0.613)
             self.assertGreater(genimage_source["auc"]["std"], 0.0)
+            self.assertIn(
+                "frozen_clip", summary["datasets"]["genimage"]["aggregate"]
+            )
             biggan_source = summary["datasets"]["genimage"][
                 "per_target_aggregate"
             ]["source_ft"]["BigGAN"]
@@ -57,7 +60,8 @@ class ClipVlmSummaryTests(unittest.TestCase):
             self.assertIn("Source-trained CLIP detector", table)
             self.assertIn("CLIP-native", table)
             self.assertIn("\\textbf{71.30 $\\pm$ 1.00}", table)
-            self.assertIn("\\textbf{81.30 $\\pm$ 1.00}", table)
+            self.assertIn("\\textbf{76.30 $\\pm$ 1.00}", table)
+            self.assertNotIn("Frozen CLIP", table)
             self.assertIn(
                 "RoTTA-LN$^{\\ddagger}$ & 69.30 $\\pm$ 1.00", table
             )
@@ -104,6 +108,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
             self.assertEqual(rows["aigi_det_calib"]["genimage"], "")
             self.assertIn("61.30", rows["source_ft"]["genimage"])
             self.assertIn("69.30", rows["rotta"]["genimage"])
+            self.assertNotIn("frozen_clip", rows)
             self.assertNotIn("ttc", rows)
 
     def test_blank_detailed_templates_keep_every_result_cell_empty(self) -> None:
@@ -118,7 +123,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
         self.assertIn(
             "Source & -- & -- & -- & -- & -- & -- & -- & --", genimage_auc
         )
-        self.assertIn("Frozen CLIP & -- & --", genimage_auc)
+        self.assertNotIn("Frozen CLIP", genimage_auc)
         self.assertIn("AIGI-Det-Calib$^{\\S}$ & -- & --", genimage_auc)
         self.assertIn("Tent$^{\\dagger}$", genimage_auc)
         self.assertIn("RoTTA-LN$^{\\ddagger}$", genimage_auc)

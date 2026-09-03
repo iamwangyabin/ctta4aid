@@ -8,9 +8,9 @@
 
 项目必须同时保留五条实验轨道：
 
-1. **CLIP ViT-L/14 论文主实验**：唯一预训练模型固定为 OpenAI CLIP ViT-L/14，正式 target 输入固定为 `matched_jpeg` profile，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上报告方法原生的在线结果。候选方法为 Source、AIGI-Det-Calib、TENT、EATA、SAR、CoTTA、RoTTA-LN、LAME、T2A、Frozen CLIP、TDA、DynaPrompt、CLIPTTA、BATCLIP、IAPL 和 Ours；只有满足下述最小迁移与公开实现约束的方法才产生数值。四个数据集的逐 target AUC 与 Accuracy 详细表均属于正文主结果，版面压缩问题后续单独处理。
+1. **CLIP ViT-L/14 论文主实验**：唯一预训练模型固定为 OpenAI CLIP ViT-L/14，正式 target 输入固定为 `matched_jpeg` profile，在 GenImage、AIGCDetectionBenchmark、AIGI-Holmes P3 和 OpenSDID Global 上报告方法原生的在线结果。候选方法为 Source、AIGI-Det-Calib、TENT、EATA、SAR、CoTTA、RoTTA-LN、LAME、T2A、TDA、DynaPrompt、CLIPTTA、BATCLIP、IAPL 和 Ours；只有满足下述最小迁移与公开实现约束的方法才产生数值。Frozen CLIP 不具备任务检测器训练或测试时适应机制，只保留为补充零样本语义诊断，不进入正文表格或块内最佳排名。四个数据集的逐 target AUC 与 Accuracy 详细表均属于正文主结果，版面压缩问题后续单独处理。
 2. **Controlled CTTA 补充实验**：公共 ResNet-50 checkpoint 下的 Source、TENT、EATA、CoTTA、RoTTA、LAME 和 T2A。已确认结果保持不可变，作为 CNN 对照与补充材料，不再作为论文主表。
-3. **IAPL 补充轨道**：CLIP ViT-L/14、逐图 Adapt-Then-Predict 的独立方法能力；主表若列出 IAPL，必须标注其作者发布的任务 checkpoint，不能写成与 Frozen CLIP 相同的 source state。
+3. **IAPL 补充轨道**：CLIP ViT-L/14、逐图 Adapt-Then-Predict 的独立方法能力；主表若列出 IAPL，必须标注其作者发布的任务 checkpoint，不能写成与未做任务训练的 zero-shot CLIP state 相同。
 4. **OST 补充实验**：MetaXception、源训练模板、逐图一次 fast-weight 更新的独立方法轨道。
 5. **JPEG 输入协议与补充审计**：`matched_jpeg` 是 CLIP ViT-L/14 正文主实验的正式输入协议；原始编码和 `all_jpeg_q90` 仅作为分离的补充敏感性审计。三者必须保留独立 Arrow、运行目录、metadata 和汇总，任何结果不得互相覆盖或混入。
 
@@ -66,7 +66,8 @@ src/
 - 所有方法共享目标样本身份、目标内顺序、三个正式验证 seed `0/2/3` 与 target-label embargo；seed 1 只用于开发选择，不得进入正文正式均值。各方法保留论文原生的 source training、batch/views、状态转移、预测/适应顺序和 prompt 构造，只做接入固定 CLIP、二分类数据与统一 evaluator 所必需的改动。
 - 通用检测器适配方法 Source、TENT、EATA、SAR、CoTTA、RoTTA-LN、LAME 与 T2A 必须共享一个从固定 ViT-L/14 权重开始训练的源域二分类 checkpoint。它们不得被强行改成固定文本 prompt 分类器。
 - AIGI-Det-Calib 是作用于上述公共 Source detector logits 的独立阈值校准 baseline，固定作者实现 commit `66d4bc606f7cf325d9bd4e67ca34b0c59d6a9d53`。正式结果按每个 target 的锁定顺序用前 100 个样本无标签估计一个 scalar offset；这 100 个样本保留 Source prediction，后 1,400 个样本只使用已固定的 offset。隐藏标签只能进入 evaluator，`real_ratio=0.5` 固定，不得通过标签选择 offset。主表只报告 `source_ft` 上的完整因果 prequential 结果；`ours_static + AIGI-Det-Calib` 仅为诊断，不是独立方法行。该方法只能解释为 threshold calibration baseline，不得声称提高排序能力。
-- CLIP-native 方法 Frozen CLIP、TDA、DynaPrompt、CLIPTTA 与 BATCLIP 直接从相同预训练 checkpoint 出发，保留各自论文的文本分类器、template 或 prompt learner。它们只共享二分类类别语义，不共享一条人为固定的最终 prompt；不得使用目标标签选择文本或超参数。
+- CLIP-native 方法 TDA、DynaPrompt、CLIPTTA 与 BATCLIP 直接从相同预训练 checkpoint 出发，保留各自论文的文本分类器、template 或 prompt learner。它们只共享二分类类别语义，不共享一条人为固定的最终 prompt；不得使用目标标签选择文本或超参数。
+- `frozen_clip` 的配置、实现和已验收结果继续保留，以便补充材料审计固定文本原型所包含的零样本语义信号。它没有任务特定的 detector head、源域训练或测试时更新，而且不是上述 CLIP-native 方法各自 prompt 构造的严格配对静态版本，因此不得进入正文定量表或参与最佳结果选择。
 - IAPL 与 Ours 保留各自方法要求的源训练，但底层初始化仍必须来自同一固定 ViT-L/14 权重。主表必须把这类 method-specific source training 与前两组分块披露，不得跨 source setup 加粗全局最佳。
 - Ours 的最终方法固定为内部版本 R47：从固定 ViT-L/14 初始化的 rank-4 LoRA 二分类 source checkpoint 出发，保留 R37 的 BIC/GMM 分段与伪监督、CLIP 特征专家路由、每专家类条件 Gaussian 充分统计和 residual MLP，只在预测读出时把 feature-dependent residual 固定缩放为 `0.75`，并在同一批平衡 replay 上用无 optimizer 的一维二分法重新拟合一个专家截距。`0.75` 的来源必须披露为四数据集 seed-1 开发筛选，此后不得继续调参；seed 0、2 和 3 是独立验证 seed。正文统一写作 Ours，不把 R37/R47 包装成两套主方法；R37 只作为去掉 shrinkage/intercept refitting 的消融。当前框架只保留一个参数化的 Ours 实现及 `ours`、`ours_no_calibrated_readout`、`ours_static` 三个运行名，其中 static 只是冻结对照；R37 与 R47 必须直接由同一个类构建，不得互相继承。其他 Rxx、ASCAL、PoundTTA 的实现、注册别名、方法配置和实验入口不得重新引入；历史仅通过 Git 追溯。正式配置必须成对运行同 source checkpoint 的 `ours_static` 与 `ours`。
 - Ours 的补充无边界复现流固定为 GenImage `SD1.5_first -> BigGAN -> ADM -> SD1.5_return`，正式 seed 为 `0/2/3`。每个 online episode 固定每类 224 个样本，每个 evaluator-only holdout episode 固定每类 112 个互斥样本；两个 SD1.5 episode 也必须彼此互斥。episode alias、generator identity、真实切换点和 labels 均不得传给方法。该补充只比较 `ours_static`、R37、R47、CoTTA 与 RoTTA-LN；不同方法可保留原生 batch size，因此 manifest 锁定样本身份和全局顺序而不锁定 delivery batch 划分。Detect、Route、Update 的因果消融必须复用同一 R47 类、同一 checkpoint、同一 manifest 和同一固定读出，每次只通过 `ablation_mode` 分别关闭一个模块，不得注册新的方法别名；消融结果写入对应 seed 下的 `ablations/no_detect`、`ablations/no_route` 和 `ablations/no_update`。完整流结果独立写入 `clip_vlm_bias_controlled/matched_jpeg/genimage_recurrence/seed<seed>`，不得混入正文单目标主表。
