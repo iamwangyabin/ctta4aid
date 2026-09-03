@@ -74,13 +74,17 @@ AIGI-Det-Calib baseline 后的 17-method 完整验收版本保存在
 不会回写或覆盖前一目录。正文从该完整结果中报告 16 行；其中
 `frozen_clip` 的 117 个 `target x seed` 单元只作为补充诊断保留，不进入正文表格。
 
-主表按 source setup 分为三个区块：
+三类 source setup 仍按下表完整披露，但不再作为八张正文表中的重复分组标题：
 
 | 区块 | 起点 | 方法 | 比较规则 |
 |---|---|---|---|
-| 公共源域 CLIP detector | 固定 ViT-L/14 初始化后，在同一源数据上训练的公共二分类 checkpoint | Source、AIGI-Det-Calib、TENT、EATA、SAR、CoTTA、RoTTA-LN、LAME、T2A | 共享源 checkpoint，可在块内比较最佳结果 |
+| 公共源域 CLIP detector | 固定 ViT-L/14 初始化后，在同一源数据上训练的公共二分类 checkpoint | Source、AIGI-Det-Calib、TENT、EATA、SAR、CoTTA、RoTTA-LN、LAME、T2A | 共享源 checkpoint，可作严格配对比较 |
 | CLIP-native adaptation | 未做任务微调的固定 ViT-L/14 checkpoint | TDA、DynaPrompt、CLIPTTA、BATCLIP | 共享二分类类别语义，各自保留原生 template、文本分类器或 prompt learner |
-| Method-specific source training | 固定 ViT-L/14 初始化后，按方法自己的源训练流程得到的 checkpoint | IAPL、Ours | source state 不同，只披露数值，不做跨块最佳排名 |
+| Method-specific source training | 固定 ViT-L/14 初始化后，按方法自己的源训练流程得到的 checkpoint | IAPL、Ours | source state 不同，跨方法数值只作描述性比较 |
+
+正文表将 Source 至 IAPL 连续列为外部基线，只在 `Ours-Static` 前保留一条横线，随后列出
+`Ours-Static` 与 `Ours`。每列加粗分别表示横线上方最佳外部基线和横线下方较优的我们的
+配对版本；严格的适应增益仍只从相同 source state 的配对结果推断。
 
 `frozen_clip` 仍保留配置、实现和完整结果，用固定 real/fake 文本原型衡量预训练
 CLIP 中偶然存在的零样本语义信号。它没有任务检测器训练，也没有测试时适应机制，且其

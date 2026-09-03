@@ -121,51 +121,45 @@ class TableRow(NamedTuple):
     available: bool = True
 
 
-TABLE_GROUPS = (
+RANK_GROUPS = ("baselines", "ours")
+
+TABLE_SECTIONS = (
     (
-        "source_trained",
-        "Source-trained CLIP detector (shared source checkpoint)",
+        "baselines",
         (
-            TableRow("source_ft", "Source", "source_trained"),
+            TableRow("source_ft", "Source", "baselines"),
             TableRow(
                 AIGI_DET_CALIB_METHOD,
                 "AIGI-Det-Calib$^{\\S}$",
-                "source_trained",
+                "baselines",
             ),
-            TableRow("tent", "Tent$^{\\dagger}$", "source_trained"),
-            TableRow("eata", "EATA$^{\\dagger}$", "source_trained"),
-            TableRow("sar", "SAR", "source_trained"),
-            TableRow("cotta", "CoTTA", "source_trained"),
-            TableRow("rotta", "RoTTA-LN$^{\\ddagger}$", "source_trained"),
-            TableRow("lame", "LAME", "source_trained"),
-            TableRow("t2a", "T$^2$A$^{\\dagger}$", "source_trained"),
-        ),
-    ),
-    (
-        "clip_native",
-        "CLIP-native adaptation (method-native text classifier)",
-        (
+            TableRow("tent", "Tent$^{\\dagger}$", "baselines"),
+            TableRow("eata", "EATA$^{\\dagger}$", "baselines"),
+            TableRow("sar", "SAR", "baselines"),
+            TableRow("cotta", "CoTTA", "baselines"),
+            TableRow("rotta", "RoTTA-LN$^{\\ddagger}$", "baselines"),
+            TableRow("lame", "LAME", "baselines"),
+            TableRow("t2a", "T$^2$A$^{\\dagger}$", "baselines"),
             # The frozen zero-shot prompt probe remains in validated summaries
             # as a supplementary diagnostic. It has neither task-specific
             # detector training nor a test-time adaptation mechanism, so it is
             # intentionally excluded from the main paper tables.
-            TableRow("tda", "TDA", "clip_native"),
-            TableRow("dynaprompt", "DynaPrompt", "clip_native"),
-            TableRow("cliptta", "CLIPTTA", "clip_native"),
-            TableRow("batclip", "BATCLIP", "clip_native"),
+            TableRow("tda", "TDA", "baselines"),
+            TableRow("dynaprompt", "DynaPrompt", "baselines"),
+            TableRow("cliptta", "CLIPTTA", "baselines"),
+            TableRow("batclip", "BATCLIP", "baselines"),
+            TableRow("iapl", "IAPL", "baselines"),
         ),
     ),
     (
-        "method_specific",
-        "Method-specific source training",
+        "ours",
         (
-            TableRow("iapl", "IAPL", None),
-            TableRow("ours_static", "Ours-Static", None),
-            TableRow("ours", "Ours", None),
+            TableRow("ours_static", "Ours-Static", "ours"),
+            TableRow("ours", "Ours", "ours"),
         ),
     ),
 )
-TABLE_ROWS = tuple(row for _key, _label, rows in TABLE_GROUPS for row in rows)
+TABLE_ROWS = tuple(row for _key, rows in TABLE_SECTIONS for row in rows)
 
 
 def _mean_std(values: list[float]) -> dict[str, float]:
@@ -1014,7 +1008,7 @@ def render_dataset_table(
         (rank_group, target): _best_detailed_methods(
             summary, dataset, metric, rank_group, target
         )
-        for rank_group in ("source_trained", "clip_native")
+        for rank_group in RANK_GROUPS
         for target in (None, *(target for target, _label in targets))
     }
     latex_newline = r"\\"
@@ -1043,13 +1037,9 @@ def render_dataset_table(
         + latex_newline,
         "\\midrule",
     ]
-    for group_index, (_group_key, group_label, rows) in enumerate(TABLE_GROUPS):
-        if group_index:
+    for section_index, (_section_key, rows) in enumerate(TABLE_SECTIONS):
+        if section_index:
             lines.append("\\midrule")
-        lines.append(
-            f"\\multicolumn{{{total_columns}}}{{l}}{{\\textit{{{group_label}}}}} "
-            + latex_newline
-        )
         for row in rows:
             if not row.available:
                 rendered_targets = ["--"] * len(targets)
@@ -1090,21 +1080,13 @@ def render_dataset_table(
             "\\end{tabular}%",
             "}",
             "\\vspace{2pt}",
-            "\\parbox{\\textwidth}{\\footnotesize Blocks distinguish source "
-            "setup; bold is restricted to the two blocks with shared starting "
-            "states. $^{\\dagger}$BatchNorm parameter selection is minimally "
-            "mapped to LayerNorm affine parameters. $^{\\ddagger}$RoTTA-LN "
-            "explicitly replaces RobustBN with CLIP visual LayerNorm affine "
-            "adaptation while retaining CSTU, teacher/student EMA, entropy loss, "
-            "and the 64-instance online update schedule. It uses stream/update "
-            "microbatch 2 on 24 GB GPUs, accumulating the full weighted-mean loss "
-            "before one optimizer/EMA update, and is a "
-            "disclosed ViT transfer, not the original RobustBN method. "
-            "$^{\\S}$AIGI-Det-Calib is applied to Source: its official "
-            "label-free scalar offset is estimated from the first 100 locked "
-            "samples of each target; those 100 predictions remain unchanged, "
-            "and the fixed offset is used only for the following 1,400 samples. "
-            "Target labels are used only by the evaluator.}",
+            "\\parbox{\\textwidth}{\\footnotesize The single rule separates "
+            "prior methods from our paired static and adaptive models. Bold "
+            "marks the best result on each side of the rule. "
+            "$^{\\dagger}$BN-to-LN parameter mapping; $^{\\ddagger}$RoTTA-LN "
+            "ViT transfer; $^{\\S}$strictly causal AIGI-Det-Calib. Full source "
+            "setups and transfer details appear in "
+            "Section~\\ref{sec:experiments}.}",
             "\\end{table*}",
             "",
         ]
@@ -1117,7 +1099,7 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
 
     best_by_group_dataset = {
         (rank_group, dataset): _best_methods(summary, dataset, rank_group)
-        for rank_group in ("source_trained", "clip_native")
+        for rank_group in RANK_GROUPS
         for dataset in DATASET_ORDER
     }
     latex_newline = r"\\"
@@ -1138,12 +1120,9 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
         + latex_newline,
         "\\midrule",
     ]
-    for group_index, (_group_key, group_label, rows) in enumerate(TABLE_GROUPS):
-        if group_index:
+    for section_index, (_section_key, rows) in enumerate(TABLE_SECTIONS):
+        if section_index:
             lines.append("\\midrule")
-        lines.append(
-            f"\\multicolumn{{6}}{{l}}{{\\textit{{{group_label}}}}} " + latex_newline
-        )
         for row in rows:
             if not row.available:
                 rendered = ["--"] * len(DATASET_ORDER)
@@ -1182,28 +1161,12 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
             "\\end{tabular}",
             "\\vspace{2pt}",
             "\\parbox{\\textwidth}{\\footnotesize "
-            "Every method uses the same OpenAI CLIP ViT-L/14 pretrained "
-            "initialization. Source-trained methods share one binary source "
-            "checkpoint; CLIP-native methods retain their original text-classifier "
-            "or prompt construction; method-specific rows retain their native "
-            "source training. Batch/view contracts, state transitions, and "
-            "prediction/adaptation order follow each public method. Bold marks the "
-            "best result only within a shared-source block. $^{\\dagger}$The "
-            "method's BatchNorm parameter selection is minimally mapped to CLIP "
-            "LayerNorm affine parameters without changing its objective or online "
-            "logic. $^{\\ddagger}$RoTTA-LN explicitly replaces RobustBN with CLIP "
-            "visual LayerNorm affine adaptation while retaining CSTU, "
-            "teacher/student EMA, entropy loss, and the online update schedule; "
-            "its stream/update microbatch is 2 on 24 GB GPUs, while the full "
-            "64-sample weighted-mean loss still receives one optimizer/EMA update. "
-            "It is a disclosed ViT transfer rather "
-            "than the original RobustBN method. $^{\\S}$AIGI-Det-Calib uses "
-            "Source logits and a strict causal protocol: the official label-free "
-            "scalar offset is estimated from the first 100 locked target samples, "
-            "whose source predictions remain unchanged, and is then fixed for the "
-            "remaining 1,400 samples. Target labels are never used for "
-            "prompt or hyperparameter "
-            "selection.}",
+            "The single rule separates prior methods from our paired static and "
+            "adaptive models. Bold marks the best result on each side of the "
+            "rule. $^{\\dagger}$BN-to-LN parameter mapping; "
+            "$^{\\ddagger}$RoTTA-LN ViT transfer; $^{\\S}$strictly causal "
+            "AIGI-Det-Calib. Full source setups and transfer details appear in "
+            "Section~\\ref{sec:experiments}.}",
             "\\end{table*}",
             "",
         ]

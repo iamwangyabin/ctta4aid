@@ -57,10 +57,11 @@ class ClipVlmSummaryTests(unittest.TestCase):
 
             table = SUMMARY_SCRIPT.render_latex_table(summary)
             self.assertIn("sole pretrained model", table)
-            self.assertIn("Source-trained CLIP detector", table)
-            self.assertIn("CLIP-native", table)
-            self.assertIn("\\textbf{71.30 $\\pm$ 1.00}", table)
-            self.assertIn("\\textbf{76.30 $\\pm$ 1.00}", table)
+            self.assertNotIn("Source-trained CLIP detector", table)
+            self.assertNotIn("CLIP-native", table)
+            self.assertNotIn("\\textbf{71.30 $\\pm$ 1.00}", table)
+            self.assertIn("\\textbf{81.30 $\\pm$ 1.00}", table)
+            self.assertEqual(table.count("\\midrule"), 2)
             self.assertNotIn("Frozen CLIP", table)
             self.assertIn(
                 "RoTTA-LN$^{\\ddagger}$ & 69.30 $\\pm$ 1.00", table
@@ -77,7 +78,15 @@ class ClipVlmSummaryTests(unittest.TestCase):
             self.assertIn("BigGAN & ADM & GLIDE & SD v1.5", auc_table)
             self.assertIn("Source & 61.00 & 61.10", auc_table)
             self.assertIn("61.30 $\\pm$ 1.00", auc_table)
-            self.assertIn("\\textbf{71.00}", auc_table)
+            self.assertNotIn("\\textbf{71.00}", auc_table)
+            self.assertIn("\\textbf{81.00}", auc_table)
+            self.assertEqual(auc_table.count("\\midrule"), 2)
+            _header, baseline_rows, ours_rows = auc_table.split("\\midrule")
+            self.assertIn("IAPL", baseline_rows)
+            self.assertNotIn("Ours-Static", baseline_rows)
+            self.assertIn("Ours-Static", ours_rows)
+            self.assertNotIn("Source-trained CLIP detector", auc_table)
+            self.assertNotIn("Method-specific source training", auc_table)
             self.assertNotIn("Result cells remain blank", auc_table)
 
             accuracy_table = SUMMARY_SCRIPT.render_dataset_table(
@@ -244,7 +253,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
                 "genimage", "accuracy", augmented
             )
             self.assertIn("AIGI-Det-Calib$^{\\S}$ & 56.00 & 56.10", table)
-            self.assertIn("official label-free scalar offset", table)
+            self.assertIn("strictly causal AIGI-Det-Calib", table)
 
             per_seed_base = {
                 dataset: {
