@@ -1,0 +1,1676 @@
+{
+  "backbone": "OpenAI CLIP ViT-L/14",
+  "metric": "macro_target_auc",
+  "table_metrics": [
+    "auc",
+    "accuracy"
+  ],
+  "experiment_identity": {
+    "campaign": "clip_vlm_bias_controlled",
+    "data_profile": "matched_jpeg",
+    "profile_spec_sha256": "2e8d51e705134ba6dd1245af72f36b30c1635d1d00c39f925357698352f796bf",
+    "target_bytes": "offline_transformed",
+    "source_setup": "unchanged_from_clip_vlm_main"
+  },
+  "datasets": {
+    "genimage": {
+      "seeds": [
+        "seed0",
+        "seed2",
+        "seed3"
+      ],
+      "targets": [
+        "BigGAN",
+        "ADM",
+        "glide",
+        "stable_diffusion_v_1_5",
+        "VQDM",
+        "wukong",
+        "Midjourney"
+      ],
+      "per_seed": {
+        "seed0": {
+          "tda": {
+            "BigGAN": {
+              "auc": 0.8522826666666667,
+              "average_precision": 0.8569323260261718,
+              "accuracy": 0.544,
+              "balanced_accuracy": 0.544
+            },
+            "ADM": {
+              "auc": 0.6374106666666666,
+              "average_precision": 0.6053163806212031,
+              "accuracy": 0.5406666666666666,
+              "balanced_accuracy": 0.5406666666666666
+            },
+            "glide": {
+              "auc": 0.7477280000000001,
+              "average_precision": 0.7552311303771976,
+              "accuracy": 0.5493333333333333,
+              "balanced_accuracy": 0.5493333333333333
+            },
+            "stable_diffusion_v_1_5": {
+              "auc": 0.5333226666666666,
+              "average_precision": 0.5169025974029113,
+              "accuracy": 0.5246666666666666,
+              "balanced_accuracy": 0.5246666666666666
+            },
+            "VQDM": {
+              "auc": 0.6511964444444445,
+              "average_precision": 0.6346763608154807,
+              "accuracy": 0.5433333333333333,
+              "balanced_accuracy": 0.5433333333333333
+            },
+            "wukong": {
+              "auc": 0.5876000000000001,
+              "average_precision": 0.5566769769948698,
+              "accuracy": 0.534,
+              "balanced_accuracy": 0.534
+            },
+            "Midjourney": {
+              "auc": 0.5558302222222222,
+              "average_precision": 0.5336805570684835,
+              "accuracy": 0.5133333333333333,
+              "balanced_accuracy": 0.5133333333333333
+            }
+          }
+        },
+        "seed2": {
+          "tda": {
+            "BigGAN": {
+              "auc": 0.8381262222222221,
+              "average_precision": 0.8463311400346913,
+              "accuracy": 0.5626666666666666,
+              "balanced_accuracy": 0.5626666666666666
+            },
+            "ADM": {
+              "auc": 0.640984,
+              "average_precision": 0.6120421900390176,
+              "accuracy": 0.5446666666666666,
+              "balanced_accuracy": 0.5446666666666667
+            },
+            "glide": {
+              "auc": 0.723568,
+              "average_precision": 0.7197092299865,
+              "accuracy": 0.542,
+              "balanced_accuracy": 0.542
+            },
+            "stable_diffusion_v_1_5": {
+              "auc": 0.5561635555555555,
+              "average_precision": 0.5304311695226553,
+              "accuracy": 0.528,
+              "balanced_accuracy": 0.528
+            },
+            "VQDM": {
+              "auc": 0.6728879999999999,
+              "average_precision": 0.6642216183655438,
+              "accuracy": 0.538,
+              "balanced_accuracy": 0.5379999999999999
+            },
+            "wukong": {
+              "auc": 0.5930666666666666,
+              "average_precision": 0.5649145607865074,
+              "accuracy": 0.5366666666666666,
+              "balanced_accuracy": 0.5366666666666666
+            },
+            "Midjourney": {
+              "auc": 0.5009991111111112,
+              "average_precision": 0.49616413556112526,
+              "accuracy": 0.504,
+              "balanced_accuracy": 0.504
+            }
+          }
+        },
+        "seed3": {
+          "tda": {
+            "BigGAN": {
+              "auc": 0.8408604444444445,
+              "average_precision": 0.8464485074243338,
+              "accuracy": 0.556,
+              "balanced_accuracy": 0.556
+            },
+            "ADM": {
+              "auc": 0.6710773333333333,
+              "average_precision": 0.6515707543637136,
+              "accuracy": 0.544,
+              "balanced_accuracy": 0.544
+            },
+            "glide": {
+              "auc": 0.7529706666666667,
+              "average_precision": 0.7432756211618727,
+              "accuracy": 0.5573333333333333,
+              "balanced_accuracy": 0.5573333333333333
+            },
+            "stable_diffusion_v_1_5": {
+              "auc": 0.5679253333333334,
+              "average_precision": 0.5549352709666515,
+              "accuracy": 0.516,
+              "balanced_accuracy": 0.516
+            },
+            "VQDM": {
+              "auc": 0.6725075555555555,
+              "average_precision": 0.6638541669069021,
+              "accuracy": 0.5446666666666666,
+              "balanced_accuracy": 0.5446666666666666
+            },
+            "wukong": {
+              "auc": 0.568656,
+              "average_precision": 0.5333019035074011,
+              "accuracy": 0.538,
+              "balanced_accuracy": 0.538
+            },
+            "Midjourney": {
+              "auc": 0.5071093333333334,
+              "average_precision": 0.4918962654446911,
+              "accuracy": 0.5133333333333333,
+              "balanced_accuracy": 0.5133333333333333
+            }
+          }
+        }
+      },
+      "per_target_aggregate": {
+        "tda": {
+          "BigGAN": {
+            "auc": {
+              "mean": 0.8437564444444444,
+              "std": 0.007509416876639729
+            },
+            "average_precision": {
+              "mean": 0.8499039911617322,
+              "std": 0.006086999425091103
+            },
+            "accuracy": {
+              "mean": 0.5542222222222223,
+              "std": 0.009459465179463425
+            },
+            "balanced_accuracy": {
+              "mean": 0.5542222222222223,
+              "std": 0.009459465179463425
+            }
+          },
+          "ADM": {
+            "auc": {
+              "mean": 0.649824,
+              "std": 0.018492439295861206
+            },
+            "average_precision": {
+              "mean": 0.6229764416746447,
+              "std": 0.0249907016048244
+            },
+            "accuracy": {
+              "mean": 0.5431111111111111,
+              "std": 0.0021430335024428962
+            },
+            "balanced_accuracy": {
+              "mean": 0.5431111111111111,
+              "std": 0.0021430335024429366
+            }
+          },
+          "glide": {
+            "auc": {
+              "mean": 0.7414222222222223,
+              "std": 0.015682835420127814
+            },
+            "average_precision": {
+              "mean": 0.7394053271751901,
+              "std": 0.018074449742638752
+            },
+            "accuracy": {
+              "mean": 0.5495555555555556,
+              "std": 0.00766908174521661
+            },
+            "balanced_accuracy": {
+              "mean": 0.5495555555555556,
+              "std": 0.00766908174521661
+            }
+          },
+          "stable_diffusion_v_1_5": {
+            "auc": {
+              "mean": 0.5524705185185185,
+              "std": 0.017594460123254947
+            },
+            "average_precision": {
+              "mean": 0.534089679297406,
+              "std": 0.019278474652587668
+            },
+            "accuracy": {
+              "mean": 0.5228888888888888,
+              "std": 0.006194382162118374
+            },
+            "balanced_accuracy": {
+              "mean": 0.5228888888888888,
+              "std": 0.006194382162118374
+            }
+          },
+          "VQDM": {
+            "auc": {
+              "mean": 0.6655306666666666,
+              "std": 0.012415257932514457
+            },
+            "average_precision": {
+              "mean": 0.6542507153626422,
+              "std": 0.016952883887324334
+            },
+            "accuracy": {
+              "mean": 0.5419999999999999,
+              "std": 0.0035276684147527554
+            },
+            "balanced_accuracy": {
+              "mean": 0.5419999999999999,
+              "std": 0.0035276684147528188
+            }
+          },
+          "wukong": {
+            "auc": {
+              "mean": 0.5831075555555556,
+              "std": 0.0128104139118372
+            },
+            "average_precision": {
+              "mean": 0.5516311470962595,
+              "std": 0.016399247683532313
+            },
+            "accuracy": {
+              "mean": 0.5362222222222223,
+              "std": 0.002036700308869256
+            },
+            "balanced_accuracy": {
+              "mean": 0.5362222222222223,
+              "std": 0.002036700308869256
+            }
+          },
+          "Midjourney": {
+            "auc": {
+              "mean": 0.5213128888888889,
+              "std": 0.030048601119429263
+            },
+            "average_precision": {
+              "mean": 0.5072469860247666,
+              "std": 0.022991388331832164
+            },
+            "accuracy": {
+              "mean": 0.5102222222222222,
+              "std": 0.005388602512436491
+            },
+            "balanced_accuracy": {
+              "mean": 0.5102222222222222,
+              "std": 0.005388602512436491
+            }
+          }
+        }
+      },
+      "aggregate": {
+        "tda": {
+          "auc": {
+            "mean": 0.6510606137566137,
+            "std": 0.004071274068832233
+          },
+          "average_precision": {
+            "mean": 0.6370720411132345,
+            "std": 0.003676333639844601
+          },
+          "accuracy": {
+            "mean": 0.5368888888888889,
+            "std": 0.0014547859349065767
+          },
+          "balanced_accuracy": {
+            "mean": 0.5368888888888889,
+            "std": 0.0014547859349065767
+          }
+        }
+      },
+      "experiment_identity": {
+        "campaign": "clip_vlm_bias_controlled",
+        "data_profile": "matched_jpeg",
+        "profile_spec_sha256": "2e8d51e705134ba6dd1245af72f36b30c1635d1d00c39f925357698352f796bf",
+        "target_bytes": "offline_transformed",
+        "source_setup": "unchanged_from_clip_vlm_main"
+      }
+    },
+    "aigc_detection_benchmark": {
+      "seeds": [
+        "seed0",
+        "seed2",
+        "seed3"
+      ],
+      "targets": [
+        "ProGAN",
+        "StyleGAN",
+        "BigGAN",
+        "CycleGAN",
+        "StarGAN",
+        "GauGAN",
+        "StyleGAN2",
+        "WFIR",
+        "ADM",
+        "GLIDE",
+        "Midjourney",
+        "SD v1.4",
+        "SD v1.5",
+        "VQDM",
+        "Wukong",
+        "DALL-E2",
+        "SDXL"
+      ],
+      "per_seed": {
+        "seed0": {
+          "tda": {
+            "ProGAN": {
+              "auc": 0.8481422222222222,
+              "average_precision": 0.8515208110701731,
+              "accuracy": 0.554,
+              "balanced_accuracy": 0.554
+            },
+            "StyleGAN": {
+              "auc": 0.7872577777777778,
+              "average_precision": 0.7739386608577241,
+              "accuracy": 0.5253333333333333,
+              "balanced_accuracy": 0.5253333333333333
+            },
+            "BigGAN": {
+              "auc": 0.7248720000000001,
+              "average_precision": 0.7258742739521677,
+              "accuracy": 0.5326666666666666,
+              "balanced_accuracy": 0.5326666666666666
+            },
+            "CycleGAN": {
+              "auc": 0.885768,
+              "average_precision": 0.9000397306728674,
+              "accuracy": 0.5186666666666667,
+              "balanced_accuracy": 0.5186666666666667
+            },
+            "StarGAN": {
+              "auc": 0.8262168888888889,
+              "average_precision": 0.8344680993639242,
+              "accuracy": 0.534,
+              "balanced_accuracy": 0.534
+            },
+            "GauGAN": {
+              "auc": 0.8557137777777777,
+              "average_precision": 0.8693029999946725,
+              "accuracy": 0.5626666666666666,
+              "balanced_accuracy": 0.5626666666666666
+            },
+            "StyleGAN2": {
+              "auc": 0.7637039999999999,
+              "average_precision": 0.7426741417997217,
+              "accuracy": 0.5293333333333333,
+              "balanced_accuracy": 0.5293333333333333
+            },
+            "WFIR": {
+              "auc": 0.7262399999999999,
+              "average_precision": 0.6961554555387423,
+              "accuracy": 0.5513333333333333,
+              "balanced_accuracy": 0.5513333333333333
+            },
+            "ADM": {
+              "auc": 0.6412968888888889,
+              "average_precision": 0.6125750888701502,
+              "accuracy": 0.54,
+              "balanced_accuracy": 0.54
+            },
+            "GLIDE": {
+              "auc": 0.7487697777777778,
+              "average_precision": 0.7349672833361842,
+              "accuracy": 0.54,
+              "balanced_accuracy": 0.5399999999999999
+            },
+            "Midjourney": {
+              "auc": 0.5294195555555555,
+              "average_precision": 0.5067656030520038,
+              "accuracy": 0.5086666666666667,
+              "balanced_accuracy": 0.5086666666666667
+            },
+            "SD v1.4": {
+              "auc": 0.5482755555555556,
+              "average_precision": 0.5250378895759904,
+              "accuracy": 0.5226666666666666,
+              "balanced_accuracy": 0.5226666666666666
+            },
+            "SD v1.5": {
+              "auc": 0.5451191111111111,
+              "average_precision": 0.5306780631681859,
+              "accuracy": 0.5113333333333333,
+              "balanced_accuracy": 0.5113333333333333
+            },
+            "VQDM": {
+              "auc": 0.66384,
+              "average_precision": 0.6596610751303172,
+              "accuracy": 0.5333333333333333,
+              "balanced_accuracy": 0.5333333333333333
+            },
+            "Wukong": {
+              "auc": 0.6026017777777777,
+              "average_precision": 0.5707567172469803,
+              "accuracy": 0.538,
+              "balanced_accuracy": 0.538
+            },
+            "DALL-E2": {
+              "auc": 0.577264,
+              "average_precision": 0.5657929643712081,
+              "accuracy": 0.53,
+              "balanced_accuracy": 0.53
+            },
+            "SDXL": {
+              "auc": 0.5504968888888889,
+              "average_precision": 0.5404239076619879,
+              "accuracy": 0.518,
+              "balanced_accuracy": 0.518
+            }
+          }
+        },
+        "seed2": {
+          "tda": {
+            "ProGAN": {
+              "auc": 0.8398435555555557,
+              "average_precision": 0.8469171020285557,
+              "accuracy": 0.5486666666666666,
+              "balanced_accuracy": 0.5486666666666666
+            },
+            "StyleGAN": {
+              "auc": 0.7864951111111111,
+              "average_precision": 0.772898303649477,
+              "accuracy": 0.524,
+              "balanced_accuracy": 0.524
+            },
+            "BigGAN": {
+              "auc": 0.7450613333333334,
+              "average_precision": 0.7556840724835254,
+              "accuracy": 0.5373333333333333,
+              "balanced_accuracy": 0.5373333333333333
+            },
+            "CycleGAN": {
+              "auc": 0.8802977777777777,
+              "average_precision": 0.894131549633045,
+              "accuracy": 0.522,
+              "balanced_accuracy": 0.522
+            },
+            "StarGAN": {
+              "auc": 0.8320248888888888,
+              "average_precision": 0.8509407633566861,
+              "accuracy": 0.5313333333333333,
+              "balanced_accuracy": 0.5313333333333333
+            },
+            "GauGAN": {
+              "auc": 0.855168,
+              "average_precision": 0.8681749602192251,
+              "accuracy": 0.5646666666666667,
+              "balanced_accuracy": 0.5646666666666667
+            },
+            "StyleGAN2": {
+              "auc": 0.7556426666666667,
+              "average_precision": 0.7370522913759758,
+              "accuracy": 0.5313333333333333,
+              "balanced_accuracy": 0.5313333333333333
+            },
+            "WFIR": {
+              "auc": 0.7064195555555555,
+              "average_precision": 0.6784972338875219,
+              "accuracy": 0.5526666666666666,
+              "balanced_accuracy": 0.5526666666666666
+            },
+            "ADM": {
+              "auc": 0.6357022222222222,
+              "average_precision": 0.610321179123004,
+              "accuracy": 0.5433333333333333,
+              "balanced_accuracy": 0.5433333333333333
+            },
+            "GLIDE": {
+              "auc": 0.7452764444444444,
+              "average_precision": 0.7481701192351423,
+              "accuracy": 0.5346666666666666,
+              "balanced_accuracy": 0.5346666666666666
+            },
+            "Midjourney": {
+              "auc": 0.5245528888888888,
+              "average_precision": 0.5086806700286002,
+              "accuracy": 0.512,
+              "balanced_accuracy": 0.512
+            },
+            "SD v1.4": {
+              "auc": 0.5384373333333334,
+              "average_precision": 0.5184386192645656,
+              "accuracy": 0.5186666666666667,
+              "balanced_accuracy": 0.5186666666666666
+            },
+            "SD v1.5": {
+              "auc": 0.5454506666666666,
+              "average_precision": 0.5302524195469416,
+              "accuracy": 0.5146666666666667,
+              "balanced_accuracy": 0.5146666666666667
+            },
+            "VQDM": {
+              "auc": 0.6645813333333334,
+              "average_precision": 0.6574077790958233,
+              "accuracy": 0.5446666666666666,
+              "balanced_accuracy": 0.5446666666666666
+            },
+            "Wukong": {
+              "auc": 0.57744,
+              "average_precision": 0.5491458730804211,
+              "accuracy": 0.5293333333333333,
+              "balanced_accuracy": 0.5293333333333333
+            },
+            "DALL-E2": {
+              "auc": 0.5923315555555555,
+              "average_precision": 0.5830518771745368,
+              "accuracy": 0.5313333333333333,
+              "balanced_accuracy": 0.5313333333333333
+            },
+            "SDXL": {
+              "auc": 0.5667448888888889,
+              "average_precision": 0.5493298589482972,
+              "accuracy": 0.5266666666666666,
+              "balanced_accuracy": 0.5266666666666667
+            }
+          }
+        },
+        "seed3": {
+          "tda": {
+            "ProGAN": {
+              "auc": 0.8439484444444445,
+              "average_precision": 0.8526842883219409,
+              "accuracy": 0.5473333333333333,
+              "balanced_accuracy": 0.5473333333333333
+            },
+            "StyleGAN": {
+              "auc": 0.7949262222222222,
+              "average_precision": 0.7694835038557497,
+              "accuracy": 0.528,
+              "balanced_accuracy": 0.528
+            },
+            "BigGAN": {
+              "auc": 0.7435813333333334,
+              "average_precision": 0.7501085644052037,
+              "accuracy": 0.5346666666666666,
+              "balanced_accuracy": 0.5346666666666666
+            },
+            "CycleGAN": {
+              "auc": 0.8874977777777777,
+              "average_precision": 0.8993878801778116,
+              "accuracy": 0.5173333333333333,
+              "balanced_accuracy": 0.5173333333333333
+            },
+            "StarGAN": {
+              "auc": 0.8434595555555555,
+              "average_precision": 0.8531390482178393,
+              "accuracy": 0.5353333333333333,
+              "balanced_accuracy": 0.5353333333333333
+            },
+            "GauGAN": {
+              "auc": 0.8590062222222223,
+              "average_precision": 0.8707099809170179,
+              "accuracy": 0.5646666666666667,
+              "balanced_accuracy": 0.5646666666666667
+            },
+            "StyleGAN2": {
+              "auc": 0.7571884444444446,
+              "average_precision": 0.7360246181639322,
+              "accuracy": 0.528,
+              "balanced_accuracy": 0.528
+            },
+            "WFIR": {
+              "auc": 0.7218462222222223,
+              "average_precision": 0.6936903174148578,
+              "accuracy": 0.5506666666666666,
+              "balanced_accuracy": 0.5506666666666666
+            },
+            "ADM": {
+              "auc": 0.6280391111111111,
+              "average_precision": 0.5978152655585305,
+              "accuracy": 0.5446666666666666,
+              "balanced_accuracy": 0.5446666666666666
+            },
+            "GLIDE": {
+              "auc": 0.7644062222222221,
+              "average_precision": 0.7543982204828908,
+              "accuracy": 0.5406666666666666,
+              "balanced_accuracy": 0.5406666666666666
+            },
+            "Midjourney": {
+              "auc": 0.5340568888888888,
+              "average_precision": 0.5120341960491099,
+              "accuracy": 0.5146666666666667,
+              "balanced_accuracy": 0.5146666666666667
+            },
+            "SD v1.4": {
+              "auc": 0.5330986666666667,
+              "average_precision": 0.515655888171989,
+              "accuracy": 0.5133333333333333,
+              "balanced_accuracy": 0.5133333333333333
+            },
+            "SD v1.5": {
+              "auc": 0.5402222222222223,
+              "average_precision": 0.5283004817827543,
+              "accuracy": 0.5153333333333333,
+              "balanced_accuracy": 0.5153333333333333
+            },
+            "VQDM": {
+              "auc": 0.6622497777777777,
+              "average_precision": 0.6636515998945233,
+              "accuracy": 0.5386666666666666,
+              "balanced_accuracy": 0.5386666666666666
+            },
+            "Wukong": {
+              "auc": 0.5780382222222222,
+              "average_precision": 0.5566471107578745,
+              "accuracy": 0.5293333333333333,
+              "balanced_accuracy": 0.5293333333333333
+            },
+            "DALL-E2": {
+              "auc": 0.5790391111111111,
+              "average_precision": 0.5679121969849449,
+              "accuracy": 0.524,
+              "balanced_accuracy": 0.524
+            },
+            "SDXL": {
+              "auc": 0.5640355555555555,
+              "average_precision": 0.5434774420157916,
+              "accuracy": 0.528,
+              "balanced_accuracy": 0.528
+            }
+          }
+        }
+      },
+      "per_target_aggregate": {
+        "tda": {
+          "ProGAN": {
+            "auc": {
+              "mean": 0.8439780740740742,
+              "std": 0.0041494126749848205
+            },
+            "average_precision": {
+              "mean": 0.8503740671402232,
+              "std": 0.003049815677431988
+            },
+            "accuracy": {
+              "mean": 0.5499999999999999,
+              "std": 0.0035276684147528188
+            },
+            "balanced_accuracy": {
+              "mean": 0.5499999999999999,
+              "std": 0.0035276684147528188
+            }
+          },
+          "StyleGAN": {
+            "auc": {
+              "mean": 0.7895597037037038,
+              "std": 0.004663159429862162
+            },
+            "average_precision": {
+              "mean": 0.7721068227876503,
+              "std": 0.0023306517208795626
+            },
+            "accuracy": {
+              "mean": 0.5257777777777778,
+              "std": 0.002036700308869268
+            },
+            "balanced_accuracy": {
+              "mean": 0.5257777777777778,
+              "std": 0.002036700308869268
+            }
+          },
+          "BigGAN": {
+            "auc": {
+              "mean": 0.7378382222222223,
+              "std": 0.011253434544041957
+            },
+            "average_precision": {
+              "mean": 0.7438889702802989,
+              "std": 0.015848297556171315
+            },
+            "accuracy": {
+              "mean": 0.5348888888888889,
+              "std": 0.0023412563895228522
+            },
+            "balanced_accuracy": {
+              "mean": 0.5348888888888889,
+              "std": 0.0023412563895228522
+            }
+          },
+          "CycleGAN": {
+            "auc": {
+              "mean": 0.8845211851851852,
+              "std": 0.0037584452087041633
+            },
+            "average_precision": {
+              "mean": 0.8978530534945746,
+              "std": 0.003239354952843427
+            },
+            "accuracy": {
+              "mean": 0.5193333333333333,
+              "std": 0.0024037008503093385
+            },
+            "balanced_accuracy": {
+              "mean": 0.5193333333333333,
+              "std": 0.0024037008503093385
+            }
+          },
+          "StarGAN": {
+            "auc": {
+              "mean": 0.8339004444444443,
+              "std": 0.008773008031794208
+            },
+            "average_precision": {
+              "mean": 0.8461826369794831,
+              "std": 0.010204455288865438
+            },
+            "accuracy": {
+              "mean": 0.5335555555555556,
+              "std": 0.002036700308869268
+            },
+            "balanced_accuracy": {
+              "mean": 0.5335555555555556,
+              "std": 0.002036700308869268
+            }
+          },
+          "GauGAN": {
+            "auc": {
+              "mean": 0.8566293333333334,
+              "std": 0.0020764558599382526
+            },
+            "average_precision": {
+              "mean": 0.8693959803769719,
+              "std": 0.0012700655487725143
+            },
+            "accuracy": {
+              "mean": 0.564,
+              "std": 0.0011547005383792525
+            },
+            "balanced_accuracy": {
+              "mean": 0.564,
+              "std": 0.0011547005383792525
+            }
+          },
+          "StyleGAN2": {
+            "auc": {
+              "mean": 0.7588450370370371,
+              "std": 0.004278375631142236
+            },
+            "average_precision": {
+              "mean": 0.7385836837798765,
+              "std": 0.0035795129789923264
+            },
+            "accuracy": {
+              "mean": 0.5295555555555556,
+              "std": 0.0016777409856157065
+            },
+            "balanced_accuracy": {
+              "mean": 0.5295555555555556,
+              "std": 0.0016777409856157065
+            }
+          },
+          "WFIR": {
+            "auc": {
+              "mean": 0.7181685925925926,
+              "std": 0.01040942958395775
+            },
+            "average_precision": {
+              "mean": 0.6894476689470407,
+              "std": 0.009563119129604619
+            },
+            "accuracy": {
+              "mean": 0.5515555555555555,
+              "std": 0.001018350154434628
+            },
+            "balanced_accuracy": {
+              "mean": 0.5515555555555555,
+              "std": 0.001018350154434628
+            }
+          },
+          "ADM": {
+            "auc": {
+              "mean": 0.6350127407407408,
+              "std": 0.006655727340885756
+            },
+            "average_precision": {
+              "mean": 0.6069038445172282,
+              "std": 0.007951209210141107
+            },
+            "accuracy": {
+              "mean": 0.5426666666666667,
+              "std": 0.0024037008503092925
+            },
+            "balanced_accuracy": {
+              "mean": 0.5426666666666667,
+              "std": 0.0024037008503092925
+            }
+          },
+          "GLIDE": {
+            "auc": {
+              "mean": 0.7528174814814813,
+              "std": 0.0101870029160456
+            },
+            "average_precision": {
+              "mean": 0.7458452076847392,
+              "std": 0.009921907069092841
+            },
+            "accuracy": {
+              "mean": 0.5384444444444444,
+              "std": 0.0032885885748775187
+            },
+            "balanced_accuracy": {
+              "mean": 0.5384444444444444,
+              "std": 0.0032885885748774922
+            }
+          },
+          "Midjourney": {
+            "auc": {
+              "mean": 0.529343111111111,
+              "std": 0.0047524611323833685
+            },
+            "average_precision": {
+              "mean": 0.5091601563765713,
+              "std": 0.0026668236557198474
+            },
+            "accuracy": {
+              "mean": 0.5117777777777778,
+              "std": 0.0030061665018819308
+            },
+            "balanced_accuracy": {
+              "mean": 0.5117777777777778,
+              "std": 0.0030061665018819308
+            }
+          },
+          "SD v1.4": {
+            "auc": {
+              "mean": 0.5399371851851852,
+              "std": 0.007698808724052534
+            },
+            "average_precision": {
+              "mean": 0.5197107990041817,
+              "std": 0.0048186428124097486
+            },
+            "accuracy": {
+              "mean": 0.5182222222222223,
+              "std": 0.0046825127790456516
+            },
+            "balanced_accuracy": {
+              "mean": 0.5182222222222221,
+              "std": 0.004682512779045646
+            }
+          },
+          "SD v1.5": {
+            "auc": {
+              "mean": 0.5435973333333334,
+              "std": 0.002927629336317011
+            },
+            "average_precision": {
+              "mean": 0.5297436548326272,
+              "std": 0.0012678148374215084
+            },
+            "accuracy": {
+              "mean": 0.5137777777777778,
+              "std": 0.0021430335024428962
+            },
+            "balanced_accuracy": {
+              "mean": 0.5137777777777778,
+              "std": 0.0021430335024428962
+            }
+          },
+          "VQDM": {
+            "auc": {
+              "mean": 0.6635570370370371,
+              "std": 0.0011912551598911043
+            },
+            "average_precision": {
+              "mean": 0.6602401513735546,
+              "std": 0.003161933192396877
+            },
+            "accuracy": {
+              "mean": 0.5388888888888889,
+              "std": 0.005669933698743575
+            },
+            "balanced_accuracy": {
+              "mean": 0.5388888888888889,
+              "std": 0.005669933698743575
+            }
+          },
+          "Wukong": {
+            "auc": {
+              "mean": 0.5860266666666666,
+              "std": 0.014357583317398791
+            },
+            "average_precision": {
+              "mean": 0.5588499003617586,
+              "std": 0.010972527417466845
+            },
+            "accuracy": {
+              "mean": 0.5322222222222223,
+              "std": 0.005003702332976782
+            },
+            "balanced_accuracy": {
+              "mean": 0.5322222222222223,
+              "std": 0.005003702332976782
+            }
+          },
+          "DALL-E2": {
+            "auc": {
+              "mean": 0.5828782222222222,
+              "std": 0.008234797398693578
+            },
+            "average_precision": {
+              "mean": 0.5722523461768966,
+              "std": 0.009412501742072879
+            },
+            "accuracy": {
+              "mean": 0.5284444444444444,
+              "std": 0.003906310184721533
+            },
+            "balanced_accuracy": {
+              "mean": 0.5284444444444444,
+              "std": 0.003906310184721533
+            }
+          },
+          "SDXL": {
+            "auc": {
+              "mean": 0.5604257777777778,
+              "std": 0.008704725596117489
+            },
+            "average_precision": {
+              "mean": 0.5444104028753589,
+              "std": 0.004525682716744747
+            },
+            "accuracy": {
+              "mean": 0.5242222222222223,
+              "std": 0.005429685210164707
+            },
+            "balanced_accuracy": {
+              "mean": 0.5242222222222223,
+              "std": 0.005429685210164731
+            }
+          }
+        }
+      },
+      "aggregate": {
+        "tda": {
+          "auc": {
+            "mean": 0.6951197734204793,
+            "std": 0.0013329123562852714
+          },
+          "average_precision": {
+            "mean": 0.6855852557052374,
+            "std": 0.0007505507479060869
+          },
+          "accuracy": {
+            "mean": 0.5327843137254902,
+            "std": 0.0005275930998852539
+          },
+          "balanced_accuracy": {
+            "mean": 0.5327843137254902,
+            "std": 0.0005275930998852539
+          }
+        }
+      },
+      "experiment_identity": {
+        "campaign": "clip_vlm_bias_controlled",
+        "data_profile": "matched_jpeg",
+        "profile_spec_sha256": "2e8d51e705134ba6dd1245af72f36b30c1635d1d00c39f925357698352f796bf",
+        "target_bytes": "offline_transformed",
+        "source_setup": "unchanged_from_clip_vlm_main"
+      }
+    },
+    "aigi_holmes_p3": {
+      "seeds": [
+        "seed0",
+        "seed2",
+        "seed3"
+      ],
+      "targets": [
+        "Janus",
+        "Janus-Pro-1B",
+        "Janus-Pro-7B",
+        "Show-o",
+        "LlamaGen",
+        "Infinity",
+        "VAR",
+        "PixArt-XL",
+        "SD3.5-L",
+        "FLUX"
+      ],
+      "per_seed": {
+        "seed0": {
+          "tda": {
+            "Janus": {
+              "auc": 0.6630435555555556,
+              "average_precision": 0.6629372546389377,
+              "accuracy": 0.538,
+              "balanced_accuracy": 0.538
+            },
+            "Janus-Pro-1B": {
+              "auc": 0.6182017777777777,
+              "average_precision": 0.6029358190622504,
+              "accuracy": 0.538,
+              "balanced_accuracy": 0.538
+            },
+            "Janus-Pro-7B": {
+              "auc": 0.5578897777777778,
+              "average_precision": 0.5434338481138166,
+              "accuracy": 0.5366666666666666,
+              "balanced_accuracy": 0.5366666666666666
+            },
+            "Show-o": {
+              "auc": 0.5762471111111112,
+              "average_precision": 0.5527774204646375,
+              "accuracy": 0.5406666666666666,
+              "balanced_accuracy": 0.5406666666666666
+            },
+            "LlamaGen": {
+              "auc": 0.5774044444444445,
+              "average_precision": 0.5445970240525354,
+              "accuracy": 0.5333333333333333,
+              "balanced_accuracy": 0.5333333333333333
+            },
+            "Infinity": {
+              "auc": 0.6020684444444444,
+              "average_precision": 0.5487708914074937,
+              "accuracy": 0.55,
+              "balanced_accuracy": 0.55
+            },
+            "VAR": {
+              "auc": 0.6845564444444445,
+              "average_precision": 0.6410785017777256,
+              "accuracy": 0.564,
+              "balanced_accuracy": 0.564
+            },
+            "PixArt-XL": {
+              "auc": 0.5424311111111111,
+              "average_precision": 0.5245740321431893,
+              "accuracy": 0.534,
+              "balanced_accuracy": 0.534
+            },
+            "SD3.5-L": {
+              "auc": 0.3596933333333333,
+              "average_precision": 0.40025525061151535,
+              "accuracy": 0.43466666666666665,
+              "balanced_accuracy": 0.4346666666666667
+            },
+            "FLUX": {
+              "auc": 0.5795751111111112,
+              "average_precision": 0.5720293253191631,
+              "accuracy": 0.53,
+              "balanced_accuracy": 0.53
+            }
+          }
+        },
+        "seed2": {
+          "tda": {
+            "Janus": {
+              "auc": 0.6615582222222223,
+              "average_precision": 0.6564115735235836,
+              "accuracy": 0.54,
+              "balanced_accuracy": 0.54
+            },
+            "Janus-Pro-1B": {
+              "auc": 0.6114328888888889,
+              "average_precision": 0.5999589712098589,
+              "accuracy": 0.536,
+              "balanced_accuracy": 0.536
+            },
+            "Janus-Pro-7B": {
+              "auc": 0.5627697777777778,
+              "average_precision": 0.5442477049449057,
+              "accuracy": 0.5386666666666666,
+              "balanced_accuracy": 0.5386666666666666
+            },
+            "Show-o": {
+              "auc": 0.5805111111111111,
+              "average_precision": 0.55775205617144,
+              "accuracy": 0.5366666666666666,
+              "balanced_accuracy": 0.5366666666666666
+            },
+            "LlamaGen": {
+              "auc": 0.5725173333333333,
+              "average_precision": 0.5456430809287524,
+              "accuracy": 0.524,
+              "balanced_accuracy": 0.524
+            },
+            "Infinity": {
+              "auc": 0.5951866666666668,
+              "average_precision": 0.5354501737868336,
+              "accuracy": 0.5533333333333333,
+              "balanced_accuracy": 0.5533333333333333
+            },
+            "VAR": {
+              "auc": 0.686512,
+              "average_precision": 0.6509141842400002,
+              "accuracy": 0.5646666666666667,
+              "balanced_accuracy": 0.5646666666666667
+            },
+            "PixArt-XL": {
+              "auc": 0.5251262222222222,
+              "average_precision": 0.5090435917636542,
+              "accuracy": 0.5233333333333333,
+              "balanced_accuracy": 0.5233333333333333
+            },
+            "SD3.5-L": {
+              "auc": 0.37827466666666665,
+              "average_precision": 0.408088622975856,
+              "accuracy": 0.44666666666666666,
+              "balanced_accuracy": 0.44666666666666666
+            },
+            "FLUX": {
+              "auc": 0.5782088888888889,
+              "average_precision": 0.5595516613080227,
+              "accuracy": 0.5333333333333333,
+              "balanced_accuracy": 0.5333333333333333
+            }
+          }
+        },
+        "seed3": {
+          "tda": {
+            "Janus": {
+              "auc": 0.6453422222222223,
+              "average_precision": 0.6360009759715402,
+              "accuracy": 0.534,
+              "balanced_accuracy": 0.534
+            },
+            "Janus-Pro-1B": {
+              "auc": 0.6064995555555556,
+              "average_precision": 0.6004927361405662,
+              "accuracy": 0.5346666666666666,
+              "balanced_accuracy": 0.5346666666666666
+            },
+            "Janus-Pro-7B": {
+              "auc": 0.5825271111111111,
+              "average_precision": 0.5643107506192039,
+              "accuracy": 0.538,
+              "balanced_accuracy": 0.538
+            },
+            "Show-o": {
+              "auc": 0.5932408888888889,
+              "average_precision": 0.5639388334370572,
+              "accuracy": 0.5386666666666666,
+              "balanced_accuracy": 0.5386666666666666
+            },
+            "LlamaGen": {
+              "auc": 0.605288888888889,
+              "average_precision": 0.5750414533049192,
+              "accuracy": 0.536,
+              "balanced_accuracy": 0.536
+            },
+            "Infinity": {
+              "auc": 0.6115066666666666,
+              "average_precision": 0.5564704942030209,
+              "accuracy": 0.5553333333333333,
+              "balanced_accuracy": 0.5553333333333333
+            },
+            "VAR": {
+              "auc": 0.6630231111111111,
+              "average_precision": 0.6191136651728191,
+              "accuracy": 0.568,
+              "balanced_accuracy": 0.5680000000000001
+            },
+            "PixArt-XL": {
+              "auc": 0.5573928888888888,
+              "average_precision": 0.5321674666867539,
+              "accuracy": 0.5333333333333333,
+              "balanced_accuracy": 0.5333333333333333
+            },
+            "SD3.5-L": {
+              "auc": 0.367056,
+              "average_precision": 0.40283934512466407,
+              "accuracy": 0.4493333333333333,
+              "balanced_accuracy": 0.44933333333333336
+            },
+            "FLUX": {
+              "auc": 0.5760435555555556,
+              "average_precision": 0.5671219894024013,
+              "accuracy": 0.5326666666666666,
+              "balanced_accuracy": 0.5326666666666667
+            }
+          }
+        }
+      },
+      "per_target_aggregate": {
+        "tda": {
+          "Janus": {
+            "auc": {
+              "mean": 0.656648,
+              "std": 0.009819216473229841
+            },
+            "average_precision": {
+              "mean": 0.6517832680446872,
+              "std": 0.014051928188558728
+            },
+            "accuracy": {
+              "mean": 0.5373333333333333,
+              "std": 0.0030550504633038962
+            },
+            "balanced_accuracy": {
+              "mean": 0.5373333333333333,
+              "std": 0.0030550504633038962
+            }
+          },
+          "Janus-Pro-1B": {
+            "auc": {
+              "mean": 0.6120447407407408,
+              "std": 0.005875055170041254
+            },
+            "average_precision": {
+              "mean": 0.6011291754708918,
+              "std": 0.0015871978609993604
+            },
+            "accuracy": {
+              "mean": 0.5362222222222223,
+              "std": 0.001677740985615758
+            },
+            "balanced_accuracy": {
+              "mean": 0.5362222222222223,
+              "std": 0.001677740985615758
+            }
+          },
+          "Janus-Pro-7B": {
+            "auc": {
+              "mean": 0.567728888888889,
+              "std": 0.013045847450576105
+            },
+            "average_precision": {
+              "mean": 0.5506641012259754,
+              "std": 0.011825348641019232
+            },
+            "accuracy": {
+              "mean": 0.5377777777777778,
+              "std": 0.00101835015443464
+            },
+            "balanced_accuracy": {
+              "mean": 0.5377777777777778,
+              "std": 0.00101835015443464
+            }
+          },
+          "Show-o": {
+            "auc": {
+              "mean": 0.5833330370370371,
+              "std": 0.008841355678779318
+            },
+            "average_precision": {
+              "mean": 0.5581561033577116,
+              "std": 0.005591665716204348
+            },
+            "accuracy": {
+              "mean": 0.5386666666666666,
+              "std": 0.0020000000000000018
+            },
+            "balanced_accuracy": {
+              "mean": 0.5386666666666666,
+              "std": 0.0020000000000000018
+            }
+          },
+          "LlamaGen": {
+            "auc": {
+              "mean": 0.5850702222222223,
+              "std": 0.017679559527500156
+            },
+            "average_precision": {
+              "mean": 0.5550938527620689,
+              "std": 0.01728304470600908
+            },
+            "accuracy": {
+              "mean": 0.5311111111111111,
+              "std": 0.006301087501670143
+            },
+            "balanced_accuracy": {
+              "mean": 0.5311111111111111,
+              "std": 0.006301087501670143
+            }
+          },
+          "Infinity": {
+            "auc": {
+              "mean": 0.6029205925925926,
+              "std": 0.008193303201383029
+            },
+            "average_precision": {
+              "mean": 0.5468971864657827,
+              "std": 0.010634685950052269
+            },
+            "accuracy": {
+              "mean": 0.5528888888888889,
+              "std": 0.002694301256218236
+            },
+            "balanced_accuracy": {
+              "mean": 0.5528888888888889,
+              "std": 0.002694301256218236
+            }
+          },
+          "VAR": {
+            "auc": {
+              "mean": 0.6780305185185185,
+              "std": 0.013033524358424569
+            },
+            "average_precision": {
+              "mean": 0.6370354503968483,
+              "std": 0.016281214684010798
+            },
+            "accuracy": {
+              "mean": 0.5655555555555555,
+              "std": 0.0021430335024428732
+            },
+            "balanced_accuracy": {
+              "mean": 0.5655555555555556,
+              "std": 0.0021430335024429366
+            }
+          },
+          "PixArt-XL": {
+            "auc": {
+              "mean": 0.5416500740740741,
+              "std": 0.01614750626519037
+            },
+            "average_precision": {
+              "mean": 0.5219283635311992,
+              "std": 0.01178677520224008
+            },
+            "accuracy": {
+              "mean": 0.5302222222222223,
+              "std": 0.005975257626555018
+            },
+            "balanced_accuracy": {
+              "mean": 0.5302222222222223,
+              "std": 0.005975257626555018
+            }
+          },
+          "SD3.5-L": {
+            "auc": {
+              "mean": 0.36834133333333335,
+              "std": 0.009357112185094527
+            },
+            "average_precision": {
+              "mean": 0.4037277395706785,
+              "std": 0.003991536567336692
+            },
+            "accuracy": {
+              "mean": 0.44355555555555554,
+              "std": 0.007812620369443087
+            },
+            "balanced_accuracy": {
+              "mean": 0.44355555555555554,
+              "std": 0.007812620369443076
+            }
+          },
+          "FLUX": {
+            "auc": {
+              "mean": 0.5779425185185185,
+              "std": 0.0017807824238665892
+            },
+            "average_precision": {
+              "mean": 0.5662343253431957,
+              "std": 0.006286015065622332
+            },
+            "accuracy": {
+              "mean": 0.532,
+              "std": 0.0017638342073763673
+            },
+            "balanced_accuracy": {
+              "mean": 0.532,
+              "std": 0.0017638342073763883
+            }
+          }
+        }
+      },
+      "aggregate": {
+        "tda": {
+          "auc": {
+            "mean": 0.5773709925925926,
+            "std": 0.0029968358890408923
+          },
+          "average_precision": {
+            "mean": 0.5592649566169039,
+            "std": 0.002522618190113121
+          },
+          "accuracy": {
+            "mean": 0.5305333333333334,
+            "std": 0.0012771496040445212
+          },
+          "balanced_accuracy": {
+            "mean": 0.5305333333333334,
+            "std": 0.0012771496040445212
+          }
+        }
+      },
+      "experiment_identity": {
+        "campaign": "clip_vlm_bias_controlled",
+        "data_profile": "matched_jpeg",
+        "profile_spec_sha256": "2e8d51e705134ba6dd1245af72f36b30c1635d1d00c39f925357698352f796bf",
+        "target_bytes": "offline_transformed",
+        "source_setup": "unchanged_from_clip_vlm_main"
+      }
+    },
+    "opensdid_global": {
+      "seeds": [
+        "seed0",
+        "seed2",
+        "seed3"
+      ],
+      "targets": [
+        "SD1.5",
+        "SD2.1",
+        "SDXL",
+        "SD3",
+        "Flux.1"
+      ],
+      "per_seed": {
+        "seed0": {
+          "tda": {
+            "SD1.5": {
+              "auc": 0.5476364444444444,
+              "average_precision": 0.5399837965284143,
+              "accuracy": 0.524,
+              "balanced_accuracy": 0.524
+            },
+            "SD2.1": {
+              "auc": 0.5661502222222222,
+              "average_precision": 0.543912888520856,
+              "accuracy": 0.526,
+              "balanced_accuracy": 0.526
+            },
+            "SDXL": {
+              "auc": 0.585,
+              "average_precision": 0.5676059682440201,
+              "accuracy": 0.5366666666666666,
+              "balanced_accuracy": 0.5366666666666666
+            },
+            "SD3": {
+              "auc": 0.5647795555555556,
+              "average_precision": 0.5583965833623064,
+              "accuracy": 0.516,
+              "balanced_accuracy": 0.516
+            },
+            "Flux.1": {
+              "auc": 0.5804213333333332,
+              "average_precision": 0.5492042253870926,
+              "accuracy": 0.5293333333333333,
+              "balanced_accuracy": 0.5293333333333333
+            }
+          }
+        },
+        "seed2": {
+          "tda": {
+            "SD1.5": {
+              "auc": 0.5481306666666667,
+              "average_precision": 0.5377674356604984,
+              "accuracy": 0.5353333333333333,
+              "balanced_accuracy": 0.5353333333333333
+            },
+            "SD2.1": {
+              "auc": 0.559464,
+              "average_precision": 0.5352892058089187,
+              "accuracy": 0.5253333333333333,
+              "balanced_accuracy": 0.5253333333333333
+            },
+            "SDXL": {
+              "auc": 0.5809751111111111,
+              "average_precision": 0.5682346121966256,
+              "accuracy": 0.53,
+              "balanced_accuracy": 0.53
+            },
+            "SD3": {
+              "auc": 0.5745128888888889,
+              "average_precision": 0.557835867705315,
+              "accuracy": 0.5266666666666666,
+              "balanced_accuracy": 0.5266666666666666
+            },
+            "Flux.1": {
+              "auc": 0.5978800000000001,
+              "average_precision": 0.5676814305253163,
+              "accuracy": 0.5286666666666666,
+              "balanced_accuracy": 0.5286666666666666
+            }
+          }
+        },
+        "seed3": {
+          "tda": {
+            "SD1.5": {
+              "auc": 0.5673146666666666,
+              "average_precision": 0.5600896374129749,
+              "accuracy": 0.536,
+              "balanced_accuracy": 0.536
+            },
+            "SD2.1": {
+              "auc": 0.557904,
+              "average_precision": 0.5299596871983505,
+              "accuracy": 0.528,
+              "balanced_accuracy": 0.528
+            },
+            "SDXL": {
+              "auc": 0.5865671111111112,
+              "average_precision": 0.5677266288555177,
+              "accuracy": 0.5326666666666666,
+              "balanced_accuracy": 0.5326666666666666
+            },
+            "SD3": {
+              "auc": 0.5538862222222223,
+              "average_precision": 0.5411670365960185,
+              "accuracy": 0.5273333333333333,
+              "balanced_accuracy": 0.5273333333333333
+            },
+            "Flux.1": {
+              "auc": 0.5706106666666666,
+              "average_precision": 0.546196951241979,
+              "accuracy": 0.5153333333333333,
+              "balanced_accuracy": 0.5153333333333333
+            }
+          }
+        }
+      },
+      "per_target_aggregate": {
+        "tda": {
+          "SD1.5": {
+            "auc": {
+              "mean": 0.5543605925925926,
+              "std": 0.011221278458298916
+            },
+            "average_precision": {
+              "mean": 0.5459469565339625,
+              "std": 0.012297952297370211
+            },
+            "accuracy": {
+              "mean": 0.5317777777777778,
+              "std": 0.006743995957997116
+            },
+            "balanced_accuracy": {
+              "mean": 0.5317777777777778,
+              "std": 0.006743995957997116
+            }
+          },
+          "SD2.1": {
+            "auc": {
+              "mean": 0.5611727407407407,
+              "std": 0.004380626830017426
+            },
+            "average_precision": {
+              "mean": 0.536387260509375,
+              "std": 0.007041111409464247
+            },
+            "accuracy": {
+              "mean": 0.5264444444444445,
+              "std": 0.001387777332977438
+            },
+            "balanced_accuracy": {
+              "mean": 0.5264444444444445,
+              "std": 0.001387777332977438
+            }
+          },
+          "SDXL": {
+            "auc": {
+              "mean": 0.5841807407407408,
+              "std": 0.0028846152777123667
+            },
+            "average_precision": {
+              "mean": 0.5678557364320546,
+              "std": 0.00033361636579501625
+            },
+            "accuracy": {
+              "mean": 0.5331111111111111,
+              "std": 0.003355481971231413
+            },
+            "balanced_accuracy": {
+              "mean": 0.5331111111111111,
+              "std": 0.003355481971231413
+            }
+          },
+          "SD3": {
+            "auc": {
+              "mean": 0.5643928888888889,
+              "std": 0.010318768229676293
+            },
+            "average_precision": {
+              "mean": 0.55246649588788,
+              "std": 0.009789634095732302
+            },
+            "accuracy": {
+              "mean": 0.5233333333333333,
+              "std": 0.006359594676112946
+            },
+            "balanced_accuracy": {
+              "mean": 0.5233333333333333,
+              "std": 0.006359594676112946
+            }
+          },
+          "Flux.1": {
+            "auc": {
+              "mean": 0.5829706666666666,
+              "std": 0.013812257615771822
+            },
+            "average_precision": {
+              "mean": 0.5543608690514626,
+              "std": 0.011633526676378196
+            },
+            "accuracy": {
+              "mean": 0.5244444444444444,
+              "std": 0.00789749139729638
+            },
+            "balanced_accuracy": {
+              "mean": 0.5244444444444444,
+              "std": 0.00789749139729638
+            }
+          }
+        }
+      },
+      "aggregate": {
+        "tda": {
+          "auc": {
+            "mean": 0.5694155259259258,
+            "std": 0.002525367445243968
+          },
+          "average_precision": {
+            "mean": 0.5514034636829469,
+            "std": 0.0021967809874675827
+          },
+          "accuracy": {
+            "mean": 0.5278222222222222,
+            "std": 0.0014005290005856762
+          },
+          "balanced_accuracy": {
+            "mean": 0.5278222222222222,
+            "std": 0.0014005290005856762
+          }
+        }
+      },
+      "experiment_identity": {
+        "campaign": "clip_vlm_bias_controlled",
+        "data_profile": "matched_jpeg",
+        "profile_spec_sha256": "2e8d51e705134ba6dd1245af72f36b30c1635d1d00c39f925357698352f796bf",
+        "target_bytes": "offline_transformed",
+        "source_setup": "unchanged_from_clip_vlm_main"
+      }
+    }
+  }
+}

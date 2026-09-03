@@ -1,0 +1,69 @@
+{
+  "format": "clip_vlm_bias_controlled_artifact_manifest_v2",
+  "base_release": "results/clip_vlm_bias_controlled_matched_jpeg_aigi_det_calib_20260903",
+  "replacement": "TDA official batch-size-1 clean/custom-dataset protocol",
+  "code_commit": "e5f24b457fcdbf1871398403c67f252b9f859dea",
+  "table_renderer_commit": "9d9b34ff697468283e93710116013e1532272c64",
+  "files": {
+    "README.md": {
+      "bytes": 2965,
+      "sha256": "6e0bf2f2ca87b62279d7233b8bf062cb3fcecbc5eb79f79d912c55d5cf5d784f"
+    },
+    "audit_summary.json": {
+      "bytes": 1158,
+      "sha256": "d227b750bf80b11607c7b47cd1fbb18e6cf23c266932f0526019f9ad8da1f3f0"
+    },
+    "clip_vitl14_aigc_detection_benchmark_accuracy_table.tex": {
+      "bytes": 3723,
+      "sha256": "0366637bda3d700019330d004e80abe5f4d3801ec584e434859e1e3ea6de510e"
+    },
+    "clip_vitl14_aigc_detection_benchmark_auc_table.tex": {
+      "bytes": 3670,
+      "sha256": "f269449e9241d4663c6439a5812b6a7119bbb8ec7b6f23757b20cf3bff38014e"
+    },
+    "clip_vitl14_aigi_holmes_p3_accuracy_table.tex": {
+      "bytes": 2811,
+      "sha256": "845df8058aa26aa78c4103e96bc84ed702a794cf326e065aac96dc1dc8e2022b"
+    },
+    "clip_vitl14_aigi_holmes_p3_auc_table.tex": {
+      "bytes": 2758,
+      "sha256": "a512724737cd988f7421a00dd0a34c12bfea3d1723ff83c9ca340414cfabc532"
+    },
+    "clip_vitl14_auc_table.csv": {
+      "bytes": 325,
+      "sha256": "519a22a25b04bebf63d7f16df918733c74275f4f88b459eecb18d441d1f1167f"
+    },
+    "clip_vitl14_genimage_accuracy_table.tex": {
+      "bytes": 2393,
+      "sha256": "ef2c3b7c8b65e686750fa6eae1299b26eccf57a37b468a2275e1dcb19ef738cc"
+    },
+    "clip_vitl14_genimage_auc_table.tex": {
+      "bytes": 2340,
+      "sha256": "54b4535614efdb14e5847e0ac607c573727f1aae401a7cc14f03d97b21deb07e"
+    },
+    "clip_vitl14_opensdid_global_accuracy_table.tex": {
+      "bytes": 2140,
+      "sha256": "a11bfa7b5aa168d90a2f2ecc2eaa7b4b5f06231e17fd8ce9fac1c73ece78c6bc"
+    },
+    "clip_vitl14_opensdid_global_auc_table.tex": {
+      "bytes": 2087,
+      "sha256": "18aa824f3acb6ac419a8417de70612cf7f389d7d62ed394ada87b92adc45c341"
+    },
+    "clip_vitl14_summary.json": {
+      "bytes": 53941,
+      "sha256": "6ad97580dae2150b768758b3b9ea84004fc021654f0db42ca20aff5b18012fc5"
+    },
+    "per_seed_summary.json": {
+      "bytes": 3831,
+      "sha256": "ff9d3f8b3816c75dc26b5224fe4e1067cb9041465d4e7c0e9e531777986e52ba"
+    },
+    "previous_tda_comparison.json": {
+      "bytes": 2297,
+      "sha256": "301599edd6e40394e180f51f5af605f0333e9742782a1246c33536058302788e"
+    },
+    "source_models.json": {
+      "bytes": 965,
+      "sha256": "1b2fb2f41bb24715d3e1b7ff9dd2b5deacba94567167dcc9e42f47b2ba801ad9"
+    }
+  }
+}

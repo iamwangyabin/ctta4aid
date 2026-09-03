@@ -1,0 +1,37 @@
+\begin{table*}[t]
+\centering
+\caption{Target-wise Accuracy (\%) on OpenSDID Global with OpenAI CLIP ViT-L/14, using a fixed 0.5 decision threshold. Every cell reports the mean over three locked seeds, with the across-seed standard deviation shown as a smaller subscript; Mean applies the same reporting to the target-macro score computed within each seed.}
+\label{tab:clip-vitl14-opensdid-global-accuracy}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{0.82\textwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{5}{c}{Accuracy (\%) by target} & \multicolumn{1}{c}{Summary} \\
+\cmidrule(lr){2-6}
+\cmidrule(lr){7-7}
+Method & SD1.5 & SD2.1 & SDXL & SD3 & Flux.1 & Mean \\
+\midrule
+Source & -- & -- & -- & -- & -- & -- \\
+AIGI-Det-Calib$^{\S}$ & -- & -- & -- & -- & -- & -- \\
+Tent$^{\dagger}$ & -- & -- & -- & -- & -- & -- \\
+EATA$^{\dagger}$ & -- & -- & -- & -- & -- & -- \\
+SAR & -- & -- & -- & -- & -- & -- \\
+CoTTA & -- & -- & -- & -- & -- & -- \\
+RoTTA-LN$^{\ddagger}$ & -- & -- & -- & -- & -- & -- \\
+LAME & -- & -- & -- & -- & -- & -- \\
+T$^2$A$^{\dagger}$ & -- & -- & -- & -- & -- & -- \\
+TDA & $\mathbf{53.18}_{\scriptscriptstyle \pm 0.67}$ & $\mathbf{52.64}_{\scriptscriptstyle \pm 0.14}$ & $\mathbf{53.31}_{\scriptscriptstyle \pm 0.34}$ & $\mathbf{52.33}_{\scriptscriptstyle \pm 0.64}$ & $\mathbf{52.44}_{\scriptscriptstyle \pm 0.79}$ & $\mathbf{52.78}_{\scriptscriptstyle \pm 0.14}$ \\
+DynaPrompt & -- & -- & -- & -- & -- & -- \\
+CLIPTTA & -- & -- & -- & -- & -- & -- \\
+BATCLIP & -- & -- & -- & -- & -- & -- \\
+IAPL & -- & -- & -- & -- & -- & -- \\
+\midrule
+Ours & -- & -- & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}
+\parbox{\textwidth}{\footnotesize The single rule separates prior methods from Ours. Across all rows, bold and underline mark the best and second-best result by mean in each column, respectively; ties at reported precision share a rank. $^{\dagger}$BN-to-LN parameter mapping; $^{\ddagger}$RoTTA-LN ViT transfer; $^{\S}$strictly causal AIGI-Det-Calib. Full source setups and transfer details appear in Section~\ref{sec:experiments}.}
+\end{table*}

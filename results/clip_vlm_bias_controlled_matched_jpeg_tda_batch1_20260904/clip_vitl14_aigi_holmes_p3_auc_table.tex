@@ -1,0 +1,37 @@
+\begin{table*}[t]
+\centering
+\caption{Target-wise AUC (\%) on AIGI-Holmes P3 with OpenAI CLIP ViT-L/14. Every cell reports the mean over three locked seeds, with the across-seed standard deviation shown as a smaller subscript; Mean applies the same reporting to the target-macro score computed within each seed.}
+\label{tab:clip-vitl14-aigi-holmes-p3-auc}
+\scriptsize
+\setlength{\tabcolsep}{1.5pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccccc}
+\toprule
+& \multicolumn{10}{c}{AUC (\%) by target} & \multicolumn{1}{c}{Summary} \\
+\cmidrule(lr){2-11}
+\cmidrule(lr){12-12}
+Method & Janus & Janus-Pro-1B & Janus-Pro-7B & Show-o & LlamaGen & Infinity & VAR & PixArt-XL & SD3.5-L & FLUX & Mean \\
+\midrule
+Source & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+AIGI-Det-Calib$^{\S}$ & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+Tent$^{\dagger}$ & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+EATA$^{\dagger}$ & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+SAR & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+CoTTA & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+RoTTA-LN$^{\ddagger}$ & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+LAME & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+T$^2$A$^{\dagger}$ & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+TDA & $\mathbf{65.66}_{\scriptscriptstyle \pm 0.98}$ & $\mathbf{61.20}_{\scriptscriptstyle \pm 0.59}$ & $\mathbf{56.77}_{\scriptscriptstyle \pm 1.30}$ & $\mathbf{58.33}_{\scriptscriptstyle \pm 0.88}$ & $\mathbf{58.51}_{\scriptscriptstyle \pm 1.77}$ & $\mathbf{60.29}_{\scriptscriptstyle \pm 0.82}$ & $\mathbf{67.80}_{\scriptscriptstyle \pm 1.30}$ & $\mathbf{54.17}_{\scriptscriptstyle \pm 1.61}$ & $\mathbf{36.83}_{\scriptscriptstyle \pm 0.94}$ & $\mathbf{57.79}_{\scriptscriptstyle \pm 0.18}$ & $\mathbf{57.74}_{\scriptscriptstyle \pm 0.30}$ \\
+DynaPrompt & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+CLIPTTA & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+BATCLIP & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+IAPL & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+\midrule
+Ours & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}
+\parbox{\textwidth}{\footnotesize The single rule separates prior methods from Ours. Across all rows, bold and underline mark the best and second-best result by mean in each column, respectively; ties at reported precision share a rank. $^{\dagger}$BN-to-LN parameter mapping; $^{\ddagger}$RoTTA-LN ViT transfer; $^{\S}$strictly causal AIGI-Det-Calib. Full source setups and transfer details appear in Section~\ref{sec:experiments}.}
+\end{table*}

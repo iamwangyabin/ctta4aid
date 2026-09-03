@@ -1,0 +1,37 @@
+\begin{table*}[t]
+\centering
+\caption{Target-wise AUC (\%) on AIGCDetectionBenchmark with OpenAI CLIP ViT-L/14. Every cell reports the mean over three locked seeds, with the across-seed standard deviation shown as a smaller subscript; Mean applies the same reporting to the target-macro score computed within each seed.}
+\label{tab:clip-vitl14-aigc-detection-benchmark-auc}
+\scriptsize
+\setlength{\tabcolsep}{1.5pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccccc}
+\toprule
+& \multicolumn{17}{c}{AUC (\%) by target} & \multicolumn{1}{c}{Summary} \\
+\cmidrule(lr){2-18}
+\cmidrule(lr){19-19}
+Method & ProGAN & StyleGAN & BigGAN & CycleGAN & StarGAN & GauGAN & StyleGAN2 & WFIR & ADM & GLIDE & Midjourney & SD v1.4 & SD v1.5 & VQDM & Wukong & DALL-E2 & SDXL & Mean \\
+\midrule
+Source & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+AIGI-Det-Calib$^{\S}$ & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+Tent$^{\dagger}$ & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+EATA$^{\dagger}$ & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+SAR & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+CoTTA & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+RoTTA-LN$^{\ddagger}$ & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+LAME & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+T$^2$A$^{\dagger}$ & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+TDA & $\mathbf{84.40}_{\scriptscriptstyle \pm 0.41}$ & $\mathbf{78.96}_{\scriptscriptstyle \pm 0.47}$ & $\mathbf{73.78}_{\scriptscriptstyle \pm 1.13}$ & $\mathbf{88.45}_{\scriptscriptstyle \pm 0.38}$ & $\mathbf{83.39}_{\scriptscriptstyle \pm 0.88}$ & $\mathbf{85.66}_{\scriptscriptstyle \pm 0.21}$ & $\mathbf{75.88}_{\scriptscriptstyle \pm 0.43}$ & $\mathbf{71.82}_{\scriptscriptstyle \pm 1.04}$ & $\mathbf{63.50}_{\scriptscriptstyle \pm 0.67}$ & $\mathbf{75.28}_{\scriptscriptstyle \pm 1.02}$ & $\mathbf{52.93}_{\scriptscriptstyle \pm 0.48}$ & $\mathbf{53.99}_{\scriptscriptstyle \pm 0.77}$ & $\mathbf{54.36}_{\scriptscriptstyle \pm 0.29}$ & $\mathbf{66.36}_{\scriptscriptstyle \pm 0.12}$ & $\mathbf{58.60}_{\scriptscriptstyle \pm 1.44}$ & $\mathbf{58.29}_{\scriptscriptstyle \pm 0.82}$ & $\mathbf{56.04}_{\scriptscriptstyle \pm 0.87}$ & $\mathbf{69.51}_{\scriptscriptstyle \pm 0.13}$ \\
+DynaPrompt & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+CLIPTTA & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+BATCLIP & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+IAPL & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+\midrule
+Ours & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}
+\parbox{\textwidth}{\footnotesize The single rule separates prior methods from Ours. Across all rows, bold and underline mark the best and second-best result by mean in each column, respectively; ties at reported precision share a rank. $^{\dagger}$BN-to-LN parameter mapping; $^{\ddagger}$RoTTA-LN ViT transfer; $^{\S}$strictly causal AIGI-Det-Calib. Full source setups and transfer details appear in Section~\ref{sec:experiments}.}
+\end{table*}

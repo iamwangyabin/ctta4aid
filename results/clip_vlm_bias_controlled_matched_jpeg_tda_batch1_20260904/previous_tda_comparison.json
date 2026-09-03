@@ -1,0 +1,70 @@
+{
+  "method": "tda",
+  "comparison_scope": "mean of four dataset-level target-macro three-seed means",
+  "legacy_result": "clip_vlm_bias_controlled_matched_jpeg_aigi_det_calib_20260903",
+  "legacy_protocol": "batch_size_16_distinct_target_samples_entered_the_official_multi_view_branch",
+  "replacement_result": "clip_vlm_bias_controlled_matched_jpeg_tda_batch1_20260904",
+  "replacement_protocol": "official_batch_size_1_one_deterministic_global_view_per_custom_dataset_sample",
+  "datasets": {
+    "genimage": {
+      "auc": {
+        "legacy_batch16": 0.6321866243386244,
+        "official_batch1": 0.6510606137566137,
+        "absolute_delta": 0.018873989417989345
+      },
+      "accuracy": {
+        "legacy_batch16": 0.5183174603174603,
+        "official_batch1": 0.5368888888888889,
+        "absolute_delta": 0.018571428571428572
+      }
+    },
+    "aigc_detection_benchmark": {
+      "auc": {
+        "legacy_batch16": 0.6737014030501088,
+        "official_batch1": 0.6951197734204793,
+        "absolute_delta": 0.02141837037037042
+      },
+      "accuracy": {
+        "legacy_batch16": 0.5136601307189542,
+        "official_batch1": 0.5327843137254902,
+        "absolute_delta": 0.019124183006535955
+      }
+    },
+    "aigi_holmes_p3": {
+      "auc": {
+        "legacy_batch16": 0.5662576888888888,
+        "official_batch1": 0.5773709925925926,
+        "absolute_delta": 0.01111330370370378
+      },
+      "accuracy": {
+        "legacy_batch16": 0.5186444444444445,
+        "official_batch1": 0.5305333333333334,
+        "absolute_delta": 0.011888888888888949
+      }
+    },
+    "opensdid_global": {
+      "auc": {
+        "legacy_batch16": 0.5598066962962963,
+        "official_batch1": 0.5694155259259258,
+        "absolute_delta": 0.0096088296296295
+      },
+      "accuracy": {
+        "legacy_batch16": 0.5154222222222221,
+        "official_batch1": 0.5278222222222222,
+        "absolute_delta": 0.012400000000000078
+      }
+    }
+  },
+  "four_dataset_macro": {
+    "auc": {
+      "legacy_batch16": 0.6079881031434796,
+      "official_batch1": 0.6232417264239029,
+      "absolute_delta": 0.015253623280423234
+    },
+    "accuracy": {
+      "legacy_batch16": 0.5165110644257702,
+      "official_batch1": 0.5320071895424836,
+      "absolute_delta": 0.015496125116713388
+    }
+  }
+}

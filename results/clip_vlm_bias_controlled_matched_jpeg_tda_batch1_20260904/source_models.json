@@ -1,0 +1,23 @@
+{
+  "method": "tda",
+  "source_setup": "frozen_openai_clip_zero_shot_binary_prompts",
+  "architecture": "ViT-L/14",
+  "openai_clip_official_commit": "d05afc436d78f1c48dc0dbf8e5980a9d471f35f6",
+  "clip_checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+  "tda_official_commit": "e697fb0c8078cdeff93daa56bcf8860702542069",
+  "protocol_wrapper": "online_adapt_then_predict",
+  "class_prompts": [
+    [
+      "a photo of a real image."
+    ],
+    [
+      "a photo of an AI-generated image."
+    ]
+  ],
+  "intentional_changes": [
+    "official CLIP loader is replaced by the shared local OpenAI CLIP ViT-L/14 loader",
+    "the official clean/custom-dataset contract is enforced as exactly one deterministic global view of one target sample per online step",
+    "hard-coded CUDA and half casts are replaced by input-device and input-dtype handling",
+    "the framework records Arrow sample identity and evaluator-only metrics"
+  ]
+}

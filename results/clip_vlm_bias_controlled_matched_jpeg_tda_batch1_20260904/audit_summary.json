@@ -1,0 +1,32 @@
+{
+  "status": "accepted",
+  "method": "tda",
+  "code_commit": "e5f24b457fcdbf1871398403c67f252b9f859dea",
+  "official_commit": "e697fb0c8078cdeff93daa56bcf8860702542069",
+  "protocol_revision": "official_batch1_clean_custom_v1",
+  "data_profile": "matched_jpeg",
+  "profile_spec_sha256": "2e8d51e705134ba6dd1245af72f36b30c1635d1d00c39f925357698352f796bf",
+  "validation_seeds": [
+    0,
+    2,
+    3
+  ],
+  "dataset_count": 4,
+  "distinct_targets": 39,
+  "method_target_seed_runs": 117,
+  "samples": 175500,
+  "online_batches": 175500,
+  "batch_size": 1,
+  "selected_per_batch": 1,
+  "target_labels_available_to_method": false,
+  "checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+  "checks": [
+    "all 12 single-target configs completed",
+    "every target contains exactly 1500 locked samples",
+    "every online batch contains exactly one sample",
+    "every TDA cache update selects exactly that one sample",
+    "all AUC, accuracy, and balanced-accuracy values are finite",
+    "all sample ids are unique within each target stream",
+    "all runs record the pinned TDA and OpenAI CLIP checkpoint identities"
+  ]
+}

@@ -1,0 +1,16 @@
+method,genimage,aigc_detection_benchmark,aigi_holmes_p3,opensdid_global,mean
+source_ft,,,,,
+aigi_det_calib,,,,,
+tent,,,,,
+eata,,,,,
+sar,,,,,
+cotta,,,,,
+rotta,,,,,
+lame,,,,,
+t2a,,,,,
+tda,65.11 $\pm$ 0.41,69.51 $\pm$ 0.13,57.74 $\pm$ 0.30,56.94 $\pm$ 0.25,0.623242
+dynaprompt,,,,,
+cliptta,,,,,
+batclip,,,,,
+iapl,,,,,
+ours,,,,,

@@ -1,0 +1,148 @@
+{
+  "method": "tda",
+  "code_commit": "e5f24b457fcdbf1871398403c67f252b9f859dea",
+  "official_commit": "e697fb0c8078cdeff93daa56bcf8860702542069",
+  "protocol_revision": "official_batch1_clean_custom_v1",
+  "seeds": [
+    0,
+    2,
+    3
+  ],
+  "datasets": {
+    "genimage": {
+      "targets": [
+        "BigGAN",
+        "ADM",
+        "glide",
+        "stable_diffusion_v_1_5",
+        "VQDM",
+        "wukong",
+        "Midjourney"
+      ],
+      "target_macro_by_seed": {
+        "seed0": {
+          "auc": 0.6521958095238095,
+          "average_precision": 0.6370594756151883,
+          "accuracy": 0.5356190476190477,
+          "balanced_accuracy": 0.5356190476190477
+        },
+        "seed2": {
+          "auc": 0.6465422222222222,
+          "average_precision": 0.6334020063280058,
+          "accuracy": 0.5365714285714286,
+          "balanced_accuracy": 0.5365714285714286
+        },
+        "seed3": {
+          "auc": 0.6544438095238095,
+          "average_precision": 0.6407546413965094,
+          "accuracy": 0.5384761904761904,
+          "balanced_accuracy": 0.5384761904761904
+        }
+      }
+    },
+    "aigc_detection_benchmark": {
+      "targets": [
+        "ProGAN",
+        "StyleGAN",
+        "BigGAN",
+        "CycleGAN",
+        "StarGAN",
+        "GauGAN",
+        "StyleGAN2",
+        "WFIR",
+        "ADM",
+        "GLIDE",
+        "Midjourney",
+        "SD v1.4",
+        "SD v1.5",
+        "VQDM",
+        "Wukong",
+        "DALL-E2",
+        "SDXL"
+      ],
+      "target_macro_by_seed": {
+        "seed0": {
+          "auc": 0.6955881307189542,
+          "average_precision": 0.6847431038625295,
+          "accuracy": 0.5323529411764706,
+          "balanced_accuracy": 0.5323529411764706
+        },
+        "seed2": {
+          "auc": 0.6936158954248366,
+          "average_precision": 0.6858290983606673,
+          "accuracy": 0.5333725490196078,
+          "balanced_accuracy": 0.5333725490196078
+        },
+        "seed3": {
+          "auc": 0.6961552941176471,
+          "average_precision": 0.6861835648925154,
+          "accuracy": 0.5326274509803921,
+          "balanced_accuracy": 0.5326274509803921
+        }
+      }
+    },
+    "aigi_holmes_p3": {
+      "targets": [
+        "Janus",
+        "Janus-Pro-1B",
+        "Janus-Pro-7B",
+        "Show-o",
+        "LlamaGen",
+        "Infinity",
+        "VAR",
+        "PixArt-XL",
+        "SD3.5-L",
+        "FLUX"
+      ],
+      "target_macro_by_seed": {
+        "seed0": {
+          "auc": 0.5761111111111111,
+          "average_precision": 0.5593389367591264,
+          "accuracy": 0.5299333333333334,
+          "balanced_accuracy": 0.5299333333333334
+        },
+        "seed2": {
+          "auc": 0.5752097777777778,
+          "average_precision": 0.5567061620852908,
+          "accuracy": 0.5296666666666667,
+          "balanced_accuracy": 0.5296666666666667
+        },
+        "seed3": {
+          "auc": 0.5807920888888889,
+          "average_precision": 0.5617497710062945,
+          "accuracy": 0.532,
+          "balanced_accuracy": 0.532
+        }
+      }
+    },
+    "opensdid_global": {
+      "targets": [
+        "SD1.5",
+        "SD2.1",
+        "SDXL",
+        "SD3",
+        "Flux.1"
+      ],
+      "target_macro_by_seed": {
+        "seed0": {
+          "auc": 0.5687975111111111,
+          "average_precision": 0.5518206924085378,
+          "accuracy": 0.5264,
+          "balanced_accuracy": 0.5264
+        },
+        "seed2": {
+          "auc": 0.5721925333333333,
+          "average_precision": 0.5533617103793349,
+          "accuracy": 0.5292,
+          "balanced_accuracy": 0.5292
+        },
+        "seed3": {
+          "auc": 0.5672565333333333,
+          "average_precision": 0.5490279882609681,
+          "accuracy": 0.5278666666666666,
+          "balanced_accuracy": 0.5278666666666666
+        }
+      }
+    }
+  }
+}

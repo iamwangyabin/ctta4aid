@@ -1,0 +1,37 @@
+\begin{table*}[t]
+\centering
+\caption{Target-wise Accuracy (\%) on GenImage with OpenAI CLIP ViT-L/14, using a fixed 0.5 decision threshold. Every cell reports the mean over three locked seeds, with the across-seed standard deviation shown as a smaller subscript; Mean applies the same reporting to the target-macro score computed within each seed.}
+\label{tab:clip-vitl14-genimage-accuracy}
+\scriptsize
+\setlength{\tabcolsep}{1.5pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
+\toprule
+& \multicolumn{7}{c}{Accuracy (\%) by target} & \multicolumn{1}{c}{Summary} \\
+\cmidrule(lr){2-8}
+\cmidrule(lr){9-9}
+Method & BigGAN & ADM & GLIDE & SD v1.5 & VQDM & Wukong & Midjourney & Mean \\
+\midrule
+Source & -- & -- & -- & -- & -- & -- & -- & -- \\
+AIGI-Det-Calib$^{\S}$ & -- & -- & -- & -- & -- & -- & -- & -- \\
+Tent$^{\dagger}$ & -- & -- & -- & -- & -- & -- & -- & -- \\
+EATA$^{\dagger}$ & -- & -- & -- & -- & -- & -- & -- & -- \\
+SAR & -- & -- & -- & -- & -- & -- & -- & -- \\
+CoTTA & -- & -- & -- & -- & -- & -- & -- & -- \\
+RoTTA-LN$^{\ddagger}$ & -- & -- & -- & -- & -- & -- & -- & -- \\
+LAME & -- & -- & -- & -- & -- & -- & -- & -- \\
+T$^2$A$^{\dagger}$ & -- & -- & -- & -- & -- & -- & -- & -- \\
+TDA & $\mathbf{55.42}_{\scriptscriptstyle \pm 0.95}$ & $\mathbf{54.31}_{\scriptscriptstyle \pm 0.21}$ & $\mathbf{54.96}_{\scriptscriptstyle \pm 0.77}$ & $\mathbf{52.29}_{\scriptscriptstyle \pm 0.62}$ & $\mathbf{54.20}_{\scriptscriptstyle \pm 0.35}$ & $\mathbf{53.62}_{\scriptscriptstyle \pm 0.20}$ & $\mathbf{51.02}_{\scriptscriptstyle \pm 0.54}$ & $\mathbf{53.69}_{\scriptscriptstyle \pm 0.15}$ \\
+DynaPrompt & -- & -- & -- & -- & -- & -- & -- & -- \\
+CLIPTTA & -- & -- & -- & -- & -- & -- & -- & -- \\
+BATCLIP & -- & -- & -- & -- & -- & -- & -- & -- \\
+IAPL & -- & -- & -- & -- & -- & -- & -- & -- \\
+\midrule
+Ours & -- & -- & -- & -- & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}
+\parbox{\textwidth}{\footnotesize The single rule separates prior methods from Ours. Across all rows, bold and underline mark the best and second-best result by mean in each column, respectively; ties at reported precision share a rank. $^{\dagger}$BN-to-LN parameter mapping; $^{\ddagger}$RoTTA-LN ViT transfer; $^{\S}$strictly causal AIGI-Det-Calib. Full source setups and transfer details appear in Section~\ref{sec:experiments}.}
+\end{table*}
