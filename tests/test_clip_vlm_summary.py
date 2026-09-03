@@ -72,7 +72,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
             )
             self.assertNotIn("TTC", table)
             self.assertIn("AIGI-Det-Calib$^{\\S}$ & -- & -- & -- & -- & --", table)
-            self.assertIn("Ours-Static & -- & -- & -- & -- & --", table)
+            self.assertNotIn("Ours-Static", table)
             self.assertIn("Ours & -- & -- & -- & -- & --", table)
 
             auc_table = SUMMARY_SCRIPT.render_dataset_table(
@@ -80,16 +80,29 @@ class ClipVlmSummaryTests(unittest.TestCase):
             )
             self.assertIn("AUC (\\%) by target", auc_table)
             self.assertIn("BigGAN & ADM & GLIDE & SD v1.5", auc_table)
-            self.assertIn("Source & 61.00 & 61.10", auc_table)
-            self.assertIn("61.30 $\\pm$ 1.00", auc_table)
-            self.assertNotIn("\\textbf{71.00}", auc_table)
-            self.assertIn("\\underline{76.00}", auc_table)
-            self.assertIn("\\textbf{81.00}", auc_table)
+            self.assertIn(
+                "Source & $61.00_{\\scriptscriptstyle \\pm 1.00}$ "
+                "& $61.10_{\\scriptscriptstyle \\pm 1.00}$",
+                auc_table,
+            )
+            self.assertIn("$61.30_{\\scriptscriptstyle \\pm 1.00}$", auc_table)
+            self.assertNotIn("\\mathbf{71.00}", auc_table)
+            self.assertIn(
+                "$\\underline{76.00}_{\\scriptscriptstyle \\pm 1.00}$",
+                auc_table,
+            )
+            self.assertIn(
+                "$\\mathbf{81.00}_{\\scriptscriptstyle \\pm 1.00}$",
+                auc_table,
+            )
+            self.assertIn("Every cell reports the mean", auc_table)
+            self.assertIn("standard deviation shown as a smaller subscript", auc_table)
             self.assertEqual(auc_table.count("\\midrule"), 2)
             _header, baseline_rows, ours_rows = auc_table.split("\\midrule")
             self.assertIn("IAPL", baseline_rows)
             self.assertNotIn("Ours-Static", baseline_rows)
-            self.assertIn("Ours-Static", ours_rows)
+            self.assertNotIn("Ours-Static", ours_rows)
+            self.assertIn("Ours", ours_rows)
             self.assertNotIn("Source-trained CLIP detector", auc_table)
             self.assertNotIn("Method-specific source training", auc_table)
             self.assertNotIn("Result cells remain blank", auc_table)
@@ -98,8 +111,12 @@ class ClipVlmSummaryTests(unittest.TestCase):
                 "genimage", "accuracy", summary
             )
             self.assertIn("fixed 0.5 decision threshold", accuracy_table)
-            self.assertIn("Source & 51.00 & 51.10", accuracy_table)
-            self.assertIn("51.30 $\\pm$ 1.00", accuracy_table)
+            self.assertIn(
+                "Source & $51.00_{\\scriptscriptstyle \\pm 1.00}$ "
+                "& $51.10_{\\scriptscriptstyle \\pm 1.00}$",
+                accuracy_table,
+            )
+            self.assertIn("$51.30_{\\scriptscriptstyle \\pm 1.00}$", accuracy_table)
 
             output = root / "paper"
             SUMMARY_SCRIPT.write_summary(summary, output)
@@ -118,7 +135,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
             ) as handle:
                 rows = {row["method"]: row for row in csv.DictReader(handle)}
             self.assertEqual(rows["ours"]["genimage"], "")
-            self.assertEqual(rows["ours_static"]["genimage"], "")
+            self.assertNotIn("ours_static", rows)
             self.assertEqual(rows["aigi_det_calib"]["genimage"], "")
             self.assertIn("61.30", rows["source_ft"]["genimage"])
             self.assertIn("69.30", rows["rotta"]["genimage"])
@@ -266,7 +283,12 @@ class ClipVlmSummaryTests(unittest.TestCase):
             table = SUMMARY_SCRIPT.render_dataset_table(
                 "genimage", "accuracy", augmented
             )
-            self.assertIn("AIGI-Det-Calib$^{\\S}$ & 56.00 & 56.10", table)
+            self.assertIn(
+                "AIGI-Det-Calib$^{\\S}$ & "
+                "$56.00_{\\scriptscriptstyle \\pm 1.00}$ & "
+                "$56.10_{\\scriptscriptstyle \\pm 1.00}$",
+                table,
+            )
             self.assertIn("strictly causal AIGI-Det-Calib", table)
 
             per_seed_base = {

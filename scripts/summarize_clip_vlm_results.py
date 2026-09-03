@@ -150,7 +150,6 @@ TABLE_SECTIONS = (
     (
         "ours",
         (
-            TableRow("ours_static", "Ours-Static"),
             TableRow("ours", "Ours"),
         ),
     ),
@@ -975,7 +974,22 @@ def _format_target_metric(
 ) -> str:
     if value is None:
         return "--"
-    rendered = f"{100.0 * float(value['mean']):.2f}"
+    mean = f"{100.0 * float(value['mean']):.2f}"
+    std = f"{100.0 * float(value['std']):.2f}"
+    if bold:
+        mean = f"\\mathbf{{{mean}}}"
+    elif underline:
+        mean = f"\\underline{{{mean}}}"
+    return f"${mean}_{{\\scriptscriptstyle \\pm {std}}}$"
+
+
+def _format_percentage(
+    value: float,
+    *,
+    bold: bool = False,
+    underline: bool = False,
+) -> str:
+    rendered = f"{100.0 * value:.2f}"
     if bold:
         return f"\\textbf{{{rendered}}}"
     return f"\\underline{{{rendered}}}" if underline else rendered
@@ -1047,9 +1061,10 @@ def render_dataset_table(
         "\\begin{table*}[t]",
         "\\centering",
         f"\\caption{{Target-wise {metric_label} (\\%) on {DATASET_TITLES[dataset]} "
-        f"with OpenAI CLIP ViT-L/14{accuracy_note}. Target columns report "
-        "means over three locked seeds; Mean reports the target-macro mean "
-        f"$\\pm$ standard deviation across seeds.{status_note}}}",
+        f"with OpenAI CLIP ViT-L/14{accuracy_note}. Every cell reports the mean "
+        "over three locked seeds, with the across-seed standard deviation shown "
+        "as a smaller subscript; Mean applies the same reporting to the "
+        f"target-macro score computed within each seed.{status_note}}}",
         f"\\label{{tab:clip-vitl14-{label_dataset}-{metric}}}",
         font_size,
         f"\\setlength{{\\tabcolsep}}{{{tabcolsep}}}",
@@ -1090,7 +1105,7 @@ def render_dataset_table(
                     )
                 mean_value = _method_value(summary, row.method, dataset, metric)
                 best_methods, second_methods = ranks_by_column[None]
-                rendered_mean = _format_mean_std_percentage(
+                rendered_mean = _format_target_metric(
                     mean_value,
                     bold=row.method in best_methods,
                     underline=row.method in second_methods,
@@ -1107,10 +1122,10 @@ def render_dataset_table(
             "}",
             "\\vspace{2pt}",
             "\\parbox{\\textwidth}{\\footnotesize The single rule separates "
-            "prior methods from our paired static and adaptive models. Across "
+            "prior methods from Ours. Across "
             "all rows, bold and underline mark the best and second-best result "
-            "in each column, respectively; ties at reported precision share a "
-            "rank. "
+            "by mean in each column, respectively; ties at reported precision "
+            "share a rank. "
             "$^{\\dagger}$BN-to-LN parameter mapping; $^{\\ddagger}$RoTTA-LN "
             "ViT transfer; $^{\\S}$strictly causal AIGI-Det-Calib. Full source "
             "setups and transfer details appear in "
@@ -1171,8 +1186,8 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
                     dataset_mean = fmean(
                         float(value["mean"]) for value in values if value
                     )
-                    mean_cell = _format_target_metric(
-                        {"mean": dataset_mean},
+                    mean_cell = _format_percentage(
+                        dataset_mean,
                         bold=row.method in ranks_by_column[None][0],
                         underline=row.method in ranks_by_column[None][1],
                     )
@@ -1189,8 +1204,8 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
             "\\end{tabular}",
             "\\vspace{2pt}",
             "\\parbox{\\textwidth}{\\footnotesize "
-            "The single rule separates prior methods from our paired static and "
-            "adaptive models. Across all rows, bold and underline mark the best "
+            "The single rule separates prior methods from Ours. Across all "
+            "rows, bold and underline mark the best "
             "and second-best result in each column, respectively; ties at "
             "reported precision share a rank. $^{\\dagger}$BN-to-LN parameter "
             "mapping; "

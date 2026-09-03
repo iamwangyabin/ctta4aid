@@ -67,12 +67,13 @@ batch/views、状态转移、预测/适应顺序和 prompt 构造，只做接入
 256x256 center-crop/resize，再从 75/80/85/90/95 中按不含类别目录的逻辑路径
 确定性选择 JPEG 质量。原始编码与 `all_jpeg_q90` 只作为独立补充审计，不能与
 `matched_jpeg` 主结果混表。四个数据集的逐 target AUC 与 Accuracy 详细表均保留在正文；
-原始 16-method campaign 已验收并冻结在
+原始 16-profile campaign 已验收并冻结在
 `results/clip_vlm_bias_controlled_matched_jpeg_20260902/`；加入独立
-AIGI-Det-Calib baseline 后的 17-method 完整验收版本保存在
+AIGI-Det-Calib baseline 后、包含 17 种运行配置的完整验收版本保存在
 `results/clip_vlm_bias_controlled_matched_jpeg_aigi_det_calib_20260903/`，
-不会回写或覆盖前一目录。正文从该完整结果中报告 16 行；其中
-`frozen_clip` 的 117 个 `target x seed` 单元只作为补充诊断保留，不进入正文表格。
+不会回写或覆盖前一目录。正文从该完整结果中报告 15 行；其中
+`frozen_clip` 和 `ours_static` 各自的 117 个 `target x seed` 单元分别只作为补充诊断和
+冻结源状态对照保留，不进入正文主表。
 
 三类 source setup 仍按下表完整披露，但不再作为八张正文表中的重复分组标题：
 
@@ -82,8 +83,10 @@ AIGI-Det-Calib baseline 后的 17-method 完整验收版本保存在
 | CLIP-native adaptation | 未做任务微调的固定 ViT-L/14 checkpoint | TDA、DynaPrompt、CLIPTTA、BATCLIP | 共享二分类类别语义，各自保留原生 template、文本分类器或 prompt learner |
 | Method-specific source training | 固定 ViT-L/14 初始化后，按方法自己的源训练流程得到的 checkpoint | IAPL、Ours | source state 不同，跨方法数值只作描述性比较 |
 
-正文表将 Source 至 IAPL 连续列为外部基线，只在 `Ours-Static` 前保留一条横线，随后列出
-`Ours-Static` 与 `Ours`。每列在全部方法中将最佳结果加粗、次佳的不同结果加下划线；按
+正文表将 Source 至 IAPL 连续列为外部基线，只在最终 `Ours` 前保留一条横线。内部
+`ours_static` 运行不是独立方法，只在消融与配对分析中以 `Frozen source control` 出现。
+每列在全部正文方法中将最佳结果加粗、
+次佳的不同结果加下划线；按
 表中报告到小数点后两位的数值确定名次，同精度并列时共享标记。该排名只用于描述结果，
 严格的适应增益仍只从相同 source state 的配对结果推断。
 
@@ -111,13 +114,13 @@ CLIP LayerNorm affine；不得改写目标函数、筛选规则、teacher、Fish
 | DynaPrompt | CLIP 类别名与在线 context | 多视图 prompt tuning、动态 prompt buffer | 换成 ViT-L/14；不固定最终 prompt |
 | CLIPTTA | CLIP 文本原型 | 官方 closed-set 对比适配及 batch 机制 | 使用二分类类别语义与作者原生文本构造 |
 | BATCLIP | CLIP 图像与文本两端 | 双模态目标及原生在线更新 | 换成固定 ViT-L/14；不得退化成只更新视觉端 |
-| Ours | rank-4 LoRA 二分类 CLIP detector 与 source score anchors | BIC/GMM 分段与伪监督、CLIP 特征专家路由、类条件 Gaussian replay、每专家 residual MLP，以及固定 `0.75` residual shrinkage 和解析截距重拟合 | 最终方法固定为内部版本 R47；严格 Predict-Then-Adapt；同时报告同 checkpoint 的 Ours-Static；R37 只作消融 |
+| Ours | rank-4 LoRA 二分类 CLIP detector 与 source score anchors | BIC/GMM 分段与伪监督、CLIP 特征专家路由、类条件 Gaussian replay、每专家 residual MLP，以及固定 `0.75` residual shrinkage 和解析截距重拟合 | 最终方法固定为内部版本 R47；严格 Predict-Then-Adapt；同 checkpoint 的 `ours_static` 运行只作 Frozen source control，R37 只作消融 |
 
 所有 target hidden labels 始终只进入 evaluator。CLIP-native 方法的类别语义属于任务定义，
 但 template 或 prompt 不得使用目标标签选择。主结果不再把一个数据集压缩成单个数值：
-每个数据集分别给出逐 target 的 AUC 表和 Accuracy 表。target 单元格报告三个正式验证
-seed `0/2/3` 的均值，Mean 列报告 target-macro 均值及跨 seed 标准差；Accuracy 固定使用
-0.5 阈值。
+每个数据集分别给出逐 target 的 AUC 表和 Accuracy 表。所有单元格均报告正式验证
+seed `0/2/3` 的均值及跨 seed 标准差，其中标准差以较小下标显示；Mean 对每个 seed
+先计算 target-macro，再报告三个 seed 的均值及标准差。Accuracy 固定使用 0.5 阈值。
 正式结论中的 AUC 和 Accuracy 都以 target-macro 为准。把所有 target 样本混合计算的 pooled
 指标只用于诊断域间分数尺度，不用于方法晋级、最佳结果选择或论文主结论。
 
@@ -156,8 +159,8 @@ TDA 另使用
 训练配置还固定排除了 preflight 检出的三条零字节 SD v1.4 源图逻辑路径；不会用空白或
 合成像素替代损坏样本。
 三个正式 seed 的 1,989 个完整 campaign `method x target x seed` 单元均已通过样本身份、输入
-profile、checkpoint、方法协议和有限指标检查；排除 117 个补充 Frozen CLIP 诊断单元后，
-八张正文表报告其余 1,872 个单元。此前完成的
+profile、checkpoint、方法协议和有限指标检查；排除 117 个补充 Frozen CLIP 诊断单元和
+117 个 `ours_static` 冻结源状态对照单元后，八张正文表报告其余 1,755 个单元。此前完成的
 ResNet-50 数值表仍原样保留在论文补充材料中。RoTTA-LN 数值来自独立运行并保留必要迁移
 说明。AIGI-Det-Calib 的表格行只使用公共 `source_ft` checkpoint 上的严格无标签因果结果；
 `ours_static + AIGI-Det-Calib` 仅保存在校验汇总中作诊断。TTC 因没有可固定的作者公开实现而
@@ -460,14 +463,15 @@ python run_single_target.py \
 
 四个数据集、三个正式 seed `0/2/3` 均有最终设置和 readout 消融的独立入口，输出分别写入
 `matched_jpeg/ours_single_target/` 与 `matched_jpeg/ours_no_calibrated_readout_ablation/`。
-三 seed 已完成独立审计；正文主表仅报告 Ours-Static 与最终 Ours，读出消融保存在最终结果
-目录的 `readout_ablation_summary.json`。
+三 seed 已完成独立审计；正文主表只报告最终 Ours，内部 `ours_static` 运行作为同 checkpoint
+的 Frozen source control 保留在读出消融和复现流分析中，读出消融保存在最终结果目录的
+`readout_ablation_summary.json`。
 
 为验证 Detect、Route 和历史专家复用确实发生在未知边界的数据流中，补充实验固定使用
 GenImage `SD1.5_first -> BigGAN -> ADM -> SD1.5_return`。四个 episode 的名字只属于
 evaluator；方法只接收图像，不接收 generator identity、切换点或 label。每个 online episode
 从对应正式 seed 的锁定主 manifest 中取每类 224 个样本，每个独立 holdout episode 取每类
-112 个样本；online/holdout 以及两段 SD1.5 均互不重叠。比较集合固定为 Ours-Static、
+112 个样本；online/holdout 以及两段 SD1.5 均互不重叠。比较集合固定为 Frozen source control、
 Ours w/o calibrated readout、Ours、CoTTA 和 RoTTA-LN。不同方法保留其原生 batch size，
 manifest 因而锁定完全相同的样本身份与全局顺序，但不把 delivery batch 划分强加给方法。
 输出同时报告 online AUC/Accuracy、返回域 holdout 恢复、检测延迟、误切分、历史专家路由率
@@ -592,7 +596,7 @@ UnivFD/Ojha、RINE 和 NPR 已在同一 GenImage SD v1.4 Arrow 源训练集上�
 
 ## 实验边界
 
-- CLIP 主结果只使用固定 OpenAI CLIP ViT-L/14 预训练权重，并锁定目标样本 identity、目标内顺序和 seed；每种方法保留原生 source training、分类器或 prompt 构造、batch/views、在线状态与预测/适应顺序。每个数据集分别报告逐 target AUC 和阈值 0.5 的 Accuracy；target 单元格为三 seed 均值，Mean 为 target-macro 均值及跨 seed 标准差。
+- CLIP 主结果只使用固定 OpenAI CLIP ViT-L/14 预训练权重，并锁定目标样本 identity、目标内顺序和 seed；每种方法保留原生 source training、分类器或 prompt 构造、batch/views、在线状态与预测/适应顺序。每个数据集分别报告逐 target AUC 和阈值 0.5 的 Accuracy；每个 target 均报告三 seed 均值及标准差，Mean 对每个 seed 先计算 target-macro 后再报告跨 seed 均值及标准差。
 - TENT、EATA 和 T2A 只允许把公开实现中的 BN 参数参照最小映射到 CLIP visual LayerNorm affine；其余方法逻辑不得重写。CoTTA 保留作者 ImageNet 分支的全参数 student/teacher 更新，只将其像素空间增强桥接到 CLIP 输入归一化。EATA 必须包含匹配公共源域 CLIP detector 的 Fisher。RoTTA-LN 显式以 visual LayerNorm affine 替代 RobustBN，但保留 CSTU、teacher/student EMA、熵目标和在线更新频率；由于没有 RobustBN 统计插值，它只能按迁移版本名称披露。
 - CLIP-native 方法只共享类别语义，不共享人为固定的一句最终 prompt。Frozen CLIP 只保留为补充零样本语义诊断，不进入正文表格；IAPL 与 Ours 使用各自原生源训练并单独披露 source setup；TTC 在作者公开实现可固定前仅保留在 related work，不进入定量表。
 - CNN Controlled CTTA 方法共享 backbone、源 checkpoint、输入顺序、batch size 和 Predict-Then-Adapt 协议；既有数值表原样保留为补充材料，不得被新 CLIP 空表覆盖或删除。
