@@ -117,45 +117,41 @@ AIGI_DET_CALIB_ALL_METRICS = (
 class TableRow(NamedTuple):
     method: str
     label: str
-    rank_group: str | None
     available: bool = True
 
-
-RANK_GROUPS = ("baselines", "ours")
 
 TABLE_SECTIONS = (
     (
         "baselines",
         (
-            TableRow("source_ft", "Source", "baselines"),
+            TableRow("source_ft", "Source"),
             TableRow(
                 AIGI_DET_CALIB_METHOD,
                 "AIGI-Det-Calib$^{\\S}$",
-                "baselines",
             ),
-            TableRow("tent", "Tent$^{\\dagger}$", "baselines"),
-            TableRow("eata", "EATA$^{\\dagger}$", "baselines"),
-            TableRow("sar", "SAR", "baselines"),
-            TableRow("cotta", "CoTTA", "baselines"),
-            TableRow("rotta", "RoTTA-LN$^{\\ddagger}$", "baselines"),
-            TableRow("lame", "LAME", "baselines"),
-            TableRow("t2a", "T$^2$A$^{\\dagger}$", "baselines"),
+            TableRow("tent", "Tent$^{\\dagger}$"),
+            TableRow("eata", "EATA$^{\\dagger}$"),
+            TableRow("sar", "SAR"),
+            TableRow("cotta", "CoTTA"),
+            TableRow("rotta", "RoTTA-LN$^{\\ddagger}$"),
+            TableRow("lame", "LAME"),
+            TableRow("t2a", "T$^2$A$^{\\dagger}$"),
             # The frozen zero-shot prompt probe remains in validated summaries
             # as a supplementary diagnostic. It has neither task-specific
             # detector training nor a test-time adaptation mechanism, so it is
             # intentionally excluded from the main paper tables.
-            TableRow("tda", "TDA", "baselines"),
-            TableRow("dynaprompt", "DynaPrompt", "baselines"),
-            TableRow("cliptta", "CLIPTTA", "baselines"),
-            TableRow("batclip", "BATCLIP", "baselines"),
-            TableRow("iapl", "IAPL", "baselines"),
+            TableRow("tda", "TDA"),
+            TableRow("dynaprompt", "DynaPrompt"),
+            TableRow("cliptta", "CLIPTTA"),
+            TableRow("batclip", "BATCLIP"),
+            TableRow("iapl", "IAPL"),
         ),
     ),
     (
         "ours",
         (
-            TableRow("ours_static", "Ours-Static", "ours"),
-            TableRow("ours", "Ours", "ours"),
+            TableRow("ours_static", "Ours-Static"),
+            TableRow("ours", "Ours"),
         ),
     ),
 )
@@ -906,56 +902,96 @@ def _target_value(
     return value if isinstance(value, dict) else None
 
 
-def _best_methods(
-    summary: Mapping[str, Any] | None, dataset: str, rank_group: str
-) -> set[str]:
+def _top_two_methods(
+    candidates: list[tuple[str, float]],
+) -> tuple[set[str], set[str]]:
+    """Return best and second-best methods at the table's displayed precision."""
+
+    displayed = [
+        (method, float(f"{100.0 * value:.2f}")) for method, value in candidates
+    ]
+    ranks = sorted({value for _method, value in displayed}, reverse=True)
+    if not ranks:
+        return set(), set()
+    best = {method for method, value in displayed if value == ranks[0]}
+    second = (
+        {method for method, value in displayed if value == ranks[1]}
+        if len(ranks) > 1
+        else set()
+    )
+    return best, second
+
+
+def _ranked_methods(
+    summary: Mapping[str, Any] | None,
+    dataset: str | None,
+    metric: str = "auc",
+) -> tuple[set[str], set[str]]:
     if summary is None:
-        return set()
+        return set(), set()
     candidates = []
     for row in TABLE_ROWS:
-        if not row.available or row.rank_group != rank_group:
+        if not row.available:
             continue
-        value = _method_value(summary, row.method, dataset)
+        if dataset is None:
+            values = [
+                _method_value(summary, row.method, current_dataset, metric)
+                for current_dataset in DATASET_ORDER
+            ]
+            value = (
+                fmean(float(item["mean"]) for item in values if item is not None)
+                if all(item is not None for item in values)
+                else None
+            )
+        else:
+            result = _method_value(summary, row.method, dataset, metric)
+            value = None if result is None else float(result["mean"])
         if value is not None:
-            candidates.append((row.method, float(value["mean"])))
-    if not candidates:
-        return set()
-    best = max(value for _method, value in candidates)
-    return {method for method, value in candidates if math.isclose(value, best)}
+            candidates.append((row.method, value))
+    return _top_two_methods(candidates)
 
 
 def _format_mean_std_percentage(
-    value: Mapping[str, float] | None, *, bold: bool = False
+    value: Mapping[str, float] | None,
+    *,
+    bold: bool = False,
+    underline: bool = False,
 ) -> str:
     if value is None:
         return "--"
     mean = float(value["mean"])
     std = float(value["std"])
     rendered = f"{100.0 * mean:.2f} $\\pm$ {100.0 * std:.2f}"
-    return f"\\textbf{{{rendered}}}" if bold else rendered
+    if bold:
+        return f"\\textbf{{{rendered}}}"
+    return f"\\underline{{{rendered}}}" if underline else rendered
 
 
 def _format_target_metric(
-    value: Mapping[str, float] | None, *, bold: bool = False
+    value: Mapping[str, float] | None,
+    *,
+    bold: bool = False,
+    underline: bool = False,
 ) -> str:
     if value is None:
         return "--"
     rendered = f"{100.0 * float(value['mean']):.2f}"
-    return f"\\textbf{{{rendered}}}" if bold else rendered
+    if bold:
+        return f"\\textbf{{{rendered}}}"
+    return f"\\underline{{{rendered}}}" if underline else rendered
 
 
-def _best_detailed_methods(
+def _ranked_detailed_methods(
     summary: Mapping[str, Any] | None,
     dataset: str,
     metric: str,
-    rank_group: str,
     target: str | None,
-) -> set[str]:
+) -> tuple[set[str], set[str]]:
     if summary is None:
-        return set()
+        return set(), set()
     candidates = []
     for row in TABLE_ROWS:
-        if not row.available or row.rank_group != rank_group:
+        if not row.available:
             continue
         value = (
             _method_value(summary, row.method, dataset, metric)
@@ -964,10 +1000,7 @@ def _best_detailed_methods(
         )
         if value is not None:
             candidates.append((row.method, float(value["mean"])))
-    if not candidates:
-        return set()
-    best = max(value for _method, value in candidates)
-    return {method for method, value in candidates if math.isclose(value, best)}
+    return _top_two_methods(candidates)
 
 
 def detailed_table_filename(dataset: str, metric: str) -> str:
@@ -1004,11 +1037,8 @@ def render_dataset_table(
         if summary is None
         else ""
     )
-    best_by_group_column = {
-        (rank_group, target): _best_detailed_methods(
-            summary, dataset, metric, rank_group, target
-        )
-        for rank_group in RANK_GROUPS
+    ranks_by_column = {
+        target: _ranked_detailed_methods(summary, dataset, metric, target)
         for target in (None, *(target for target, _label in targets))
     }
     latex_newline = r"\\"
@@ -1050,24 +1080,20 @@ def render_dataset_table(
                     value = _target_value(
                         summary, row.method, dataset, target, metric
                     )
+                    best_methods, second_methods = ranks_by_column[target]
                     rendered_targets.append(
                         _format_target_metric(
                             value,
-                            bold=(
-                                row.rank_group is not None
-                                and row.method
-                                in best_by_group_column[(row.rank_group, target)]
-                            ),
+                            bold=row.method in best_methods,
+                            underline=row.method in second_methods,
                         )
                     )
                 mean_value = _method_value(summary, row.method, dataset, metric)
+                best_methods, second_methods = ranks_by_column[None]
                 rendered_mean = _format_mean_std_percentage(
                     mean_value,
-                    bold=(
-                        row.rank_group is not None
-                        and row.method
-                        in best_by_group_column[(row.rank_group, None)]
-                    ),
+                    bold=row.method in best_methods,
+                    underline=row.method in second_methods,
                 )
             lines.append(
                 " & ".join([row.label, *rendered_targets, rendered_mean])
@@ -1081,8 +1107,10 @@ def render_dataset_table(
             "}",
             "\\vspace{2pt}",
             "\\parbox{\\textwidth}{\\footnotesize The single rule separates "
-            "prior methods from our paired static and adaptive models. Bold "
-            "marks the best result on each side of the rule. "
+            "prior methods from our paired static and adaptive models. Across "
+            "all rows, bold and underline mark the best and second-best result "
+            "in each column, respectively; ties at reported precision share a "
+            "rank. "
             "$^{\\dagger}$BN-to-LN parameter mapping; $^{\\ddagger}$RoTTA-LN "
             "ViT transfer; $^{\\S}$strictly causal AIGI-Det-Calib. Full source "
             "setups and transfer details appear in "
@@ -1097,11 +1125,10 @@ def render_dataset_table(
 def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
     """Render the optional four-dataset AUC overview table."""
 
-    best_by_group_dataset = {
-        (rank_group, dataset): _best_methods(summary, dataset, rank_group)
-        for rank_group in RANK_GROUPS
-        for dataset in DATASET_ORDER
+    ranks_by_column = {
+        dataset: _ranked_methods(summary, dataset) for dataset in DATASET_ORDER
     }
+    ranks_by_column[None] = _ranked_methods(summary, None)
     latex_newline = r"\\"
     lines = [
         "\\begin{table*}[t]",
@@ -1135,11 +1162,8 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
                 rendered = [
                     _format_mean_std_percentage(
                         value,
-                        bold=(
-                            row.rank_group is not None
-                            and row.method
-                            in best_by_group_dataset[(row.rank_group, dataset)]
-                        ),
+                        bold=row.method in ranks_by_column[dataset][0],
+                        underline=row.method in ranks_by_column[dataset][1],
                     )
                     for dataset, value in zip(DATASET_ORDER, values, strict=True)
                 ]
@@ -1147,7 +1171,11 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
                     dataset_mean = fmean(
                         float(value["mean"]) for value in values if value
                     )
-                    mean_cell = f"{100.0 * dataset_mean:.2f}"
+                    mean_cell = _format_target_metric(
+                        {"mean": dataset_mean},
+                        bold=row.method in ranks_by_column[None][0],
+                        underline=row.method in ranks_by_column[None][1],
+                    )
                 else:
                     mean_cell = "--"
             lines.append(
@@ -1162,8 +1190,10 @@ def render_latex_table(summary: Mapping[str, Any] | None = None) -> str:
             "\\vspace{2pt}",
             "\\parbox{\\textwidth}{\\footnotesize "
             "The single rule separates prior methods from our paired static and "
-            "adaptive models. Bold marks the best result on each side of the "
-            "rule. $^{\\dagger}$BN-to-LN parameter mapping; "
+            "adaptive models. Across all rows, bold and underline mark the best "
+            "and second-best result in each column, respectively; ties at "
+            "reported precision share a rank. $^{\\dagger}$BN-to-LN parameter "
+            "mapping; "
             "$^{\\ddagger}$RoTTA-LN ViT transfer; $^{\\S}$strictly causal "
             "AIGI-Det-Calib. Full source setups and transfer details appear in "
             "Section~\\ref{sec:experiments}.}",

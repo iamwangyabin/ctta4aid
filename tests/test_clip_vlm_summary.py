@@ -60,7 +60,11 @@ class ClipVlmSummaryTests(unittest.TestCase):
             self.assertNotIn("Source-trained CLIP detector", table)
             self.assertNotIn("CLIP-native", table)
             self.assertNotIn("\\textbf{71.30 $\\pm$ 1.00}", table)
+            self.assertIn("\\underline{76.30 $\\pm$ 1.00}", table)
             self.assertIn("\\textbf{81.30 $\\pm$ 1.00}", table)
+            self.assertIn(
+                "bold and underline mark the best and second-best result", table
+            )
             self.assertEqual(table.count("\\midrule"), 2)
             self.assertNotIn("Frozen CLIP", table)
             self.assertIn(
@@ -79,6 +83,7 @@ class ClipVlmSummaryTests(unittest.TestCase):
             self.assertIn("Source & 61.00 & 61.10", auc_table)
             self.assertIn("61.30 $\\pm$ 1.00", auc_table)
             self.assertNotIn("\\textbf{71.00}", auc_table)
+            self.assertIn("\\underline{76.00}", auc_table)
             self.assertIn("\\textbf{81.00}", auc_table)
             self.assertEqual(auc_table.count("\\midrule"), 2)
             _header, baseline_rows, ours_rows = auc_table.split("\\midrule")
@@ -146,6 +151,15 @@ class ClipVlmSummaryTests(unittest.TestCase):
             self.assertNotIn("a real photograph", table)
             self.assertNotIn("N/A", table)
             self.assertNotIn("\\textbf", table)
+            self.assertNotIn("\\underline", table)
+
+    def test_table_ranking_uses_reported_precision_and_distinct_ranks(self) -> None:
+        best, second = SUMMARY_SCRIPT._top_two_methods(
+            [("best_a", 0.80001), ("best_b", 0.79999), ("second", 0.75)]
+        )
+
+        self.assertEqual(best, {"best_a", "best_b"})
+        self.assertEqual(second, {"second"})
 
     def test_rejects_target_order_that_differs_from_dataset_protocol(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

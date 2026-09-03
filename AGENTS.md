@@ -76,7 +76,7 @@ src/
 - RoTTA 在纯 ViT-L/14 主实验中使用经用户明确批准的 `RoTTA-LN` 迁移：只将 RobustBN 的可适应归一化参数替换为 CLIP visual LayerNorm affine 参数，保留 CSTU memory、teacher/student、EMA、entropy objective、optimizer、64-instance 更新频率和在线顺序。RobustBN 的源/目标统计插值没有 LayerNorm 等价物，因此明确缺失；FP32 ViT-L/14 student/teacher 在 24 GB GPU 上固定 stream batch 与 update microbatch size 2，但完整 64-sample weighted-mean loss 仍只执行一次 optimizer step 和 EMA update。表格、配置和 metadata 必须披露这些差异并标为 `RoTTA-LN`，不得冒充原版 RobustBN RoTTA。
 - EATA 必须有与公共源域 CLIP detector 匹配的 source Fisher 才可标为 EATA；没有 Fisher 的运行只能标为 ETA 消融。
 - TTC 在作者公开实现可固定前只保留在 related work，不得出现在定量表中，也不得用项目自写实现生成复现数值。
-- 正文表格按一段连续的外部基线加一条横线后的 `Ours-Static`/`Ours` 排列，不显示 source-setup 分组标题，也不在外部方法之间增加分隔。source setup 的差异必须在实验设置、metadata 和附录中完整披露。每列加粗分别选取横线上方最佳外部基线与横线下方较优的 Ours 配对版本；这种展示不得被解释为所有外部方法共享 source state，严格适应增益仍只能从共享起点的配对比较得出。
+- 正文表格按一段连续的外部基线加一条横线后的 `Ours-Static`/`Ours` 排列，不显示 source-setup 分组标题，也不在外部方法之间增加分隔。source setup 的差异必须在实验设置、metadata 和附录中完整披露。每列在全部正文行中按报告到小数点后两位的数值排序，最佳结果加粗、次佳的不同数值加下划线，同一报告精度下的并列结果共享相同标记；这种展示不得被解释为所有方法共享 source state，严格适应增益仍只能从共享起点的配对比较得出。
 - 四个数据集必须分别生成逐 target 的 AUC 表和 Accuracy 表，不能只报告数据集级平均值。target 列及顺序固定为现有数据配置；Accuracy 使用阈值 0.5。每个 target 单元格报告三个正式 seed 的均值，Mean 报告 target-macro 均值及跨 seed 标准差。
 - 新 CLIP ViT-L/14 表格在完整三 seed campaign 验收前不得出现任何实验数值。既有 ResNet-50 数值表必须原样保留在论文补充材料中，并明确标为上一轮 CNN controlled results，不得与新 CLIP 结果混写。
 - 每个 `method x target x seed` 必须重新构建方法；单目标结果使用已确认的 online manifest 锁定样本身份，批大小变化不得改变样本顺序。

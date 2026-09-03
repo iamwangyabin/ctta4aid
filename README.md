@@ -83,8 +83,9 @@ AIGI-Det-Calib baseline 后的 17-method 完整验收版本保存在
 | Method-specific source training | 固定 ViT-L/14 初始化后，按方法自己的源训练流程得到的 checkpoint | IAPL、Ours | source state 不同，跨方法数值只作描述性比较 |
 
 正文表将 Source 至 IAPL 连续列为外部基线，只在 `Ours-Static` 前保留一条横线，随后列出
-`Ours-Static` 与 `Ours`。每列加粗分别表示横线上方最佳外部基线和横线下方较优的我们的
-配对版本；严格的适应增益仍只从相同 source state 的配对结果推断。
+`Ours-Static` 与 `Ours`。每列在全部方法中将最佳结果加粗、次佳的不同结果加下划线；按
+表中报告到小数点后两位的数值确定名次，同精度并列时共享标记。该排名只用于描述结果，
+严格的适应增益仍只从相同 source state 的配对结果推断。
 
 `frozen_clip` 仍保留配置、实现和完整结果，用固定 real/fake 文本原型衡量预训练
 CLIP 中偶然存在的零样本语义信号。它没有任务检测器训练，也没有测试时适应机制，且其
