@@ -442,6 +442,40 @@ ViT-L/14 初始化的 rank-4 LoRA 二分类 source checkpoint 出发；部署时
 验证，正文汇总器只接受 `seed0/seed2/seed3`。论文正文统一写作 **Ours**，消融表写作
 **Ours w/o calibrated readout**；R37/R47 只作为内部追踪编号，不作为两个方法名。
 
+### Target class-prior sensitivity
+
+正文单目标 manifest 固定为每个 target 750 张 real 与 750 张 fake；这定义的是受控、平衡
+的在线评估流，不表示原始测试集或实际部署流天然满足 1:1。Ours 的 GMM 伪监督采用
+equal-prior posterior，Gaussian replay 与 R47 截距重拟合也采用平衡的两类伪特征，因而
+必须在独立补充实验中检查 target class-prior shift。该敏感性实验不修改正文协议、方法或
+阈值，也不得回填现有 `matched_jpeg` 主结果。
+
+固定每个 target 共 800 张图片，fake prevalence 使用 0.10、0.25、0.50、0.75 和 0.90，
+对应 real/fake 数分别为 720/80、600/200、400/400、200/600 和 80/720。各比例从对应
+正式 seed 的既有 750/750 online manifest 中按类别和逻辑路径 hash 选择嵌套子集，再按
+原 manifest 相对顺序交付；类别只用于离线构建 evaluator manifest，不提供给方法。正式
+seed 仍为 0、2、3，比较 `ours_static`、`ours_no_calibrated_readout` 与 `ours`，保持
+`matched_jpeg`、checkpoint、batch size 16 和 Accuracy 阈值 0.5 不变。结果主要报告
+AUC、Balanced Accuracy、real accuracy、fake accuracy、ECE、Brier score 和 NLL；普通
+Accuracy 仅作随 prevalence 变化的补充指标。
+
+例如，从已有 GenImage seed-0 manifest 生成 10% fake 的锁定流：
+
+```bash
+python scripts/build_prior_shift_manifests.py \
+  --input-manifest results/controlled_ctta_genimage_20260812/genimage_continual/per_seed/seed0_online_manifest.csv \
+  --output-manifest /tmp/ctta4aid/prior-shift/genimage_seed0_fake10.csv \
+  --fake-ratio 0.10 \
+  --samples-per-domain 800 \
+  --batch-size 16 \
+  --seed 0
+```
+
+运行配置必须继承对应的
+`configs/experiments/clip_vlm_bias_controlled/matched_jpeg_ours_<dataset>_seed<seed>.yaml`，
+只把方法集合扩展为上述三个配对状态并替换 `locked_online_manifest` 与独立的
+`clip_vlm_bias_controlled/matched_jpeg/prior_shift/` 输出目录。
+
 一次性训练并标定 source checkpoint：
 
 ```bash
