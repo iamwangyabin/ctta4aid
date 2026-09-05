@@ -1,0 +1,31 @@
+{
+  "format": "clip_vlm_prior_shift_source_models_v1",
+  "run_code_commit": "ff0b5255eb036d93aeab31c1ac1d7d9a0c59be55",
+  "formal_seeds": [
+    0,
+    2,
+    3
+  ],
+  "profile": "matched_jpeg",
+  "profile_spec_sha256": "2e8d51e705134ba6dd1245af72f36b30c1635d1d00c39f925357698352f796bf",
+  "pretrained_model": {
+    "name": "OpenAI CLIP ViT-L/14",
+    "sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836"
+  },
+  "ours_source_setup": {
+    "methods": [
+      "ours_static",
+      "ours"
+    ],
+    "checkpoint_sha256": "f7a351a0649b48ecb91d1121d724bf4640bde27dc4586d9c2c0d138cbf72d03f",
+    "initialization_checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+    "training_config": "configs/train/genimage_sd14_clip_vitl14_lora_ours.yaml",
+    "source_domain": "GenImage Stable Diffusion v1.4",
+    "lora_rank": 4,
+    "final_readout": {
+      "feature_residual_scale": 0.75,
+      "selection_seed": 1,
+      "intercept_refit": "optimizer-free one-dimensional bisection on the same balanced replay"
+    }
+  }
+}

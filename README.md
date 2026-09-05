@@ -456,8 +456,14 @@ equal-prior posterior，Gaussian replay 与 R47 截距重拟合也采用平衡�
 原 manifest 相对顺序交付；类别只用于离线构建 evaluator manifest，不提供给方法。正式
 seed 仍为 0、2、3，比较 `ours_static`、`ours_no_calibrated_readout` 与 `ours`，保持
 `matched_jpeg`、checkpoint、batch size 16 和 Accuracy 阈值 0.5 不变。结果主要报告
-AUC、Balanced Accuracy、real accuracy、fake accuracy、ECE、Brier score 和 NLL；普通
-Accuracy 仅作随 prevalence 变化的补充指标。
+AUC、Balanced Accuracy、real accuracy、fake accuracy、fake-class F1、Macro-F1、ECE、
+Brier score 和 NLL；普通 Accuracy 仅作随 prevalence 变化的补充指标。
+
+截至 2026-09-05，已验收并归档的配对结果位于
+`results/clip_vlm_bias_controlled_matched_jpeg_prior_shift_20260905/`，覆盖四个数据集、五种
+fake prevalence、正式 seed `0/2/3` 下的 `ours_static` 与最终 `ours`。该结果完整覆盖冻结源
+对照与 Ours 的配对敏感性分析，但尚未运行 `ours_no_calibrated_readout`，因此不把它描述为
+上述三方法范围的完整结果。
 
 例如，从已有 GenImage seed-0 manifest 生成 10% fake 的锁定流：
 

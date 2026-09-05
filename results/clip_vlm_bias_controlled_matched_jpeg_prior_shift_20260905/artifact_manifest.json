@@ -1,0 +1,33 @@
+{
+  "format": "clip_vlm_prior_shift_artifact_manifest_v1",
+  "files": {
+    "README.md": {
+      "bytes": 4150,
+      "sha256": "d2d972fbdd087eb5e56d0eff623b26eabeca469383178b7de333c6201b15eaf0"
+    },
+    "audit_summary.json": {
+      "bytes": 1651,
+      "sha256": "55325bc235cf02922cf6e78e4a57cb40b0f006ebbfb5979b1ac68890fbe9945a"
+    },
+    "cross_seed_summary.json": {
+      "bytes": 154922,
+      "sha256": "33af1af4d1b7412eeb16a0f5308f0935f12a99aadf1052980e3f850b66c73ff4"
+    },
+    "per_seed_summary.json": {
+      "bytes": 102506,
+      "sha256": "c85aed1e875a2063402317eef33dc76d227e23ffb92451f85b39a3e910efa3ba"
+    },
+    "per_target_summary.json": {
+      "bytes": 1960957,
+      "sha256": "2e210180ba8cc585c0650d7603b1018ac00e5fbfccd08ceb10db93f26b90b14c"
+    },
+    "prior_shift_table.csv": {
+      "bytes": 16422,
+      "sha256": "a3df1f20666a730fef003feeca7c2014958d6c7cbdf6194199542bb639d657fc"
+    },
+    "source_models.json": {
+      "bytes": 1069,
+      "sha256": "40938c0ce918a98e396eafe059c5f1d7588858c78b24ee91cc28761dadb4ebe8"
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "format": "clip_vlm_prior_shift_acceptance_audit_v1",
+  "scope": "completed paired Ours versus frozen source control sensitivity slice",
+  "full_configured_three_method_scope_complete": false,
+  "not_run_in_this_release": [
+    "ours_no_calibrated_readout"
+  ],
+  "run_code_commit": "ff0b5255eb036d93aeab31c1ac1d7d9a0c59be55",
+  "source_campaigns": [
+    "prior_shift_ours_only_ff0b525",
+    "prior_shift_ours_static_ff0b525"
+  ],
+  "pulled_archive_sha256": "89a6e72d7ee5ce2b8becea670d0e905b0b500a8e739a1e38100ae4e925d0c712",
+  "summary_files": 120,
+  "effective_config_files": 120,
+  "experiment_identity_files": 120,
+  "method_target_seed_units": 1170,
+  "paired_target_seed_units": 585,
+  "samples_per_target": 800,
+  "method_sample_deliveries": 936000,
+  "unique_paired_stream_samples": 468000,
+  "campaign_plan_paired_manifest_hashes": 60,
+  "paired_sample_manifest_audit": {
+    "format": "prior_shift_paired_manifest_audit_v1",
+    "ours_manifests": 585,
+    "ours_static_manifests": 585,
+    "paired_manifests": 585,
+    "byte_identical_pairs": 585,
+    "rows_800_pairs": 585,
+    "unique_sample_id_pairs": 585,
+    "expected_class_count_pairs": 585,
+    "errors": []
+  },
+  "profile": "matched_jpeg",
+  "profile_spec_sha256": "2e8d51e705134ba6dd1245af72f36b30c1635d1d00c39f925357698352f796bf",
+  "formal_seeds": [
+    0,
+    2,
+    3
+  ],
+  "fake_ratios": {
+    "fake10": 0.1,
+    "fake25": 0.25,
+    "fake50": 0.5,
+    "fake75": 0.75,
+    "fake90": 0.9
+  },
+  "threshold": 0.5,
+  "batch_size": 16,
+  "target_labels_available_to_method": false,
+  "all_metrics_finite": true,
+  "all_confusion_counts_reconstructed": true,
+  "errors": []
+}
